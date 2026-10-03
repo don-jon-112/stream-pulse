@@ -1,0 +1,24 @@
+{
+  "name": "streamchat",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "compression": "^1.8.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4",
+    "tiktok-live-connector": "^2.5.0",
+    "tmi.js": "^1.8.5",
+    "youtube-chat": "^2.2.0"
+  }
+}
