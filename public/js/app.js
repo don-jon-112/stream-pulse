@@ -20,9 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDemoModal = document.getElementById('btnDemoModal');
   const btnObsMode = document.getElementById('btnObsMode');
   const exitObsBtn = document.getElementById('exitObsBtn');
-  const btnSoundToggle = document.getElementById('btnSoundToggle');
-  const btnTtsToggle = document.getElementById('btnTtsToggle');
-  const ttsLabel = document.getElementById('ttsLabel');
   const btnLiteMode = document.getElementById('btnLiteMode');
   const liteLabel = document.getElementById('liteLabel');
   const btnFullscreen = document.getElementById('btnFullscreen');
@@ -62,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Channel Inputs
   const inputTwitch = document.getElementById('inputTwitch');
+  const inputTwitchToken = document.getElementById('inputTwitchToken');
   const inputYouTube = document.getElementById('inputYouTube');
   const inputTikTok = document.getElementById('inputTikTok');
 
@@ -361,45 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyLiteMode(state.liteMode);
   }
 
-  // Sound & TTS toggle buttons
-  const updateSoundUI = () => {
-    if (window.streamAudio.soundEnabled) {
-      btnSoundToggle.classList.add('active');
-      soundLabel.textContent = 'Audio: ON';
-    } else {
-      btnSoundToggle.classList.remove('active');
-      soundLabel.textContent = 'Audio: OFF';
-    }
-  };
 
-  const updateTtsUI = () => {
-    if (window.streamAudio.ttsEnabled) {
-      btnTtsToggle.classList.add('active');
-      ttsLabel.textContent = 'TTS: ON';
-    } else {
-      btnTtsToggle.classList.remove('active');
-      ttsLabel.textContent = 'TTS: OFF';
-    }
-  };
-
-  btnSoundToggle.addEventListener('click', () => {
-    window.streamAudio.setSoundEnabled(!window.streamAudio.soundEnabled);
-    updateSoundUI();
-    if (window.streamAudio.soundEnabled) {
-      window.streamAudio.playGiftAlert();
-    }
-  });
-
-  btnTtsToggle.addEventListener('click', () => {
-    window.streamAudio.setTtsEnabled(!window.streamAudio.ttsEnabled);
-    updateTtsUI();
-    if (window.streamAudio.ttsEnabled) {
-      window.streamAudio.speak('Suara Text to Speech diaktifkan.');
-    }
-  });
-
-  updateSoundUI();
-  updateTtsUI();
 
   // ==========================================
   // SOCKET.IO EVENT LISTENERS
@@ -412,6 +372,9 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('initial_state', (initial) => {
     if (initial.channels) {
       inputTwitch.value = initial.channels.twitch || '';
+      if (inputTwitchToken) {
+        inputTwitchToken.value = initial.channels.twitchToken || localStorage.getItem('streampulse_twitch_token') || '';
+      }
       inputYouTube.value = initial.channels.youtube || '';
       inputTikTok.value = initial.channels.tiktok || '';
     }
@@ -436,14 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
     statTotalChats.textContent = state.totalChats;
 
     addChatMessage(chatItem);
-
-    if (!chatItem.isGift) {
-      window.streamAudio.playChatBlip();
-    }
-
-    if (window.streamAudio.ttsEnabled && !chatItem.isGift) {
-      window.streamAudio.speak(`${chatItem.author?.name || 'Penonton'}: ${chatItem.text}`);
-    }
   });
 
   socket.on('new_event', (eventItem) => {
@@ -452,9 +407,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isHighTier = 
       (eventItem.diamonds && eventItem.diamonds >= 1000) ||
-      (eventItem.detail && (eventItem.detail.includes('100.000') || eventItem.detail.includes('250.000') || eventItem.detail.includes('1000 Bits') || eventItem.detail.includes('Singa') || eventItem.detail.includes('Paus')));
+      (eventItem.detail && (
+        eventItem.detail.includes('100.000') ||
+        eventItem.detail.includes('250.000') ||
+        eventItem.detail.includes('1000 Bits') ||
+        eventItem.detail.includes('Singa') ||
+        eventItem.detail.includes('Paus') ||
+        eventItem.detail.includes('5 Gift')
+      ));
 
-    if (eventItem.eventType === 'gift' || eventItem.eventType === 'superchat' || eventItem.eventType === 'cheer') {
+    if (['gift', 'superchat', 'supersticker', 'jewels', 'cheer', 'gift_member', 'submysterygift', 'redeem'].includes(eventItem.eventType)) {
       state.totalGiftsCount++;
       statTotalGifts.textContent = state.totalGiftsCount;
 
@@ -465,24 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addEventMessageToChat(eventItem, isHighTier);
     addEventToRecorder(eventItem, true);
-
-    // Audio Alert by event type
-    if (eventItem.platform === 'tiktok' && eventItem.eventType === 'gift') {
-      window.streamAudio.playGiftAlert();
-    } else if (eventItem.platform === 'youtube' && eventItem.eventType === 'superchat') {
-      window.streamAudio.playSuperChatAlert();
-    } else if (eventItem.eventType === 'subscription' || eventItem.eventType === 'resub' || eventItem.eventType === 'subgift' || eventItem.eventType === 'cheer') {
-      window.streamAudio.playSubAlert();
-    } else {
-      window.streamAudio.playTone([600, 800], 'sine', 0.2, 0.08);
-    }
-
-    // TTS speech announcement
-    if (window.streamAudio.ttsEnabled) {
-      let ttsMsg = `${eventItem.title}. ${eventItem.author} ${eventItem.detail || ''}`;
-      if (eventItem.message) ttsMsg += `. Pesan: ${eventItem.message}`;
-      window.streamAudio.speak(ttsMsg);
-    }
   });
 
   socket.on('events_cleared', () => {
@@ -655,9 +599,21 @@ document.addEventListener('DOMContentLoaded', () => {
     item.dataset.isEvent = 'true';
 
     let extraClass = '';
-    if (evt.platform === 'youtube' && evt.eventType === 'superchat') extraClass = 'youtube-superchat';
-    else if (evt.platform === 'tiktok' && evt.eventType === 'gift') extraClass = 'tiktok-gift';
-    else if (evt.platform === 'twitch') extraClass = 'twitch-sub';
+    if (evt.platform === 'youtube') {
+      if (evt.eventType === 'superchat') extraClass = 'youtube-superchat';
+      else if (evt.eventType === 'supersticker') extraClass = 'youtube-supersticker';
+      else if (evt.eventType === 'member') extraClass = 'youtube-member';
+      else if (evt.eventType === 'gift_member') extraClass = 'youtube-gift-member';
+      else if (evt.eventType === 'jewels') extraClass = 'youtube-jewels';
+      else extraClass = 'youtube-superchat';
+    } else if (evt.platform === 'tiktok') {
+      if (evt.eventType === 'gift') extraClass = 'tiktok-gift';
+      else if (evt.eventType === 'subscribe') extraClass = 'tiktok-sub';
+      else extraClass = 'tiktok-gift';
+    } else if (evt.platform === 'twitch') {
+      if (evt.eventType === 'redeem') extraClass = 'twitch-redeem';
+      else extraClass = 'twitch-sub';
+    }
 
     if (isHighTier) {
       extraClass += ' tier-epic';
@@ -670,7 +626,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarImg = evt.avatar ? `<img src="${escapeHtml(evt.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">` : `<div class="chat-avatar" style="background: linear-gradient(135deg, #6366f1, #ec4899);">${initial}</div>`;
 
     const platBadge = getPlatformBadge(evt.platform);
-    const badgePill = evt.badge ? `<span class="badge-user" style="background: #3b82f6; font-weight:800;">${escapeHtml(evt.badge)}</span>` : '';
+    const badgePill = evt.badge ? `<span class="badge-user" style="background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(59, 130, 246, 0.5); font-weight:800;">${escapeHtml(evt.badge)}</span>` : '';
+
+    const stickerHtml = evt.stickerUrl ? `<div style="margin-top: 6px;"><img src="${escapeHtml(evt.stickerUrl)}" alt="Super Sticker" style="max-height: 70px; border-radius: 8px;"></div>` : '';
+    const iconHtml = evt.icon ? `<div style="margin-top: 4px;"><img src="${escapeHtml(evt.icon)}" alt="Gift Icon" style="max-height: 48px; border-radius: 6px;"></div>` : '';
 
     item.innerHTML = `
       ${avatarImg}
@@ -686,6 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <span>•</span>
           <span style="color:#ffffff;">${escapeHtml(evt.detail || '')}</span>
         </div>
+        ${stickerHtml}
+        ${iconHtml}
         ${evt.message ? `<div class="chat-text" style="margin-top: 5px; color: #fff; font-weight: 500;">"${escapeHtml(evt.message)}"</div>` : ''}
       </div>
     `;
@@ -720,19 +681,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (evt.platform === 'youtube') platName = 'YOUTUBE';
     else if (evt.platform === 'tiktok') platName = 'TIKTOK';
 
+    const stickerPreview = evt.stickerUrl ? `<div style="margin-top: 4px;"><img src="${escapeHtml(evt.stickerUrl)}" alt="Sticker" style="max-height: 42px; border-radius: 6px;"></div>` : '';
+
     recItem.innerHTML = `
       <div class="rec-top">
         <span class="rec-title"><strong>[${platName}]</strong> ${escapeHtml(evt.author || 'User')}</span>
         <span style="font-size:0.65rem; color:var(--text-tertiary); font-family:var(--font-mono);">${formatTime(evt.timestamp)}</span>
       </div>
       <div class="rec-detail">${escapeHtml(evt.detail || evt.title)}</div>
+      ${stickerPreview}
       ${evt.message ? `<div class="rec-msg">"${escapeHtml(evt.message)}"</div>` : ''}
     `;
 
     recorderList.insertBefore(recItem, recorderList.firstChild);
 
     // Batasi jumlah elemen riwayat di DOM agar RAM HP tidak penuh
-    if (recorderList.children.length > 30) {
+    if (recorderList.children.length > 50) {
       recorderList.removeChild(recorderList.lastChild);
     }
   }
@@ -835,10 +799,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnSaveChannels.addEventListener('click', () => {
     const twitch = inputTwitch.value.trim();
+    const twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
     const youtube = inputYouTube.value.trim();
     const tiktok = inputTikTok.value.trim();
 
-    socket.emit('update_channels', { twitch, youtube, tiktok });
+    if (twitchToken) {
+      localStorage.setItem('streampulse_twitch_token', twitchToken);
+    } else {
+      localStorage.removeItem('streampulse_twitch_token');
+    }
+
+    socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok });
     closeModal(setupModal);
   });
 
@@ -945,11 +916,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // PWA SERVICE WORKER
+  // BERSIHKAN CACHE & SERVICE WORKER LAMA
   // ==========================================
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.warn('[PWA] Service Worker reg warning:', err);
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+  if ('caches' in window) {
+    caches.keys().then((keys) => {
+      keys.forEach((key) => caches.delete(key));
     });
   }
 

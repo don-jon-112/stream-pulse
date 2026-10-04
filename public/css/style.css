@@ -417,26 +417,24 @@ body {
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
 }
 
-/* Audio EQ Mini Meter Animation inside Sound Button */
-.audio-eq-meter {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 12px;
-}
-.eq-bar {
-  width: 2px;
-  height: 100%;
-  background: #a5b4fc;
-  border-radius: 1px;
-}
-.btn-icon.active .eq-bar:nth-child(1) { animation: eq-bounce 0.6s infinite ease-in-out alternate; }
-.btn-icon.active .eq-bar:nth-child(2) { animation: eq-bounce 0.8s infinite ease-in-out alternate 0.2s; }
-.btn-icon.active .eq-bar:nth-child(3) { animation: eq-bounce 0.5s infinite ease-in-out alternate 0.4s; }
-
-@keyframes eq-bounce {
-  0% { height: 20%; }
-  100% { height: 100%; }
+/* Nonaktifkan dan sembunyikan semua elemen audio / sound secara permanen */
+#btnSoundToggle,
+.sound-control-group,
+#btnTtsToggle,
+.audio-eq-meter,
+.volume-slider-box,
+#volumeSlider,
+#volumePercent,
+#demoVolumeSlider,
+#demoVolumePercent {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* ==========================================================================
@@ -861,6 +859,42 @@ body {
   border-color: rgba(169, 112, 255, 0.5);
   border-left: 5px solid var(--twitch);
   box-shadow: 0 4px 24px rgba(169, 112, 255, 0.2);
+}
+
+.chat-item.event-item.twitch-redeem {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.25) 0%, rgba(6, 182, 212, 0.15) 100%);
+  border-color: rgba(147, 51, 234, 0.6);
+  border-left: 5px solid #a855f7;
+  box-shadow: 0 4px 24px rgba(168, 85, 247, 0.25);
+}
+
+.chat-item.event-item.youtube-supersticker {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(245, 158, 11, 0.18) 100%);
+  border-color: rgba(16, 185, 129, 0.5);
+  border-left: 5px solid #10b981;
+  box-shadow: 0 4px 24px rgba(16, 185, 129, 0.2);
+}
+
+.chat-item.event-item.youtube-member,
+.chat-item.event-item.youtube-gift-member {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(13, 17, 27, 0.9) 100%);
+  border-color: rgba(16, 185, 129, 0.5);
+  border-left: 5px solid #10b981;
+  box-shadow: 0 4px 24px rgba(16, 185, 129, 0.2);
+}
+
+.chat-item.event-item.youtube-jewels {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.2) 100%);
+  border-color: rgba(6, 182, 212, 0.6);
+  border-left: 5px solid #06b6d4;
+  box-shadow: 0 4px 24px rgba(6, 182, 212, 0.25);
+}
+
+.chat-item.event-item.tiktok-sub {
+  background: linear-gradient(135deg, rgba(254, 44, 85, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+  border-color: rgba(254, 44, 85, 0.5);
+  border-left: 5px solid var(--tiktok-pink);
+  box-shadow: 0 4px 24px rgba(254, 44, 85, 0.2);
 }
 
 .event-highlight-text {

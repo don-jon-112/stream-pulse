@@ -6,6 +6,11 @@
   <title>StreamPulse MultiChat - Livestream Monitor Terpadu</title>
   <meta name="description" content="Dashboard pemantau livestream cerdas terpadu untuk Twitch, YouTube Live, dan TikTok LIVE dengan fitur Layar Selalu Aktif (Screen Wake Lock) di ponsel.">
   
+  <!-- Anti-Cache Meta Tags -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#06080d">
@@ -88,7 +93,7 @@
         </button>
 
         <!-- Test Demo Event -->
-        <button id="btnDemoModal" class="btn-icon" title="Uji Coba Tampilan & Suara Event">
+        <button id="btnDemoModal" class="btn-icon" title="Uji Coba Aliran Chat & Event">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
             <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
           </svg>
@@ -103,26 +108,7 @@
           <span>OBS Mode</span>
         </button>
 
-        <!-- Sound Toggle with Visual EQ Meter -->
-        <button id="btnSoundToggle" class="btn-icon" title="Toggle Efek Suara Hadiah & Chat">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-          </svg>
-          <div class="audio-eq-meter">
-            <span class="eq-bar"></span>
-            <span class="eq-bar"></span>
-            <span class="eq-bar"></span>
-          </div>
-          <span id="soundLabel">Audio: ON</span>
-        </button>
 
-        <!-- TTS Speech Toggle -->
-        <button id="btnTtsToggle" class="btn-icon" title="Toggle Pembaca Chat Otomatis (Text to Speech)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6 9h-4v2h4v-2zm3-3H7V6h10v2z"/>
-          </svg>
-          <span id="ttsLabel">TTS: OFF</span>
-        </button>
 
         <!-- Lite Mode Toggle (Ultra Ringan & Hemat Daya) -->
         <button id="btnLiteMode" class="btn-icon" title="Mode Super Ringan: Matikan blur & efek berat agar HP dingin & hemat baterai">
@@ -320,6 +306,30 @@
             <span class="input-icon" style="color: var(--twitch);">#</span>
             <input type="text" id="inputTwitch" placeholder="Masukkan username Twitch..." autocomplete="off">
           </div>
+          <div style="margin-top: 6px; font-size: 0.72rem; color: #cbd5e1; line-height: 1.4; background: rgba(145, 70, 255, 0.08); border: 1px solid rgba(145, 70, 255, 0.2); border-radius: var(--radius-sm); padding: 8px 10px;">
+            <div style="font-weight: 700; color: #c084fc; margin-bottom: 2px;">💠 Tips Deteksi Channel Points Redeem:</div>
+            Secara bawaan Twitch IRC hanya menyiarkan redeem yang disertai pesan. Agar reward Anda (seperti <em>Minum Air, Sound Alert, dll.</em>) terdeteksi otomatis, aktifkan opsi <strong>"Require viewer to enter text" (Wajibkan penonton memasukkan teks)</strong> di Twitch Dashboard saat membuat reward.
+          </div>
+
+          <!-- Opsional: Twitch OAuth Token untuk EventSub (deteksi semua reward termasuk tanpa teks) -->
+          <details style="margin-top: 6px; font-size: 0.72rem; color: #94a3b8; background: rgba(0,0,0,0.25); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: var(--radius-sm); padding: 8px 10px;">
+            <summary style="cursor: pointer; color: #c084fc; font-weight: 700; padding: 2px 0;">⚙️ Opsi Lanjutan: Twitch OAuth Token (Deteksi Redeem Tanpa Teks)</summary>
+            <div style="margin-top: 8px; line-height: 1.5; color: #cbd5e1;">
+              <p style="margin-bottom: 6px;">
+                Token ini dipakai untuk menyambungkan <strong>Twitch EventSub WebSocket resmi</strong> agar StreamPulse bisa mendeteksi 100% redeem (termasuk reward instan seperti <em>Minum Air / Sound Alert</em> tanpa ketik teks).
+              </p>
+              <div style="background: rgba(145, 70, 255, 0.12); padding: 8px 10px; border-radius: var(--radius-sm); margin-bottom: 8px; border-left: 3px solid #a855f7;">
+                <strong>Cara Mudah Mendapatkan Token (Gratis & 1 Menit):</strong><br>
+                1. Buka situs terpercaya: <a href="https://twitchtokengenerator.com" target="_blank" rel="noopener noreferrer" style="color: #67e8f9; text-decoration: underline; font-weight: 600;">twitchtokengenerator.com</a><br>
+                2. Pilih <strong>Custom Scope Token</strong>.<br>
+                3. Centang permission: <code style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #fde047;">channel:read:redemptions</code><br>
+                4. Klik tombol <strong>Generate Token!</strong> & login dengan akun Twitch streamer Anda.<br>
+                5. Salin teks <strong>ACCESS TOKEN</strong> yang muncul (contoh: <code>u8xk3m9...</code> atau <code>oauth:u8xk...</code>) lalu tempel di bawah:
+              </div>
+              <input type="password" id="inputTwitchToken" placeholder="oauth:xxxx atau token Twitch..." autocomplete="off" style="width: 100%; padding: 8px 12px; font-size: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font-mono);">
+              <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">🔒 <em>Aman: Token hanya disimpan lokal di browser Anda dan langsung dikirim ke WebSocket resmi Twitch.</em></span>
+            </div>
+          </details>
         </div>
 
         <!-- YouTube Channel / Live URL -->
@@ -370,11 +380,9 @@
           <span>Simulasi & Uji Coba Event</span>
         </div>
         <button id="closeDemoModal" class="modal-close" aria-label="Tutup Modal">&times;</button>
-      </div>
-
       <div class="modal-body">
         <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">
-          Uji coba aliran pesan, efek suara sintetis, Text-to-Speech, dan partikel animasi:
+          Uji coba aliran pesan live chat, notifikasi event, dan partikel animasi:
         </p>
 
         <!-- Twitch Tests -->
@@ -385,10 +393,16 @@
               💬 <span>Test Chat</span>
             </button>
             <button class="demo-btn twitch" data-plat="twitch" data-type="sub">
-              ⭐ <span>Test Tier 1 Sub</span>
+              ⭐ <span>Tier 1 Sub</span>
             </button>
             <button class="demo-btn twitch" data-plat="twitch" data-type="bits">
-              💎 <span>Test 500 Bits</span>
+              💎 <span>500 Bits</span>
+            </button>
+            <button class="demo-btn twitch" data-plat="twitch" data-type="redeem">
+              💠 <span>Channel Points Redeem</span>
+            </button>
+            <button class="demo-btn twitch" data-plat="twitch" data-type="submysterygift">
+              🎁 <span>5 Gift Subs</span>
             </button>
           </div>
         </div>
@@ -403,8 +417,17 @@
             <button class="demo-btn youtube" data-plat="youtube" data-type="superchat">
               💰 <span>Super Chat Rp50rb</span>
             </button>
-            <button class="demo-btn youtube" data-plat="youtube" data-type="superchat">
-              🔥 <span>Super Chat Rp250rb</span>
+            <button class="demo-btn youtube" data-plat="youtube" data-type="supersticker">
+              ⭐ <span>Super Sticker</span>
+            </button>
+            <button class="demo-btn youtube" data-plat="youtube" data-type="member">
+              🌟 <span>New Member</span>
+            </button>
+            <button class="demo-btn youtube" data-plat="youtube" data-type="gift_member">
+              🎁 <span>Gift 5 Memberships</span>
+            </button>
+            <button class="demo-btn youtube" data-plat="youtube" data-type="jewels">
+              💎 <span>200 Jewels Gift</span>
             </button>
           </div>
         </div>
@@ -422,6 +445,12 @@
             <button class="demo-btn tiktok" data-plat="tiktok" data-type="gift">
               🦁 <span>Singa / Paus 💎</span>
             </button>
+            <button class="demo-btn tiktok" data-plat="tiktok" data-type="subscribe">
+              ⭐ <span>TikTok LIVE Sub</span>
+            </button>
+            <button class="demo-btn tiktok" data-plat="tiktok" data-type="like">
+              ❤️ <span>Tap 50 Likes</span>
+            </button>
           </div>
         </div>
 
@@ -435,8 +464,7 @@
 
   <!-- Socket.io & App Scripts -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/wakelock.js"></script>
-  <script src="/js/audio.js"></script>
-  <script src="/js/app.js"></script>
+  <script src="/js/wakelock.js?v=fresh_4"></script>
+  <script src="/js/app.js?v=fresh_4"></script>
 </body>
 </html>

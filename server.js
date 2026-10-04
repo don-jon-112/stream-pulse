@@ -25,9 +25,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(compression());
 app.use(express.json());
+
+// Cegah cache browser agar script terbaru selalu langsung aktif
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: '1h',
-  etag: true
+  maxAge: 0,
+  etag: false
 }));
 
 // Initialize Stream Manager
@@ -40,13 +49,20 @@ io.on('connection', (socket) => {
 
   // Update channels yang dipantau
   socket.on('update_channels', async (data) => {
-    const { twitch, youtube, tiktok } = data || {};
+    const { twitch, twitchToken, youtube, tiktok } = data || {};
 
-    if (twitch !== undefined && twitch !== streamManager.activeChannels.twitch) {
-      if (twitch) {
-        streamManager.connectTwitch(twitch);
-      } else {
-        streamManager.disconnectTwitch();
+    if (twitch !== undefined) {
+      const cleanTwitch = (twitch || '').trim();
+      const cleanToken = (twitchToken || '').trim();
+      const isTwitchChanged = cleanTwitch !== streamManager.activeChannels.twitch;
+      const isTokenChanged = cleanToken !== (streamManager.activeChannels.twitchToken || '');
+
+      if (isTwitchChanged || isTokenChanged) {
+        if (cleanTwitch) {
+          streamManager.connectTwitch(cleanTwitch, cleanToken);
+        } else {
+          streamManager.disconnectTwitch();
+        }
       }
     }
 
@@ -105,21 +121,28 @@ app.get('/api/events', (req, res) => {
 });
 
 app.post('/api/channels', async (req, res) => {
-  const { twitch, youtube, tiktok } = req.body || {};
-  if (twitch !== undefined) await streamManager.connectTwitch(twitch);
+  const { twitch, twitchToken, youtube, tiktok } = req.body || {};
+  if (twitch !== undefined) await streamManager.connectTwitch(twitch, twitchToken);
   if (youtube !== undefined) await streamManager.connectYouTube(youtube);
   if (tiktok !== undefined) await streamManager.connectTikTok(tiktok);
   res.json({ success: true, state: streamManager.getInitialState() });
 });
 
 // Start Server & display local IP for mobile access
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`\n[Server] Port ${PORT} sudah aktif. Menggunakan server yang sedang berjalan.`);
+  } else {
+    console.error('[Server] Server error:', err);
+  }
+});
+
 server.listen(PORT, '0.0.0.0', () => {
   const networkInterfaces = os.networkInterfaces();
   const localIps = [];
 
   for (const name of Object.keys(networkInterfaces)) {
     for (const net of networkInterfaces[name]) {
-      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
       if (net.family === 'IPv4' && !net.internal) {
         localIps.push(net.address);
       }
@@ -137,3 +160,4 @@ server.listen(PORT, '0.0.0.0', () => {
   }
   console.log(`==================================================\n`);
 });
+

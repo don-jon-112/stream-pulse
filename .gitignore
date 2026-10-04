@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build artifacts (dist contains 200MB+ binaries)
+dist/
+
+# Logs and caches
+*.log
+npm-debug.log*
+.cache/
+
+# OS metadata
+Thumbs.db
+.DS_Store
