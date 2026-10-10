@@ -444,14 +444,20 @@
     </div>
 
     <div style="display:flex; align-items:center; gap:10px;">
+      <!-- Language Switcher (Flag ID / EN) -->
+      <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
+        <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
+        <span>ID</span>
+      </button>
+
       <a href="/features" target="_blank" class="btn-icon" title="Lihat Papan Kanban Publik">
-        <span>Lihat Kanban Publik ↗</span>
+        <span data-i18n="admin_nav_kanban">Lihat Kanban Publik ↗</span>
       </a>
       <a href="/studio" target="_blank" class="btn-icon" title="Buka Overlay Studio">
-        <span>Overlay Studio 🖥️</span>
+        <span data-i18n="admin_nav_studio">Overlay Studio 🖥️</span>
       </a>
       <button id="btnLogout" class="btn-icon" style="display:none;" title="Keluar dari Panel Admin">
-        <span>Keluar 🚪</span>
+        <span data-i18n="admin_btn_logout">Keluar 🚪</span>
       </button>
     </div>
   </header>
@@ -460,18 +466,18 @@
   <div id="authSection" class="auth-overlay">
     <div class="auth-card">
       <div class="auth-icon">🔐</div>
-      <h2 style="font-size:1.3rem; font-weight:800; color:#fff; margin:0;">Login Administrator</h2>
-      <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+      <h2 style="font-size:1.3rem; font-weight:800; color:#fff; margin:0;" data-i18n="admin_login_title">Login Administrator</h2>
+      <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;" data-i18n="admin_login_desc">
         Masukkan Password Admin untuk mengelola usulan fitur, memantau akun user, dan mengelola OBS Overlay.
       </p>
 
       <form id="formLogin" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
         <div class="password-input-wrap">
-          <input type="password" id="inputPassword" placeholder="Masukkan Password Admin..." required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem; box-sizing:border-box;">
+          <input type="password" id="inputPassword" placeholder="Masukkan Password Admin..." data-i18n-ph="ph_admin_pass" required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem; box-sizing:border-box;">
         </div>
         <div id="loginError" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
         <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:12px; font-weight:800;">
-          Buka Panel Admin 🚀
+          <span data-i18n="admin_btn_login_submit">Buka Panel Admin 🚀</span>
         </button>
       </form>
     </div>
@@ -482,29 +488,29 @@
 
     <!-- SIDEBAR NAVIGATION -->
     <aside class="admin-sidebar">
-      <div class="nav-label">Menu Utama</div>
+      <div class="nav-label" data-i18n="admin_menu_main">Menu Utama</div>
       
       <button class="nav-item active" data-tab="tabFeatures">
-        <span>📋</span> Usulan Fitur (Roadmap)
+        <span>📋</span> <span data-i18n="admin_tab_roadmap">Usulan Fitur (Roadmap)</span>
       </button>
       <button class="nav-item" data-tab="tabOverlays">
-        <span>🖥️</span> Semua OBS Overlay
+        <span>🖥️</span> <span data-i18n="admin_tab_all_overlays">Semua OBS Overlay</span>
       </button>
       <button class="nav-item" data-tab="tabUsers">
-        <span>👥</span> Akun & Kuota User
+        <span>👥</span> <span data-i18n="admin_tab_users_quota">Akun & Kuota User</span>
       </button>
 
-      <div class="nav-label" style="margin-top:10px;">Sistem & Keamanan</div>
+      <div class="nav-label" style="margin-top:10px;" data-i18n="admin_menu_security">Sistem & Keamanan</div>
       <button class="nav-item" data-tab="tabSecurity">
-        <span>🔐</span> Ganti Password Admin
+        <span>🔐</span> <span data-i18n="admin_tab_change_pass">Ganti Password Admin</span>
       </button>
       <button class="nav-item" data-tab="tabSystem">
-        <span>⚡</span> Status Server VPS
+        <span>⚡</span> <span data-i18n="admin_tab_server_status">Status Server VPS</span>
       </button>
 
       <div style="margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
         <button id="btnSideLogout" class="nav-item" style="color:#ef4444;">
-          <span>🚪</span> Keluar Panel Admin
+          <span>🚪</span> <span data-i18n="admin_side_logout">Keluar Panel Admin</span>
         </button>
       </div>
     </aside>
@@ -517,27 +523,27 @@
         <!-- KPI STATS -->
         <div class="stats-grid">
           <div class="stat-card">
-            <span class="stat-label">Total Fitur</span>
+            <span class="stat-label" data-i18n="admin_stat_total">Total Fitur</span>
             <span id="statTotal" class="stat-val">0</span>
           </div>
           <div class="stat-card todo">
-            <span class="stat-label">📋 Todo / Antrean</span>
+            <span class="stat-label" data-i18n="admin_stat_todo">📋 Todo / Antrean</span>
             <span id="statTodo" class="stat-val">0</span>
           </div>
           <div class="stat-card prog">
-            <span class="stat-label">⚡ Sedang Dikerjakan</span>
+            <span class="stat-label" data-i18n="admin_stat_prog">⚡ Sedang Dikerjakan</span>
             <span id="statProg" class="stat-val">0</span>
           </div>
           <div class="stat-card done">
-            <span class="stat-label">✅ Selesai & Rilis</span>
+            <span class="stat-label" data-i18n="admin_stat_done">✅ Selesai & Rilis</span>
             <span id="statDone" class="stat-val">0</span>
           </div>
           <div class="stat-card rej">
-            <span class="stat-label">❌ Ditolak</span>
+            <span class="stat-label" data-i18n="admin_stat_rej">❌ Ditolak</span>
             <span id="statRej" class="stat-val">0</span>
           </div>
           <div class="stat-card">
-            <span class="stat-label">👍 Total Upvotes</span>
+            <span class="stat-label" data-i18n="admin_stat_votes">👍 Total Upvotes</span>
             <span id="statVotes" class="stat-val">0</span>
           </div>
         </div>
@@ -546,15 +552,15 @@
         <div class="toolbar-bar">
           <div class="filter-group">
             <select id="filterStatus" class="select-filter">
-              <option value="all">Semua Status</option>
-              <option value="todo">📋 Todo</option>
-              <option value="in_progress">⚡ In Progress</option>
-              <option value="done">✅ Done</option>
-              <option value="rejected">❌ Ditolak</option>
+              <option value="all" data-i18n="admin_opt_status_all">Semua Status</option>
+              <option value="todo" data-i18n="admin_opt_status_todo">📋 Todo</option>
+              <option value="in_progress" data-i18n="admin_opt_status_prog">⚡ In Progress</option>
+              <option value="done" data-i18n="admin_opt_status_done">✅ Done</option>
+              <option value="rejected" data-i18n="admin_opt_status_rej">❌ Ditolak</option>
             </select>
 
             <select id="filterCategory" class="select-filter">
-              <option value="all">Semua Kategori</option>
+              <option value="all" data-i18n="admin_opt_cat_all">Semua Kategori</option>
               <option value="twitch">🟣 Twitch</option>
               <option value="youtube">🔴 YouTube</option>
               <option value="tiktok">🎵 TikTok</option>
@@ -563,12 +569,16 @@
               <option value="general">✨ General</option>
             </select>
 
-            <input type="text" id="inputSearch" class="search-input" placeholder="Cari judul, deskripsi, atau pembuat..." style="min-width:220px;">
+            <input type="text" id="inputSearch" class="search-input" placeholder="Cari judul, deskripsi, atau pembuat..." data-i18n-ph="ph_search_feature" style="min-width:220px;">
           </div>
 
           <div style="display:flex; gap:8px;">
-            <button id="btnRefreshFeatures" class="btn-icon" title="Refresh data">🔄 Segarkan</button>
-            <button id="btnNewFeatureModal" class="btn-icon btn-primary">+ Buat Fitur Resmi</button>
+            <button id="btnRefreshFeatures" class="btn-icon" title="Refresh data">
+              <span data-i18n="btn_refresh">🔄 Segarkan</span>
+            </button>
+            <button id="btnNewFeatureModal" class="btn-icon btn-primary">
+              <span data-i18n="admin_btn_create_feature">+ Buat Fitur Resmi</span>
+            </button>
           </div>
         </div>
 
@@ -580,21 +590,23 @@
       <section id="tabOverlays" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;">Monitoring Semua OBS Overlay</h2>
-            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;">Daftar seluruh URL overlay yang pernah dibuat di server ini.</p>
+            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;" data-i18n="admin_overlays_title">Monitoring Semua OBS Overlay</h2>
+            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;" data-i18n="admin_overlays_desc">Daftar seluruh URL overlay yang pernah dibuat di server ini.</p>
           </div>
-          <button id="btnRefreshOverlays" class="btn-icon">🔄 Segarkan</button>
+          <button id="btnRefreshOverlays" class="btn-icon">
+            <span data-i18n="btn_refresh">🔄 Segarkan</span>
+          </button>
         </div>
 
         <div id="overlaysTableContainer">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Overlay ID</th>
-                <th>Pemilik (Akun)</th>
-                <th>Saluran Aktif</th>
-                <th>Tema</th>
-                <th>Aksi</th>
+                <th data-i18n="th_overlay_id">Overlay ID</th>
+                <th data-i18n="th_owner">Pemilik (Akun)</th>
+                <th data-i18n="th_active_channels">Saluran Aktif</th>
+                <th data-i18n="th_theme">Tema</th>
+                <th data-i18n="th_actions">Aksi</th>
               </tr>
             </thead>
             <tbody id="overlaysTableBody">
@@ -608,21 +620,23 @@
       <section id="tabUsers" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;">Daftar Akun Pengguna & Kuota (Batas 3 Slot)</h2>
-            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;">Setiap pengguna dibatasi maksimal 3 Overlay ID untuk mencegah abuse / spam server.</p>
+            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;" data-i18n="admin_users_title">Daftar Akun Pengguna & Kuota (Batas 3 Slot)</h2>
+            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;" data-i18n="admin_users_desc">Setiap pengguna dibatasi maksimal 3 Overlay ID untuk mencegah abuse / spam server.</p>
           </div>
-          <button id="btnRefreshUsers" class="btn-icon">🔄 Segarkan</button>
+          <button id="btnRefreshUsers" class="btn-icon">
+            <span data-i18n="btn_refresh">🔄 Segarkan</span>
+          </button>
         </div>
 
         <div id="usersTableContainer">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Username</th>
-                <th>Terdaftar Pada</th>
-                <th>Jumlah Slot Terpakai</th>
-                <th>Daftar ID Overlay Milik User</th>
-                <th>Aksi</th>
+                <th data-i18n="th_username">Username</th>
+                <th data-i18n="th_registered_at">Terdaftar Pada</th>
+                <th data-i18n="th_slots_used">Jumlah Slot Terpakai</th>
+                <th data-i18n="th_overlay_ids">Daftar ID Overlay Milik User</th>
+                <th data-i18n="th_actions">Aksi</th>
               </tr>
             </thead>
             <tbody id="usersTableBody">
@@ -635,30 +649,30 @@
       <!-- TAB 4: GANTI PASSWORD ADMIN -->
       <section id="tabSecurity" class="tab-content">
         <div style="max-width:560px; background:rgba(13,17,27,0.8); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:28px;">
-          <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0 0 6px 0;">🔐 Ganti Password Administrator</h2>
-          <p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 20px 0;">
+          <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0 0 6px 0;" data-i18n="admin_security_title">🔐 Ganti Password Administrator</h2>
+          <p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 20px 0;" data-i18n="admin_security_desc">
             Ubah password panel admin Anda. Password baru akan langsung aktif dan disimpan permanen di server.
           </p>
 
           <form id="formTabChangePass" style="display:flex; flex-direction:column; gap:16px;">
             <div class="channel-field">
-              <label class="channel-label" for="tabInputNewPass">Password Baru (Min. 4 karakter)</label>
+              <label class="channel-label" for="tabInputNewPass" data-i18n="admin_label_new_pass">Password Baru (Min. 4 karakter)</label>
               <div class="password-input-wrap">
-                <input type="password" id="tabInputNewPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ketik password baru...">
+                <input type="password" id="tabInputNewPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ketik password baru..." data-i18n-ph="ph_new_pass">
               </div>
             </div>
 
             <div class="channel-field">
-              <label class="channel-label" for="tabInputConfirmPass">Konfirmasi Password Baru</label>
+              <label class="channel-label" for="tabInputConfirmPass" data-i18n="admin_label_confirm_pass">Konfirmasi Password Baru</label>
               <div class="password-input-wrap">
-                <input type="password" id="tabInputConfirmPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ulangi ketik password baru...">
+                <input type="password" id="tabInputConfirmPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ulangi ketik password baru..." data-i18n-ph="ph_confirm_pass">
               </div>
             </div>
 
             <div id="tabPassError" style="font-size:0.8rem; color:#ef4444; display:none;"></div>
 
             <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:12px; font-weight:800; margin-top:6px;">
-              💾 Simpan Password Baru
+              <span data-i18n="admin_btn_save_pass">💾 Simpan Password Baru</span>
             </button>
           </form>
         </div>
@@ -668,27 +682,29 @@
       <section id="tabSystem" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;">⚡ Status Sistem & Resource VPS</h2>
-            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;">Informasi performa runtime Node.js dan penggunaan memori server.</p>
+            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;" data-i18n="admin_system_title">⚡ Status Sistem & Resource VPS</h2>
+            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;" data-i18n="admin_system_desc">Informasi performa runtime Node.js dan penggunaan memori server.</p>
           </div>
-          <button id="btnRefreshStats" class="btn-icon">🔄 Segarkan</button>
+          <button id="btnRefreshStats" class="btn-icon">
+            <span data-i18n="btn_refresh">🔄 Segarkan</span>
+          </button>
         </div>
 
         <div class="stats-grid">
           <div class="stat-card">
-            <span class="stat-label">Waktu Aktif (Uptime)</span>
+            <span class="stat-label" data-i18n="admin_stat_uptime">Waktu Aktif (Uptime)</span>
             <span id="sysUptime" class="stat-val" style="font-size:1.2rem; color:#10b981;">0m</span>
           </div>
           <div class="stat-card">
-            <span class="stat-label">RAM Node.js (RSS)</span>
+            <span class="stat-label" data-i18n="admin_stat_ram_rss">RAM Node.js (RSS)</span>
             <span id="sysRamRss" class="stat-val" style="color:#67e8f9;">0 MB</span>
           </div>
           <div class="stat-card">
-            <span class="stat-label">RAM Heap Used</span>
+            <span class="stat-label" data-i18n="admin_stat_ram_heap">RAM Heap Used</span>
             <span id="sysRamHeap" class="stat-val" style="color:#a5b4fc;">0 MB</span>
           </div>
           <div class="stat-card">
-            <span class="stat-label">Versi Node.js</span>
+            <span class="stat-label" data-i18n="admin_stat_node_ver">Versi Node.js</span>
             <span id="sysNodeVer" class="stat-val" style="font-size:1.2rem;">-</span>
           </div>
         </div>

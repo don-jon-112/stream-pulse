@@ -175,7 +175,7 @@
         <div class="toolbar-left">
           <button class="filter-btn active" data-filter="all">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
-            <span>Semua Chat</span>
+            <span data-i18n="filter_all">Semua Chat</span>
           </button>
           <button class="filter-btn" data-filter="twitch">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="#a970ff" style="vertical-align:middle; margin-right:4px;"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
@@ -191,38 +191,38 @@
           </button>
           <button class="filter-btn" data-filter="events">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="#f59e0b" style="vertical-align:middle; margin-right:4px;"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-            <span>Event Saja</span>
+            <span data-i18n="filter_events">Event Saja</span>
           </button>
         </div>
 
         <div class="toolbar-right">
           <!-- Chat Density Toggle -->
-          <div class="density-toggle" title="Kerapatan Tampilan Chat">
-            <button class="density-btn active" data-density="comfortable">STD</button>
-            <button class="density-btn" data-density="compact">RAPAT</button>
+          <div class="density-toggle" title="Kerapatan Tampilan Chat" data-i18n-title="tip_chat_density">
+            <button class="density-btn active" data-density="comfortable" data-i18n="density_comfortable">STD</button>
+            <button class="density-btn" data-density="compact" data-i18n="density_compact">RAPAT</button>
           </div>
 
           <!-- Chat Order Toggle (Terbaru di Atas vs Bawah) -->
-          <button id="btnOrderToggle" class="btn-icon active" style="padding: 4px 10px; font-size: 0.72rem; min-height: 32px;" title="Ubah urutan chat: Terbaru di Atas atau Terbaru di Bawah">
+          <button id="btnOrderToggle" class="btn-icon active" style="padding: 4px 10px; font-size: 0.72rem; min-height: 32px;" title="Ubah urutan chat: Terbaru di Atas atau Terbaru di Bawah" data-i18n-title="tip_order_toggle">
             <svg id="orderIcon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
               <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>
             </svg>
-            <span id="orderLabel">Terbaru di Atas</span>
+            <span id="orderLabel" data-i18n="order_newest_top">Terbaru di Atas</span>
           </button>
 
           <!-- Max Chat Limit Selector (Anti-Lag / Hemat RAM) -->
-          <div class="limit-selector" title="Batas maksimal chat di layar untuk mencegah web lag / boros RAM">
+          <div class="limit-selector" title="Batas maksimal chat di layar untuk mencegah web lag / boros RAM" data-i18n-title="tip_chat_limit">
             <label for="selectChatLimit" style="font-size:0.65rem; color:var(--text-tertiary); font-weight:700;">LIMIT:</label>
             <select id="selectChatLimit">
-              <option value="30">30 (Super Ringan)</option>
-              <option value="50" selected>50 (Hemat RAM)</option>
-              <option value="100">100 (Standar)</option>
-              <option value="200">200 (Banyak)</option>
+              <option value="30" data-i18n="limit_30">30 (Super Ringan)</option>
+              <option value="50" selected data-i18n="limit_50">50 (Hemat RAM)</option>
+              <option value="100" data-i18n="limit_100">100 (Standar)</option>
+              <option value="200" data-i18n="limit_200">200 (Banyak)</option>
             </select>
           </div>
 
           <!-- Clear Chat Screen Button -->
-          <button id="btnClearChatScreen" class="btn-icon" style="padding: 4px 8px; min-height: 32px;" title="Bersihkan chat lama dari layar agar enteng">
+          <button id="btnClearChatScreen" class="btn-icon" style="padding: 4px 8px; min-height: 32px;" title="Bersihkan chat lama dari layar agar enteng" data-i18n-title="tip_clear_screen">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/>
             </svg>
@@ -233,7 +233,7 @@
             <svg viewBox="0 0 24 24">
               <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
             </svg>
-            <input type="text" id="chatSearch" placeholder="Cari chat..." autocomplete="off">
+            <input type="text" id="chatSearch" placeholder="Cari chat..." data-i18n-ph="ph_search_chat" autocomplete="off">
           </div>
         </div>
       </div>
@@ -247,14 +247,14 @@
               <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
             </svg>
           </div>
-          <h3>Menunggu Chat Masuk...</h3>
-          <p>Klik tombol <strong>"Atur Channel"</strong> di pojok kanan atas untuk memasukkan username Twitch, YouTube, atau TikTok LIVE. Anda juga dapat mencoba klik <strong>"Test Demo"</strong> untuk simulasi event secara instan!</p>
+          <h3 data-i18n="empty_chat_title">Menunggu Chat Masuk...</h3>
+          <p data-i18n-html="empty_chat_desc">Klik tombol <strong>"Atur Channel"</strong> di pojok kanan atas untuk memasukkan username Twitch, YouTube, atau TikTok LIVE. Anda juga dapat mencoba klik <strong>"Test Demo"</strong> untuk simulasi event secara instan!</p>
         </div>
       </div>
 
       <!-- Auto-scroll Pause Warning Pill -->
       <div id="scrollPausePill" class="scroll-pause-pill">
-        <span>⬇️ Scroll Dijeda (Ada Chat Baru Masuk) — Ketuk untuk Mengikuti</span>
+        <span data-i18n="scroll_paused">⬇️ Scroll Dijeda (Ada Chat Baru Masuk) — Ketuk untuk Mengikuti</span>
       </div>
 
     </section>
@@ -266,15 +266,15 @@
       <div class="stats-card">
         <div class="stat-item">
           <div id="statTotalChats" class="stat-num">0</div>
-          <div class="stat-label">Total Chat</div>
+          <div class="stat-label" data-i18n="stat_total_chats">Total Chat</div>
         </div>
         <div class="stat-item">
           <div id="statTotalEvents" class="stat-num">0</div>
-          <div class="stat-label">Semua Event</div>
+          <div class="stat-label" data-i18n="stat_all_events">Semua Event</div>
         </div>
         <div class="stat-item">
           <div id="statTotalGifts" class="stat-num">0</div>
-          <div class="stat-label">Hadiah / Donasi</div>
+          <div class="stat-label" data-i18n="stat_total_gifts">Hadiah / Donasi</div>
         </div>
       </div>
 
@@ -285,20 +285,20 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#6366f1">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
-            <span>Rekaman Event (Activity)</span>
+            <span data-i18n="recorder_title">Rekaman Event (Activity)</span>
           </div>
 
           <div class="recorder-actions">
-            <button id="btnExportJson" class="btn-icon" style="padding: 4px 8px; font-size: 0.7rem; min-height: 28px;" title="Download Data JSON">JSON</button>
-            <button id="btnExportCsv" class="btn-icon" style="padding: 4px 8px; font-size: 0.7rem; min-height: 28px;" title="Download Data CSV">CSV</button>
-            <button id="btnClearEvents" class="btn-icon" style="padding: 4px 8px; font-size: 0.7rem; min-height: 28px;" title="Hapus Riwayat">🗑️</button>
+            <button id="btnExportJson" class="btn-icon" style="padding: 4px 8px; font-size: 0.7rem; min-height: 28px;" title="Download Data JSON" data-i18n-title="tip_export_json">JSON</button>
+            <button id="btnExportCsv" class="btn-icon" style="padding: 4px 8px; font-size: 0.7rem; min-height: 28px;" title="Download Data CSV" data-i18n-title="tip_export_csv">CSV</button>
+            <button id="btnClearEvents" class="btn-icon" style="padding: 4px 8px; font-size: 0.7rem; min-height: 28px;" title="Hapus Riwayat" data-i18n-title="tip_clear_history">🗑️</button>
           </div>
         </div>
 
         <div id="recorderList" class="recorder-list">
           <!-- Initial Empty Recorder -->
           <div class="empty-state" style="padding: 30px 10px;">
-            <p>Setiap Gift TikTok, Super Chat YouTube, Subs, dan Bits Twitch akan otomatis terekam di sini secara kronologis.</p>
+            <p data-i18n="empty_recorder_desc">Setiap Gift TikTok, Super Chat YouTube, Subs, dan Bits Twitch akan otomatis terekam di sini secara kronologis.</p>
           </div>
         </div>
       </div>
@@ -311,19 +311,19 @@
   <nav class="mobile-nav">
     <button id="mobNavChat" class="mob-nav-item active">
       <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-      <span>Live Chat</span>
+      <span data-i18n="mob_live_chat">Live Chat</span>
     </button>
     <button id="mobNavEvents" class="mob-nav-item">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-      <span>Event Log</span>
+      <span data-i18n="mob_event_log">Event Log</span>
     </button>
     <button id="mobNavSetup" class="mob-nav-item">
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-      <span>Channel</span>
+      <span data-i18n="mob_channel">Channel</span>
     </button>
     <button id="mobNavDonate" class="mob-nav-item" style="color: #f59e0b;">
       <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-      <span>Donasi ☕</span>
+      <span data-i18n="mob_donate">Donasi ☕</span>
     </button>
   </nav>
 
@@ -335,7 +335,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
           </svg>
-          <span>Pengaturan Channel Monitor</span>
+          <span data-i18n="setup_modal_title">Pengaturan Channel Monitor</span>
         </div>
         <button id="closeSetupModal" class="modal-close" aria-label="Tutup Modal">&times;</button>
       </div>
@@ -350,21 +350,21 @@
         <!-- Twitch Channel -->
         <div class="channel-field">
           <label class="channel-label" for="inputTwitch">
-            <span style="color: var(--twitch);">🟣 Twitch Channel</span>
-            <span class="field-tip">Contoh: shroud atau windah_basudara</span>
+            <span style="color: var(--twitch);" data-i18n="label_twitch">🟣 Twitch Channel</span>
+            <span class="field-tip" data-i18n="tip_twitch">Contoh: shroud atau windah_basudara</span>
           </label>
           <div class="input-with-icon">
             <span class="input-icon" style="color: var(--twitch);">#</span>
-            <input type="text" id="inputTwitch" placeholder="Masukkan username Twitch..." autocomplete="off">
+            <input type="text" id="inputTwitch" placeholder="Masukkan username Twitch..." data-i18n-ph="ph_twitch_input" autocomplete="off">
           </div>
-          <div style="margin-top: 6px; font-size: 0.72rem; color: #cbd5e1; line-height: 1.4; background: rgba(145, 70, 255, 0.08); border: 1px solid rgba(145, 70, 255, 0.2); border-radius: var(--radius-sm); padding: 8px 10px;">
+          <div style="margin-top: 6px; font-size: 0.72rem; color: #cbd5e1; line-height: 1.4; background: rgba(145, 70, 255, 0.08); border: 1px solid rgba(145, 70, 255, 0.2); border-radius: var(--radius-sm); padding: 8px 10px;" data-i18n-html="tip_redeem_desc">
             <div style="font-weight: 700; color: #c084fc; margin-bottom: 2px;">💠 Tips Deteksi Channel Points Redeem:</div>
             Secara bawaan Twitch IRC hanya menyiarkan redeem yang disertai pesan. Agar reward Anda (seperti <em>Minum Air, Sound Alert, dll.</em>) terdeteksi otomatis, aktifkan opsi <strong>"Require viewer to enter text" (Wajibkan penonton memasukkan teks)</strong> di Twitch Dashboard saat membuat reward.
           </div>
 
           <!-- Opsional: Twitch OAuth Token untuk EventSub (deteksi semua reward termasuk tanpa teks) -->
           <details style="margin-top: 6px; font-size: 0.72rem; color: #94a3b8; background: rgba(0,0,0,0.25); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: var(--radius-sm); padding: 8px 10px;">
-            <summary style="cursor: pointer; color: #c084fc; font-weight: 700; padding: 2px 0;">⚙️ Opsi Lanjutan: Twitch OAuth Token (Deteksi Redeem Tanpa Teks)</summary>
+            <summary style="cursor: pointer; color: #c084fc; font-weight: 700; padding: 2px 0;" data-i18n="oauth_summary">⚙️ Opsi Lanjutan: Twitch OAuth Token (Deteksi Redeem Tanpa Teks)</summary>
             <div style="margin-top: 8px; line-height: 1.5; color: #cbd5e1;">
               <p style="margin-bottom: 6px;">
                 Token ini dipakai untuk menyambungkan <strong>Twitch EventSub WebSocket resmi</strong> agar StreamPulse bisa mendeteksi 100% redeem (termasuk reward instan seperti <em>Minum Air / Sound Alert</em> tanpa ketik teks).
@@ -386,37 +386,40 @@
         <!-- YouTube Channel / Live URL -->
         <div class="channel-field">
           <label class="channel-label" for="inputYouTube">
-            <span style="color: var(--youtube);">🔴 YouTube Live Stream</span>
-            <span class="field-tip">Handle (@channel) atau URL Live</span>
+            <span style="color: var(--youtube);" data-i18n="label_youtube">🔴 YouTube Live Stream</span>
+            <span class="field-tip" data-i18n="tip_youtube">Handle (@channel) atau URL Live</span>
           </label>
           <div class="input-with-icon">
             <span class="input-icon" style="color: var(--youtube);">▶</span>
-            <input type="text" id="inputYouTube" placeholder="@NamaChannel atau URL live..." autocomplete="off">
+            <input type="text" id="inputYouTube" placeholder="@NamaChannel atau URL live..." data-i18n-ph="ph_youtube_input" autocomplete="off">
           </div>
         </div>
 
         <!-- TikTok Username -->
         <div class="channel-field">
           <label class="channel-label" for="inputTikTok">
-            <span style="color: var(--tiktok-cyan);">🎵 TikTok LIVE Username</span>
-            <span class="field-tip">Username akun yang sedang live (tanpa @)</span>
+            <span style="color: var(--tiktok-cyan);" data-i18n="label_tiktok">🎵 TikTok LIVE Username</span>
+            <span class="field-tip" data-i18n="tip_tiktok">Username akun yang sedang live (tanpa @)</span>
           </label>
           <div class="input-with-icon">
             <span class="input-icon" style="color: var(--tiktok-pink);">@</span>
-            <input type="text" id="inputTikTok" placeholder="Username TikTok live..." autocomplete="off">
+            <input type="text" id="inputTikTok" placeholder="Username TikTok live..." data-i18n-ph="ph_tiktok_input" autocomplete="off">
           </div>
         </div>
 
-
-        <div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-md); padding: 14px; font-size: 0.75rem; line-height: 1.5; color: #c7d2fe; margin-top: 10px;">
+        <div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-md); padding: 14px; font-size: 0.75rem; line-height: 1.5; color: #c7d2fe; margin-top: 10px;" data-i18n-html="setup_bottom_tip">
           💡 <strong>Tips:</strong> Anda bisa memantau ketiga platform sekaligus atau hanya platform tertentu saja. Kosongkan kolom jika tidak ingin menghubungkan platform tersebut.
         </div>
 
       </div>
 
       <div class="modal-footer">
-        <button id="btnCancelSetup" class="btn-icon">Batal</button>
-        <button id="btnSaveChannels" class="btn-icon btn-primary">Simpan & Hubungkan</button>
+        <button id="btnCancelSetup" class="btn-icon">
+          <span data-i18n="btn_cancel">Batal</span>
+        </button>
+        <button id="btnSaveChannels" class="btn-icon btn-primary">
+          <span data-i18n="btn_save_connect">Simpan & Hubungkan</span>
+        </button>
       </div>
     </div>
   </div>
@@ -429,13 +432,13 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
           </svg>
-          <span>Simulasi & Uji Coba Event</span>
+          <span data-i18n="demo_title">Simulasi & Uji Coba Event</span>
         </div>
         <button id="closeDemoModal" class="modal-close" aria-label="Tutup Modal">&times;</button>
       </div>
 
       <div class="modal-body">
-        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;" data-i18n="demo_desc">
           Pilih salah satu event di bawah untuk menguji aliran chat, kartu event, dan animasi secara langsung:
         </p>
 
@@ -443,29 +446,29 @@
           <!-- Twitch Tests -->
           <div class="demo-group twitch">
             <div class="demo-group-header">
-              <span class="demo-group-title">🟣 TWITCH SIMULATION</span>
-              <span class="demo-group-badge">5 Event</span>
+              <span class="demo-group-title" data-i18n="demo_twitch_title">🟣 TWITCH SIMULATION</span>
+              <span class="demo-group-badge" data-i18n="demo_badge_5">5 Event</span>
             </div>
             <div class="demo-grid">
               <button class="demo-btn twitch" data-plat="twitch" data-type="chat">
                 <span class="btn-emoji">💬</span>
-                <span class="btn-text">Test Chat</span>
+                <span class="btn-text" data-i18n="demo_test_chat">Test Chat</span>
               </button>
               <button class="demo-btn twitch" data-plat="twitch" data-type="sub">
                 <span class="btn-emoji">⭐</span>
-                <span class="btn-text">Tier 1 Sub</span>
+                <span class="btn-text" data-i18n="demo_tier1_sub">Tier 1 Sub</span>
               </button>
               <button class="demo-btn twitch" data-plat="twitch" data-type="bits">
                 <span class="btn-emoji">💎</span>
-                <span class="btn-text">500 Bits</span>
+                <span class="btn-text" data-i18n="demo_500_bits">500 Bits</span>
               </button>
               <button class="demo-btn twitch" data-plat="twitch" data-type="redeem">
                 <span class="btn-emoji">💠</span>
-                <span class="btn-text">Points Redeem</span>
+                <span class="btn-text" data-i18n="demo_points_redeem">Points Redeem</span>
               </button>
               <button class="demo-btn twitch" data-plat="twitch" data-type="submysterygift">
                 <span class="btn-emoji">🎁</span>
-                <span class="btn-text">5 Gift Subs</span>
+                <span class="btn-text" data-i18n="demo_5_gift_subs">5 Gift Subs</span>
               </button>
             </div>
           </div>
@@ -473,33 +476,33 @@
           <!-- YouTube Tests -->
           <div class="demo-group youtube">
             <div class="demo-group-header">
-              <span class="demo-group-title">🔴 YOUTUBE SIMULATION</span>
-              <span class="demo-group-badge">6 Event</span>
+              <span class="demo-group-title" data-i18n="demo_youtube_title">🔴 YOUTUBE SIMULATION</span>
+              <span class="demo-group-badge" data-i18n="demo_badge_6">6 Event</span>
             </div>
             <div class="demo-grid">
               <button class="demo-btn youtube" data-plat="youtube" data-type="chat">
                 <span class="btn-emoji">💬</span>
-                <span class="btn-text">Test Chat</span>
+                <span class="btn-text" data-i18n="demo_test_chat">Test Chat</span>
               </button>
               <button class="demo-btn youtube" data-plat="youtube" data-type="superchat">
                 <span class="btn-emoji">💰</span>
-                <span class="btn-text">Super Chat 50k</span>
+                <span class="btn-text" data-i18n="demo_superchat">Super Chat 50k</span>
               </button>
               <button class="demo-btn youtube" data-plat="youtube" data-type="supersticker">
                 <span class="btn-emoji">⭐</span>
-                <span class="btn-text">Super Sticker</span>
+                <span class="btn-text" data-i18n="demo_supersticker">Super Sticker</span>
               </button>
               <button class="demo-btn youtube" data-plat="youtube" data-type="member">
                 <span class="btn-emoji">🌟</span>
-                <span class="btn-text">New Member</span>
+                <span class="btn-text" data-i18n="demo_new_member">New Member</span>
               </button>
               <button class="demo-btn youtube" data-plat="youtube" data-type="gift_member">
                 <span class="btn-emoji">🎁</span>
-                <span class="btn-text">5 Gift Members</span>
+                <span class="btn-text" data-i18n="demo_5_gift_members">5 Gift Members</span>
               </button>
               <button class="demo-btn youtube" data-plat="youtube" data-type="jewels">
                 <span class="btn-emoji">💎</span>
-                <span class="btn-text">200 Jewels</span>
+                <span class="btn-text" data-i18n="demo_200_jewels">200 Jewels</span>
               </button>
             </div>
           </div>
@@ -507,29 +510,29 @@
           <!-- TikTok Tests -->
           <div class="demo-group tiktok">
             <div class="demo-group-header">
-              <span class="demo-group-title">🎵 TIKTOK LIVE SIMULATION</span>
-              <span class="demo-group-badge">5 Event</span>
+              <span class="demo-group-title" data-i18n="demo_tiktok_title">🎵 TIKTOK LIVE SIMULATION</span>
+              <span class="demo-group-badge" data-i18n="demo_badge_5">5 Event</span>
             </div>
             <div class="demo-grid">
               <button class="demo-btn tiktok" data-plat="tiktok" data-type="chat">
                 <span class="btn-emoji">💬</span>
-                <span class="btn-text">Test Chat</span>
+                <span class="btn-text" data-i18n="demo_test_chat">Test Chat</span>
               </button>
               <button class="demo-btn tiktok" data-plat="tiktok" data-type="gift">
                 <span class="btn-emoji">🌹</span>
-                <span class="btn-text">Gift Mawar x50</span>
+                <span class="btn-text" data-i18n="demo_gift_rose">Gift Mawar x50</span>
               </button>
               <button class="demo-btn tiktok" data-plat="tiktok" data-type="gift">
                 <span class="btn-emoji">🦁</span>
-                <span class="btn-text">Singa / Paus 💎</span>
+                <span class="btn-text" data-i18n="demo_lion_whale">Singa / Paus 💎</span>
               </button>
               <button class="demo-btn tiktok" data-plat="tiktok" data-type="subscribe">
                 <span class="btn-emoji">⭐</span>
-                <span class="btn-text">LIVE Sub</span>
+                <span class="btn-text" data-i18n="demo_live_sub">LIVE Sub</span>
               </button>
               <button class="demo-btn tiktok" data-plat="tiktok" data-type="like">
                 <span class="btn-emoji">❤️</span>
-                <span class="btn-text">Tap 50 Likes</span>
+                <span class="btn-text" data-i18n="demo_50_likes">Tap 50 Likes</span>
               </button>
             </div>
           </div>
@@ -537,7 +540,7 @@
       </div>
 
       <div class="modal-footer">
-        <button id="btnFinishDemo" class="btn-icon btn-primary" style="padding: 8px 24px;">Selesai</button>
+        <button id="btnFinishDemo" class="btn-icon btn-primary" style="padding: 8px 24px;" data-i18n="btn_done">Selesai</button>
       </div>
     </div>
   </div>
@@ -550,15 +553,15 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
-          <span>Dukung StreamPulse (100% Gratis)</span>
+          <span data-i18n="donate_modal_title">Dukung StreamPulse (100% Gratis)</span>
         </div>
         <button id="closeDonateModal" class="modal-close" aria-label="Tutup Modal">&times;</button>
       </div>
 
       <div class="modal-body" style="text-align: center; padding: 22px 18px;">
         <div class="donate-avatar-ring">☕</div>
-        <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 8px;">Suka Menggunakan StreamPulse?</h2>
-        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; max-width: 480px; margin: 0 auto 16px;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 8px;" data-i18n="donate_h2">Suka Menggunakan StreamPulse?</h2>
+        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; max-width: 480px; margin: 0 auto 16px;" data-i18n-html="donate_desc_modal">
           Aplikasi ini bebas digunakan secara <strong>gratis, tanpa batas, dan tanpa iklan</strong> untuk semua streamer. 
           Jika web ini bermanfaat bagi siaran livestream Anda, Anda dapat membantu mendukung biaya sewa server VPS agar tetap aktif 24/7.
         </p>
@@ -566,15 +569,15 @@
         <div class="donate-card-perks">
           <div class="perk-item">
             <span class="perk-icon">⚡</span>
-            <span>Membantu biaya operasional server VPS & tunnel agar selalu online</span>
+            <span data-i18n="donate_modal_perk1">Membantu biaya operasional server VPS & tunnel agar selalu online</span>
           </div>
           <div class="perk-item">
             <span class="perk-icon">🚀</span>
-            <span>Mendukung pengembangan fitur baru (emotes, overlay OBS, alert)</span>
+            <span data-i18n="donate_modal_perk2">Mendukung pengembangan fitur baru (emotes, overlay OBS, alert)</span>
           </div>
           <div class="perk-item">
             <span class="perk-icon">❤️</span>
-            <span>Dukungan Anda berapapun sangat berarti bagi kreator</span>
+            <span data-i18n="donate_modal_perk3">Dukungan Anda berapapun sangat berarti bagi kreator</span>
           </div>
         </div>
 
@@ -583,16 +586,16 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
-            <span>Traktir Kopi di SociaBuzz (joo_nathan)</span>
+            <span data-i18n="donate_cta_btn">Traktir Kopi di SociaBuzz (joo_nathan)</span>
           </a>
-          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 10px;">
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 10px;" data-i18n="donate_payment_note">
             Mendukung QRIS, GoPay, OVO, Dana, ShopeePay, & Transfer Bank
           </div>
         </div>
       </div>
 
       <div class="modal-footer" style="justify-content: center;">
-        <button id="btnCancelDonate" class="btn-icon" style="padding: 8px 24px;">Tutup</button>
+        <button id="btnCancelDonate" class="btn-icon" style="padding: 8px 24px;" data-i18n="btn_close">Tutup</button>
       </div>
     </div>
   </div>

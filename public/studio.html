@@ -289,7 +289,7 @@
         </div>
       </a>
       <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.8rem; padding:6px 12px;">
-        ← Dashboard Chat
+        <span data-i18n="nav_dashboard">← Dashboard Chat</span>
       </a>
     </div>
 
@@ -303,12 +303,12 @@
       <!-- Account Info / Login Button -->
       <div id="accountPillContainer">
         <button id="btnOpenAuth" class="btn-icon" style="font-size:0.8rem;">
-          🔐 Login / Daftar Akun
+          <span data-i18n="studio_login_btn">🔐 Login / Daftar Akun</span>
         </button>
       </div>
 
       <button id="btnSaveOverlay" class="btn-icon btn-primary" style="padding: 8px 20px; font-weight:800;">
-        💾 Simpan Pengaturan
+        <span data-i18n="studio_save">💾 Simpan Pengaturan</span>
       </button>
     </div>
   </header>
@@ -321,14 +321,14 @@
       
       <!-- 0. GUEST LOCKED BANNER (Ditampilkan saat pengguna belum login) -->
       <div id="guestOverlayLockedCard" style="display:none; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.3); border-radius:var(--radius-md); padding:16px;">
-        <div class="box-title" style="color:#f87171;">
+        <div class="box-title" style="color:#f87171;" data-i18n="studio_guest_lock_title">
           🔒 OBS Overlay Cloud Manager Terkunci
         </div>
-        <p class="box-desc" style="color:#cbd5e1; margin-top:6px; line-height:1.5;">
+        <p class="box-desc" style="color:#cbd5e1; margin-top:6px; line-height:1.5;" data-i18n-html="studio_guest_lock_desc">
           Anda saat ini berada dalam mode <strong>Tamu (Guest)</strong>. Anda dapat mencoba kustomisasi visual & live preview, namun untuk <strong>menyimpan konfigurasi</strong>, <strong>mengelola 3 slot cloud</strong>, dan <strong>menyalin URL OBS</strong>, silakan masuk ke akun Anda.
         </p>
         <button id="btnGuestUnlock" type="button" class="btn-icon btn-primary" style="width:100%; justify-content:center; padding:9px; font-weight:800; margin-top:8px;">
-          🔐 Login / Daftar Akun Sekarang
+          <span data-i18n="studio_guest_lock_btn">🔐 Login / Daftar Akun Sekarang</span>
         </button>
       </div>
 
@@ -390,20 +390,20 @@
       </div>
 
       <!-- 2. Visual Style & Theme -->
-      <div class="section-title">🎨 Gaya & Tampilan Chat</div>
+      <div class="section-title" data-i18n="sec_visual">🎨 Gaya & Tampilan Chat</div>
       <div class="form-group">
-        <label class="form-label" for="settingTheme">Tema Overlay</label>
+        <label class="form-label" for="settingTheme" data-i18n="sec_theme">Tema Overlay</label>
         <select id="settingTheme" class="form-select">
-          <option value="glass">💎 Glassmorphism Dark (Default)</option>
-          <option value="minimal">⬛ Minimalist Semi-Transparent</option>
-          <option value="cyberpunk">⚡ Cyberpunk Neon Glow</option>
-          <option value="light">⚪ Clean Light Paper</option>
+          <option value="glass" data-i18n="opt_theme_glass">💎 Glassmorphism Dark (Default)</option>
+          <option value="minimal" data-i18n="opt_theme_minimal">⬛ Minimalist Semi-Transparent</option>
+          <option value="cyberpunk" data-i18n="opt_theme_cyberpunk">⚡ Cyberpunk Neon Glow</option>
+          <option value="light" data-i18n="opt_theme_light">⚪ Clean Light Paper</option>
         </select>
       </div>
 
       <div class="form-group">
         <div class="form-label">
-          <span>Ukuran Font</span>
+          <span data-i18n="sec_font_size">Ukuran Font</span>
           <span id="labelFontSize" style="color:#67e8f9; font-family:var(--font-mono);">15px</span>
         </div>
         <input type="range" id="settingFontSize" min="12" max="28" value="15" style="width:100%;">
@@ -411,7 +411,7 @@
 
       <div class="form-group">
         <div class="form-label">
-          <span>Durasi Pesan Menghilang (Auto-Hide)</span>
+          <span data-i18n="sec_hide_delay">Durasi Pesan Menghilang (Auto-Hide)</span>
           <span id="labelHideDelay" style="color:#67e8f9; font-family:var(--font-mono);">Selalu Tampil (0s)</span>
         </div>
         <input type="range" id="settingHideDelay" min="0" max="60" step="5" value="0" style="width:100%;">
@@ -420,20 +420,20 @@
       <!-- BATAS MAKSIMAL BUBBLE CHAT -->
       <div class="form-group">
         <div class="form-label">
-          <span>Batas Maksimal Bubble Chat di Layar OBS</span>
+          <span data-i18n="sec_max_messages">Batas Maksimal Bubble Chat di Layar OBS</span>
           <span id="labelMaxMessages" style="color:#67e8f9; font-family:var(--font-mono);">15 Pesan</span>
         </div>
         <input type="range" id="settingMaxMessages" min="3" max="50" step="1" value="15" style="width:100%;">
       </div>
 
       <!-- 3. Toggles & Security Link Masking -->
-      <div class="section-title">⚙️ Elemen Tampilan & Filter</div>
+      <div class="section-title" data-i18n="sec_elements">⚙️ Elemen Tampilan & Filter</div>
       
       <!-- SENSOR / HIDE LINK -->
       <div class="toggle-row">
         <div>
-          <span style="font-size:0.85rem; font-weight:700;">Sensor Link Otomatis</span>
-          <div style="font-size:0.72rem; color:var(--text-tertiary);">Ubah URL di chat menjadi <code>[LINK]</code> di layar OBS</div>
+          <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_mask_links">Sensor Link Otomatis</span>
+          <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n-html="sec_mask_links_sub">Ubah URL di chat menjadi <code>[LINK]</code> di layar OBS</div>
         </div>
         <label class="toggle-switch">
           <input type="checkbox" id="settingMaskLinks">
@@ -442,7 +442,7 @@
       </div>
 
       <div class="toggle-row">
-        <span style="font-size:0.85rem;">Tampilkan Badge Twitch & YouTube (👑 Mod, VIP, Sub)</span>
+        <span style="font-size:0.85rem;" data-i18n="sec_show_badges">Tampilkan Badge Twitch & YouTube (👑 Mod, VIP, Sub)</span>
         <label class="toggle-switch">
           <input type="checkbox" id="settingShowBadges" checked>
           <span class="toggle-slider"></span>
@@ -450,7 +450,7 @@
       </div>
 
       <div class="toggle-row">
-        <span style="font-size:0.85rem;">Tampilkan Foto Profil / Avatar Viewer</span>
+        <span style="font-size:0.85rem;" data-i18n="sec_show_avatars">Tampilkan Foto Profil / Avatar Viewer</span>
         <label class="toggle-switch">
           <input type="checkbox" id="settingShowAvatars" checked>
           <span class="toggle-slider"></span>
@@ -458,7 +458,7 @@
       </div>
 
       <div class="toggle-row">
-        <span style="font-size:0.85rem;">Tampilkan Emote 7TV & Twitch</span>
+        <span style="font-size:0.85rem;" data-i18n="sec_show_emotes">Tampilkan Emote 7TV & Twitch</span>
         <label class="toggle-switch">
           <input type="checkbox" id="settingShowEmotes" checked>
           <span class="toggle-slider"></span>
@@ -466,7 +466,7 @@
       </div>
 
       <div class="toggle-row">
-        <span style="font-size:0.85rem;">Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)</span>
+        <span style="font-size:0.85rem;" data-i18n="sec_show_alerts">Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)</span>
         <label class="toggle-switch">
           <input type="checkbox" id="settingShowAlerts" checked>
           <span class="toggle-slider"></span>
@@ -474,15 +474,15 @@
       </div>
 
       <!-- 4. Custom CSS Editor -->
-      <div class="section-title">💻 Custom CSS Editor</div>
-      <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0;">
+      <div class="section-title" data-i18n="sec_custom_css">💻 Custom CSS Editor</div>
+      <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0;" data-i18n="desc_custom_css">
         Ubah warna font, shadow, border radius, atau animasi sesuai gaya streaming Anda:
       </p>
-      <textarea id="settingCustomCss" class="form-textarea" rows="6" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}"></textarea>
+      <textarea id="settingCustomCss" class="form-textarea" rows="6" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}" data-i18n-ph="ph_custom_css"></textarea>
 
       <!-- 5. Custom JS Editor -->
-      <div class="section-title">⚡ Custom JavaScript (Opsional)</div>
-      <textarea id="settingCustomJs" class="form-textarea" rows="4" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat"></textarea>
+      <div class="section-title" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
+      <textarea id="settingCustomJs" class="form-textarea" rows="4" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
 
     </div>
 
@@ -492,36 +492,36 @@
       <!-- OBS URL Generator Box -->
       <div class="obs-link-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:0.9rem; font-weight:800; color:#fff;">🔗 Link OBS Browser Source Anda</span>
-          <span id="obsUrlStatusBadge" style="font-size:0.75rem; color:#10b981;">✓ Siap Digunakan di OBS</span>
+          <span style="font-size:0.9rem; font-weight:800; color:#fff;" data-i18n="obs_link_title">🔗 Link OBS Browser Source Anda</span>
+          <span id="obsUrlStatusBadge" style="font-size:0.75rem; color:#10b981;" data-i18n="studio_obs_ready">✓ Siap Digunakan di OBS</span>
         </div>
         <div class="obs-link-row">
           <input type="text" id="obsFinalUrl" readonly class="obs-link-input" value="">
           <button id="btnCopyObsUrl" class="btn-icon btn-primary" style="padding: 8px 20px; font-weight:800; white-space:nowrap;">
-            📋 Salin Link
+            <span data-i18n="studio_obs_copy_btn">📋 Salin Link</span>
           </button>
         </div>
-        <p id="obsUrlHelpText" style="font-size:0.72rem; color:var(--text-tertiary); margin:0;">
+        <p id="obsUrlHelpText" style="font-size:0.72rem; color:var(--text-tertiary); margin:0;" data-i18n-html="obs_help_text">
           💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>
         </p>
       </div>
 
       <!-- Live Preview Controls -->
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-        <div style="font-size:0.9rem; font-weight:800; color:#cbd5e1;">
+        <div style="font-size:0.9rem; font-weight:800; color:#cbd5e1;" data-i18n="live_preview_title">
           👁️ Live Preview (Transparan di OBS)
         </div>
         <div style="display:flex; gap:8px;">
-          <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;">💬 Test Chat Biasa</button>
-          <button id="btnTestLinkChat" class="btn-icon" style="font-size:0.75rem;">🔗 Test Chat Link</button>
-          <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;">💎 Test VIP Twitch</button>
-          <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem;">🎉 Test Alert Sub</button>
+          <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_normal_chat">💬 Test Chat Biasa</button>
+          <button id="btnTestLinkChat" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_link_chat">🔗 Test Chat Link</button>
+          <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_twitch_vip">💎 Test VIP Twitch</button>
+          <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_alert_sub">🎉 Test Alert Sub</button>
         </div>
       </div>
 
       <!-- Preview Window (Simulating OBS Canvas) -->
       <div class="preview-window" id="previewWindow">
-        <div class="preview-badge-overlay">Preview OBS Canvas</div>
+        <div class="preview-badge-overlay" data-i18n="preview_canvas_badge">Preview OBS Canvas</div>
         <iframe id="previewIframe" src="/overlay?id=default" style="width:100%; height:100%; border:none; background:transparent;"></iframe>
       </div>
 
@@ -533,31 +533,31 @@
   <div id="authModal" class="modal-overlay">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 id="authModalTitle" style="margin:0; font-size:1.15rem; color:#fff; font-weight:800;">Masuk Akun Streamer</h3>
+        <h3 id="authModalTitle" style="margin:0; font-size:1.15rem; color:#fff; font-weight:800;" data-i18n="auth_title_login">Masuk Akun Streamer</h3>
         <button id="closeAuthModal" class="btn-icon" style="padding:4px 8px;">✕</button>
       </div>
-      <p style="font-size:0.8rem; color:var(--text-tertiary); margin:6px 0 14px 0;">
+      <p id="authModalDesc" style="font-size:0.8rem; color:var(--text-tertiary); margin:6px 0 14px 0;" data-i18n="auth_desc">
         Login agar overlay Anda tersimpan aman dan tidak bisa diedit oleh orang lain.
       </p>
 
       <div style="display:flex; gap:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
-        <button id="tabAuthLogin" class="btn-icon btn-primary" style="flex:1; justify-content:center; padding:8px;">Masuk (Login)</button>
-        <button id="tabAuthRegister" class="btn-icon" style="flex:1; justify-content:center; padding:8px;">Daftar Akun Baru</button>
+        <button id="tabAuthLogin" class="btn-icon btn-primary" style="flex:1; justify-content:center; padding:8px;" data-i18n="auth_login_tab">Masuk (Login)</button>
+        <button id="tabAuthRegister" class="btn-icon" style="flex:1; justify-content:center; padding:8px;" data-i18n="auth_register_tab">Daftar Akun Baru</button>
       </div>
 
       <form id="formAuth" style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
         <div class="form-group">
-          <label class="form-label" for="authUsername" id="labelAuthUsername">Username / ID</label>
-          <input type="text" id="authUsername" required class="form-input" placeholder="Contoh: gamer_joo" autocomplete="username">
+          <label class="form-label" for="authUsername" id="labelAuthUsername" data-i18n="auth_user_label_login">Username / ID</label>
+          <input type="text" id="authUsername" required class="form-input" placeholder="Contoh: gamer_joo" data-i18n-ph="ph_auth_username" autocomplete="username">
         </div>
 
         <!-- Email (Hanya muncul saat Daftar Baru) -->
         <div id="authEmailGroup" class="form-group" style="display:none;">
-          <label class="form-label" for="authEmail">Alamat Email Aktif</label>
+          <label class="form-label" for="authEmail" data-i18n="auth_email_label">Alamat Email Aktif</label>
           <div style="display:flex; gap:8px;">
-            <input type="email" id="authEmail" class="form-input" placeholder="streamer@gmail.com" autocomplete="email">
+            <input type="email" id="authEmail" class="form-input" placeholder="streamer@gmail.com" data-i18n-ph="ph_auth_email" autocomplete="email">
             <button type="button" id="btnSendCode" class="btn-icon btn-primary" style="white-space:nowrap; padding:8px 12px; font-size:0.75rem; font-weight:700;">
-              Kirim Kode 📨
+              <span data-i18n="auth_send_code_btn">Kirim Kode 📨</span>
             </button>
           </div>
           <div id="emailNotice" style="font-size:0.72rem; color:#67e8f9; margin-top:4px; display:none;"></div>
@@ -565,21 +565,21 @@
 
         <!-- Kode Verifikasi 6-Digit (Hanya muncul saat Daftar Baru) -->
         <div id="authCodeGroup" class="form-group" style="display:none;">
-          <label class="form-label" for="authCode">Kode Verifikasi 6-Digit</label>
+          <label class="form-label" for="authCode" data-i18n="auth_code_label">Kode Verifikasi 6-Digit</label>
           <input type="text" id="authCode" maxlength="6" class="form-input" placeholder="123456" style="letter-spacing:4px; font-size:1.1rem; text-align:center; font-family:var(--font-mono); font-weight:800; color:#fbbf24;">
-          <span style="font-size:0.68rem; color:var(--text-tertiary);">Periksa kotak masuk/spam email Anda. Kode berlaku 15 menit.</span>
+          <span style="font-size:0.68rem; color:var(--text-tertiary);" data-i18n="auth_code_help">Periksa kotak masuk/spam email Anda. Kode berlaku 15 menit.</span>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="authPassword" data-i18n="auth_pass_label">Password (Min. 4 karakter)</label>
           <div class="password-input-wrap">
-            <input type="password" id="authPassword" required minlength="4" class="form-input" placeholder="Password akun..." autocomplete="current-password">
+            <input type="password" id="authPassword" required minlength="4" class="form-input" placeholder="Password akun..." data-i18n-ph="ph_auth_pass" autocomplete="current-password">
           </div>
         </div>
         <div id="authErrorMsg" style="font-size:0.75rem; color:#ef4444; display:none; line-height:1.4;"></div>
         <div id="authSuccessMsg" style="font-size:0.75rem; color:#10b981; display:none; line-height:1.4;"></div>
         <button type="submit" id="btnSubmitAuth" class="btn-icon btn-primary" style="justify-content:center; padding:10px; font-weight:800;">
-          Masuk ke Akun 🚀
+          <span data-i18n="auth_submit_login">Masuk ke Akun 🚀</span>
         </button>
       </form>
     </div>

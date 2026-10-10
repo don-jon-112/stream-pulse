@@ -255,7 +255,7 @@
         </div>
       </a>
       <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.8rem; padding: 6px 12px;">
-        ← Kembali ke Live Chat
+        <span data-i18n="feat_back_chat">← Kembali ke Live Chat</span>
       </a>
     </div>
 
@@ -266,14 +266,14 @@
         <span>ID</span>
       </button>
       <a href="/admin" class="btn-icon" style="text-decoration:none; font-size:0.8rem;" title="Login Admin untuk mengelola fitur">
-        ⚙️ Kelola (Admin)
+        <span data-i18n="feat_admin_btn">⚙️ Kelola (Admin)</span>
       </a>
       <a href="/donate" class="btn-icon btn-donate" style="text-decoration:none; font-size:0.8rem;">
-        Dukung / Donasi ☕
+        <span data-i18n="feat_donate_btn">Dukung / Donasi ☕</span>
       </a>
       <button id="btnOpenRequestModal" class="btn-icon btn-primary" style="font-size:0.82rem; padding: 8px 18px;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-        <span>Ajukan Fitur Baru</span>
+        <span data-i18n="feat_submit_btn">Ajukan Fitur Baru</span>
       </button>
     </div>
   </header>
@@ -283,14 +283,14 @@
     
     <div class="hero-banner">
       <div class="hero-text">
-        <h1>Papan Kanban & Usulan Fitur</h1>
-        <p>
+        <h1 data-i18n="feat_hero_title">Papan Kanban & Usulan Fitur</h1>
+        <p data-i18n="feat_hero_desc">
           Pantau progres pengembangan StreamPulse secara transparan. Anda bebas mengusulkan fitur baru atau memberi suara (upvote 👍) pada fitur yang paling Anda inginkan!
         </p>
       </div>
       <div>
         <button id="btnHeroRequest" class="btn-icon btn-primary" style="padding: 10px 22px; font-weight:800;">
-          💡 Ajukan Ide Sekarang
+          <span data-i18n="feat_hero_cta">💡 Ajukan Ide Sekarang</span>
         </button>
       </div>
     </div>
@@ -303,7 +303,7 @@
         <div class="column-header">
           <div class="column-title-group">
             <span style="color:#818cf8;">📋</span>
-            <span>TODO / Usulan Masuk</span>
+            <span data-i18n="feat_col_todo">TODO / Usulan Masuk</span>
           </div>
           <span id="badgeCountTodo" class="column-badge">0</span>
         </div>
@@ -317,7 +317,7 @@
         <div class="column-header">
           <div class="column-title-group">
             <span style="color:#f59e0b;">⚡</span>
-            <span>Sedang Dikerjakan</span>
+            <span data-i18n="feat_col_in_progress">Sedang Dikerjakan</span>
           </div>
           <span id="badgeCountInProgress" class="column-badge">0</span>
         </div>
@@ -331,7 +331,7 @@
         <div class="column-header">
           <div class="column-title-group">
             <span style="color:#10b981;">✅</span>
-            <span>Selesai & Rilis</span>
+            <span data-i18n="feat_col_done">Selesai & Rilis</span>
           </div>
           <span id="badgeCountDone" class="column-badge">0</span>
         </div>
@@ -351,19 +351,19 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
           </svg>
-          <span>Ajukan Usulan Fitur</span>
+          <span data-i18n="feat_modal_title">Ajukan Usulan Fitur</span>
         </div>
         <button id="closeRequestModal" class="modal-close">&times;</button>
       </div>
 
       <form id="formNewRequest" class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
         <div class="channel-field">
-          <label class="channel-label" for="reqTitle">Judul Fitur *</label>
-          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." autocomplete="off">
+          <label class="channel-label" for="reqTitle" data-i18n="feat_req_title_label">Judul Fitur *</label>
+          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." data-i18n-ph="feat_req_title_ph" autocomplete="off">
         </div>
 
         <div class="channel-field">
-          <label class="channel-label" for="reqCategory">Kategori Platform</label>
+          <label class="channel-label" for="reqCategory" data-i18n="feat_req_cat_label">Kategori Platform</label>
           <select id="reqCategory" style="width:100%; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.85rem;">
             <option value="twitch">🟣 Twitch</option>
             <option value="youtube">🔴 YouTube Live</option>
@@ -375,18 +375,20 @@
         </div>
 
         <div class="channel-field">
-          <label class="channel-label" for="reqAuthor">Nama Anda / Streamer (Opsional)</label>
-          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" autocomplete="off">
+          <label class="channel-label" for="reqAuthor" data-i18n="feat_req_author_label">Nama Anda / Streamer (Opsional)</label>
+          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" data-i18n-ph="feat_req_author_ph" autocomplete="off">
         </div>
 
         <div class="channel-field">
-          <label class="channel-label" for="reqDesc">Deskripsi Fitur *</label>
-          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." style="width:100%; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.85rem; resize:vertical; font-family:var(--font-sans);"></textarea>
+          <label class="channel-label" for="reqDesc" data-i18n="feat_req_desc_label">Deskripsi Fitur *</label>
+          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." data-i18n-ph="feat_req_desc_ph" style="width:100%; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.85rem; resize:vertical; font-family:var(--font-sans);"></textarea>
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
-          <button type="button" id="btnCancelRequest" class="btn-icon">Batal</button>
-          <button type="submit" id="btnSubmitRequest" class="btn-icon btn-primary">Kirim Usulan 🚀</button>
+          <button type="button" id="btnCancelRequest" class="btn-icon" data-i18n="dialog_cancel">Batal</button>
+          <button type="submit" id="btnSubmitRequest" class="btn-icon btn-primary">
+            <span data-i18n="feat_req_submit_btn">Kirim Usulan 🚀</span>
+          </button>
         </div>
       </form>
     </div>

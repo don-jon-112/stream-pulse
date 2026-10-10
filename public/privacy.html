@@ -147,71 +147,71 @@
 
     <!-- Privacy Statement -->
     <div class="privacy-card">
-      <h1>Kebijakan Privasi StreamPulse</h1>
-      <p style="font-size:0.8rem; color:var(--text-tertiary);">Terakhir diperbarui: Oktober 2026</p>
+      <h1 data-i18n="privacy_h1">Kebijakan Privasi StreamPulse</h1>
+      <p style="font-size:0.8rem; color:var(--text-tertiary);" data-i18n="privacy_date">Terakhir diperbarui: Oktober 2026</p>
       
-      <p>
+      <p data-i18n="privacy_intro">
         StreamPulse berkomitmen untuk melindungi privasi Anda. Layanan kami dirancang untuk membantu para konten kreator dan streamer memantau chat serta mengelola OBS overlay tanpa melacak atau memperjualbelikan data pribadi Anda ke pihak manapun.
       </p>
 
-      <h2>🛡️ 1. Data yang Kami Kumpulkan</h2>
+      <h2 data-i18n="privacy_sec1_title">🛡️ 1. Data yang Kami Kumpulkan</h2>
       <ul>
-        <li><strong>Alamat Email:</strong> Digunakan secara eksklusif untuk verifikasi kepemilikan akun saat registrasi dan pemulihan akun. Kami tidak mengirimkan email spam atau buletin promosi.</li>
-        <li><strong>Nama Pengguna (Username):</strong> Identitas akun Anda untuk mengelola konfigurasi saluran dan slot overlay.</li>
-        <li><strong>Nama Saluran Publik:</strong> Nama channel Twitch, YouTube, dan TikTok yang Anda pilih untuk dipantau secara publik.</li>
-        <li><strong>Token OAuth Twitch (Opsional):</strong> Digunakan untuk menangkap event interaktif (Channel Points Redeem). Token ini <strong>dienkripsi secara ketat menggunakan AES-256-GCM</strong> di server kami dan tidak pernah dibocorkan ke browser.</li>
-        <li><strong>Kata Sandi:</strong> Dienkripsi menggunakan algoritma hashing memori keras mutakhir <strong>Argon2id</strong> dengan salt unik. Kami tidak dapat melihat kata sandi asli Anda.</li>
+        <li data-i18n-html="privacy_sec1_email"><strong>Alamat Email:</strong> Digunakan secara eksklusif untuk verifikasi kepemilikan akun saat registrasi dan pemulihan akun. Kami tidak mengirimkan email spam atau buletin promosi.</li>
+        <li data-i18n-html="privacy_sec1_username"><strong>Nama Pengguna (Username):</strong> Identitas akun Anda untuk mengelola konfigurasi saluran dan slot overlay.</li>
+        <li data-i18n-html="privacy_sec1_channels"><strong>Nama Saluran Publik:</strong> Nama channel Twitch, YouTube, dan TikTok yang Anda pilih untuk dipantau secara publik.</li>
+        <li data-i18n-html="privacy_sec1_oauth"><strong>Token OAuth Twitch (Opsional):</strong> Digunakan untuk menangkap event interaktif (Channel Points Redeem). Token ini <strong>dienkripsi secara ketat menggunakan AES-256-GCM</strong> di server kami dan tidak pernah dibocorkan ke browser.</li>
+        <li data-i18n-html="privacy_sec1_pass"><strong>Kata Sandi:</strong> Dienkripsi menggunakan algoritma hashing memori keras mutakhir <strong>Argon2id</strong> dengan salt unik. Kami tidak dapat melihat kata sandi asli Anda.</li>
       </ul>
 
-      <h2>💬 2. Pemrosesan Data Chat & Live Stream</h2>
-      <p>
+      <h2 data-i18n="privacy_sec2_title">💬 2. Pemrosesan Data Chat & Live Stream</h2>
+      <p data-i18n-html="privacy_sec2_desc">
         Pesan chat dari penonton Twitch, YouTube, dan TikTok diproses secara <em>real-time streaming</em> di perangkat/browser Anda menggunakan protokol WebSocket. StreamPulse <strong>tidak menyimpan riwayat isi chat penonton ke database permanen</strong>. Saat sesi streaming selesai atau browser ditutup, pesan chat langsung dibersihkan dari memori.
       </p>
 
-      <h2>🍪 3. Penggunaan Cookie & Penyimpanan Lokal</h2>
-      <p>
+      <h2 data-i18n="privacy_sec3_title">🍪 3. Penggunaan Cookie & Penyimpanan Lokal</h2>
+      <p data-i18n-html="privacy_sec3_desc">
         Kami hanya menggunakan <code>localStorage</code> dan <code>sessionStorage</code> di browser Anda untuk menyimpan token sesi login Anda dan preferensi tampilan (seperti tema gelap, ukuran font overlay). Kami tidak menggunakan cookie pelacak pihak ketiga atau iklan (No Third-Party Trackers).
       </p>
 
-      <h2>🔒 4. Keamanan & Enkripsi</h2>
-      <p>
+      <h2 data-i18n="privacy_sec4_title">🔒 4. Keamanan & Enkripsi</h2>
+      <p data-i18n="privacy_sec4_desc">
         Seluruh komunikasi data antara browser, OBS Studio, dan server kami dilindungi dengan enkripsi SSL/TLS (HTTPS & WSS). Kredensial sensitif disimpan terenkripsi dan terlindung dari akses tidak sah dengan mekanisme Rate Limiting.
       </p>
     </div>
 
     <!-- Interactive Account Deletion Zone -->
     <div class="danger-zone-card" id="accountDeletionSection">
-      <h2>⚠️ Penghapusan Akun & Seluruh Data (Data Deletion)</h2>
-      <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+      <h2 data-i18n="privacy_danger_title">⚠️ Penghapusan Akun & Seluruh Data (Data Deletion)</h2>
+      <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;" data-i18n-html="privacy_danger_desc">
         Sesuai dengan hak privasi pengguna (GDPR Compliance), Anda berhak menghapus akun Anda kapan saja. Jika Anda menghapus akun, seluruh data profil Anda, kredensial yang tersimpan, dan ketiga slot OBS Overlay Anda akan <strong>dihapus secara permanen dari server dan tidak dapat dipulihkan kembali</strong>.
       </p>
 
       <div id="deletionLoggedInArea" style="display:none; margin-top:16px;">
         <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:var(--radius-sm); margin-bottom:16px;">
           <div style="font-size:0.85rem; color:#fff;">
-            Akun Aktif: <strong id="deleteTargetUsername" style="color:#67e8f9;">-</strong> (<span id="deleteTargetEmail">-</span>)
+            <span data-i18n="privacy_active_account_label">Akun Aktif:</span> <strong id="deleteTargetUsername" style="color:#67e8f9;">-</strong> (<span id="deleteTargetEmail">-</span>)
           </div>
-          <div style="font-size:0.75rem; color:var(--text-tertiary); margin-top:2px;">
+          <div style="font-size:0.75rem; color:var(--text-tertiary); margin-top:2px;" data-i18n="privacy_active_note">
             Seluruh slot OBS overlay milik akun ini akan langsung dimusnahkan.
           </div>
         </div>
 
         <form id="formDeleteAccount" style="display:flex; flex-direction:column; gap:12px; max-width:440px;">
           <div class="form-group">
-            <label class="form-label" for="inputDeletePassword" style="color:#fca5a5;">Masukkan Kata Sandi untuk Konfirmasi:</label>
+            <label class="form-label" for="inputDeletePassword" style="color:#fca5a5;" data-i18n="privacy_delete_pass_label">Masukkan Kata Sandi untuk Konfirmasi:</label>
             <div class="password-input-wrap">
-              <input type="password" id="inputDeletePassword" required class="search-input" style="width:100%; box-sizing:border-box;" placeholder="Ketik kata sandi Anda saat ini...">
+              <input type="password" id="inputDeletePassword" required class="search-input" style="width:100%; box-sizing:border-box;" placeholder="Ketik kata sandi Anda saat ini..." data-i18n-ph="ph_current_pass">
             </div>
           </div>
           <div id="deleteErrorMsg" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
           <button type="submit" class="btn-action-sm danger" style="padding:10px 16px; font-weight:800; border-radius:var(--radius-sm);">
-            🗑️ Hapus Akun Saya Secara Permanen
+            <span data-i18n="privacy_delete_btn">🗑️ Hapus Akun Saya Secara Permanen</span>
           </button>
         </form>
       </div>
 
       <div id="deletionGuestArea" style="margin-top:16px;">
-        <p style="font-size:0.82rem; color:var(--text-tertiary);">
+        <p style="font-size:0.82rem; color:var(--text-tertiary);" data-i18n-html="privacy_guest_notice">
           Anda sedang tidak login. Silakan <a href="/studio" style="color:#6366f1; font-weight:700;">Masuk ke Akun Anda</a> terlebih dahulu untuk mengakses menu penghapusan akun mandiri.
         </p>
       </div>
