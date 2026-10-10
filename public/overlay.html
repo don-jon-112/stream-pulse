@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
   <title>OBS Chat Overlay - StreamPulse</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
@@ -147,6 +148,66 @@
       box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
     }
 
+    /* Official Platform Badges */
+    .platform-official-badge {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      min-height: 18px;
+      border-radius: 2px;
+      vertical-align: middle;
+      object-fit: contain;
+      margin-right: 4px;
+    }
+    .twitch-badge {
+      width: 18px;
+      height: 18px;
+      border-radius: 2px;
+      vertical-align: middle;
+    }
+    .yt-official-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    .yt-mod-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .yt-mod-badge svg {
+      width: 15px;
+      height: 15px;
+      filter: drop-shadow(0 1px 2px rgba(94, 132, 241, 0.6));
+    }
+    .yt-owner-badge {
+      background: #ff0000;
+      color: #ffffff;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(255, 0, 0, 0.4);
+    }
+    .yt-owner-badge svg {
+      width: 11px;
+      height: 11px;
+    }
+    .yt-member-badge {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      vertical-align: middle;
+    }
+    .yt-member-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+    }
+
     .overlay-author-name {
       font-size: 0.9rem;
       font-weight: 800;
@@ -274,6 +335,16 @@
         'Pog': 'https://cdn.7tv.app/emote/6041074e548231000d41865c/1x.webp'
       };
 
+      // Fetch all global 7TV & BTTV emotes immediately
+      fetch('/api/emotes/global')
+        .then(r => r.json())
+        .then(data => {
+          if (data && typeof data === 'object') {
+            twitchEmotes = { ...data, ...twitchEmotes };
+          }
+        })
+        .catch(() => {});
+
       function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -288,7 +359,7 @@
           if (!token || /^\s+$/.test(token)) return token;
           const clean = token.trim();
           if (twitchEmotes[clean]) {
-            return `<img class="chat-emote" src="${escapeHtml(twitchEmotes[clean])}" alt="${escapeHtml(clean)}" loading="lazy">`;
+            return `<img class="chat-emote" src="${escapeHtml(twitchEmotes[clean])}" alt="${escapeHtml(clean)}" referrerpolicy="no-referrer" loading="lazy">`;
           }
           return escapeHtml(token);
         }).join('');
@@ -323,7 +394,7 @@
             html += parse7tvTokens(rawText.substring(last, r.start));
           }
           const emoteName = rawText.substring(r.start, r.end);
-          html += `<img class="chat-emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${r.id}/default/dark/1.0" alt="${escapeHtml(emoteName)}" loading="lazy">`;
+          html += `<img class="chat-emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${r.id}/default/dark/1.0" alt="${escapeHtml(emoteName)}" referrerpolicy="no-referrer" loading="lazy">`;
           last = r.end;
         }
         if (last < rawText.length) {
@@ -332,7 +403,35 @@
         return html;
       }
 
-      // Twitch Badges Renderer
+      // Official Twitch Badges CDN Registry
+      const TWITCH_OFFICIAL_BADGES = {
+        broadcaster: {
+          url: 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1',
+          title: 'Broadcaster'
+        },
+        moderator: {
+          url: 'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1',
+          title: 'Moderator'
+        },
+        vip: {
+          url: 'https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/1',
+          title: 'VIP'
+        },
+        subscriber: {
+          url: 'https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/1',
+          title: 'Subscriber'
+        },
+        partner: {
+          url: 'https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/1',
+          title: 'Verified Partner'
+        },
+        premium: {
+          url: 'https://static-cdn.jtvnw.net/badges/v1/bbbe0db0-a598-423e-86d0-f9fb98ca1933/1',
+          title: 'Prime Gaming'
+        }
+      };
+
+      // Official Platform Badges Renderer
       function renderBadges(chat) {
         if (!config.showBadges) return '';
         let html = '';
@@ -340,22 +439,55 @@
 
         if (chat.platform === 'twitch') {
           const badges = author.badges || {};
-          if (badges.broadcaster) {
-            html += `<span class="badge-icon broadcaster" title="Broadcaster / Streamer">👑 Streamer</span>`;
+          if (badges.broadcaster || author.isBroadcaster) {
+            const b = TWITCH_OFFICIAL_BADGES.broadcaster;
+            html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
           }
           if (badges.moderator || author.isMod) {
-            html += `<span class="badge-icon mod" title="Moderator">⚔️ Mod</span>`;
+            const b = TWITCH_OFFICIAL_BADGES.moderator;
+            html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
           }
           if (badges.vip) {
-            html += `<span class="badge-icon vip" title="VIP">💎 VIP</span>`;
+            const b = TWITCH_OFFICIAL_BADGES.vip;
+            html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
           }
           if (badges.subscriber || author.isSub) {
-            html += `<span class="badge-icon sub" title="Subscriber">⭐ Sub</span>`;
+            const b = TWITCH_OFFICIAL_BADGES.subscriber;
+            html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+          }
+          if (badges.partner) {
+            const b = TWITCH_OFFICIAL_BADGES.partner;
+            html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+          }
+          if (badges.premium || badges.turbo) {
+            const b = TWITCH_OFFICIAL_BADGES.premium;
+            html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
           }
         } else if (chat.platform === 'youtube') {
-          if (author.isOwner) html += `<span class="badge-icon broadcaster">👑 Host</span>`;
-          if (author.isMod) html += `<span class="badge-icon mod">⚔️ Mod</span>`;
-          if (author.isSub) html += `<span class="badge-icon sub" style="background:#00bfa5;">🌟 Member</span>`;
+          // 1. YouTube Official Owner Badge
+          if (author.isOwner) {
+            html += `
+              <span class="yt-official-badge yt-owner-badge" title="Channel Owner / Host">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="#ffffff" aria-hidden="true"><path d="M8 1l2.3 4.7 5.2.8-3.8 3.7.9 5.2L8 12.9l-4.6 2.5.9-5.2-3.8-3.7 5.2-.8L8 1z"/></svg>
+                <span>Owner</span>
+              </span>`;
+          }
+          // 2. YouTube Official Moderator Blue Wrench
+          if (author.isMod) {
+            html += `
+              <span class="yt-official-badge yt-mod-badge" title="Moderator">
+                <svg viewBox="0 0 16 16" width="14" height="14" fill="#5e84f1" aria-hidden="true"><path d="M9.64 5.64l-1.28-1.28a3.16 3.16 0 0 0-4.41.22 3.16 3.16 0 0 0 .22 4.41l1.28 1.28 7.37 7.37a1.05 1.05 0 0 0 1.49 0l1.49-1.49a1.05 1.05 0 0 0 0-1.49L9.64 5.64zM3.48 4.97a1.77 1.77 0 0 1 2.5 0l.75.75-1.5 1.5-.75-.75a1.77 1.77 0 0 1 0-2.5z"/></svg>
+              </span>`;
+          }
+          // 3. YouTube Member Custom Badge / Icon
+          if (author.memberBadge) {
+            html += `<img src="${escapeHtml(author.memberBadge)}" class="platform-official-badge yt-member-badge" alt="Member" title="Channel Member" referrerpolicy="no-referrer" loading="lazy">`;
+          } else if (author.isSub) {
+            html += `
+              <span class="yt-official-badge yt-member-badge-pill" title="Member">
+                <svg viewBox="0 0 16 16" width="13" height="13" fill="#00bfa5" aria-hidden="true"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.7 6.3l-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 3.97-3.97a.75.75 0 0 1 1.06 1.06z"/></svg>
+              </span>`;
+          }
         }
 
         if (chat.isRedeem) {
@@ -378,7 +510,7 @@
 
         const avatarHtml = config.showAvatars
           ? (author.avatar 
-              ? `<img src="${escapeHtml(author.avatar)}" class="overlay-avatar" alt="${escapeHtml(authorName)}" onerror="this.outerHTML='<div class=\\'overlay-avatar\\'>${initial}</div>'">`
+              ? `<img src="${escapeHtml(author.avatar)}" class="overlay-avatar" alt="${escapeHtml(authorName)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=\\'overlay-avatar\\'>${initial}</div>'">`
               : `<div class="overlay-avatar">${initial}</div>`)
           : '';
 

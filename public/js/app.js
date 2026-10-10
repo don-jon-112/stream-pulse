@@ -433,7 +433,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (initial.recentEvents && initial.recentEvents.length > 0) {
       initial.recentEvents.forEach(evt => addEventToRecorder(evt, false));
     }
+
+    if (initial.emotes && typeof initial.emotes === 'object') {
+      state.twitchEmotes = { ...state.twitchEmotes, ...initial.emotes };
+    }
   });
+
+  // Pre-load global 7TV & BetterTTV emotes segera saat boot
+  fetch('/api/emotes/global')
+    .then(r => r.json())
+    .then(emotes => {
+      if (emotes && typeof emotes === 'object') {
+        state.twitchEmotes = { ...emotes, ...state.twitchEmotes };
+      }
+    })
+    .catch(() => {});
 
   socket.on('twitch_emotes', ({ channel, emotes }) => {
     if (emotes && typeof emotes === 'object') {
@@ -560,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const cleanToken = token.trim();
       const emoteUrl = (emotesMap && emotesMap[cleanToken]) || state.twitchEmotes[cleanToken];
       if (emoteUrl) {
-        return `<img class="chat-emote seventv-emote" src="${escapeHtml(emoteUrl)}" alt="${escapeHtml(cleanToken)}" title="${escapeHtml(cleanToken)}" loading="lazy">`;
+        return `<img class="chat-emote seventv-emote" src="${escapeHtml(emoteUrl)}" alt="${escapeHtml(cleanToken)}" title="${escapeHtml(cleanToken)}" referrerpolicy="no-referrer" loading="lazy">`;
       }
       return escapeHtml(token);
     }).join('');
@@ -612,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Emote native Twitch
       const emoteName = rawText.substring(r.start, r.end);
       const emoteUrl = `https://static-cdn.jtvnw.net/emoticons/v2/${r.id}/default/dark/1.0`;
-      html += `<img class="chat-emote" src="${emoteUrl}" alt="${escapeHtml(emoteName)}" title="${escapeHtml(emoteName)}" loading="lazy">`;
+      html += `<img class="chat-emote" src="${emoteUrl}" alt="${escapeHtml(emoteName)}" title="${escapeHtml(emoteName)}" referrerpolicy="no-referrer" loading="lazy">`;
 
       lastIndex = r.end;
     }
@@ -640,6 +654,97 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return true;
+  }
+
+  // Official Twitch Badges CDN Registry
+  const TWITCH_OFFICIAL_BADGES = {
+    broadcaster: {
+      url: 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1',
+      title: 'Broadcaster'
+    },
+    moderator: {
+      url: 'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1',
+      title: 'Moderator'
+    },
+    vip: {
+      url: 'https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/1',
+      title: 'VIP'
+    },
+    subscriber: {
+      url: 'https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/1',
+      title: 'Subscriber'
+    },
+    partner: {
+      url: 'https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/1',
+      title: 'Verified Partner'
+    },
+    premium: {
+      url: 'https://static-cdn.jtvnw.net/badges/v1/bbbe0db0-a598-423e-86d0-f9fb98ca1933/1',
+      title: 'Prime Gaming'
+    }
+  };
+
+  function getOfficialBadgesHtml(chat) {
+    const author = chat.author || {};
+    let html = '';
+
+    if (chat.platform === 'twitch') {
+      const badges = author.badges || {};
+      if (badges.broadcaster || author.isBroadcaster) {
+        const b = TWITCH_OFFICIAL_BADGES.broadcaster;
+        html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+      }
+      if (badges.moderator || author.isMod) {
+        const b = TWITCH_OFFICIAL_BADGES.moderator;
+        html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+      }
+      if (badges.vip) {
+        const b = TWITCH_OFFICIAL_BADGES.vip;
+        html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+      }
+      if (badges.subscriber || author.isSub) {
+        const b = TWITCH_OFFICIAL_BADGES.subscriber;
+        html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+      }
+      if (badges.partner) {
+        const b = TWITCH_OFFICIAL_BADGES.partner;
+        html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+      }
+      if (badges.premium || badges.turbo) {
+        const b = TWITCH_OFFICIAL_BADGES.premium;
+        html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
+      }
+    } else if (chat.platform === 'youtube') {
+      // 1. YouTube Official Owner Badge
+      if (author.isOwner) {
+        html += `
+          <span class="yt-official-badge yt-owner-badge" title="Channel Owner / Host">
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="#ffffff" aria-hidden="true"><path d="M8 1l2.3 4.7 5.2.8-3.8 3.7.9 5.2L8 12.9l-4.6 2.5.9-5.2-3.8-3.7 5.2-.8L8 1z"/></svg>
+            <span>Owner</span>
+          </span>`;
+      }
+      // 2. YouTube Official Moderator Blue Wrench
+      if (author.isMod) {
+        html += `
+          <span class="yt-official-badge yt-mod-badge" title="Moderator">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="#5e84f1" aria-hidden="true"><path d="M9.64 5.64l-1.28-1.28a3.16 3.16 0 0 0-4.41.22 3.16 3.16 0 0 0 .22 4.41l1.28 1.28 7.37 7.37a1.05 1.05 0 0 0 1.49 0l1.49-1.49a1.05 1.05 0 0 0 0-1.49L9.64 5.64zM3.48 4.97a1.77 1.77 0 0 1 2.5 0l.75.75-1.5 1.5-.75-.75a1.77 1.77 0 0 1 0-2.5z"/></svg>
+          </span>`;
+      }
+      // 3. YouTube Member (Official channel custom loyalty badge or icon)
+      if (author.memberBadge) {
+        html += `<img src="${escapeHtml(author.memberBadge)}" class="platform-official-badge yt-member-badge" alt="Member" title="Channel Member" referrerpolicy="no-referrer" loading="lazy">`;
+      } else if (author.isSub) {
+        html += `
+          <span class="yt-official-badge yt-member-badge-pill" title="Member">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="#00bfa5" aria-hidden="true"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.7 6.3l-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 3.97-3.97a.75.75 0 0 1 1.06 1.06z"/></svg>
+          </span>`;
+      }
+    } else if (chat.platform === 'tiktok') {
+      if (author.isMod) html += `<span class="badge-user mod">MOD</span>`;
+      if (author.isSub) html += `<span class="badge-user sub">SUB</span>`;
+    }
+
+    return html;
   }
 
   // Platform Badges with SVG Icons (UI/UX Pro Max rule: avoid raw emojis in UI chrome)
@@ -683,21 +788,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarImg = state.liteMode
       ? ''
       : (author.avatar
-          ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
+          ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
           : `<div class="chat-avatar">${initial}</div>`);
 
-    let badgesHtml = getPlatformBadge(chat.platform);
-    if (chat.platform === 'twitch') {
-      if (author.isMod) badgesHtml += `<span class="badge-user mod">MOD</span>`;
-      if (author.isSub) badgesHtml += `<span class="badge-user sub">SUB</span>`;
-    } else if (chat.platform === 'youtube') {
-      if (author.isOwner) badgesHtml += `<span class="badge-user mod">OWNER</span>`;
-      if (author.isMod) badgesHtml += `<span class="badge-user mod">MOD</span>`;
-      if (author.isSub) badgesHtml += `<span class="badge-user sub">MEMBER</span>`;
-    } else if (chat.platform === 'tiktok') {
-      if (author.isMod) badgesHtml += `<span class="badge-user mod">MOD</span>`;
-      if (author.isSub) badgesHtml += `<span class="badge-user sub">SUB</span>`;
-    }
+    const badgesHtml = getPlatformBadge(chat.platform) + getOfficialBadgesHtml(chat);
 
     const chatTextHtml = chat.platform === 'twitch'
       ? formatTwitchMessageWithEmotes(chat.text, chat.emotes)

@@ -809,6 +809,77 @@ body {
   border: 1px solid rgba(245, 158, 11, 0.35);
 }
 
+/* ==========================================
+   OFFICIAL PLATFORM BADGES (Twitch & YouTube)
+   ========================================== */
+.platform-official-badge {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 2px;
+  vertical-align: middle;
+  object-fit: contain;
+  margin-right: 4px;
+}
+
+.twitch-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+.yt-official-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.yt-mod-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yt-mod-badge svg {
+  width: 15px;
+  height: 15px;
+  filter: drop-shadow(0 1px 2px rgba(94, 132, 241, 0.4));
+}
+
+.yt-owner-badge {
+  background: #ff0000;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-display, sans-serif);
+  box-shadow: 0 1px 4px rgba(255, 0, 0, 0.35);
+}
+
+.yt-owner-badge svg {
+  width: 11px;
+  height: 11px;
+}
+
+.yt-member-badge {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.yt-member-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
 .author-name {
   font-family: var(--font-display);
   font-weight: 700;
@@ -848,6 +919,52 @@ body {
   height: 1.35em;
   max-height: 24px;
   margin: -1px 2px;
+}
+
+/* Official Platform Badges (Twitch & YouTube) */
+.platform-official-badge {
+  display: inline-block;
+  vertical-align: middle;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.yt-mod-badge {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.yt-owner-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  background: #ffd600;
+  color: #000;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.yt-member-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  background: #00bfa5;
+  color: #000;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 /* ==========================================================================

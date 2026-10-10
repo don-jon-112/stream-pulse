@@ -8,6 +8,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import compression from 'compression';
 import { StreamManager } from './lib/streamManager.js';
+import { emoteManager } from './lib/emoteManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -133,6 +134,10 @@ app.get('/api/events', (req, res) => {
     total: streamManager.eventHistory.length,
     events: streamManager.eventHistory
   });
+});
+
+app.get('/api/emotes/global', (req, res) => {
+  res.json(emoteManager.getGlobalEmotes ? emoteManager.getGlobalEmotes() : {});
 });
 
 app.post('/api/channels', async (req, res) => {
