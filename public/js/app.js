@@ -5,19 +5,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Server Target Resolution (Supports Localhost, Cloud Backend like Render/Railway, or Android APK)
-  const savedServerUrl = (localStorage.getItem('streampulse_server_url') || '').trim();
-  let serverTarget = undefined;
-
-  if (savedServerUrl) {
-    serverTarget = savedServerUrl.replace(/\/+$/, '');
-  } else if (window.location.protocol === 'file:' || window.location.protocol === 'capacitor:') {
-    serverTarget = undefined;
-  }
-
-  const socket = serverTarget 
-    ? io(serverTarget, { transports: ['websocket', 'polling'] }) 
-    : io({ transports: ['websocket', 'polling'] });
+  const socket = io({ transports: ['websocket', 'polling'] });
 
   // Header Elements
   const wakelockBtn = document.getElementById('wakelockBtn');
@@ -63,27 +51,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // Modals
   const setupModal = document.getElementById('setupModal');
   const demoModal = document.getElementById('demoModal');
+  const donateModal = document.getElementById('donateModal');
   const closeSetupModal = document.getElementById('closeSetupModal');
   const closeDemoModal = document.getElementById('closeDemoModal');
+  const closeDonateModal = document.getElementById('closeDonateModal');
   const btnFinishDemo = document.getElementById('btnFinishDemo');
   const btnCancelSetup = document.getElementById('btnCancelSetup');
+  const btnCancelDonate = document.getElementById('btnCancelDonate');
   const btnSaveChannels = document.getElementById('btnSaveChannels');
+  const btnDonateModal = document.getElementById('btnDonateModal');
 
   // Channel Inputs
   const inputTwitch = document.getElementById('inputTwitch');
   const inputTwitchToken = document.getElementById('inputTwitchToken');
   const inputYouTube = document.getElementById('inputYouTube');
   const inputTikTok = document.getElementById('inputTikTok');
-  const inputServerUrl = document.getElementById('inputServerUrl');
-
-  if (inputServerUrl && savedServerUrl) {
-    inputServerUrl.value = savedServerUrl;
-  }
 
   // Mobile navigation
   const mobNavChat = document.getElementById('mobNavChat');
   const mobNavEvents = document.getElementById('mobNavEvents');
   const mobNavSetup = document.getElementById('mobNavSetup');
+  const mobNavDonate = document.getElementById('mobNavDonate');
 
   // Particle Canvas
   const fxCanvas = document.getElementById('fxCanvas');
@@ -965,22 +953,6 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('streampulse_twitch_token');
     }
 
-    const prevServerUrl = (localStorage.getItem('streampulse_server_url') || '').trim();
-    const newServerUrl = inputServerUrl ? inputServerUrl.value.trim().replace(/\/+$/, '') : '';
-
-    if (newServerUrl) {
-      localStorage.setItem('streampulse_server_url', newServerUrl);
-    } else {
-      localStorage.removeItem('streampulse_server_url');
-    }
-
-    if (newServerUrl !== prevServerUrl) {
-      closeModal(setupModal);
-      alert('URL Server backend diperbarui. Memuat ulang aplikasi untuk menyambungkan...');
-      window.location.reload();
-      return;
-    }
-
     // Simpan saluran milik pengguna ini agar setiap pengguna/browser membuka salurannya masing-masing
     localStorage.setItem('streampulse_my_channels', JSON.stringify({
       twitch,
@@ -1001,11 +973,19 @@ document.addEventListener('DOMContentLoaded', () => {
   closeDemoModal.addEventListener('click', () => closeModal(demoModal));
   btnFinishDemo.addEventListener('click', () => closeModal(demoModal));
 
+  // Donate Modal Listeners
+  if (btnDonateModal) btnDonateModal.addEventListener('click', () => openModal(donateModal));
+  if (closeDonateModal) closeDonateModal.addEventListener('click', () => closeModal(donateModal));
+  if (btnCancelDonate) btnCancelDonate.addEventListener('click', () => closeModal(donateModal));
+  if (mobNavDonate) mobNavDonate.addEventListener('click', () => openModal(donateModal));
+
   // Dismiss modal on background click
-  [setupModal, demoModal].forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal(modal);
-    });
+  [setupModal, demoModal, donateModal].forEach(modal => {
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal(modal);
+      });
+    }
   });
 
   // ESC key listener
@@ -1014,6 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (state.obsMode) toggleObsMode();
       closeModal(setupModal);
       closeModal(demoModal);
+      if (donateModal) closeModal(donateModal);
     }
   });
 

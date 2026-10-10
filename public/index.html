@@ -84,6 +84,14 @@
 
       <!-- Action Buttons -->
       <div class="header-actions">
+        <!-- Dukung / Donasi (SociaBuzz) -->
+        <button id="btnDonateModal" class="btn-icon btn-donate" title="Dukung StreamPulse (Traktir Kopi / Donasi)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span>Dukung ☕</span>
+        </button>
+
         <!-- Setup Channels -->
         <button id="btnSetupModal" class="btn-icon btn-primary" title="Atur Channel yang Ingin Dimonitor">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -279,6 +287,10 @@
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       <span>Channel</span>
     </button>
+    <button id="mobNavDonate" class="mob-nav-item" style="color: #f59e0b;">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <span>Donasi ☕</span>
+    </button>
   </nav>
 
   <!-- MODAL: CHANNEL SETUP -->
@@ -356,17 +368,6 @@
           </div>
         </div>
 
-        <!-- Opsional: Server Backend URL (Cloud / Mobile APK) -->
-        <details style="margin-top: 6px; font-size: 0.75rem; color: #94a3b8; background: rgba(0,0,0,0.25); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-sm); padding: 8px 10px;">
-          <summary style="cursor: pointer; color: #818cf8; font-weight: 700; padding: 2px 0;">🌐 Koneksi Server Cloud / Backend (Mobile APK)</summary>
-          <div style="margin-top: 8px; line-height: 1.5; color: #cbd5e1;">
-            <p style="margin-bottom: 6px;">
-              Jika menjalankan dari <strong>APK Android</strong> yang terpasang di HP, masukkan URL backend cloud Anda (Render / Railway / IP Server) di sini:
-            </p>
-            <input type="text" id="inputServerUrl" placeholder="Contoh: https://streampulse.onrender.com" autocomplete="off" style="width: 100%; padding: 8px 12px; font-size: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font-mono);">
-            <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">💡 <em>Biarkan kosong jika mengakses lewat browser biasa (otomatis mendeteksi host saat ini).</em></span>
-          </div>
-        </details>
 
         <div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-md); padding: 14px; font-size: 0.75rem; line-height: 1.5; color: #c7d2fe; margin-top: 10px;">
           💡 <strong>Tips:</strong> Anda bisa memantau ketiga platform sekaligus atau hanya platform tertentu saja. Kosongkan kolom jika tidak ingin menghubungkan platform tersebut.
@@ -498,6 +499,61 @@
 
       <div class="modal-footer">
         <button id="btnFinishDemo" class="btn-icon btn-primary" style="padding: 8px 24px;">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DUKUNGAN & DONASI (SOCIABUZZ) -->
+  <div id="donateModal" class="modal-backdrop">
+    <div class="modal-content modal-donate-content">
+      <div class="modal-header">
+        <div class="modal-title" style="color: #f59e0b;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span>Dukung StreamPulse (100% Gratis)</span>
+        </div>
+        <button id="closeDonateModal" class="modal-close" aria-label="Tutup Modal">&times;</button>
+      </div>
+
+      <div class="modal-body" style="text-align: center; padding: 22px 18px;">
+        <div class="donate-avatar-ring">☕</div>
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 8px;">Suka Menggunakan StreamPulse?</h2>
+        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; max-width: 480px; margin: 0 auto 16px;">
+          Aplikasi ini bebas digunakan secara <strong>gratis, tanpa batas, dan tanpa iklan</strong> untuk semua streamer. 
+          Jika web ini bermanfaat bagi siaran livestream Anda, Anda dapat membantu mendukung biaya sewa server VPS agar tetap aktif 24/7.
+        </p>
+
+        <div class="donate-card-perks">
+          <div class="perk-item">
+            <span class="perk-icon">⚡</span>
+            <span>Membantu biaya operasional server VPS & tunnel agar selalu online</span>
+          </div>
+          <div class="perk-item">
+            <span class="perk-icon">🚀</span>
+            <span>Mendukung pengembangan fitur baru (emotes, overlay OBS, alert)</span>
+          </div>
+          <div class="perk-item">
+            <span class="perk-icon">❤️</span>
+            <span>Dukungan Anda berapapun sangat berarti bagi kreator</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 22px;">
+          <a href="https://sociabuzz.com/joo_nathan" target="_blank" rel="noopener noreferrer" class="btn-donate-cta">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span>Traktir Kopi di SociaBuzz (joo_nathan)</span>
+          </a>
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 10px;">
+            Mendukung QRIS, GoPay, OVO, Dana, ShopeePay, & Transfer Bank
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: center;">
+        <button id="btnCancelDonate" class="btn-icon" style="padding: 8px 24px;">Tutup</button>
       </div>
     </div>
   </div>

@@ -81,6 +81,10 @@ io.on('connection', (socket) => {
 });
 
 // REST Endpoints
+app.get('/donate', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'donate.html'));
+});
+
 app.get('/api/status', (req, res) => {
   res.json(streamManager.getInitialState());
 });
