@@ -312,8 +312,21 @@
     <!-- LEFT: Customizer Controls -->
     <div class="controls-panel">
       
-      <!-- 0. LOAD URL & GENERATE OVERLAY (MAX 3 SLOTS PER USER) -->
-      <div class="overlay-manager-card">
+      <!-- 0. GUEST LOCKED BANNER (Ditampilkan saat pengguna belum login) -->
+      <div id="guestOverlayLockedCard" style="display:none; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.3); border-radius:var(--radius-md); padding:16px;">
+        <div class="box-title" style="color:#f87171;">
+          🔒 OBS Overlay Cloud Manager Terkunci
+        </div>
+        <p class="box-desc" style="color:#cbd5e1; margin-top:6px; line-height:1.5;">
+          Anda saat ini berada dalam mode <strong>Tamu (Guest)</strong>. Anda dapat mencoba kustomisasi visual & live preview, namun untuk <strong>menyimpan konfigurasi</strong>, <strong>mengelola 3 slot cloud</strong>, dan <strong>menyalin URL OBS</strong>, silakan masuk ke akun Anda.
+        </p>
+        <button id="btnGuestUnlock" type="button" class="btn-icon btn-primary" style="width:100%; justify-content:center; padding:9px; font-weight:800; margin-top:8px;">
+          🔐 Login / Daftar Akun Sekarang
+        </button>
+      </div>
+
+      <!-- 0. LOAD URL & GENERATE OVERLAY (MAX 3 SLOTS PER USER - LOGGED IN ONLY) -->
+      <div id="overlayManagerCard" class="overlay-manager-card">
         
         <!-- Part A: Load URL Sebelumnya -->
         <div style="background:rgba(13,17,27,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:12px;">
@@ -331,7 +344,7 @@
         <div style="background:rgba(13,17,27,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
-              <div class="box-title">✨ Buat URL Overlay Baru</div>
+              <div class="box-title">✨ Slot OBS Overlay Cloud</div>
               <div style="font-size:0.75rem; color:var(--text-tertiary);">
                 Kuota Pengguna: <strong id="slotCounter" style="color:#67e8f9;">0 / 3 Slot Terpakai</strong>
               </div>
@@ -474,7 +487,7 @@
       <div class="obs-link-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="font-size:0.9rem; font-weight:800; color:#fff;">🔗 Link OBS Browser Source Anda</span>
-          <span style="font-size:0.75rem; color:#10b981;">✓ Siap Digunakan di OBS</span>
+          <span id="obsUrlStatusBadge" style="font-size:0.75rem; color:#10b981;">✓ Siap Digunakan di OBS</span>
         </div>
         <div class="obs-link-row">
           <input type="text" id="obsFinalUrl" readonly class="obs-link-input" value="">
@@ -482,7 +495,7 @@
             📋 Salin Link
           </button>
         </div>
-        <p style="font-size:0.72rem; color:var(--text-tertiary); margin:0;">
+        <p id="obsUrlHelpText" style="font-size:0.72rem; color:var(--text-tertiary); margin:0;">
           💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>
         </p>
       </div>
@@ -528,14 +541,35 @@
 
       <form id="formAuth" style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
         <div class="form-group">
-          <label class="form-label" for="authUsername">Username (3-20 karakter)</label>
+          <label class="form-label" for="authUsername" id="labelAuthUsername">Username / ID</label>
           <input type="text" id="authUsername" required class="form-input" placeholder="Contoh: gamer_joo" autocomplete="username">
         </div>
+
+        <!-- Email (Hanya muncul saat Daftar Baru) -->
+        <div id="authEmailGroup" class="form-group" style="display:none;">
+          <label class="form-label" for="authEmail">Alamat Email Aktif</label>
+          <div style="display:flex; gap:8px;">
+            <input type="email" id="authEmail" class="form-input" placeholder="streamer@gmail.com" autocomplete="email">
+            <button type="button" id="btnSendCode" class="btn-icon btn-primary" style="white-space:nowrap; padding:8px 12px; font-size:0.75rem; font-weight:700;">
+              Kirim Kode 📨
+            </button>
+          </div>
+          <div id="emailNotice" style="font-size:0.72rem; color:#67e8f9; margin-top:4px; display:none;"></div>
+        </div>
+
+        <!-- Kode Verifikasi 6-Digit (Hanya muncul saat Daftar Baru) -->
+        <div id="authCodeGroup" class="form-group" style="display:none;">
+          <label class="form-label" for="authCode">Kode Verifikasi 6-Digit</label>
+          <input type="text" id="authCode" maxlength="6" class="form-input" placeholder="123456" style="letter-spacing:4px; font-size:1.1rem; text-align:center; font-family:var(--font-mono); font-weight:800; color:#fbbf24;">
+          <span style="font-size:0.68rem; color:var(--text-tertiary);">Periksa kotak masuk/spam email Anda. Kode berlaku 15 menit.</span>
+        </div>
+
         <div class="form-group">
           <label class="form-label" for="authPassword">Password (Min. 4 karakter)</label>
-          <input type="password" id="authPassword" required minlength="4" class="form-input" placeholder="Password..." autocomplete="current-password">
+          <input type="password" id="authPassword" required minlength="4" class="form-input" placeholder="Password akun..." autocomplete="current-password">
         </div>
-        <div id="authErrorMsg" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
+        <div id="authErrorMsg" style="font-size:0.75rem; color:#ef4444; display:none; line-height:1.4;"></div>
+        <div id="authSuccessMsg" style="font-size:0.75rem; color:#10b981; display:none; line-height:1.4;"></div>
         <button type="submit" id="btnSubmitAuth" class="btn-icon btn-primary" style="justify-content:center; padding:10px; font-weight:800;">
           Masuk ke Akun 🚀
         </button>
@@ -590,14 +624,33 @@
       const tabAuthRegister = document.getElementById('tabAuthRegister');
       const formAuth = document.getElementById('formAuth');
       const authUsername = document.getElementById('authUsername');
+      const labelAuthUsername = document.getElementById('labelAuthUsername');
       const authPassword = document.getElementById('authPassword');
       const authErrorMsg = document.getElementById('authErrorMsg');
+      const authSuccessMsg = document.getElementById('authSuccessMsg');
       const btnSubmitAuth = document.getElementById('btnSubmitAuth');
       const authModalTitle = document.getElementById('authModalTitle');
+
+      // Email Verification Elements
+      const authEmailGroup = document.getElementById('authEmailGroup');
+      const authEmail = document.getElementById('authEmail');
+      const btnSendCode = document.getElementById('btnSendCode');
+      const emailNotice = document.getElementById('emailNotice');
+      const authCodeGroup = document.getElementById('authCodeGroup');
+      const authCode = document.getElementById('authCode');
+
+      // Guest & Manager Elements
+      const guestOverlayLockedCard = document.getElementById('guestOverlayLockedCard');
+      const btnGuestUnlock = document.getElementById('btnGuestUnlock');
+      const overlayManagerCard = document.getElementById('overlayManagerCard');
+      const obsUrlStatusBadge = document.getElementById('obsUrlStatusBadge');
+      const obsUrlHelpText = document.getElementById('obsUrlHelpText');
 
       let isAuthRegisterMode = false;
       let userToken = localStorage.getItem('streampulse_user_token') || '';
       let currentUser = null;
+      let sendCodeCountdown = 0;
+      let sendCodeTimer = null;
 
       // Active overlay profile ID
       const urlParams = new URLSearchParams(window.location.search);
@@ -629,18 +682,40 @@
             localStorage.removeItem('streampulse_user_token');
             renderUserStatus();
             renderSlotsList([]);
-            alert('Telah keluar dari akun.');
+            alert('Telah keluar dari akun. Mode Tamu aktif.');
           });
+
+          // Unlocked UI for Logged-In User
+          if (guestOverlayLockedCard) guestOverlayLockedCard.style.display = 'none';
+          if (overlayManagerCard) overlayManagerCard.style.display = 'flex';
+          btnSaveOverlay.style.display = 'inline-flex';
+          btnCopyObsUrl.style.display = 'inline-flex';
+          obsUrlStatusBadge.textContent = '✓ Siap Digunakan di OBS';
+          obsUrlStatusBadge.style.color = '#10b981';
+          obsUrlHelpText.innerHTML = '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>';
+
           slotCounter.textContent = `${count} / 3 Slot Terpakai`;
           renderSlotsList(currentUser.overlayIds || []);
+          updateUrl();
         } else {
+          // Guest State (Terkunci)
           accountPillContainer.innerHTML = `
             <button id="btnOpenAuthDynamic" class="btn-icon" style="font-size:0.8rem;">
               🔐 Login / Daftar Akun
             </button>
           `;
           document.getElementById('btnOpenAuthDynamic').addEventListener('click', openAuthModal);
-          slotCounter.textContent = 'Login untuk batas 3 slot';
+
+          if (guestOverlayLockedCard) guestOverlayLockedCard.style.display = 'block';
+          if (overlayManagerCard) overlayManagerCard.style.display = 'none';
+          btnSaveOverlay.style.display = 'none';
+          btnCopyObsUrl.style.display = 'none';
+          obsFinalUrl.value = '🔒 Khusus Pengguna Login - Silakan Login / Daftar untuk Mendapatkan & Menyalin URL OBS';
+          obsUrlStatusBadge.textContent = '🔒 Memerlukan Login';
+          obsUrlStatusBadge.style.color = '#f87171';
+          obsUrlHelpText.innerHTML = '🔒 <em>Tombol Simpan, Salin URL, dan Kuota 3 Slot OBS hanya tersedia untuk streamer yang telah login. Silakan daftar/login untuk menggunakan fitur ini.</em>';
+
+          activeOverlayIdBadge.textContent = 'preview (guest)';
           renderSlotsList([]);
         }
       }
@@ -648,6 +723,7 @@
       function openAuthModal() {
         authModal.classList.add('show');
         authErrorMsg.style.display = 'none';
+        authSuccessMsg.style.display = 'none';
         authUsername.focus();
       }
 
@@ -655,9 +731,12 @@
         authModal.classList.remove('show');
         formAuth.reset();
         authErrorMsg.style.display = 'none';
+        authSuccessMsg.style.display = 'none';
+        if (emailNotice) emailNotice.style.display = 'none';
       }
 
       if (btnOpenAuth) btnOpenAuth.addEventListener('click', openAuthModal);
+      if (btnGuestUnlock) btnGuestUnlock.addEventListener('click', openAuthModal);
       closeAuthModal.addEventListener('click', closeAuth);
       authModal.addEventListener('click', (e) => { if (e.target === authModal) closeAuth(); });
 
@@ -666,7 +745,12 @@
         tabAuthLogin.className = 'btn-icon btn-primary';
         tabAuthRegister.className = 'btn-icon';
         authModalTitle.textContent = 'Masuk Akun Streamer';
+        labelAuthUsername.textContent = 'Username atau Email';
+        authEmailGroup.style.display = 'none';
+        authCodeGroup.style.display = 'none';
         btnSubmitAuth.textContent = 'Masuk ke Akun 🚀';
+        authErrorMsg.style.display = 'none';
+        authSuccessMsg.style.display = 'none';
       });
 
       tabAuthRegister.addEventListener('click', () => {
@@ -674,37 +758,135 @@
         tabAuthRegister.className = 'btn-icon btn-primary';
         tabAuthLogin.className = 'btn-icon';
         authModalTitle.textContent = 'Daftar Akun Baru Streamer';
+        labelAuthUsername.textContent = 'Username Baru (3-20 Karakter)';
+        authEmailGroup.style.display = 'block';
+        authCodeGroup.style.display = 'block';
         btnSubmitAuth.textContent = 'Daftar & Buat Akun 🎉';
+        authErrorMsg.style.display = 'none';
+        authSuccessMsg.style.display = 'none';
+      });
+
+      // Send Verification Code Handler
+      btnSendCode.addEventListener('click', async () => {
+        const email = authEmail.value.trim();
+        if (!email || !email.includes('@') || !email.includes('.')) {
+          authErrorMsg.textContent = 'Masukkan alamat email yang valid untuk menerima kode verifikasi!';
+          authErrorMsg.style.display = 'block';
+          authEmail.focus();
+          return;
+        }
+
+        btnSendCode.disabled = true;
+        btnSendCode.textContent = 'Mengirim...';
+        authErrorMsg.style.display = 'none';
+        emailNotice.style.display = 'none';
+
+        try {
+          const res = await fetch('/api/auth/send-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            emailNotice.textContent = data.message;
+            if (data.isDevMode && data.devCode) {
+              emailNotice.innerHTML = `${data.message}<br><strong style="color:#fbbf24;">(Dev Mode Test Code: ${data.devCode})</strong>`;
+              authCode.value = data.devCode;
+            }
+            emailNotice.style.display = 'block';
+
+            // Start 60s countdown
+            sendCodeCountdown = 60;
+            btnSendCode.textContent = `Tunggu (${sendCodeCountdown}s)`;
+            clearInterval(sendCodeTimer);
+            sendCodeTimer = setInterval(() => {
+              sendCodeCountdown--;
+              if (sendCodeCountdown <= 0) {
+                clearInterval(sendCodeTimer);
+                btnSendCode.disabled = false;
+                btnSendCode.textContent = 'Kirim Ulang 📨';
+              } else {
+                btnSendCode.textContent = `Tunggu (${sendCodeCountdown}s)`;
+              }
+            }, 1000);
+          } else {
+            authErrorMsg.textContent = data.error || 'Gagal mengirim kode verifikasi.';
+            authErrorMsg.style.display = 'block';
+            btnSendCode.disabled = false;
+            btnSendCode.textContent = 'Kirim Kode 📨';
+          }
+        } catch (err) {
+          authErrorMsg.textContent = 'Error koneksi saat meminta kode.';
+          authErrorMsg.style.display = 'block';
+          btnSendCode.disabled = false;
+          btnSendCode.textContent = 'Kirim Kode 📨';
+        }
       });
 
       formAuth.addEventListener('submit', async (e) => {
         e.preventDefault();
         authErrorMsg.style.display = 'none';
+        authSuccessMsg.style.display = 'none';
+
         const u = authUsername.value.trim();
         const p = authPassword.value;
-        const endpoint = isAuthRegisterMode ? '/api/user/register' : '/api/user/login';
 
-        try {
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: u, password: p })
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            currentUser = data.user;
-            userToken = data.user.token;
-            localStorage.setItem('streampulse_user_token', userToken);
-            renderUserStatus();
-            closeAuth();
-            alert(`Berhasil ${isAuthRegisterMode ? 'mendaftar' : 'masuk'} sebagai ${currentUser.username}!`);
-          } else {
-            authErrorMsg.textContent = data.error || 'Gagal login';
+        if (isAuthRegisterMode) {
+          const em = authEmail.value.trim();
+          const cd = authCode.value.trim();
+          if (!em || !cd) {
+            authErrorMsg.textContent = 'Email dan kode verifikasi 6-digit wajib diisi!';
+            authErrorMsg.style.display = 'block';
+            return;
+          }
+
+          try {
+            const res = await fetch('/api/auth/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username: u, email: em, password: p, code: cd })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              currentUser = data.user;
+              userToken = data.user.token;
+              localStorage.setItem('streampulse_user_token', userToken);
+              renderUserStatus();
+              closeAuth();
+              alert(`🎉 Pendaftaran berhasil! Selamat datang, ${currentUser.username}!`);
+            } else {
+              authErrorMsg.textContent = data.error || 'Gagal mendaftar akun';
+              authErrorMsg.style.display = 'block';
+            }
+          } catch (err) {
+            authErrorMsg.textContent = 'Error menghubungi server';
             authErrorMsg.style.display = 'block';
           }
-        } catch (err) {
-          authErrorMsg.textContent = 'Error menghubungi server';
-          authErrorMsg.style.display = 'block';
+        } else {
+          // Login Mode
+          try {
+            const res = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ usernameOrEmail: u, password: p })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              currentUser = data.user;
+              userToken = data.user.token;
+              localStorage.setItem('streampulse_user_token', userToken);
+              renderUserStatus();
+              closeAuth();
+              alert(`✅ Berhasil masuk sebagai ${currentUser.username}!`);
+            } else {
+              authErrorMsg.textContent = data.error || 'Login gagal';
+              authErrorMsg.style.display = 'block';
+            }
+          } catch (err) {
+            authErrorMsg.textContent = 'Error menghubungi server';
+            authErrorMsg.style.display = 'block';
+          }
         }
       });
 
@@ -749,10 +931,11 @@
           item.innerHTML = `
             <div>
               <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono);">Slot ${idx + 1}: ${sId}</strong>
-              ${isActive ? '<span style="font-size:0.65rem; color:#f59e0b; margin-left:6px; font-weight:700;">(Aktif Diedit)</span>' : ''}
+              ${isActive ? '<span style="font-size:0.65rem; color:#f59e0b; margin-left:6px; font-weight:700;">(Aktif)</span>' : ''}
             </div>
-            <div style="display:flex; gap:6px;">
-              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}">✏️ Edit</button>` : ''}
+            <div style="display:flex; gap:6px; align-items:center;">
+              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}" title="Muat dan edit konfigurasi slot ini">✏️ Edit</button>` : ''}
+              <button class="btn-action-sm btn-overwrite-slot" data-id="${sId}" style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc;" title="Timpa (overwrite) slot ini dengan pengaturan yang sedang Anda edit saat ini">💾 Overwrite</button>
               <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="Hapus slot ini untuk mengosongkan kuota">🗑️</button>
             </div>
           `;
@@ -761,6 +944,16 @@
           if (switchBtn) {
             switchBtn.addEventListener('click', () => {
               switchProfile(sId);
+            });
+          }
+
+          const overwriteBtn = item.querySelector('.btn-overwrite-slot');
+          if (overwriteBtn) {
+            overwriteBtn.addEventListener('click', async () => {
+              if (confirm(`Yakin ingin menimpa (overwrite) Slot ${idx + 1} ("${sId}") dengan konfigurasi yang sedang Anda ubah saat ini?`)) {
+                profileId = sId;
+                await saveProfile(true);
+              }
             });
           }
 
@@ -812,7 +1005,7 @@
       // Generate New URL Workflow (Anti-Abuse, Limit 3)
       btnGenerateOverlay.addEventListener('click', async () => {
         if (!userToken || !currentUser) {
-          alert('Silakan login atau daftar akun terlebih dahulu agar overlay Anda tidak disalahgunakan orang lain (Maksimal 3 slot per akun).');
+          alert('Silakan login atau daftar akun terlebih dahulu agar overlay Anda tersimpan aman (Maksimal 3 slot per akun).');
           openAuthModal();
           return;
         }
@@ -901,15 +1094,32 @@
       }
 
       function updateUrl() {
+        if (!currentUser || !userToken) {
+          obsFinalUrl.value = '🔒 Khusus Pengguna Login - Silakan Login / Daftar untuk Mendapatkan & Menyalin URL OBS';
+          return;
+        }
         const fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
         obsFinalUrl.value = fullUrl;
       }
 
+      // Live Preview Realtime (Works immediately even for guests without saving to DB)
       function refreshPreview() {
-        saveProfile(false);
+        const cfg = getOverlayConfig();
+        if (previewIframe && previewIframe.contentWindow) {
+          previewIframe.contentWindow.postMessage({
+            type: 'update_preview_config',
+            config: cfg
+          }, '*');
+        }
       }
 
       async function saveProfile(showAlert = true) {
+        if (!currentUser || !userToken) {
+          alert('Fitur simpan konfigurasi overlay hanya tersedia untuk streamer yang telah login. Silakan login atau daftar akun terlebih dahulu.');
+          openAuthModal();
+          return;
+        }
+
         const cfg = getOverlayConfig();
         try {
           const res = await fetch('/api/overlays', {
@@ -920,18 +1130,22 @@
             },
             body: JSON.stringify(cfg)
           });
-          if (res.ok) {
-            const data = await res.json();
+          const data = await res.json();
+          if (res.ok && data.success) {
             profileId = data.id;
             localStorage.setItem('streampulse_overlay_profile_id', profileId);
             updateUrl();
             previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
+            await checkUserSession();
             if (showAlert) {
-              alert('✅ Pengaturan OBS Overlay berhasil disimpan!');
+              alert(`✅ Pengaturan OBS Overlay "${profileId}" berhasil disimpan ke akun Anda!`);
             }
+          } else {
+            alert(data.error || 'Gagal menyimpan overlay');
           }
         } catch (e) {
           console.error(e);
+          alert('Error menghubungi server saat menyimpan');
         }
       }
 

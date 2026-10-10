@@ -5,6 +5,9 @@ import cors from 'cors';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import * as argon2 from '@node-rs/argon2';
 import { fileURLToPath } from 'url';
 import compression from 'compression';
 import { StreamManager } from './lib/streamManager.js';
@@ -78,7 +81,15 @@ io.on('connection', (socket) => {
 
   // Update channels yang dipantau oleh client ini
   socket.on('update_channels', async (data) => {
-    await streamManager.updateClientChannels(socket, data);
+    let token = data?.twitchToken;
+    if (data?.userToken) {
+      const users = readJsonFile(USERS_FILE, {});
+      const u = Object.values(users).find(x => x.token === data.userToken);
+      if (u && (!token || token.includes('***') || token.includes('Tersimpan'))) {
+        token = decryptToken(u.channels?.twitchTokenEncrypted);
+      }
+    }
+    await streamManager.updateClientChannels(socket, { ...data, twitchToken: token });
   });
 
   // Putuskan platform tertentu untuk client ini
@@ -130,6 +141,10 @@ app.get(['/admin', '/features-admin', '/admin-features'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+app.get(['/privacy', '/privacy-policy'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
+});
+
 // REST Endpoints
 app.get('/api/status', (req, res) => {
   res.json(streamManager.getInitialState());
@@ -148,7 +163,16 @@ app.get('/api/emotes/global', (req, res) => {
 
 app.post('/api/channels', async (req, res) => {
   const { twitch, twitchToken, youtube, tiktok } = req.body || {};
-  if (twitch !== undefined) await streamManager.connectTwitch(twitch, twitchToken);
+  let resolvedTwitchToken = twitchToken;
+
+  const user = getUserFromReq(req);
+  if (user && (!resolvedTwitchToken || resolvedTwitchToken.includes('***') || resolvedTwitchToken.includes('Tersimpan'))) {
+    if (user.channels?.twitchTokenEncrypted) {
+      resolvedTwitchToken = decryptToken(user.channels.twitchTokenEncrypted);
+    }
+  }
+
+  if (twitch !== undefined) await streamManager.connectTwitch(twitch, resolvedTwitchToken);
   if (youtube !== undefined) await streamManager.connectYouTube(youtube);
   if (tiktok !== undefined) await streamManager.connectTikTok(tiktok);
   res.json({ success: true, state: streamManager.getInitialState() });
@@ -336,6 +360,133 @@ app.post('/api/admin/feedback', (req, res) => {
 });
 
 // ==========================================
+// SECURITY HELPERS: ARGON2, AES-256, & RATE LIMITING
+// ==========================================
+const ENCRYPTION_KEY = crypto.createHash('sha256').update(process.env.ENCRYPTION_SECRET || 'streampulse_secure_secret_key_2026').digest(); // 32 bytes
+
+export async function hashPassword(plainPassword) {
+  try {
+    return await argon2.hash(String(plainPassword));
+  } catch (err) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.scryptSync(String(plainPassword), salt, 64).toString('hex');
+    return `scrypt$${salt}$${hash}`;
+  }
+}
+
+export async function verifyPassword(plainPassword, storedHash) {
+  if (!storedHash || !plainPassword) return false;
+  if (storedHash.startsWith('$argon2')) {
+    try {
+      return await argon2.verify(storedHash, String(plainPassword));
+    } catch (e) {
+      return false;
+    }
+  } else if (storedHash.startsWith('scrypt$')) {
+    const [, salt, hash] = storedHash.split('$');
+    const testHash = crypto.scryptSync(String(plainPassword), salt, 64).toString('hex');
+    return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(testHash, 'hex'));
+  }
+  return storedHash === plainPassword;
+}
+
+export function encryptToken(plainText) {
+  if (!plainText) return '';
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', ENCRYPTION_KEY, iv);
+  let encrypted = cipher.update(String(plainText), 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  const tag = cipher.getAuthTag();
+  return `${iv.toString('hex')}:${tag.toString('hex')}:${encrypted}`;
+}
+
+export function decryptToken(encryptedString) {
+  if (!encryptedString || !encryptedString.includes(':')) return encryptedString || '';
+  try {
+    const [ivHex, tagHex, encrypted] = encryptedString.split(':');
+    const decipher = crypto.createDecipheriv('aes-256-gcm', ENCRYPTION_KEY, Buffer.from(ivHex, 'hex'));
+    decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (err) {
+    console.warn('[Security] Gagal mendecrypt token:', err.message);
+    return '';
+  }
+}
+
+// In-Memory Rate Limiting & Verification Code Store
+const verificationStore = new Map(); // email -> { code, expiresAt }
+const rateLimitStore = new Map(); // key -> { count, resetAt }
+
+function checkRateLimit(key, maxAttempts, windowMs) {
+  const now = Date.now();
+  const entry = rateLimitStore.get(key) || { count: 0, resetAt: now + windowMs };
+  if (now > entry.resetAt) {
+    entry.count = 1;
+    entry.resetAt = now + windowMs;
+    rateLimitStore.set(key, entry);
+    return { allowed: true, remaining: maxAttempts - 1 };
+  }
+  if (entry.count >= maxAttempts) {
+    const waitHours = Math.ceil((entry.resetAt - now) / 3600000);
+    const waitMinutes = Math.ceil((entry.resetAt - now) / 60000);
+    return {
+      allowed: false,
+      waitTime: waitHours > 1 ? `${waitHours} jam` : `${waitMinutes} menit`
+    };
+  }
+  entry.count++;
+  rateLimitStore.set(key, entry);
+  return { allowed: true, remaining: maxAttempts - entry.count };
+}
+
+// Mail Transporter Setup
+const mailTransporter = process.env.SMTP_HOST ? nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '465', 10),
+  secure: (process.env.SMTP_PORT === '465' || !process.env.SMTP_PORT),
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+}) : null;
+
+async function sendVerificationEmail(email, code) {
+  if (mailTransporter && process.env.SMTP_USER) {
+    try {
+      await mailTransporter.sendMail({
+        from: process.env.SMTP_FROM || `"StreamPulse" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: `Kode Verifikasi Pendaftaran StreamPulse: ${code}`,
+        html: `
+          <div style="font-family:sans-serif; max-width:480px; margin:auto; background:#0d111b; color:#f8fafc; padding:24px; border-radius:12px; border:1px solid #6366f1;">
+            <h2 style="color:#67e8f9; margin-top:0;">StreamPulse Verification Code</h2>
+            <p style="font-size:0.9rem; line-height:1.5;">Gunakan kode verifikasi berikut untuk menyelesaikan pendaftaran akun StreamPulse Anda:</p>
+            <div style="text-align:center; padding:16px; background:#1e1b4b; border-radius:8px; font-size:2.2rem; font-weight:800; letter-spacing:6px; color:#fbbf24; margin:20px 0;">
+              ${code}
+            </div>
+            <p style="font-size:0.8rem; color:#94a3b8;">Kode ini berlaku selama 15 menit. Jika Anda tidak merasa mendaftar di StreamPulse, abaikan email ini.</p>
+          </div>
+        `
+      });
+      return true;
+    } catch (e) {
+      console.warn('[SMTP] Error sending mail:', e.message);
+    }
+  }
+
+  // Fallback Dev / Server Log
+  console.log(`\n======================================================`);
+  console.log(`📧 [EMAIL VERIFIKASI STREAMPULSE]`);
+  console.log(`   Tujuan: ${email}`);
+  console.log(`   Kode:   ${code}`);
+  console.log(`   (Atur SMTP_HOST, SMTP_USER, SMTP_PASS di .env untuk kirim email nyata via SMTP)`);
+  console.log(`======================================================\n`);
+  return true;
+}
+
+// ==========================================
 // USER AUTH & OVERLAY LIMITS (MAX 3 PER USER)
 // ==========================================
 function getUserFromReq(req) {
@@ -345,12 +496,56 @@ function getUserFromReq(req) {
   return Object.values(users).find(u => u.token === token) || null;
 }
 
-app.post('/api/user/register', (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username dan password wajib diisi' });
+// 1. Send Email Verification Code
+app.post('/api/auth/send-code', async (req, res) => {
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'ip';
+  const { email } = req.body || {};
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim())) {
+    return res.status(400).json({ error: 'Format alamat email tidak valid!' });
   }
+
+  const cleanEmail = String(email).trim().toLowerCase();
+
+  // Rate limit: Max 5 attempts per 1 hour per IP/email
+  const limitCheck = checkRateLimit(`send_code_${cleanEmail}_${clientIp}`, 5, 3600000);
+  if (!limitCheck.allowed) {
+    return res.status(429).json({ error: `Terlalu banyak permintaan verifikasi. Silakan coba lagi dalam ${limitCheck.waitTime}.` });
+  }
+
+  const users = readJsonFile(USERS_FILE, {});
+  const emailExists = Object.values(users).some(u => u.email === cleanEmail);
+  if (emailExists) {
+    return res.status(400).json({ error: 'Email ini sudah terdaftar! Silakan login.' });
+  }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  verificationStore.set(cleanEmail, {
+    code,
+    expiresAt: Date.now() + (15 * 60 * 1000) // 15 mins
+  });
+
+  await sendVerificationEmail(cleanEmail, code);
+
+  res.json({
+    success: true,
+    message: `Kode verifikasi 6 digit telah dikirim ke ${cleanEmail}. Periksa kotak masuk / spam email Anda!`,
+    isDevMode: !mailTransporter,
+    devCode: !mailTransporter ? code : undefined
+  });
+});
+
+// 2. Register Account with Argon2
+app.post('/api/auth/register', async (req, res) => {
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'ip';
+  const { username, email, password, code } = req.body || {};
+
+  if (!username || !email || !password || !code) {
+    return res.status(400).json({ error: 'Semua kolom (username, email, password, dan kode verifikasi) wajib diisi!' });
+  }
+
   const cleanUser = String(username).trim().toLowerCase();
+  const cleanEmail = String(email).trim().toLowerCase();
+
   if (!/^[a-zA-Z0-9_-]{3,20}$/.test(cleanUser)) {
     return res.status(400).json({ error: 'Username harus 3-20 karakter alfanumerik (a-z, 0-9, _, -)' });
   }
@@ -358,17 +553,41 @@ app.post('/api/user/register', (req, res) => {
     return res.status(400).json({ error: 'Password minimal 4 karakter' });
   }
 
-  const users = readJsonFile(USERS_FILE, {});
-  if (users[cleanUser]) {
-    return res.status(400).json({ error: 'Username ini sudah terdaftar! Silakan login.' });
+  // Verify Code
+  const vEntry = verificationStore.get(cleanEmail);
+  if (!vEntry || vEntry.expiresAt < Date.now()) {
+    return res.status(400).json({ error: 'Kode verifikasi kedaluwarsa atau belum diminta. Silakan minta kode baru.' });
+  }
+  if (vEntry.code !== String(code).trim()) {
+    return res.status(400).json({ error: 'Kode verifikasi salah! Periksa kembali email Anda.' });
   }
 
-  const token = `usr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const users = readJsonFile(USERS_FILE, {});
+  if (users[cleanUser]) {
+    return res.status(400).json({ error: 'Username ini sudah digunakan! Silakan pilih username lain.' });
+  }
+  if (Object.values(users).some(u => u.email === cleanEmail)) {
+    return res.status(400).json({ error: 'Email ini sudah terdaftar! Silakan login.' });
+  }
+
+  verificationStore.delete(cleanEmail);
+
+  // Argon2 password hash
+  const hashedPassword = await hashPassword(password);
+  const token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
+
   const newUser = {
     username: cleanUser,
-    password: String(password),
+    email: cleanEmail,
+    password: hashedPassword,
     token,
     overlayIds: [],
+    channels: {
+      twitch: '',
+      youtube: '',
+      tiktok: '',
+      twitchTokenEncrypted: ''
+    },
     createdAt: Date.now()
   };
 
@@ -379,25 +598,54 @@ app.post('/api/user/register', (req, res) => {
     success: true,
     user: {
       username: newUser.username,
+      email: newUser.email,
       token: newUser.token,
-      overlayIds: newUser.overlayIds
+      overlayIds: newUser.overlayIds,
+      channels: {
+        twitch: '',
+        youtube: '',
+        tiktok: '',
+        hasTwitchToken: false
+      }
     }
   });
 });
 
-app.post('/api/user/login', (req, res) => {
-  const { username, password } = req.body || {};
-  const cleanUser = String(username || '').trim().toLowerCase();
-  const users = readJsonFile(USERS_FILE, {});
-  const user = users[cleanUser];
+// 3. Login with Argon2 & Rate Limiting
+app.post('/api/auth/login', async (req, res) => {
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'ip';
+  const { usernameOrEmail, password } = req.body || {};
 
-  if (!user || user.password !== String(password)) {
-    return res.status(401).json({ error: 'Username atau password salah!' });
+  if (!usernameOrEmail || !password) {
+    return res.status(400).json({ error: 'Username/Email dan password wajib diisi!' });
   }
 
+  const cleanQuery = String(usernameOrEmail).trim().toLowerCase();
+
+  // Rate limit: Max 5 failed attempts per 15 minutes
+  const limitCheck = checkRateLimit(`login_${cleanQuery}_${clientIp}`, 5, 15 * 60 * 1000);
+  if (!limitCheck.allowed) {
+    return res.status(429).json({ error: `Terlalu banyak percobaan login gagal. Demi keamanan, silakan coba lagi dalam ${limitCheck.waitTime}.` });
+  }
+
+  const users = readJsonFile(USERS_FILE, {});
+  const user = users[cleanQuery] || Object.values(users).find(u => u.email === cleanQuery);
+
+  if (!user) {
+    return res.status(401).json({ error: 'Akun dengan username atau email tersebut tidak ditemukan!' });
+  }
+
+  const passwordValid = await verifyPassword(password, user.password);
+  if (!passwordValid) {
+    return res.status(401).json({ error: 'Password salah! Periksa kembali password Anda.' });
+  }
+
+  // Clear rate limit on successful login
+  rateLimitStore.delete(`login_${cleanQuery}_${clientIp}`);
+
   if (!user.token) {
-    user.token = `usr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    users[cleanUser] = user;
+    user.token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
+    users[user.username] = user;
     writeJsonFile(USERS_FILE, users);
   }
 
@@ -405,12 +653,20 @@ app.post('/api/user/login', (req, res) => {
     success: true,
     user: {
       username: user.username,
+      email: user.email || '',
       token: user.token,
-      overlayIds: user.overlayIds || []
+      overlayIds: user.overlayIds || [],
+      channels: {
+        twitch: user.channels?.twitch || '',
+        youtube: user.channels?.youtube || '',
+        tiktok: user.channels?.tiktok || '',
+        hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted)
+      }
     }
   });
 });
 
+// 4. Current User Profile
 app.get('/api/user/me', (req, res) => {
   const user = getUserFromReq(req);
   if (!user) {
@@ -418,16 +674,60 @@ app.get('/api/user/me', (req, res) => {
   }
   const overlays = readJsonFile(OVERLAYS_FILE, {});
   const userOverlays = (user.overlayIds || []).map(id => overlays[id] || { id, theme: 'glass' });
+
   res.json({
     username: user.username,
+    email: user.email || '',
     token: user.token,
     overlayIds: user.overlayIds || [],
     overlays: userOverlays,
+    channels: {
+      twitch: user.channels?.twitch || '',
+      youtube: user.channels?.youtube || '',
+      tiktok: user.channels?.tiktok || '',
+      hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted)
+    },
     maxLimit: 3
   });
 });
 
-// Generate URL Overlay Baru (Maksimal 3 per user)
+// 5. Save User Homepage Channels with Encrypted OAuth Token
+app.post('/api/user/channels', (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk menyimpan saluran Anda.' });
+
+  const { twitch, youtube, tiktok, twitchToken } = req.body || {};
+  const users = readJsonFile(USERS_FILE, {});
+  const currentUser = users[user.username] || user;
+
+  if (!currentUser.channels) currentUser.channels = {};
+  if (twitch !== undefined) currentUser.channels.twitch = String(twitch).trim();
+  if (youtube !== undefined) currentUser.channels.youtube = String(youtube).trim();
+  if (tiktok !== undefined) currentUser.channels.tiktok = String(tiktok).trim();
+
+  // Encrypt OAuth Token if provided and not masked placeholder
+  if (twitchToken !== undefined && !String(twitchToken).includes('***') && String(twitchToken).trim()) {
+    currentUser.channels.twitchTokenEncrypted = encryptToken(String(twitchToken).trim());
+  } else if (twitchToken === '') {
+    currentUser.channels.twitchTokenEncrypted = '';
+  }
+
+  users[currentUser.username] = currentUser;
+  writeJsonFile(USERS_FILE, users);
+
+  res.json({
+    success: true,
+    message: 'Konfigurasi saluran berhasil disimpan ke akun Anda!',
+    channels: {
+      twitch: currentUser.channels.twitch || '',
+      youtube: currentUser.channels.youtube || '',
+      tiktok: currentUser.channels.tiktok || '',
+      hasTwitchToken: Boolean(currentUser.channels.twitchTokenEncrypted)
+    }
+  });
+});
+
+// 6. Generate New Overlay (Max 3 Slots)
 app.post('/api/user/overlays/generate', (req, res) => {
   const user = getUserFromReq(req);
   if (!user) {
@@ -478,7 +778,7 @@ app.post('/api/user/overlays/generate', (req, res) => {
   });
 });
 
-// Load / Claim existing overlay into user's slot (if slots available)
+// 7. Load / Claim Existing Overlay
 app.post('/api/user/overlays/claim', (req, res) => {
   const user = getUserFromReq(req);
   const { urlOrId } = req.body || {};
@@ -522,7 +822,7 @@ app.post('/api/user/overlays/claim', (req, res) => {
   res.json({ success: true, id: targetId, overlay: overlays[targetId] });
 });
 
-// Delete user overlay slot
+// 8. Delete Single Overlay Slot
 app.delete('/api/user/overlays/:id', (req, res) => {
   const user = getUserFromReq(req);
   if (!user) return res.status(401).json({ error: 'Belum login' });
@@ -542,6 +842,42 @@ app.delete('/api/user/overlays/:id', (req, res) => {
   }
 
   res.json({ success: true, remaining: currentUser.overlayIds });
+});
+
+// 9. Permanent Account Deletion (GDPR / Privacy Compliance)
+app.delete('/api/user/account', async (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk menghapus akun.' });
+
+  const { password } = req.body || {};
+  if (!password) {
+    return res.status(400).json({ error: 'Konfirmasi password diperlukan untuk menghapus akun.' });
+  }
+
+  const users = readJsonFile(USERS_FILE, {});
+  const currentUser = users[user.username];
+  if (!currentUser) return res.status(404).json({ error: 'User tidak ditemukan' });
+
+  const passwordValid = await verifyPassword(password, currentUser.password);
+  if (!passwordValid) {
+    return res.status(401).json({ error: 'Password konfirmasi salah! Akun tidak dihapus.' });
+  }
+
+  // Delete all user overlays
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  (currentUser.overlayIds || []).forEach(oId => {
+    delete overlays[oId];
+  });
+  writeJsonFile(OVERLAYS_FILE, overlays);
+
+  // Delete user record
+  delete users[user.username];
+  writeJsonFile(USERS_FILE, users);
+
+  res.json({
+    success: true,
+    message: 'Akun Anda beserta seluruh data saluran dan overlay telah dihapus secara permanen dari server StreamPulse.'
+  });
 });
 
 // ==========================================
@@ -568,34 +904,39 @@ app.get('/api/overlays/:id', (req, res) => {
 });
 
 app.post('/api/overlays', (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) {
+    return res.status(401).json({ error: 'Akses ditolak: Hanya pengguna yang telah login yang dapat menyimpan konfigurasi overlay OBS.' });
+  }
+
   const data = req.body || {};
   const id = data.id && /^[a-zA-Z0-9_-]+$/.test(data.id) ? data.id : `ovl_${Math.random().toString(36).substr(2, 8)}`;
   const overlays = readJsonFile(OVERLAYS_FILE, {});
 
-  // If user is authenticated, associate with user
-  const user = getUserFromReq(req);
-  if (user) {
-    const users = readJsonFile(USERS_FILE, {});
-    const currentUser = users[user.username];
-    if (currentUser) {
-      if (!currentUser.overlayIds) currentUser.overlayIds = [];
-      if (!currentUser.overlayIds.includes(id) && currentUser.overlayIds.length < 3) {
-        currentUser.overlayIds.push(id);
-        writeJsonFile(USERS_FILE, users);
-      }
+  const users = readJsonFile(USERS_FILE, {});
+  const currentUser = users[user.username] || user;
+  if (!currentUser.overlayIds) currentUser.overlayIds = [];
+
+  // Overwrite or create new slot if slots < 3
+  if (!currentUser.overlayIds.includes(id)) {
+    if (currentUser.overlayIds.length >= 3) {
+      return res.status(400).json({ error: 'Batas kuota 3 slot overlay telah tercapai. Anda dapat memilih salah satu slot yang ada untuk di-overwrite atau hapus slot yang tidak digunakan.' });
     }
+    currentUser.overlayIds.push(id);
+    users[user.username] = currentUser;
+    writeJsonFile(USERS_FILE, users);
   }
 
   overlays[id] = {
     ...overlays[id],
     ...data,
     id,
-    owner: overlays[id]?.owner || (user ? user.username : 'public'),
+    owner: currentUser.username,
     updatedAt: Date.now()
   };
 
   writeJsonFile(OVERLAYS_FILE, overlays);
-  res.json({ success: true, id, overlay: overlays[id] });
+  res.json({ success: true, id, overlay: overlays[id], overlayIds: currentUser.overlayIds });
 });
 
 // ==========================================

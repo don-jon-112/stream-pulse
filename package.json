@@ -41,9 +41,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@node-rs/argon2": "^2.2.2",
     "compression": "^1.8.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "nodemailer": "^10.1.0",
     "socket.io": "^4.8.4",
     "socket.io-client": "^4.8.4",
     "tiktok-live-connector": "^2.5.0",

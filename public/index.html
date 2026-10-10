@@ -135,6 +135,16 @@
 
 
 
+        <!-- User Account / Studio Link -->
+        <a id="headerUserWidget" href="/studio" class="btn-icon" title="Akun Pengguna & OBS Studio" style="text-decoration:none;">
+          <span>🔐 Login / Akun</span>
+        </a>
+
+        <!-- Privacy Policy -->
+        <a href="/privacy" class="btn-icon" title="Kebijakan Privasi & Keamanan Enkripsi" style="text-decoration:none;">
+          <span>🛡️ Privacy</span>
+        </a>
+
         <!-- Fullscreen -->
         <button id="btnFullscreen" class="btn-icon" title="Mode Layar Penuh">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -332,6 +342,11 @@
 
       <div class="modal-body">
         
+        <!-- Account Channel Storage Status Notice -->
+        <div id="channelAuthNotice" style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px; font-size: 0.78rem;">
+          <!-- Dynamically populated via JS -->
+        </div>
+
         <!-- Twitch Channel -->
         <div class="channel-field">
           <label class="channel-label" for="inputTwitch">

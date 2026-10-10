@@ -654,6 +654,24 @@
         if (type === 'event') addOverlayEvent(data);
       });
 
+      // Listen for live preview config updates from Overlay Studio (Allows instant preview even for guest mode)
+      window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'update_preview_config') {
+          const newCfg = e.data.config;
+          if (!newCfg) return;
+          config = { ...config, ...newCfg };
+          if (newCfg.theme) {
+            document.body.className = newCfg.theme === 'glass' ? '' : `theme-${newCfg.theme}`;
+          }
+          if (newCfg.fontSize) {
+            document.documentElement.style.fontSize = `${newCfg.fontSize}px`;
+          }
+          if (newCfg.customCss !== undefined && customCssEl) {
+            customCssEl.textContent = newCfg.customCss;
+          }
+        }
+      });
+
       // Execute Custom JS safely
       if (config.customJs) {
         try {

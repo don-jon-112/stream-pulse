@@ -66,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputTwitchToken = document.getElementById('inputTwitchToken');
   const inputYouTube = document.getElementById('inputYouTube');
   const inputTikTok = document.getElementById('inputTikTok');
+  const headerUserWidget = document.getElementById('headerUserWidget');
+  const channelAuthNotice = document.getElementById('channelAuthNotice');
 
   // Mobile navigation
   const mobNavChat = document.getElementById('mobNavChat');
@@ -366,38 +368,95 @@ document.addEventListener('DOMContentLoaded', () => {
     latencyText.textContent = 'WSS Live';
     latencyDot.style.background = 'var(--status-active)';
 
-    // Multi-User Session: Otomatis daftarkan channel yang disimpan di browser/HP pengguna ini
-    const savedChannelsJson = localStorage.getItem('streampulse_my_channels');
-    if (savedChannelsJson) {
-      try {
-        const saved = JSON.parse(savedChannelsJson);
-        if (saved.twitch !== undefined) inputTwitch.value = saved.twitch;
-        if (saved.twitchToken !== undefined && inputTwitchToken) inputTwitchToken.value = saved.twitchToken;
-        if (saved.youtube !== undefined) inputYouTube.value = saved.youtube;
-        if (saved.tiktok !== undefined) inputTikTok.value = saved.tiktok;
-
-        socket.emit('update_channels', {
-          twitch: saved.twitch || '',
-          twitchToken: saved.twitchToken || '',
-          youtube: saved.youtube || '',
-          tiktok: saved.tiktok || ''
-        });
-      } catch (err) {
-        console.warn('Gagal membaca saved channels:', err);
-      }
-    }
+    // Multi-User Session Authentication Check:
+    // Jika tidak login, saluran selalu kosong (default). Pengguna login mengambil dari cloud.
+    checkUserSession();
   });
 
-  socket.on('initial_state', (initial) => {
-    const hasLocal = localStorage.getItem('streampulse_my_channels');
-    if (!hasLocal && initial.channels) {
-      inputTwitch.value = initial.channels.twitch || '';
-      if (inputTwitchToken) {
-        inputTwitchToken.value = initial.channels.twitchToken || localStorage.getItem('streampulse_twitch_token') || '';
-      }
-      inputYouTube.value = initial.channels.youtube || '';
-      inputTikTok.value = initial.channels.tiktok || '';
+  let userToken = localStorage.getItem('streampulse_user_token') || '';
+  let currentUser = null;
+
+  async function checkUserSession() {
+    userToken = localStorage.getItem('streampulse_user_token') || '';
+    if (!userToken) {
+      currentUser = null;
+      // Tamu (Guest) selalu default kosong
+      inputTwitch.value = '';
+      if (inputTwitchToken) inputTwitchToken.value = '';
+      inputYouTube.value = '';
+      inputTikTok.value = '';
+      renderAuthNotice();
+      return;
     }
+
+    try {
+      const res = await fetch('/api/user/me', {
+        headers: { 'x-user-token': userToken }
+      });
+      if (res.ok) {
+        currentUser = await res.json();
+        if (currentUser.channels) {
+          inputTwitch.value = currentUser.channels.twitch || '';
+          inputYouTube.value = currentUser.channels.youtube || '';
+          inputTikTok.value = currentUser.channels.tiktok || '';
+          if (currentUser.channels.hasTwitchToken && inputTwitchToken) {
+            inputTwitchToken.value = '•••••••• (Token Twitch Tersimpan Aman & Terenkripsi AES-256)';
+          }
+
+          socket.emit('update_channels', {
+            twitch: currentUser.channels.twitch || '',
+            youtube: currentUser.channels.youtube || '',
+            tiktok: currentUser.channels.tiktok || '',
+            userToken
+          });
+        }
+      } else {
+        userToken = '';
+        currentUser = null;
+        localStorage.removeItem('streampulse_user_token');
+        inputTwitch.value = '';
+        if (inputTwitchToken) inputTwitchToken.value = '';
+        inputYouTube.value = '';
+        inputTikTok.value = '';
+      }
+    } catch (e) {
+      console.warn('Gagal memverifikasi sesi user:', e);
+    }
+    renderAuthNotice();
+  }
+
+  function renderAuthNotice() {
+    if (headerUserWidget) {
+      if (currentUser && userToken) {
+        headerUserWidget.innerHTML = `<span>👤 ${currentUser.username}</span>`;
+      } else {
+        headerUserWidget.innerHTML = `<span>🔐 Login / Akun</span>`;
+      }
+    }
+
+    if (channelAuthNotice) {
+      if (currentUser && userToken) {
+        channelAuthNotice.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#10b981; font-weight:700;">✓ Tersambung ke Akun: <strong style="color:#fff;">${currentUser.username}</strong></span>
+            <a href="/studio" style="font-size:0.75rem; color:#a5b4fc; text-decoration:none; font-weight:700;">Kelola OBS Overlay →</a>
+          </div>
+          <div style="color:#94a3b8; font-size:0.72rem; margin-top:3px; line-height:1.4;">
+            Konfigurasi saluran Anda tersimpan otomatis di cloud. Token Twitch dienkripsi dengan standar militer AES-256-GCM.
+          </div>
+        `;
+      } else {
+        channelAuthNotice.innerHTML = `
+          <div style="color:#f59e0b; font-weight:700; margin-bottom:2px;">🔒 Mode Tamu (Belum Login)</div>
+          <div style="color:#94a3b8; font-size:0.72rem; line-height:1.4;">
+            Sebagai tamu, input saluran Anda selalu default kosong dan hanya aktif di sesi ini. <a href="/studio" style="color:#67e8f9; font-weight:700; text-decoration:underline;">Login / Buat Akun</a> untuk menyimpan channel & mengamankan token Twitch secara permanen.
+          </div>
+        `;
+      }
+    }
+  }
+
+  socket.on('initial_state', (initial) => {
 
     if (initial.statuses) {
       for (const [plat, data] of Object.entries(initial.statuses)) {
@@ -1037,27 +1096,37 @@ document.addEventListener('DOMContentLoaded', () => {
   closeSetupModal.addEventListener('click', () => closeModal(setupModal));
   btnCancelSetup.addEventListener('click', () => closeModal(setupModal));
 
-  btnSaveChannels.addEventListener('click', () => {
+  btnSaveChannels.addEventListener('click', async () => {
     const twitch = inputTwitch.value.trim();
-    const twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
+    let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
     const youtube = inputYouTube.value.trim();
     const tiktok = inputTikTok.value.trim();
 
-    if (twitchToken) {
-      localStorage.setItem('streampulse_twitch_token', twitchToken);
+    if (currentUser && userToken) {
+      // Streamer Terdaftar: Simpan ke cloud akun dan enkripsi Twitch Token di server
+      try {
+        const res = await fetch('/api/user/channels', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-user-token': userToken
+          },
+          body: JSON.stringify({ twitch, youtube, tiktok, twitchToken })
+        });
+        const data = await res.json();
+        if (data.channels && data.channels.hasTwitchToken && inputTwitchToken) {
+          inputTwitchToken.value = '•••••••• (Token Twitch Tersimpan Aman & Terenkripsi AES-256)';
+        }
+      } catch (err) {
+        console.warn('Gagal menyimpan saluran ke akun user:', err);
+      }
+
+      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken });
     } else {
-      localStorage.removeItem('streampulse_twitch_token');
+      // Mode Tamu: Hanya sambungkan untuk sesi ini, tidak disimpan ke cloud akun
+      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok });
     }
 
-    // Simpan saluran milik pengguna ini agar setiap pengguna/browser membuka salurannya masing-masing
-    localStorage.setItem('streampulse_my_channels', JSON.stringify({
-      twitch,
-      twitchToken,
-      youtube,
-      tiktok
-    }));
-
-    socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok });
     closeModal(setupModal);
   });
 
