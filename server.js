@@ -45,59 +45,31 @@ const streamManager = new StreamManager(io);
 // Socket.io Connection
 io.on('connection', (socket) => {
   // Kirim state awal saat client baru terhubung
-  socket.emit('initial_state', streamManager.getInitialState());
+  socket.emit('initial_state', streamManager.getClientInitialState(socket));
 
-  // Update channels yang dipantau
+  // Update channels yang dipantau oleh client ini
   socket.on('update_channels', async (data) => {
-    const { twitch, twitchToken, youtube, tiktok } = data || {};
-
-    if (twitch !== undefined) {
-      const cleanTwitch = (twitch || '').trim();
-      const cleanToken = (twitchToken || '').trim();
-      const isTwitchChanged = cleanTwitch !== streamManager.activeChannels.twitch;
-      const isTokenChanged = cleanToken !== (streamManager.activeChannels.twitchToken || '');
-
-      if (isTwitchChanged || isTokenChanged) {
-        if (cleanTwitch) {
-          streamManager.connectTwitch(cleanTwitch, cleanToken);
-        } else {
-          streamManager.disconnectTwitch();
-        }
-      }
-    }
-
-    if (youtube !== undefined && youtube !== streamManager.activeChannels.youtube) {
-      if (youtube) {
-        streamManager.connectYouTube(youtube);
-      } else {
-        streamManager.disconnectYouTube();
-      }
-    }
-
-    if (tiktok !== undefined && tiktok !== streamManager.activeChannels.tiktok) {
-      if (tiktok) {
-        streamManager.connectTikTok(tiktok);
-      } else {
-        streamManager.disconnectTikTok();
-      }
-    }
+    await streamManager.updateClientChannels(socket, data);
   });
 
-  // Putuskan platform tertentu
+  // Putuskan platform tertentu untuk client ini
   socket.on('disconnect_platform', async ({ platform }) => {
-    if (platform === 'twitch') await streamManager.disconnectTwitch();
-    if (platform === 'youtube') await streamManager.disconnectYouTube();
-    if (platform === 'tiktok') await streamManager.disconnectTikTok();
+    await streamManager.disconnectClientPlatform(socket, platform);
   });
 
-  // Kirim test / demo event
+  // Kirim test / demo event (hanya ke client ini agar tidak mengganggu pengguna lain)
   socket.on('send_test_event', ({ platform, type }) => {
-    streamManager.sendTestEvent(platform, type);
+    streamManager.sendTestEvent(platform, type, socket);
   });
 
-  // Bersihkan history event
+  // Bersihkan history event di client ini
   socket.on('clear_events', () => {
-    streamManager.clearEventHistory();
+    socket.emit('events_cleared');
+  });
+
+  // Client disconnect cleanup
+  socket.on('disconnect', async () => {
+    await streamManager.handleClientDisconnect(socket);
   });
 
   // Health ping check

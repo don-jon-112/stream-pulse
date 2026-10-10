@@ -829,6 +829,27 @@ body {
   user-select: text;
 }
 
+/* Twitch & 7TV Emotes */
+.chat-emote {
+  display: inline-block;
+  vertical-align: middle;
+  height: 1.65em;
+  max-height: 32px;
+  width: auto;
+  margin: -2px 3px;
+  object-fit: contain;
+}
+
+.chat-emote.seventv-emote {
+  min-width: 1.2em;
+}
+
+.density-compact .chat-emote {
+  height: 1.35em;
+  max-height: 24px;
+  margin: -1px 2px;
+}
+
 /* ==========================================================================
    EVENT HIGHLIGHT CARDS (GIFT, SUPERCHAT, SUBS)
    ========================================================================== */

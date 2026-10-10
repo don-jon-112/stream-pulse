@@ -1,0 +1,10 @@
+node_modules
+android
+dist
+electron
+.git
+.github
+.agents
+.gemini
+*.bat
+*.log

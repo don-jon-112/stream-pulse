@@ -111,6 +111,15 @@ document.addEventListener('DOMContentLoaded', () => {
       twitch: 'idle',
       youtube: 'idle',
       tiktok: 'idle'
+    },
+    twitchEmotes: {
+      'OMEGALUL': 'https://cdn.7tv.app/emote/603cb1364d2bf5000d024628/1x.webp',
+      'KEKW': 'https://cdn.7tv.app/emote/60b00d8299aa123b3a62ea2e/1x.webp',
+      'catJAM': 'https://cdn.7tv.app/emote/60ae3e512496a798b671a525/1x.webp',
+      'PepePls': 'https://cdn.7tv.app/emote/60ae3ec62496a798b671a539/1x.webp',
+      'monkaS': 'https://cdn.7tv.app/emote/603cb1354d2bf5000d024606/1x.webp',
+      'Pog': 'https://cdn.7tv.app/emote/6041074e548231000d41865c/1x.webp',
+      'pepeJAM': 'https://cdn.7tv.app/emote/60ae3ec62496a798b671a539/1x.webp'
     }
   };
 
@@ -393,10 +402,32 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('connect', () => {
     latencyText.textContent = 'WSS Live';
     latencyDot.style.background = 'var(--status-active)';
+
+    // Multi-User Session: Otomatis daftarkan channel yang disimpan di browser/HP pengguna ini
+    const savedChannelsJson = localStorage.getItem('streampulse_my_channels');
+    if (savedChannelsJson) {
+      try {
+        const saved = JSON.parse(savedChannelsJson);
+        if (saved.twitch !== undefined) inputTwitch.value = saved.twitch;
+        if (saved.twitchToken !== undefined && inputTwitchToken) inputTwitchToken.value = saved.twitchToken;
+        if (saved.youtube !== undefined) inputYouTube.value = saved.youtube;
+        if (saved.tiktok !== undefined) inputTikTok.value = saved.tiktok;
+
+        socket.emit('update_channels', {
+          twitch: saved.twitch || '',
+          twitchToken: saved.twitchToken || '',
+          youtube: saved.youtube || '',
+          tiktok: saved.tiktok || ''
+        });
+      } catch (err) {
+        console.warn('Gagal membaca saved channels:', err);
+      }
+    }
   });
 
   socket.on('initial_state', (initial) => {
-    if (initial.channels) {
+    const hasLocal = localStorage.getItem('streampulse_my_channels');
+    if (!hasLocal && initial.channels) {
       inputTwitch.value = initial.channels.twitch || '';
       if (inputTwitchToken) {
         inputTwitchToken.value = initial.channels.twitchToken || localStorage.getItem('streampulse_twitch_token') || '';
@@ -413,6 +444,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (initial.recentEvents && initial.recentEvents.length > 0) {
       initial.recentEvents.forEach(evt => addEventToRecorder(evt, false));
+    }
+  });
+
+  socket.on('twitch_emotes', ({ channel, emotes }) => {
+    if (emotes && typeof emotes === 'object') {
+      state.twitchEmotes = { ...state.twitchEmotes, ...emotes };
     }
   });
 
@@ -522,6 +559,85 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   }
 
+  // ==========================================
+  // TWITCH & 7TV EMOTE PARSER
+  // ==========================================
+  function parse7tvTextTokens(rawText, emotesMap) {
+    if (!rawText) return '';
+    const tokens = rawText.split(/(\s+)/);
+    return tokens.map(token => {
+      if (!token) return '';
+      if (/^\s+$/.test(token)) return token;
+
+      const cleanToken = token.trim();
+      const emoteUrl = (emotesMap && emotesMap[cleanToken]) || state.twitchEmotes[cleanToken];
+      if (emoteUrl) {
+        return `<img class="chat-emote seventv-emote" src="${escapeHtml(emoteUrl)}" alt="${escapeHtml(cleanToken)}" title="${escapeHtml(cleanToken)}" loading="lazy">`;
+      }
+      return escapeHtml(token);
+    }).join('');
+  }
+
+  function formatTwitchMessageWithEmotes(rawText, twitchEmotes, channel7tvEmotes = null) {
+    if (!rawText) return '';
+
+    // Bila tidak ada emote native Twitch, parse 7TV langsung
+    if (!twitchEmotes || typeof twitchEmotes !== 'object' || Object.keys(twitchEmotes).length === 0) {
+      return parse7tvTextTokens(rawText, channel7tvEmotes);
+    }
+
+    // Ambil rentang index karakter emote Twitch
+    const ranges = [];
+    for (const emoteId in twitchEmotes) {
+      const occurrences = twitchEmotes[emoteId];
+      if (Array.isArray(occurrences)) {
+        for (const occ of occurrences) {
+          const parts = occ.split('-');
+          const start = parseInt(parts[0], 10);
+          const end = parseInt(parts[1], 10);
+          if (!isNaN(start) && !isNaN(end) && end >= start) {
+            ranges.push({
+              start,
+              end: end + 1, // slice end index
+              id: emoteId
+            });
+          }
+        }
+      }
+    }
+
+    // Urutkan rentang index dari depan ke belakang
+    ranges.sort((a, b) => a.start - b.start);
+
+    let html = '';
+    let lastIndex = 0;
+
+    for (const r of ranges) {
+      if (r.start < lastIndex) continue; // Skip overlap jika ada rentang corrupt
+
+      // Teks biasa sebelum emote (bisa mengandung 7TV emotes)
+      if (r.start > lastIndex) {
+        const textChunk = rawText.substring(lastIndex, r.start);
+        html += parse7tvTextTokens(textChunk, channel7tvEmotes);
+      }
+
+      // Emote native Twitch
+      const emoteName = rawText.substring(r.start, r.end);
+      const emoteUrl = `https://static-cdn.jtvnw.net/emoticons/v2/${r.id}/default/dark/1.0`;
+      html += `<img class="chat-emote" src="${emoteUrl}" alt="${escapeHtml(emoteName)}" title="${escapeHtml(emoteName)}" loading="lazy">`;
+
+      lastIndex = r.end;
+    }
+
+    // Sisa teks setelah emote terakhir
+    if (lastIndex < rawText.length) {
+      const remaining = rawText.substring(lastIndex);
+      html += parse7tvTextTokens(remaining, channel7tvEmotes);
+    }
+
+    return html;
+  }
+
   function shouldDisplayMessage(platform, isEvent, text, authorName) {
     if (state.activeFilter !== 'all') {
       if (state.activeFilter === 'events' && !isEvent) return false;
@@ -595,6 +711,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (author.isSub) badgesHtml += `<span class="badge-user sub">SUB</span>`;
     }
 
+    const chatTextHtml = chat.platform === 'twitch'
+      ? formatTwitchMessageWithEmotes(chat.text, chat.emotes)
+      : parse7tvTextTokens(chat.text, state.twitchEmotes);
+
     item.innerHTML = `
       ${avatarImg}
       <div class="chat-content">
@@ -603,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="author-name" style="color: ${escapeHtml(authorColor)}">${escapeHtml(authorName)}</span>
           <span class="chat-time">${formatTime(chat.timestamp)}</span>
         </div>
-        <div class="chat-text">${escapeHtml(chat.text)}</div>
+        <div class="chat-text">${chatTextHtml}</div>
       </div>
     `;
 
@@ -683,7 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         ${stickerHtml}
         ${iconHtml}
-        ${evt.message ? `<div class="chat-text" style="margin-top: 5px; color: #fff; font-weight: 500;">"${escapeHtml(evt.message)}"</div>` : ''}
+        ${evt.message ? `<div class="chat-text" style="margin-top: 5px; color: #fff; font-weight: 500;">"${evt.platform === 'twitch' ? formatTwitchMessageWithEmotes(evt.message, evt.emotes) : parse7tvTextTokens(evt.message, state.twitchEmotes)}"</div>` : ''}
       </div>
     `;
 
@@ -860,6 +980,14 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.reload();
       return;
     }
+
+    // Simpan saluran milik pengguna ini agar setiap pengguna/browser membuka salurannya masing-masing
+    localStorage.setItem('streampulse_my_channels', JSON.stringify({
+      twitch,
+      twitchToken,
+      youtube,
+      tiktok
+    }));
 
     socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok });
     closeModal(setupModal);
