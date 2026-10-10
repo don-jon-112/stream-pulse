@@ -272,7 +272,10 @@
           if (res.ok && data.success) {
             localStorage.removeItem('streampulse_user_token');
             localStorage.removeItem('streampulse_overlay_profile_id');
-            alert('✅ Akun Anda beserta seluruh datanya telah berhasil dihapus secara permanen.');
+            await spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
+              ? '✅ Your account and all associated data have been permanently deleted.'
+              : '✅ Akun Anda beserta seluruh datanya telah berhasil dihapus secara permanen.',
+              window.t ? window.t('dialog_success') : 'Berhasil', 'success');
             window.location.href = '/';
           } else {
             deleteErrorMsg.textContent = data.error || 'Gagal menghapus akun.';

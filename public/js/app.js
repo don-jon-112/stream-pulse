@@ -226,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       wakelockText.textContent = window.t ? (isAct ? window.t('nav_wakelock_on') : window.t('nav_wakelock_off')) : (isAct ? 'LAYAR AKTIF (Anti-Sleep ON)' : 'LAYAR NORMAL (Auto-Sleep)');
       if (wakelockSub) wakelockSub.textContent = window.t ? (isAct ? window.t('nav_wakelock_sub') : window.t('nav_wakelock_sub_off')) : (isAct ? 'Layar Dicegah Mati' : 'Bisa Mati Otomatis');
       updateOrderUI();
+      renderAuthNotice();
     });
   }
 
@@ -437,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentUser && userToken) {
         headerUserWidget.innerHTML = `<span>👤 ${currentUser.username}</span>`;
       } else {
-        headerUserWidget.innerHTML = `<span>🔐 Login / Akun</span>`;
+        headerUserWidget.innerHTML = `<span>${window.t ? window.t('nav_login') : '🔐 Login / Akun'}</span>`;
       }
     }
 
@@ -445,18 +446,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentUser && userToken) {
         channelAuthNotice.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="color:#10b981; font-weight:700;">✓ Tersambung ke Akun: <strong style="color:#fff;">${currentUser.username}</strong></span>
-            <a href="/studio" style="font-size:0.75rem; color:#a5b4fc; text-decoration:none; font-weight:700;">Kelola OBS Overlay →</a>
+            <span style="color:#10b981; font-weight:700;">✓ ${window.t ? window.t('auth_connected_to') : 'Tersambung ke Akun'}: <strong style="color:#fff;">${currentUser.username}</strong></span>
+            <a href="/studio" style="font-size:0.75rem; color:#a5b4fc; text-decoration:none; font-weight:700;">${window.t ? window.t('auth_manage_obs') : 'Kelola OBS Overlay'} →</a>
           </div>
           <div style="color:#94a3b8; font-size:0.72rem; margin-top:3px; line-height:1.4;">
-            Konfigurasi saluran Anda tersimpan otomatis di cloud. Token Twitch dienkripsi dengan standar militer AES-256-GCM.
+            ${window.t ? window.t('auth_cloud_config_desc') : 'Konfigurasi saluran Anda tersimpan otomatis di cloud. Token Twitch dienkripsi dengan standar militer AES-256-GCM.'}
           </div>
         `;
       } else {
         channelAuthNotice.innerHTML = `
-          <div style="color:#f59e0b; font-weight:700; margin-bottom:2px;">🔒 Mode Tamu (Belum Login)</div>
+          <div style="color:#f59e0b; font-weight:700; margin-bottom:2px;">🔒 ${window.t ? window.t('auth_guest_mode_title') : 'Mode Tamu (Belum Login)'}</div>
           <div style="color:#94a3b8; font-size:0.72rem; line-height:1.4;">
-            Sebagai tamu, input saluran Anda selalu default kosong dan hanya aktif di sesi ini. <a href="/studio" style="color:#67e8f9; font-weight:700; text-decoration:underline;">Login / Buat Akun</a> untuk menyimpan channel & mengamankan token Twitch secara permanen.
+            ${window.t ? window.t('auth_guest_mode_desc') : 'Sebagai tamu, input saluran Anda selalu default kosong dan hanya aktif di sesi ini.'} <a href="/studio" style="color:#67e8f9; font-weight:700; text-decoration:underline;">${window.t ? window.t('auth_guest_login_link') : 'Login / Buat Akun'}</a> ${window.t ? window.t('auth_guest_mode_desc_end') : 'untuk menyimpan channel & mengamankan token Twitch secara permanen.'}
           </div>
         `;
       }

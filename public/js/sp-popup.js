@@ -212,6 +212,28 @@
       auth_submit_login: "Masuk ke Akun 🚀",
       auth_submit_register: "Daftar & Buat Akun 🎉",
 
+      // Auth Cloud Notice & Guest Info
+      auth_connected_to: "Tersambung ke Akun",
+      auth_manage_obs: "Kelola OBS Overlay",
+      auth_cloud_config_desc: "Konfigurasi saluran Anda tersimpan otomatis di cloud. Token Twitch dienkripsi dengan standar militer AES-256-GCM.",
+      auth_guest_mode_title: "Mode Tamu (Belum Login)",
+      auth_guest_mode_desc: "Sebagai tamu, input saluran Anda selalu default kosong dan hanya aktif di sesi ini.",
+      auth_guest_login_link: "Login / Buat Akun",
+      auth_guest_mode_desc_end: "untuk menyimpan channel & mengamankan token Twitch secara permanen.",
+
+      // Studio Slots & Sliders Dynamic
+      active_badge_text: "Aktif",
+      studio_no_slots_msg: "Belum ada slot overlay aktif. Klik \"+ Generate URL Baru\" di atas!",
+      studio_slots_used_text: "Slot Terpakai",
+      studio_guest_help_text: "🔒 <em>Tombol Simpan, Salin URL, dan Kuota 3 Slot OBS hanya tersedia untuk streamer yang telah login. Silakan daftar/login untuk menggunakan fitur ini.</em>",
+      btn_edit_slot_tip: "Muat dan edit konfigurasi slot ini",
+      btn_overwrite_slot_tip: "Timpa (overwrite) slot ini dengan pengaturan yang sedang Anda edit saat ini",
+      btn_delete_slot_tip: "Hapus slot ini untuk mengosongkan kuota",
+      toast_logged_out_guest: "Telah keluar dari akun. Mode Tamu aktif.",
+      slider_always_visible: "Selalu Tampil (0s)",
+      slider_seconds: "detik",
+      slider_messages: "Pesan",
+
       // Privacy Page
       privacy_h1: "Kebijakan Privasi StreamPulse",
       privacy_date: "Terakhir diperbarui: Oktober 2026",
@@ -526,6 +548,28 @@
       auth_submit_login: "Sign In 🚀",
       auth_submit_register: "Register & Create Account 🎉",
 
+      // Auth Cloud Notice & Guest Info
+      auth_connected_to: "Connected to Account",
+      auth_manage_obs: "Manage OBS Overlay",
+      auth_cloud_config_desc: "Your channel configurations are automatically saved in the cloud. Twitch tokens are encrypted with military-grade AES-256-GCM.",
+      auth_guest_mode_title: "Guest Mode (Not Logged In)",
+      auth_guest_mode_desc: "As a guest, channel inputs default to empty and remain active only in this session.",
+      auth_guest_login_link: "Login / Register",
+      auth_guest_mode_desc_end: "to save channels and secure your Twitch token permanently.",
+
+      // Studio Slots & Sliders Dynamic
+      active_badge_text: "Active",
+      studio_no_slots_msg: "No active overlay slot yet. Click \"+ Generate New URL\" above!",
+      studio_slots_used_text: "Slots Used",
+      studio_guest_help_text: "🔒 <em>Save settings, copy URL, and 3 cloud slots are available only for logged-in streamers. Please login/register to access these features.</em>",
+      btn_edit_slot_tip: "Load and edit this slot configuration",
+      btn_overwrite_slot_tip: "Overwrite this slot with your current custom settings",
+      btn_delete_slot_tip: "Delete this slot to free up quota",
+      toast_logged_out_guest: "Logged out from account. Guest Mode is now active.",
+      slider_always_visible: "Always Visible (0s)",
+      slider_seconds: "seconds",
+      slider_messages: "Messages",
+
       // Privacy Page
       privacy_h1: "StreamPulse Privacy Policy",
       privacy_date: "Last updated: October 2026",
@@ -767,7 +811,27 @@
     ["Sedang Dikerjakan", "In Progress"],
     ["Selesai & Rilis", "Done & Released"],
     ["Ajukan Usulan Fitur", "Submit Feature Request"],
-    ["Kirim Usulan 🚀", "Submit Proposal 🚀"]
+    ["Kirim Usulan 🚀", "Submit Proposal 🚀"],
+
+    // Dynamic Auth & Studio Phrases
+    ["Kelola OBS Overlay", "Manage OBS Overlay"],
+    ["Kelola OBS Overlay →", "Manage OBS Overlay →"],
+    ["Konfigurasi saluran Anda tersimpan otomatis di cloud. Token Twitch dienkripsi dengan standar militer AES-256-GCM.", "Your channel configurations are automatically saved in the cloud. Twitch tokens are encrypted with military-grade AES-256-GCM."],
+    ["Mode Tamu (Belum Login)", "Guest Mode (Not Logged In)"],
+    ["Sebagai tamu, input saluran Anda selalu default kosong dan hanya aktif di sesi ini.", "As a guest, channel inputs default to empty and remain active only in this session."],
+    ["untuk menyimpan channel & mengamankan token Twitch secara permanen.", "to save channels and secure your Twitch token permanently."],
+    ["Tersambung ke Akun", "Connected to Account"],
+    ["(Aktif)", "(Active)"],
+    ["Aktif", "Active"],
+    ["Di OBS Studio: Tambah Source → pilih Browser → tempel link di atas → atur Width: 600, Height: 800.", "In OBS Studio: Add Source → select Browser → paste URL above → set Width: 600, Height: 800."],
+    ["Di OBS Studio: Tambah Source → pilih", "In OBS Studio: Add Source → select"],
+    ["tempel link di atas → atur Width: 600, Height: 800.", "paste URL above → set Width: 600, Height: 800."],
+    ["✓ Siap Digunakan di OBS", "✓ Ready for OBS Studio"],
+    ["Siap Digunakan di OBS", "Ready for OBS Studio"],
+    ["Slot Terpakai", "Slots Used"],
+    ["Selalu Tampil (0s)", "Always Visible (0s)"],
+    ["detik", "seconds"],
+    ["Pesan", "Messages"]
   ];
 
   const placeholderPairs = [
@@ -791,6 +855,10 @@
     const langDict = translations[currentLang] || translations.id;
     return (langDict && langDict[key]) || (translations.id && translations.id[key]) || key;
   }
+
+  // Eagerly expose window helpers so they are available immediately
+  window.t = t;
+  window.getCurrentLang = () => currentLang;
 
   function applyLanguage(lang) {
     currentLang = (lang === 'en') ? 'en' : 'id';

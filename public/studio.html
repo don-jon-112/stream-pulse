@@ -675,10 +675,10 @@
           accountPillContainer.innerHTML = `
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="font-size:0.8rem; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:4px 10px; border-radius:999px; color:#a5b4fc; font-weight:700;">
-                👤 ${currentUser.username} (${count}/3 Slot)
+                👤 ${currentUser.username} (${count}/3 ${window.t ? window.t('studio_slots_used_text') : 'Slot'})
               </span>
               <button id="btnLogoutUser" class="btn-icon" style="font-size:0.75rem; padding:4px 8px;" title="Keluar dari akun">
-                Logout
+                ${window.t ? window.t('studio_logout_btn') : 'Logout'}
               </button>
             </div>
           `;
@@ -688,7 +688,7 @@
             localStorage.removeItem('streampulse_user_token');
             renderUserStatus();
             renderSlotsList([]);
-            alert('Telah keluar dari akun. Mode Tamu aktif.');
+            spToast(window.t ? window.t('toast_logged_out_guest') : 'Telah keluar dari akun. Mode Tamu aktif.', 'info');
           });
 
           // Unlocked UI for Logged-In User
@@ -696,18 +696,18 @@
           if (overlayManagerCard) overlayManagerCard.style.display = 'flex';
           btnSaveOverlay.style.display = 'inline-flex';
           btnCopyObsUrl.style.display = 'inline-flex';
-          obsUrlStatusBadge.textContent = '✓ Siap Digunakan di OBS';
+          obsUrlStatusBadge.textContent = window.t ? window.t('studio_obs_ready') : '✓ Siap Digunakan di OBS';
           obsUrlStatusBadge.style.color = '#10b981';
-          obsUrlHelpText.innerHTML = '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>';
+          obsUrlHelpText.innerHTML = window.t ? window.t('obs_help_text') : '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>';
 
-          slotCounter.textContent = `${count} / 3 Slot Terpakai`;
+          slotCounter.textContent = `${count} / 3 ${window.t ? window.t('studio_slots_used_text') : 'Slot Terpakai'}`;
           renderSlotsList(currentUser.overlayIds || []);
           updateUrl();
         } else {
           // Guest State (Terkunci)
           accountPillContainer.innerHTML = `
             <button id="btnOpenAuthDynamic" class="btn-icon" style="font-size:0.8rem;">
-              🔐 Login / Daftar Akun
+              ${window.t ? window.t('studio_login_btn') : '🔐 Login / Daftar Akun'}
             </button>
           `;
           document.getElementById('btnOpenAuthDynamic').addEventListener('click', openAuthModal);
@@ -716,12 +716,12 @@
           if (overlayManagerCard) overlayManagerCard.style.display = 'none';
           btnSaveOverlay.style.display = 'none';
           btnCopyObsUrl.style.display = 'none';
-          obsFinalUrl.value = '🔒 Khusus Pengguna Login - Silakan Login / Daftar untuk Mendapatkan & Menyalin URL OBS';
-          obsUrlStatusBadge.textContent = '🔒 Memerlukan Login';
+          obsFinalUrl.value = window.t ? window.t('studio_guest_obs_url') : '🔒 Khusus Pengguna Login - Silakan Login / Daftar untuk Mendapatkan & Menyalin URL OBS';
+          obsUrlStatusBadge.textContent = window.t ? window.t('studio_obs_login_req') : '🔒 Memerlukan Login';
           obsUrlStatusBadge.style.color = '#f87171';
-          obsUrlHelpText.innerHTML = '🔒 <em>Tombol Simpan, Salin URL, dan Kuota 3 Slot OBS hanya tersedia untuk streamer yang telah login. Silakan daftar/login untuk menggunakan fitur ini.</em>';
+          obsUrlHelpText.innerHTML = window.t ? window.t('studio_guest_help_text') : '🔒 <em>Tombol Simpan, Salin URL, dan Kuota 3 Slot OBS hanya tersedia untuk streamer yang telah login. Silakan daftar/login untuk menggunakan fitur ini.</em>';
 
-          activeOverlayIdBadge.textContent = 'preview (guest)';
+          activeOverlayIdBadge.textContent = window.t ? window.t('studio_guest_badge') : 'preview (guest)';
           renderSlotsList([]);
         }
       }
@@ -860,13 +860,16 @@
               localStorage.setItem('streampulse_user_token', userToken);
               renderUserStatus();
               closeAuth();
-              alert(`🎉 Pendaftaran berhasil! Selamat datang, ${currentUser.username}!`);
+              spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
+                ? `🎉 Registration successful! Welcome, ${currentUser.username}!`
+                : `🎉 Pendaftaran berhasil! Selamat datang, ${currentUser.username}!`,
+                window.t ? window.t('dialog_success') : 'Berhasil', 'success');
             } else {
-              authErrorMsg.textContent = data.error || 'Gagal mendaftar akun';
+              authErrorMsg.textContent = data.error || (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Failed to create account' : 'Gagal mendaftar akun');
               authErrorMsg.style.display = 'block';
             }
           } catch (err) {
-            authErrorMsg.textContent = 'Error menghubungi server';
+            authErrorMsg.textContent = (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Server connection error' : 'Error menghubungi server');
             authErrorMsg.style.display = 'block';
           }
         } else {
@@ -884,13 +887,16 @@
               localStorage.setItem('streampulse_user_token', userToken);
               renderUserStatus();
               closeAuth();
-              alert(`✅ Berhasil masuk sebagai ${currentUser.username}!`);
+              spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
+                ? `✅ Successfully signed in as ${currentUser.username}!`
+                : `✅ Berhasil masuk sebagai ${currentUser.username}!`,
+                window.t ? window.t('dialog_success') : 'Berhasil', 'success');
             } else {
-              authErrorMsg.textContent = data.error || 'Login gagal';
+              authErrorMsg.textContent = data.error || (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Login failed' : 'Login gagal');
               authErrorMsg.style.display = 'block';
             }
           } catch (err) {
-            authErrorMsg.textContent = 'Error menghubungi server';
+            authErrorMsg.textContent = (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Server connection error' : 'Error menghubungi server');
             authErrorMsg.style.display = 'block';
           }
         }
@@ -931,7 +937,7 @@
         if (!slots || slots.length === 0) {
           slotsContainer.innerHTML = `
             <div style="font-size:0.75rem; color:var(--text-tertiary); padding:6px; text-align:center;">
-              Belum ada slot overlay aktif. Klik "+ Generate URL Baru" di atas!
+              ${window.t ? window.t('studio_no_slots_msg') : 'Belum ada slot overlay aktif. Klik "+ Generate URL Baru" di atas!'}
             </div>
           `;
           return;
@@ -944,12 +950,12 @@
           item.innerHTML = `
             <div>
               <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono);">Slot ${idx + 1}: ${sId}</strong>
-              ${isActive ? '<span style="font-size:0.65rem; color:#f59e0b; margin-left:6px; font-weight:700;">(Aktif)</span>' : ''}
+              ${isActive ? `<span style="font-size:0.65rem; color:#f59e0b; margin-left:6px; font-weight:700;">(${window.t ? window.t('active_badge_text') : 'Aktif'})</span>` : ''}
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
-              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}" title="Muat dan edit konfigurasi slot ini">✏️ Edit</button>` : ''}
-              <button class="btn-action-sm btn-overwrite-slot" data-id="${sId}" style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc;" title="Timpa (overwrite) slot ini dengan pengaturan yang sedang Anda edit saat ini">💾 Overwrite</button>
-              <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="Hapus slot ini untuk mengosongkan kuota">🗑️</button>
+              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}" title="${window.t ? window.t('btn_edit_slot_tip') : 'Muat dan edit konfigurasi slot ini'}">✏️ Edit</button>` : ''}
+              <button class="btn-action-sm btn-overwrite-slot" data-id="${sId}" style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc;" title="${window.t ? window.t('btn_overwrite_slot_tip') : 'Timpa (overwrite) slot ini dengan pengaturan yang sedang Anda edit saat ini'}">💾 Overwrite</button>
+              <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="${window.t ? window.t('btn_delete_slot_tip') : 'Hapus slot ini untuk mengosongkan kuota'}">🗑️</button>
             </div>
           `;
 
@@ -994,7 +1000,10 @@
       // Generate New URL Workflow (Anti-Abuse, Limit 3)
       btnGenerateOverlay.addEventListener('click', async () => {
         if (!userToken || !currentUser) {
-          alert('Silakan login atau daftar akun terlebih dahulu agar overlay Anda tersimpan aman (Maksimal 3 slot per akun).');
+          spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
+            ? 'Please log in or register first so your overlay presets are saved securely (Maximum 3 slots per account).'
+            : 'Silakan login atau daftar akun terlebih dahulu agar overlay Anda tersimpan aman (Maksimal 3 slot per akun).',
+            window.t ? window.t('dialog_warning') : 'Perhatian', 'warning');
           openAuthModal();
           return;
         }
@@ -1008,12 +1017,15 @@
           if (res.ok && data.success) {
             await checkUserSession();
             switchProfile(data.id);
-            alert(`🎉 URL Overlay baru "${data.id}" berhasil digenerate!\nLink OBS siap disalin di panel sebelah kanan.`);
+            spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
+              ? `🎉 New Overlay URL "${data.id}" successfully generated!\nOBS Browser Source link is ready to copy in the right panel.`
+              : `🎉 URL Overlay baru "${data.id}" berhasil digenerate!\nLink OBS siap disalin di panel sebelah kanan.`,
+              window.t ? window.t('dialog_success') : 'Berhasil', 'success');
           } else {
-            alert(data.error || 'Gagal generate overlay');
+            spAlert(data.error || (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Failed to generate overlay' : 'Gagal generate overlay'), window.t ? window.t('dialog_error') : 'Error', 'danger');
           }
         } catch (e) {
-          alert('Error menghubungi server');
+          spAlert(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Error connecting to server' : 'Error menghubungi server', window.t ? window.t('dialog_error') : 'Error', 'danger');
         }
       });
 
@@ -1065,8 +1077,8 @@
       function updateLabels() {
         labelFontSize.textContent = `${settingFontSize.value}px`;
         const delay = parseInt(settingHideDelay.value, 10);
-        labelHideDelay.textContent = delay === 0 ? 'Selalu Tampil (0s)' : `${delay} detik`;
-        labelMaxMessages.textContent = `${settingMaxMessages.value} Pesan`;
+        labelHideDelay.textContent = delay === 0 ? (window.t ? window.t('slider_always_visible') : 'Selalu Tampil (0s)') : `${delay} ${window.t ? window.t('slider_seconds') : 'detik'}`;
+        labelMaxMessages.textContent = `${settingMaxMessages.value} ${window.t ? window.t('slider_messages') : 'Pesan'}`;
       }
 
       function getOverlayConfig() {
@@ -1179,7 +1191,10 @@
 
       async function saveProfile(showAlert = true) {
         if (!currentUser || !userToken) {
-          alert('Fitur simpan konfigurasi overlay hanya tersedia untuk streamer yang telah login. Silakan login atau daftar akun terlebih dahulu.');
+          spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
+            ? 'Saving overlay configurations is only available for logged-in streamers. Please log in or create an account.'
+            : 'Fitur simpan konfigurasi overlay hanya tersedia untuk streamer yang telah login. Silakan login atau daftar akun terlebih dahulu.',
+            window.t ? window.t('dialog_warning') : 'Perhatian', 'warning');
           openAuthModal();
           return;
         }
@@ -1202,14 +1217,17 @@
             previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
             await checkUserSession();
             if (showAlert) {
-              alert(`✅ Pengaturan OBS Overlay "${profileId}" berhasil disimpan ke akun Anda!`);
+              spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
+                ? `✅ OBS Overlay configuration "${profileId}" saved to your cloud account!`
+                : `✅ Pengaturan OBS Overlay "${profileId}" berhasil disimpan ke akun Anda!`,
+                window.t ? window.t('dialog_success') : 'Berhasil', 'success');
             }
           } else {
-            alert(data.error || 'Gagal menyimpan overlay');
+            spAlert(data.error || (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Failed to save overlay' : 'Gagal menyimpan overlay'), window.t ? window.t('dialog_error') : 'Error', 'danger');
           }
         } catch (e) {
           console.error(e);
-          alert('Error menghubungi server saat menyimpan');
+          spAlert(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Server error while saving overlay' : 'Error menghubungi server saat menyimpan', window.t ? window.t('dialog_error') : 'Error', 'danger');
         }
       }
 
@@ -1238,7 +1256,7 @@
         try {
           await navigator.clipboard.writeText(obsFinalUrl.value);
           const orig = btnCopyObsUrl.innerHTML;
-          btnCopyObsUrl.innerHTML = '✓ Tersalin!';
+          btnCopyObsUrl.innerHTML = window.t ? window.t('studio_obs_copied') : '✓ Tersalin!';
           btnCopyObsUrl.style.background = '#10b981';
           setTimeout(() => {
             btnCopyObsUrl.innerHTML = orig;
@@ -1247,7 +1265,7 @@
         } catch (e) {
           obsFinalUrl.select();
           document.execCommand('copy');
-          alert('Link tersalin!');
+          spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Link copied!' : 'Link tersalin!', 'success');
         }
       });
 
@@ -1328,6 +1346,12 @@
           });
           iframeDoc.dispatchEvent(event);
         }
+      });
+
+      // Listen for language toggles
+      window.addEventListener('language_changed', () => {
+        renderUserStatus();
+        updateLabels();
       });
 
       // Initial boot

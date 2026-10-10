@@ -16,5 +16,7 @@ Thumbs.db
 # Android Gradle build artifacts
 android/.gradle/
 android/app/build/
-android/build/
-
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local

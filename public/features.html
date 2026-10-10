@@ -554,12 +554,13 @@
             formNewRequest.reset();
             closeModal();
             fetchFeedback();
+            spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? '🚀 Suggestion submitted successfully!' : '🚀 Usulan berhasil dikirim!', 'success');
           } else {
-            alert('Gagal mengirim usulan fitur.');
+            spAlert(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Failed to submit feature request.' : 'Gagal mengirim usulan fitur.', window.t ? window.t('dialog_error') : 'Error', 'danger');
           }
         } catch (err) {
           console.error(err);
-          alert('Terjadi kesalahan jaringan.');
+          spAlert(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Network error occurred.' : 'Terjadi kesalahan jaringan.', window.t ? window.t('dialog_error') : 'Error', 'danger');
         }
       });
 
