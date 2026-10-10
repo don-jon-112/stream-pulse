@@ -1692,12 +1692,18 @@ body.lite-mode .chat-item.event-item {
   box-shadow: none !important;
 }
 
-body.lite-mode .chat-avatar {
+body.lite-mode #fxCanvas {
   display: none !important;
 }
 
-body.lite-mode #fxCanvas {
-  display: none !important;
+.yt-custom-emote {
+  display: inline-block;
+  vertical-align: middle;
+  height: 1.4em;
+  max-height: 28px;
+  width: auto;
+  margin: -2px 2px;
+  object-fit: contain;
 }
 
 /* ==========================================================================

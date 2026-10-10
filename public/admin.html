@@ -369,6 +369,9 @@
       <a href="/features" target="_blank" class="btn-icon" title="Lihat Papan Kanban Publik">
         <span>Lihat Kanban Publik ↗</span>
       </a>
+      <button id="btnChangePass" class="btn-icon" style="display:none;" title="Ganti Password Admin">
+        <span>🔑 Ganti Password</span>
+      </button>
       <button id="btnLogout" class="btn-icon" style="display:none;" title="Keluar dari Panel Admin">
         <span>Keluar 🚪</span>
       </button>
@@ -385,7 +388,7 @@
       </p>
 
       <form id="formLogin" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
-        <input type="password" id="inputPassword" placeholder="Password Admin (Default: admin123)" required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem;">
+        <input type="password" id="inputPassword" placeholder="Masukkan Password Admin..." required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem;">
         <div id="loginError" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
         <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:10px;">
           Buka Panel Admin 🚀
@@ -542,6 +545,31 @@
     </div>
   </div>
 
+  <!-- MODAL CHANGE PASSWORD -->
+  <div id="changePassModal" class="modal-overlay">
+    <div class="modal-card" style="max-width:400px;">
+      <div class="modal-header">
+        <h3 style="margin:0; font-size:1.1rem; color:#fff;">Ganti Password Admin</h3>
+        <button id="closePassModal" class="btn-icon" style="padding:4px 8px;">✕</button>
+      </div>
+      <form id="formChangePass" style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+        <div class="channel-field">
+          <label class="channel-label" for="inputNewPass">Password Baru (Min. 4 karakter)</label>
+          <input type="password" id="inputNewPass" class="search-input" style="width:100%;" required minlength="4" placeholder="Ketik password baru...">
+        </div>
+        <div class="channel-field">
+          <label class="channel-label" for="inputConfirmPass">Konfirmasi Password Baru</label>
+          <input type="password" id="inputConfirmPass" class="search-input" style="width:100%;" required minlength="4" placeholder="Ulangi password baru...">
+        </div>
+        <div id="passError" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+          <button type="button" id="btnCancelPass" class="btn-icon">Batal</button>
+          <button type="submit" class="btn-icon btn-primary">Simpan Password 💾</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="toast-msg"></div>
 
@@ -556,6 +584,66 @@
       const inputPassword = document.getElementById('inputPassword');
       const loginError = document.getElementById('loginError');
       const btnLogout = document.getElementById('btnLogout');
+      const btnChangePass = document.getElementById('btnChangePass');
+
+      const changePassModal = document.getElementById('changePassModal');
+      const closePassModal = document.getElementById('closePassModal');
+      const btnCancelPass = document.getElementById('btnCancelPass');
+      const formChangePass = document.getElementById('formChangePass');
+      const inputNewPass = document.getElementById('inputNewPass');
+      const inputConfirmPass = document.getElementById('inputConfirmPass');
+      const passError = document.getElementById('passError');
+
+      const closePass = () => {
+        changePassModal.classList.remove('show');
+        formChangePass.reset();
+        passError.style.display = 'none';
+      };
+
+      btnChangePass.addEventListener('click', () => {
+        changePassModal.classList.add('show');
+        inputNewPass.focus();
+      });
+      closePassModal.addEventListener('click', closePass);
+      btnCancelPass.addEventListener('click', closePass);
+      changePassModal.addEventListener('click', (e) => {
+        if (e.target === changePassModal) closePass();
+      });
+
+      formChangePass.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const p1 = inputNewPass.value.trim();
+        const p2 = inputConfirmPass.value.trim();
+        passError.style.display = 'none';
+        if (p1 !== p2) {
+          passError.textContent = 'Password baru dan konfirmasi tidak cocok!';
+          passError.style.display = 'block';
+          return;
+        }
+        try {
+          const res = await fetch('/api/admin/change-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-key': adminToken
+            },
+            body: JSON.stringify({ newPassword: p1 })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            adminToken = data.token;
+            sessionStorage.setItem('streampulse_admin_token', adminToken);
+            showToast('Password admin berhasil diubah! 🔑');
+            closePass();
+          } else {
+            passError.textContent = data.error || 'Gagal mengubah password';
+            passError.style.display = 'block';
+          }
+        } catch (err) {
+          passError.textContent = 'Error menghubungi server';
+          passError.style.display = 'block';
+        }
+      });
 
       const statTotal = document.getElementById('statTotal');
       const statTodo = document.getElementById('statTodo');
@@ -644,6 +732,7 @@
         authSection.style.display = 'flex';
         dashboardSection.style.display = 'none';
         btnLogout.style.display = 'none';
+        btnChangePass.style.display = 'none';
         showToast('Telah keluar dari Admin');
       });
 
@@ -651,6 +740,7 @@
         authSection.style.display = 'none';
         dashboardSection.style.display = 'flex';
         btnLogout.style.display = 'inline-flex';
+        btnChangePass.style.display = 'inline-flex';
         fetchAdminFeatures();
       }
 

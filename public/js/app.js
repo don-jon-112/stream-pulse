@@ -348,38 +348,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // LITE MODE (ULTRA RINGAN & HEMAT DAYA)
+  // LITE MODE (ULTRA RINGAN & HEMAT DAYA - PERMANENT DEFAULT)
   // ==========================================
-  const applyLiteMode = (isLite) => {
-    state.liteMode = isLite;
-    localStorage.setItem('lite_mode', isLite);
-    document.body.classList.toggle('lite-mode', isLite);
-    if (btnLiteMode) {
-      if (isLite) {
-        btnLiteMode.classList.add('active');
-        liteLabel.textContent = 'Lite: ON';
-      } else {
-        btnLiteMode.classList.remove('active');
-        liteLabel.textContent = 'Lite: OFF';
-      }
-    }
-    // Jika lite mode diaktifkan, langsung hapus elemen avatar yang sudah ada untuk membebaskan memori
-    if (isLite) {
-      document.querySelectorAll('.chat-avatar').forEach(el => el.remove());
-    }
-    if (isLite && state.maxChatLimit > 50) {
-      state.maxChatLimit = 30;
-      if (selectChatLimit) selectChatLimit.value = '30';
-      localStorage.setItem('max_chat_limit', '30');
-      trimExcessChats();
-    }
-  };
-
-  if (btnLiteMode) {
-    btnLiteMode.addEventListener('click', () => {
-      applyLiteMode(!state.liteMode);
-    });
-    applyLiteMode(state.liteMode);
+  state.liteMode = true;
+  document.body.classList.add('lite-mode');
+  if (state.maxChatLimit > 50) {
+    state.maxChatLimit = 40;
+    if (selectChatLimit) selectChatLimit.value = '40';
   }
 
 
@@ -640,6 +615,21 @@ document.addEventListener('DOMContentLoaded', () => {
     return html;
   }
 
+  function formatYouTubeMessage(chat) {
+    if (Array.isArray(chat.messageParts) && chat.messageParts.length > 0) {
+      return chat.messageParts.map(part => {
+        if (!part) return '';
+        if (part.type === 'emoji' || part.url) {
+          const emoteAlt = escapeHtml(part.alt || part.emojiText || 'emote');
+          const emoteUrl = escapeHtml(part.url);
+          return `<img class="chat-emote yt-custom-emote" src="${emoteUrl}" alt="${emoteAlt}" title="${emoteAlt}" referrerpolicy="no-referrer" loading="lazy">`;
+        }
+        return parse7tvTextTokens(part.text || '', state.twitchEmotes);
+      }).join('');
+    }
+    return parse7tvTextTokens(chat.text, state.twitchEmotes);
+  }
+
   function shouldDisplayMessage(platform, isEvent, text, authorName) {
     if (state.activeFilter !== 'all') {
       if (state.activeFilter === 'events' && !isEvent) return false;
@@ -689,6 +679,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let html = '';
 
     if (chat.platform === 'twitch') {
+      // Prioritaskan custom badges dari channel (tier sub kustom, bits, founder, dsb, max 3 badge)
+      if (Array.isArray(author.badgesList) && author.badgesList.length > 0) {
+        author.badgesList.slice(0, 3).forEach(b => {
+          if (b && b.url) {
+            html += `<img src="${escapeHtml(b.url)}" class="platform-official-badge twitch-badge" alt="${escapeHtml(b.title || 'Badge')}" title="${escapeHtml(b.title || 'Badge')}" referrerpolicy="no-referrer" loading="lazy">`;
+          }
+        });
+        return html;
+      }
+
       const badges = author.badges || {};
       if (badges.broadcaster || author.isBroadcaster) {
         const b = TWITCH_OFFICIAL_BADGES.broadcaster;
@@ -784,18 +784,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorName = author.name || 'Anonymous';
     const authorColor = author.color || '#f8fafc';
     const initial = (authorName[0] || '?').toUpperCase();
-    // Pada Lite Mode: Jangan render avatar/profile pic sama sekali (hemat bandwidth, CPU decode & RAM)
-    const avatarImg = state.liteMode
-      ? ''
-      : (author.avatar
-          ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
-          : `<div class="chat-avatar">${initial}</div>`);
+    const avatarImg = author.avatar
+      ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
+      : `<div class="chat-avatar">${initial}</div>`;
 
     const badgesHtml = getPlatformBadge(chat.platform) + getOfficialBadgesHtml(chat);
 
-    const chatTextHtml = chat.platform === 'twitch'
-      ? formatTwitchMessageWithEmotes(chat.text, chat.emotes)
-      : parse7tvTextTokens(chat.text, state.twitchEmotes);
+    let chatTextHtml = '';
+    if (chat.platform === 'twitch') {
+      chatTextHtml = formatTwitchMessageWithEmotes(chat.text, chat.emotes);
+    } else if (chat.platform === 'youtube') {
+      chatTextHtml = formatYouTubeMessage(chat);
+    } else {
+      chatTextHtml = parse7tvTextTokens(chat.text, state.twitchEmotes);
+    }
 
     item.innerHTML = `
       ${avatarImg}

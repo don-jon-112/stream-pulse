@@ -438,6 +438,16 @@
         const author = chat.author || {};
 
         if (chat.platform === 'twitch') {
+          // Prioritaskan custom badges dari channel Twitch (max 3 badges)
+          if (Array.isArray(author.badgesList) && author.badgesList.length > 0) {
+            author.badgesList.slice(0, 3).forEach(b => {
+              if (b && b.url) {
+                html += `<img src="${escapeHtml(b.url)}" class="platform-official-badge twitch-badge" alt="${escapeHtml(b.title || 'Badge')}" title="${escapeHtml(b.title || 'Badge')}" referrerpolicy="no-referrer" loading="lazy">`;
+              }
+            });
+            return html;
+          }
+
           const badges = author.badges || {};
           if (badges.broadcaster || author.isBroadcaster) {
             const b = TWITCH_OFFICIAL_BADGES.broadcaster;
@@ -515,9 +525,22 @@
           : '';
 
         const badgesHtml = renderBadges(item);
-        const textHtml = item.platform === 'twitch'
-          ? formatTwitchEmotes(item.text, item.emotes)
-          : parse7tvTokens(item.text);
+        let textHtml = '';
+        if (item.platform === 'twitch') {
+          textHtml = formatTwitchEmotes(item.text, item.emotes);
+        } else if (item.platform === 'youtube' && Array.isArray(item.messageParts) && item.messageParts.length > 0) {
+          textHtml = item.messageParts.map(part => {
+            if (!part) return '';
+            if (part.type === 'emoji' || part.url) {
+              const emoteAlt = escapeHtml(part.alt || part.emojiText || 'emote');
+              const emoteUrl = escapeHtml(part.url);
+              return `<img class="chat-emote yt-custom-emote" src="${emoteUrl}" alt="${emoteAlt}" title="${emoteAlt}" referrerpolicy="no-referrer" loading="lazy">`;
+            }
+            return parse7tvTokens(part.text || '');
+          }).join('');
+        } else {
+          textHtml = parse7tvTokens(item.text);
+        }
 
         el.innerHTML = `
           ${avatarHtml}

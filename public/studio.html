@@ -244,6 +244,26 @@
     <!-- LEFT: Customizer Controls -->
     <div class="controls-panel">
       
+      <!-- 0. Profile Selector -->
+      <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-md); padding: 14px; display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:0.85rem; font-weight:800; color:#fff;">🆔 Profil Overlay ID</span>
+            <span id="badgeProfileId" style="font-family:var(--font-mono); font-size:0.75rem; background:rgba(99, 102, 241, 0.25); color:#a5b4fc; padding:2px 8px; border-radius:4px; font-weight:700;">default</span>
+          </div>
+          <button type="button" id="btnNewProfile" class="btn-icon btn-primary" style="font-size:0.75rem; padding:5px 10px;">
+            + Buat ID Baru
+          </button>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" for="selectProfileList">Pilih Profil Overlay:</label>
+          <select id="selectProfileList" class="form-select" style="font-family:var(--font-mono); font-size:0.82rem;"></select>
+        </div>
+        <p style="font-size:0.72rem; color:var(--text-tertiary); margin:0;">
+          💡 <em>Tiap ID Profil memiliki saluran, tema, dan CSS/JS sendiri. OBS URL akan berbeda untuk tiap ID.</em>
+        </p>
+      </div>
+
       <!-- 1. Channel Linking -->
       <div class="section-title">📡 Saluran Live Stream</div>
       <div class="form-group">
@@ -403,9 +423,13 @@
       const btnTestTwitchVip = document.getElementById('btnTestTwitchVip');
       const btnTestRedeem = document.getElementById('btnTestRedeem');
       const btnTestAlert = document.getElementById('btnTestAlert');
+      const badgeProfileId = document.getElementById('badgeProfileId');
+      const selectProfileList = document.getElementById('selectProfileList');
+      const btnNewProfile = document.getElementById('btnNewProfile');
 
-      // Ambil profile saat ini atau localStorage
-      let profileId = localStorage.getItem('streampulse_overlay_profile_id') || 'default';
+      // Ambil profile dari query string URL (?id=...) jika ada, atau localStorage, atau 'default'
+      const urlParams = new URLSearchParams(window.location.search);
+      let profileId = urlParams.get('id') || localStorage.getItem('streampulse_overlay_profile_id') || 'default';
 
       // Load saved channels dari dashboard jika ada
       const savedChannels = JSON.parse(localStorage.getItem('streampulse_my_channels') || '{}');
@@ -413,23 +437,82 @@
       if (savedChannels.youtube) settingYouTube.value = savedChannels.youtube;
       if (savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
 
+      async function fetchProfileList() {
+        try {
+          const res = await fetch('/api/overlays');
+          if (res.ok) {
+            const list = await res.json();
+            selectProfileList.innerHTML = '';
+            
+            let foundCurrent = false;
+            list.forEach(p => {
+              if (p.id === profileId) foundCurrent = true;
+              const opt = document.createElement('option');
+              opt.value = p.id;
+              const info = p.twitch || p.youtube || p.theme || 'default';
+              opt.textContent = `${p.id} (${info})`;
+              selectProfileList.appendChild(opt);
+            });
+
+            if (!foundCurrent) {
+              const opt = document.createElement('option');
+              opt.value = profileId;
+              opt.textContent = `${profileId} (aktif)`;
+              selectProfileList.appendChild(opt);
+            }
+
+            selectProfileList.value = profileId;
+            badgeProfileId.textContent = profileId;
+          }
+        } catch (e) {
+          console.warn('Gagal memuat list profile overlay:', e);
+        }
+      }
+
+      selectProfileList.addEventListener('change', () => {
+        profileId = selectProfileList.value;
+        localStorage.setItem('streampulse_overlay_profile_id', profileId);
+        badgeProfileId.textContent = profileId;
+        loadProfile();
+        previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
+      });
+
+      btnNewProfile.addEventListener('click', async () => {
+        const randId = 'ovl_' + Math.random().toString(36).substring(2, 8);
+        const inputName = prompt('Masukkan ID / Nama unik untuk Overlay baru ini:', randId);
+        if (!inputName) return;
+
+        const cleanId = inputName.trim().replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+        if (!cleanId) return;
+
+        profileId = cleanId;
+        localStorage.setItem('streampulse_overlay_profile_id', profileId);
+        badgeProfileId.textContent = profileId;
+        
+        await saveProfile(false);
+        await fetchProfileList();
+        loadProfile();
+        alert(`✅ Overlay ID baru "${profileId}" berhasil dibuat!\nAnda dapat mengatur saluran, tema, dan CSS untuk overlay ini.`);
+      });
+
       async function loadProfile() {
         try {
+          badgeProfileId.textContent = profileId;
           const res = await fetch(`/api/overlays/${profileId}`);
           if (res.ok) {
             const data = await res.json();
-            if (data.twitch) settingTwitch.value = data.twitch;
-            if (data.youtube) settingYouTube.value = data.youtube;
-            if (data.tiktok) settingTikTok.value = data.tiktok;
-            if (data.theme) settingTheme.value = data.theme;
-            if (data.fontSize) settingFontSize.value = data.fontSize;
+            if (data.twitch !== undefined) settingTwitch.value = data.twitch;
+            if (data.youtube !== undefined) settingYouTube.value = data.youtube;
+            if (data.tiktok !== undefined) settingTikTok.value = data.tiktok;
+            if (data.theme !== undefined) settingTheme.value = data.theme;
+            if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
             if (data.showBadges !== undefined) settingShowBadges.checked = data.showBadges;
             if (data.showAvatars !== undefined) settingShowAvatars.checked = data.showAvatars;
             if (data.showEmotes !== undefined) settingShowEmotes.checked = data.showEmotes;
             if (data.showAlerts !== undefined) settingShowAlerts.checked = data.showAlerts;
-            if (data.customCss) settingCustomCss.value = data.customCss;
-            if (data.customJs) settingCustomJs.value = data.customJs;
+            if (data.customCss !== undefined) settingCustomCss.value = data.customCss;
+            if (data.customJs !== undefined) settingCustomJs.value = data.customJs;
             updateLabels();
             updateUrl();
           }
@@ -485,6 +568,7 @@
             profileId = data.id;
             localStorage.setItem('streampulse_overlay_profile_id', profileId);
             updateUrl();
+            fetchProfileList();
             previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
             if (showAlert) {
               alert('✅ Pengaturan OBS Overlay berhasil disimpan!');
@@ -614,6 +698,7 @@
       });
 
       // Initial Load
+      fetchProfileList();
       loadProfile();
     });
   </script>

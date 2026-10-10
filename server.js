@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 // Database Paths
 const FEEDBACK_FILE = path.join(__dirname, 'data', 'feedback.json');
 const OVERLAYS_FILE = path.join(__dirname, 'data', 'overlays.json');
+const ADMIN_FILE = path.join(__dirname, 'data', 'admin.json');
 
 function readJsonFile(filePath, defaultValue) {
   try {
@@ -155,11 +156,17 @@ app.post('/api/channels', async (req, res) => {
 // ==========================================
 // FEATURE REQUESTS & KANBAN API
 // ==========================================
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+function getAdminPassword() {
+  const adminData = readJsonFile(ADMIN_FILE, null);
+  if (adminData && adminData.password) {
+    return adminData.password;
+  }
+  return process.env.ADMIN_PASSWORD || 'admin123';
+}
 
 function checkAdminAuth(req) {
   const token = (req.headers['x-admin-key'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
-  return token === ADMIN_PASSWORD;
+  return token === getAdminPassword();
 }
 
 app.get('/api/feedback', (req, res) => {
@@ -227,10 +234,24 @@ app.patch('/api/feedback/:id/status', (req, res) => {
 // ==========================================
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body || {};
-  if (password === ADMIN_PASSWORD) {
-    return res.json({ success: true, token: ADMIN_PASSWORD });
+  const currentPassword = getAdminPassword();
+  if (password === currentPassword) {
+    return res.json({ success: true, token: currentPassword });
   }
   return res.status(401).json({ error: 'Password Admin salah! Silakan coba lagi.' });
+});
+
+app.post('/api/admin/change-password', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
+  }
+  const { newPassword } = req.body || {};
+  if (!newPassword || String(newPassword).trim().length < 4) {
+    return res.status(400).json({ error: 'Password baru minimal 4 karakter' });
+  }
+  const cleanPass = String(newPassword).trim();
+  writeJsonFile(ADMIN_FILE, { password: cleanPass, updatedAt: Date.now() });
+  res.json({ success: true, token: cleanPass, message: 'Password admin berhasil diubah!' });
 });
 
 app.get('/api/admin/feedback', (req, res) => {
@@ -316,6 +337,19 @@ app.post('/api/admin/feedback', (req, res) => {
 // ==========================================
 // OBS OVERLAY PROFILES API
 // ==========================================
+app.get('/api/overlays', (req, res) => {
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  const list = Object.keys(overlays).map(id => ({
+    id,
+    theme: overlays[id].theme || 'glass',
+    twitch: overlays[id].twitch || '',
+    youtube: overlays[id].youtube || '',
+    tiktok: overlays[id].tiktok || '',
+    updatedAt: overlays[id].updatedAt || 0
+  }));
+  res.json(list);
+});
+
 app.get('/api/overlays/:id', (req, res) => {
   const { id } = req.params;
   const overlays = readJsonFile(OVERLAYS_FILE, {});
