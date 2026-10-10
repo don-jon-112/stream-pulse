@@ -12,3 +12,9 @@ npm-debug.log*
 # OS metadata
 Thumbs.db
 .DS_Store
+
+# Android Gradle build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+

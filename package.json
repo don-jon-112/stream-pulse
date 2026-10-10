@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "electron": "electron .",
-    "build:exe": "electron-packager . \"StreamPulse MultiChat\" --platform=win32 --arch=x64 --out=dist --overwrite"
+    "build:exe": "electron-packager . \"StreamPulse MultiChat\" --platform=win32 --arch=x64 --out=dist --overwrite",
+    "cap:sync": "npx cap copy && npx cap sync",
+    "cap:open": "npx cap open android"
   },
   "build": {
     "appId": "com.streampulse.app",
@@ -50,6 +52,9 @@
     "youtube-chat": "^2.2.0"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^7.6.9",
+    "@capacitor/core": "^8.5.3",
     "@electron/packager": "^18.4.4",
     "electron": "^41.7.1",
     "electron-builder": "^26.15.3"

@@ -5,8 +5,19 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // DOM Elements
-  const socket = io();
+  // Server Target Resolution (Supports Localhost, Cloud Backend like Render/Railway, or Android APK)
+  const savedServerUrl = (localStorage.getItem('streampulse_server_url') || '').trim();
+  let serverTarget = undefined;
+
+  if (savedServerUrl) {
+    serverTarget = savedServerUrl.replace(/\/+$/, '');
+  } else if (window.location.protocol === 'file:' || window.location.protocol === 'capacitor:') {
+    serverTarget = undefined;
+  }
+
+  const socket = serverTarget 
+    ? io(serverTarget, { transports: ['websocket', 'polling'] }) 
+    : io({ transports: ['websocket', 'polling'] });
 
   // Header Elements
   const wakelockBtn = document.getElementById('wakelockBtn');
@@ -63,6 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputTwitchToken = document.getElementById('inputTwitchToken');
   const inputYouTube = document.getElementById('inputYouTube');
   const inputTikTok = document.getElementById('inputTikTok');
+  const inputServerUrl = document.getElementById('inputServerUrl');
+
+  if (inputServerUrl && savedServerUrl) {
+    inputServerUrl.value = savedServerUrl;
+  }
 
   // Mobile navigation
   const mobNavChat = document.getElementById('mobNavChat');
@@ -829,6 +845,22 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('streampulse_twitch_token');
     }
 
+    const prevServerUrl = (localStorage.getItem('streampulse_server_url') || '').trim();
+    const newServerUrl = inputServerUrl ? inputServerUrl.value.trim().replace(/\/+$/, '') : '';
+
+    if (newServerUrl) {
+      localStorage.setItem('streampulse_server_url', newServerUrl);
+    } else {
+      localStorage.removeItem('streampulse_server_url');
+    }
+
+    if (newServerUrl !== prevServerUrl) {
+      closeModal(setupModal);
+      alert('URL Server backend diperbarui. Memuat ulang aplikasi untuk menyambungkan...');
+      window.location.reload();
+      return;
+    }
+
     socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok });
     closeModal(setupModal);
   });
@@ -938,18 +970,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // BERSIHKAN CACHE & SERVICE WORKER LAMA
+  // PWA SERVICE WORKER & INSTALLATION
   // ==========================================
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const registration of registrations) {
-        registration.unregister();
-      }
-    });
-  }
-  if ('caches' in window) {
-    caches.keys().then((keys) => {
-      keys.forEach((key) => caches.delete(key));
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('PWA ServiceWorker registered'))
+        .catch((err) => console.log('PWA ServiceWorker error:', err));
     });
   }
 
@@ -958,15 +985,22 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     deferredPrompt = e;
     if (btnInstallPwa) {
-      btnInstallPwa.style.display = 'flex';
+      btnInstallPwa.style.display = 'inline-flex';
       btnInstallPwa.addEventListener('click', async () => {
         if (deferredPrompt) {
           deferredPrompt.prompt();
-          await deferredPrompt.userChoice;
+          const choice = await deferredPrompt.userChoice;
+          if (choice && choice.outcome === 'accepted') {
+            btnInstallPwa.style.display = 'none';
+          }
           deferredPrompt = null;
-          btnInstallPwa.style.display = 'none';
         }
       });
     }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    if (btnInstallPwa) btnInstallPwa.style.display = 'none';
+    deferredPrompt = null;
   });
 });
