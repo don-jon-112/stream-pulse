@@ -1,0 +1,62 @@
+[
+  {
+    "id": "req_1",
+    "title": "Dukungan Emote Native Twitch & 7TV (Animasi WebP/GIF)",
+    "description": "Menampilkan emote dari Twitch IRC dan emote pihak ketiga dari 7TV termasuk animasi langsung di chat bubble.",
+    "category": "twitch",
+    "status": "done",
+    "author": "StreamPulse Community",
+    "upvotes": 28,
+    "createdAt": 1728560000000
+  },
+  {
+    "id": "req_2",
+    "title": "Isolasi Multi-User Session (Room Terpisah per Pengguna)",
+    "description": "Setiap pengunjung yang membuka web dapat memantau channel yang berbeda secara mandiri tanpa saling bercampur.",
+    "category": "core",
+    "status": "done",
+    "author": "StreamPulse Community",
+    "upvotes": 24,
+    "createdAt": 1728561000000
+  },
+  {
+    "id": "req_3",
+    "title": "OBS Browser Source Chat Overlay Khusus",
+    "description": "Halaman transparan tanpa background untuk dimasukkan sebagai Browser Source di OBS Studio / Streamlabs.",
+    "category": "overlay",
+    "status": "in_progress",
+    "author": "joo_nathan",
+    "upvotes": 19,
+    "createdAt": 1728562000000
+  },
+  {
+    "id": "req_4",
+    "title": "Detail Badge Twitch & Alert (Raid, Bits, Subs, Channel Points)",
+    "description": "Menampilkan badge resmi Twitch (Broadcaster, Mod, VIP, Sub) dan highlight visual saat penonton menukarkan poin saluran.",
+    "category": "twitch",
+    "status": "in_progress",
+    "author": "joo_nathan",
+    "upvotes": 17,
+    "createdAt": 1728563000000
+  },
+  {
+    "id": "req_5",
+    "title": "Custom CSS & JS Editor untuk OBS Overlay",
+    "description": "Pengguna dapat memodifikasi styling CSS, font, animasi, dan skrip kustom untuk tampilan chat overlay mereka sendiri.",
+    "category": "overlay",
+    "status": "todo",
+    "author": "joo_nathan",
+    "upvotes": 15,
+    "createdAt": 1728564000000
+  },
+  {
+    "id": "req_6",
+    "title": "Kustomisasi Badge & Super Chat YouTube Live",
+    "description": "Dukungan badge member VIP / sponsor dan highlight kartu Super Chat berwarna khas YouTube.",
+    "category": "youtube",
+    "status": "todo",
+    "author": "Viewer",
+    "upvotes": 8,
+    "createdAt": 1728565000000
+  }
+]

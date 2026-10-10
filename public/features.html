@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Roadmap & Usulan Fitur - StreamPulse MultiChat</title>
+  <meta name="description" content="Papan Kanban interaktif untuk roadmap fitur baru dan pengajuan usulan fitur dari komunitas streamer StreamPulse.">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, rgba(6, 8, 13, 1) 100%), #06080d;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .roadmap-header {
+      padding: 16px 24px;
+      background: rgba(13, 17, 27, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .roadmap-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .roadmap-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .kanban-container {
+      flex: 1;
+      padding: 24px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(168, 85, 247, 0.1) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .hero-text h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .hero-text p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    /* Kanban Board Columns */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+
+    .kanban-column {
+      background: rgba(13, 17, 27, 0.65);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      min-height: 500px;
+      overflow: hidden;
+    }
+
+    .column-header {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .column-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .column-badge {
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+    }
+
+    .kanban-column.todo { border-top: 4px solid #6366f1; }
+    .kanban-column.in_progress { border-top: 4px solid #f59e0b; }
+    .kanban-column.done { border-top: 4px solid #10b981; }
+
+    .cards-list {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.45);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cat-tag {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .cat-tag.twitch { background: rgba(145, 70, 255, 0.2); color: #c084fc; border: 1px solid rgba(145, 70, 255, 0.35); }
+    .cat-tag.youtube { background: rgba(255, 0, 0, 0.2); color: #f87171; border: 1px solid rgba(255, 0, 0, 0.35); }
+    .cat-tag.tiktok { background: rgba(0, 242, 254, 0.2); color: #38bdf8; border: 1px solid rgba(0, 242, 254, 0.35); }
+    .cat-tag.overlay { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .cat-tag.core { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.35); }
+    .cat-tag.general { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.35); }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-author {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-upvote {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      color: #cbd5e1;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-upvote:hover {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: #6366f1;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .btn-upvote.voted {
+      background: rgba(99, 102, 241, 0.35);
+      border-color: #818cf8;
+      color: #a5b4fc;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="roadmap-header">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="/" class="roadmap-brand">
+        <div class="brand-logo" style="width:34px; height:34px;">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="roadmap-title">
+          <span>StreamPulse</span>
+          <span class="brand-badge">ROADMAP</span>
+        </div>
+      </a>
+      <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.8rem; padding: 6px 12px;">
+        ← Kembali ke Live Chat
+      </a>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px;">
+      <a href="/donate" class="btn-icon btn-donate" style="text-decoration:none; font-size:0.8rem;">
+        Dukung / Donasi ☕
+      </a>
+      <button id="btnOpenRequestModal" class="btn-icon btn-primary" style="font-size:0.82rem; padding: 8px 18px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <span>Ajukan Fitur Baru</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Kanban Board -->
+  <main class="kanban-container">
+    
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h1>Papan Kanban & Usulan Fitur</h1>
+        <p>
+          Pantau progres pengembangan StreamPulse secara transparan. Anda bebas mengusulkan fitur baru atau memberi suara (upvote 👍) pada fitur yang paling Anda inginkan!
+        </p>
+      </div>
+      <div>
+        <button id="btnHeroRequest" class="btn-icon btn-primary" style="padding: 10px 22px; font-weight:800;">
+          💡 Ajukan Ide Sekarang
+        </button>
+      </div>
+    </div>
+
+    <!-- The 3 Columns: TODO, IN PROGRESS, DONE -->
+    <div class="kanban-board">
+      
+      <!-- 1. TODO / USULAN MASUK -->
+      <section class="kanban-column todo">
+        <div class="column-header">
+          <div class="column-title-group">
+            <span style="color:#818cf8;">📋</span>
+            <span>TODO / Usulan Masuk</span>
+          </div>
+          <span id="badgeCountTodo" class="column-badge">0</span>
+        </div>
+        <div id="listTodo" class="cards-list">
+          <!-- Dynamic cards injected via JS -->
+        </div>
+      </section>
+
+      <!-- 2. IN PROGRESS / SEDANG DIKERJAKAN -->
+      <section class="kanban-column in_progress">
+        <div class="column-header">
+          <div class="column-title-group">
+            <span style="color:#f59e0b;">⚡</span>
+            <span>Sedang Dikerjakan</span>
+          </div>
+          <span id="badgeCountInProgress" class="column-badge">0</span>
+        </div>
+        <div id="listInProgress" class="cards-list">
+          <!-- Dynamic cards injected via JS -->
+        </div>
+      </section>
+
+      <!-- 3. DONE / SELESAI & RILIS -->
+      <section class="kanban-column done">
+        <div class="column-header">
+          <div class="column-title-group">
+            <span style="color:#10b981;">✅</span>
+            <span>Selesai & Rilis</span>
+          </div>
+          <span id="badgeCountDone" class="column-badge">0</span>
+        </div>
+        <div id="listDone" class="cards-list">
+          <!-- Dynamic cards injected via JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODAL: AJUKAN FITUR BARU -->
+  <div id="requestModal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <div class="modal-title" style="color: #818cf8;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          <span>Ajukan Usulan Fitur</span>
+        </div>
+        <button id="closeRequestModal" class="modal-close">&times;</button>
+      </div>
+
+      <form id="formNewRequest" class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="channel-field">
+          <label class="channel-label" for="reqTitle">Judul Fitur *</label>
+          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." autocomplete="off">
+        </div>
+
+        <div class="channel-field">
+          <label class="channel-label" for="reqCategory">Kategori Platform</label>
+          <select id="reqCategory" style="width:100%; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.85rem;">
+            <option value="twitch">🟣 Twitch</option>
+            <option value="youtube">🔴 YouTube Live</option>
+            <option value="tiktok">🎵 TikTok LIVE</option>
+            <option value="overlay">🖥️ OBS Chat Overlay</option>
+            <option value="core">⚡ Performa / Sistem Inti</option>
+            <option value="general">✨ Umum / Lainnya</option>
+          </select>
+        </div>
+
+        <div class="channel-field">
+          <label class="channel-label" for="reqAuthor">Nama Anda / Streamer (Opsional)</label>
+          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" autocomplete="off">
+        </div>
+
+        <div class="channel-field">
+          <label class="channel-label" for="reqDesc">Deskripsi Fitur *</label>
+          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." style="width:100%; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.85rem; resize:vertical; font-family:var(--font-sans);"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+          <button type="button" id="btnCancelRequest" class="btn-icon">Batal</button>
+          <button type="submit" id="btnSubmitRequest" class="btn-icon btn-primary">Kirim Usulan 🚀</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const listTodo = document.getElementById('listTodo');
+      const listInProgress = document.getElementById('listInProgress');
+      const listDone = document.getElementById('listDone');
+      const badgeCountTodo = document.getElementById('badgeCountTodo');
+      const badgeCountInProgress = document.getElementById('badgeCountInProgress');
+      const badgeCountDone = document.getElementById('badgeCountDone');
+
+      const requestModal = document.getElementById('requestModal');
+      const btnOpenRequestModal = document.getElementById('btnOpenRequestModal');
+      const btnHeroRequest = document.getElementById('btnHeroRequest');
+      const closeRequestModal = document.getElementById('closeRequestModal');
+      const btnCancelRequest = document.getElementById('btnCancelRequest');
+      const formNewRequest = document.getElementById('formNewRequest');
+
+      const votedSet = new Set(JSON.parse(localStorage.getItem('streampulse_voted_requests') || '[]'));
+
+      const openModal = () => requestModal.classList.add('show');
+      const closeModal = () => requestModal.classList.remove('show');
+
+      [btnOpenRequestModal, btnHeroRequest].forEach(btn => {
+        if (btn) btn.addEventListener('click', openModal);
+      });
+      [closeRequestModal, btnCancelRequest].forEach(btn => {
+        if (btn) btn.addEventListener('click', closeModal);
+      });
+      requestModal.addEventListener('click', (e) => {
+        if (e.target === requestModal) closeModal();
+      });
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function formatDate(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+      }
+
+      async function fetchFeedback() {
+        try {
+          const res = await fetch('/api/feedback');
+          if (!res.ok) throw new Error('Gagal mengambil data');
+          const data = await res.json();
+          renderKanban(data);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function createCardElement(item) {
+        const card = document.createElement('div');
+        card.className = 'feature-card';
+        card.dataset.id = item.id;
+
+        const isVoted = votedSet.has(item.id);
+        const catClass = item.category || 'general';
+
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="cat-tag ${catClass}">${item.category || 'General'}</span>
+            <span style="font-size:0.68rem; color:var(--text-tertiary); font-family:var(--font-mono);">${formatDate(item.createdAt)}</span>
+          </div>
+          <div class="card-title">${escapeHtml(item.title)}</div>
+          <div class="card-desc">${escapeHtml(item.description)}</div>
+          <div class="card-footer">
+            <div class="card-author">
+              <span>👤</span>
+              <span>${escapeHtml(item.author || 'Streamer')}</span>
+            </div>
+            <button class="btn-upvote ${isVoted ? 'voted' : ''}" data-id="${item.id}" title="Dukung fitur ini agar diprioritaskan">
+              <span>👍</span>
+              <span class="vote-count">${item.upvotes || 0}</span>
+            </button>
+          </div>
+        `;
+
+        const btnUpvote = card.querySelector('.btn-upvote');
+        btnUpvote.addEventListener('click', async () => {
+          if (votedSet.has(item.id)) return;
+          try {
+            const upRes = await fetch(`/api/feedback/${item.id}/upvote`, { method: 'POST' });
+            if (upRes.ok) {
+              const resData = await upRes.json();
+              btnUpvote.classList.add('voted');
+              btnUpvote.querySelector('.vote-count').textContent = resData.upvotes;
+              votedSet.add(item.id);
+              localStorage.setItem('streampulse_voted_requests', JSON.stringify(Array.from(votedSet)));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        });
+
+        return card;
+      }
+
+      function renderKanban(items) {
+        listTodo.innerHTML = '';
+        listInProgress.innerHTML = '';
+        listDone.innerHTML = '';
+
+        let countTodo = 0;
+        let countInProgress = 0;
+        let countDone = 0;
+
+        items.forEach(item => {
+          const card = createCardElement(item);
+          if (item.status === 'done') {
+            listDone.appendChild(card);
+            countDone++;
+          } else if (item.status === 'in_progress') {
+            listInProgress.appendChild(card);
+            countInProgress++;
+          } else {
+            listTodo.appendChild(card);
+            countTodo++;
+          }
+        });
+
+        badgeCountTodo.textContent = countTodo;
+        badgeCountInProgress.textContent = countInProgress;
+        badgeCountDone.textContent = countDone;
+
+        if (countTodo === 0) listTodo.innerHTML = '<div style="font-size:0.75rem; color:var(--text-tertiary); text-align:center; padding:20px;">Belum ada usulan baru</div>';
+        if (countInProgress === 0) listInProgress.innerHTML = '<div style="font-size:0.75rem; color:var(--text-tertiary); text-align:center; padding:20px;">Belum ada fitur dalam progres</div>';
+        if (countDone === 0) listDone.innerHTML = '<div style="font-size:0.75rem; color:var(--text-tertiary); text-align:center; padding:20px;">Belum ada fitur selesai</div>';
+      }
+
+      formNewRequest.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('reqTitle').value.trim();
+        const description = document.getElementById('reqDesc').value.trim();
+        const category = document.getElementById('reqCategory').value;
+        const author = document.getElementById('reqAuthor').value.trim();
+
+        if (!title || !description) return;
+
+        try {
+          const res = await fetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description, category, author })
+          });
+
+          if (res.ok) {
+            formNewRequest.reset();
+            closeModal();
+            fetchFeedback();
+          } else {
+            alert('Gagal mengirim usulan fitur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Terjadi kesalahan jaringan.');
+        }
+      });
+
+      // Load pertama kali
+      fetchFeedback();
+    });
+  </script>
+</body>
+</html>

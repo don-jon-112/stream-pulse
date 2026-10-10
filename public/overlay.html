@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OBS Chat Overlay - StreamPulse</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* OBS Transparent Canvas */
+    html, body {
+      background: transparent !important;
+      background-color: transparent !important;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden !important;
+    }
+
+    #overlayChatContainer {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    /* Direction: normal (new at bottom) or reverse */
+    .overlay-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(13, 17, 27, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      animation: overlaySlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      max-width: 650px;
+      width: fit-content;
+      word-break: break-word;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    @keyframes overlaySlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .overlay-item.fade-out {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    /* Highlighted / Channel Points Redeem Item */
+    .overlay-item.highlighted {
+      background: linear-gradient(135deg, rgba(145, 70, 255, 0.3) 0%, rgba(13, 17, 27, 0.95) 100%);
+      border: 1px solid #a855f7;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
+    }
+
+    /* Event Banner Item (Sub, Raid, Bits, Super Chat, Gifts) */
+    .overlay-item.overlay-event {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(13, 17, 27, 0.95) 100%);
+      border-left: 4px solid var(--accent-primary);
+    }
+    .overlay-item.overlay-event.youtube-superchat {
+      border-left-color: #00bfa5;
+    }
+    .overlay-item.overlay-event.twitch-raid {
+      border-left-color: #f43f5e;
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.3) 0%, rgba(13, 17, 27, 0.95) 100%);
+    }
+
+    .overlay-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #1e2638;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    .overlay-body {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+    }
+
+    .overlay-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* Twitch & Platform Badge Icons */
+    .badge-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      gap: 3px;
+    }
+    .badge-icon.broadcaster {
+      background: #e91e63;
+      color: #fff;
+    }
+    .badge-icon.mod {
+      background: #00ad03;
+      color: #fff;
+    }
+    .badge-icon.vip {
+      background: #e005b9;
+      color: #fff;
+    }
+    .badge-icon.sub {
+      background: #9146ff;
+      color: #fff;
+    }
+    .badge-icon.redeem-tag {
+      background: #a855f7;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+    }
+
+    .overlay-author-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #f8fafc;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .overlay-text {
+      font-size: 0.95rem;
+      color: #ffffff;
+      line-height: 1.45;
+      font-weight: 500;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .overlay-event-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #67e8f9;
+    }
+
+    /* Emotes */
+    .chat-emote {
+      display: inline-block;
+      vertical-align: middle;
+      height: 1.7em;
+      max-height: 32px;
+      width: auto;
+      margin: -2px 3px;
+    }
+
+    /* THEMES */
+    body.theme-minimal .overlay-item {
+      background: rgba(0, 0, 0, 0.75);
+      border: none;
+      backdrop-filter: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    body.theme-light .overlay-item {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    body.theme-light .overlay-author-name { color: #1e293b; text-shadow: none; }
+    body.theme-light .overlay-text { color: #0f172a; text-shadow: none; }
+
+    body.theme-cyberpunk .overlay-item {
+      background: rgba(10, 10, 25, 0.9);
+      border: 1px solid #00f2fe;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
+      border-radius: 2px;
+    }
+  </style>
+
+  <!-- Injected User Custom CSS -->
+  <style id="customOverlayCss"></style>
+</head>
+<body>
+
+  <div id="overlayChatContainer">
+    <!-- Messages flow in dynamically -->
+  </div>
+
+  <script src="/js/socket.io.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('overlayChatContainer');
+      const customCssEl = document.getElementById('customOverlayCss');
+      const urlParams = new URLSearchParams(window.location.search);
+
+      const profileId = urlParams.get('id') || 'default';
+      let config = {
+        theme: urlParams.get('theme') || 'glass',
+        fontSize: parseInt(urlParams.get('fontSize') || '15', 10),
+        hideDelay: parseInt(urlParams.get('hideDelay') || '0', 10),
+        showBadges: urlParams.get('badges') !== '0',
+        showAvatars: urlParams.get('avatars') !== '0',
+        showAlerts: urlParams.get('alerts') !== '0',
+        showEmotes: urlParams.get('emotes') !== '0',
+        twitch: urlParams.get('twitch') || '',
+        youtube: urlParams.get('youtube') || '',
+        tiktok: urlParams.get('tiktok') || '',
+        customCss: '',
+        customJs: ''
+      };
+
+      // Load profile from backend if id is provided
+      try {
+        const res = await fetch(`/api/overlays/${profileId}`);
+        if (res.ok) {
+          const profile = await res.json();
+          config = {
+            ...config,
+            ...profile,
+            // Override with URL query params if explicitly present
+            twitch: urlParams.get('twitch') || profile.twitch || config.twitch,
+            youtube: urlParams.get('youtube') || profile.youtube || config.youtube,
+            tiktok: urlParams.get('tiktok') || profile.tiktok || config.tiktok
+          };
+        }
+      } catch (e) {
+        console.warn('[Overlay] Using query params config');
+      }
+
+      // Apply Theme & Font Size
+      if (config.theme && config.theme !== 'glass') {
+        document.body.classList.add(`theme-${config.theme}`);
+      }
+      if (config.fontSize) {
+        document.documentElement.style.fontSize = `${config.fontSize}px`;
+      }
+
+      // Apply Custom CSS
+      if (config.customCss) {
+        customCssEl.textContent = config.customCss;
+      }
+
+      // State
+      let twitchEmotes = {
+        'OMEGALUL': 'https://cdn.7tv.app/emote/603cb1364d2bf5000d024628/1x.webp',
+        'KEKW': 'https://cdn.7tv.app/emote/60b00d8299aa123b3a62ea2e/1x.webp',
+        'catJAM': 'https://cdn.7tv.app/emote/60ae3e512496a798b671a525/1x.webp',
+        'PepePls': 'https://cdn.7tv.app/emote/60ae3ec62496a798b671a539/1x.webp',
+        'monkaS': 'https://cdn.7tv.app/emote/603cb1354d2bf5000d024606/1x.webp',
+        'Pog': 'https://cdn.7tv.app/emote/6041074e548231000d41865c/1x.webp'
+      };
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      // Emote Parsers
+      function parse7tvTokens(rawText) {
+        if (!rawText) return '';
+        if (!config.showEmotes) return escapeHtml(rawText);
+        const tokens = rawText.split(/(\s+)/);
+        return tokens.map(token => {
+          if (!token || /^\s+$/.test(token)) return token;
+          const clean = token.trim();
+          if (twitchEmotes[clean]) {
+            return `<img class="chat-emote" src="${escapeHtml(twitchEmotes[clean])}" alt="${escapeHtml(clean)}" loading="lazy">`;
+          }
+          return escapeHtml(token);
+        }).join('');
+      }
+
+      function formatTwitchEmotes(rawText, userstateEmotes) {
+        if (!rawText) return '';
+        if (!config.showEmotes) return escapeHtml(rawText);
+        if (!userstateEmotes || Object.keys(userstateEmotes).length === 0) {
+          return parse7tvTokens(rawText);
+        }
+
+        const ranges = [];
+        for (const emoteId in userstateEmotes) {
+          const occs = userstateEmotes[emoteId];
+          if (Array.isArray(occs)) {
+            for (const occ of occs) {
+              const [start, end] = occ.split('-').map(Number);
+              if (!isNaN(start) && !isNaN(end)) {
+                ranges.push({ start, end: end + 1, id: emoteId });
+              }
+            }
+          }
+        }
+        ranges.sort((a, b) => a.start - b.start);
+
+        let html = '';
+        let last = 0;
+        for (const r of ranges) {
+          if (r.start < last) continue;
+          if (r.start > last) {
+            html += parse7tvTokens(rawText.substring(last, r.start));
+          }
+          const emoteName = rawText.substring(r.start, r.end);
+          html += `<img class="chat-emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${r.id}/default/dark/1.0" alt="${escapeHtml(emoteName)}" loading="lazy">`;
+          last = r.end;
+        }
+        if (last < rawText.length) {
+          html += parse7tvTokens(rawText.substring(last));
+        }
+        return html;
+      }
+
+      // Twitch Badges Renderer
+      function renderBadges(chat) {
+        if (!config.showBadges) return '';
+        let html = '';
+        const author = chat.author || {};
+
+        if (chat.platform === 'twitch') {
+          const badges = author.badges || {};
+          if (badges.broadcaster) {
+            html += `<span class="badge-icon broadcaster" title="Broadcaster / Streamer">👑 Streamer</span>`;
+          }
+          if (badges.moderator || author.isMod) {
+            html += `<span class="badge-icon mod" title="Moderator">⚔️ Mod</span>`;
+          }
+          if (badges.vip) {
+            html += `<span class="badge-icon vip" title="VIP">💎 VIP</span>`;
+          }
+          if (badges.subscriber || author.isSub) {
+            html += `<span class="badge-icon sub" title="Subscriber">⭐ Sub</span>`;
+          }
+        } else if (chat.platform === 'youtube') {
+          if (author.isOwner) html += `<span class="badge-icon broadcaster">👑 Host</span>`;
+          if (author.isMod) html += `<span class="badge-icon mod">⚔️ Mod</span>`;
+          if (author.isSub) html += `<span class="badge-icon sub" style="background:#00bfa5;">🌟 Member</span>`;
+        }
+
+        if (chat.isRedeem) {
+          html += `<span class="badge-icon redeem-tag">💠 Poin</span>`;
+        }
+
+        return html;
+      }
+
+      // Add Chat Item to Overlay
+      function addOverlayMessage(item) {
+        const el = document.createElement('div');
+        el.className = 'overlay-item';
+        if (item.isRedeem) el.classList.add('highlighted');
+
+        const author = item.author || {};
+        const authorName = author.name || 'Anonymous';
+        const authorColor = author.color || '#67e8f9';
+        const initial = (authorName[0] || '?').toUpperCase();
+
+        const avatarHtml = config.showAvatars
+          ? (author.avatar 
+              ? `<img src="${escapeHtml(author.avatar)}" class="overlay-avatar" alt="${escapeHtml(authorName)}" onerror="this.outerHTML='<div class=\\'overlay-avatar\\'>${initial}</div>'">`
+              : `<div class="overlay-avatar">${initial}</div>`)
+          : '';
+
+        const badgesHtml = renderBadges(item);
+        const textHtml = item.platform === 'twitch'
+          ? formatTwitchEmotes(item.text, item.emotes)
+          : parse7tvTokens(item.text);
+
+        el.innerHTML = `
+          ${avatarHtml}
+          <div class="overlay-body">
+            <div class="overlay-header">
+              ${badgesHtml}
+              <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
+            </div>
+            <div class="overlay-text">${textHtml}</div>
+          </div>
+        `;
+
+        container.appendChild(el);
+
+        // Keep maximum 25 items on overlay
+        if (container.children.length > 25) {
+          container.removeChild(container.firstChild);
+        }
+
+        // Auto-Hide Message after N seconds
+        if (config.hideDelay && config.hideDelay > 0) {
+          setTimeout(() => {
+            el.classList.add('fade-out');
+            setTimeout(() => {
+              if (el.parentNode) el.parentNode.removeChild(el);
+            }, 500);
+          }, config.hideDelay * 1000);
+        }
+      }
+
+      // Add Event Item (Raid, Cheer, Sub, Super Chat, Gifts)
+      function addOverlayEvent(evt) {
+        if (!config.showAlerts) return;
+
+        const el = document.createElement('div');
+        el.className = 'overlay-item overlay-event';
+        if (evt.eventType === 'superchat') el.classList.add('youtube-superchat');
+        if (evt.eventType === 'raid') el.classList.add('twitch-raid');
+
+        const authorName = evt.author || 'Viewer';
+        const initial = (authorName[0] || '★').toUpperCase();
+
+        const avatarHtml = config.showAvatars
+          ? (evt.avatar 
+              ? `<img src="${escapeHtml(evt.avatar)}" class="overlay-avatar" alt="${escapeHtml(authorName)}" onerror="this.outerHTML='<div class=\\'overlay-avatar\\'>${initial}</div>'">`
+              : `<div class="overlay-avatar" style="background: linear-gradient(135deg,#6366f1,#ec4899);">${initial}</div>`)
+          : '';
+
+        el.innerHTML = `
+          ${avatarHtml}
+          <div class="overlay-body">
+            <div class="overlay-header">
+              <span class="badge-icon" style="background:#f59e0b; color:#000;">🎉 ALERT</span>
+              <span class="overlay-author-name" style="color:#67e8f9;">${escapeHtml(authorName)}</span>
+            </div>
+            <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
+            ${evt.message ? `<div class="overlay-text" style="font-style:italic;">"${escapeHtml(evt.message)}"</div>` : ''}
+          </div>
+        `;
+
+        container.appendChild(el);
+
+        if (config.hideDelay && config.hideDelay > 0) {
+          setTimeout(() => {
+            el.classList.add('fade-out');
+            setTimeout(() => {
+              if (el.parentNode) el.parentNode.removeChild(el);
+            }, 500);
+          }, config.hideDelay * 1000);
+        }
+      }
+
+      // Socket.io Connection
+      const socket = io({ transports: ['websocket', 'polling'] });
+
+      socket.on('connect', () => {
+        // Subscribe to configured channels
+        socket.emit('update_channels', {
+          twitch: config.twitch || '',
+          youtube: config.youtube || '',
+          tiktok: config.tiktok || ''
+        });
+      });
+
+      socket.on('twitch_emotes', ({ emotes }) => {
+        if (emotes) twitchEmotes = { ...twitchEmotes, ...emotes };
+      });
+
+      socket.on('new_chat', (chat) => {
+        addOverlayMessage(chat);
+      });
+
+      socket.on('new_event', (evt) => {
+        addOverlayEvent(evt);
+      });
+
+      // Listen for preview test simulations from Overlay Studio
+      window.addEventListener('socket_sim', (e) => {
+        const { type, data } = e.detail || {};
+        if (type === 'chat') addOverlayMessage(data);
+        if (type === 'event') addOverlayEvent(data);
+      });
+
+      // Execute Custom JS safely
+      if (config.customJs) {
+        try {
+          const fn = new Function('config', 'socket', config.customJs);
+          fn(config, socket);
+        } catch (err) {
+          console.error('[Overlay Custom JS Error]:', err);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

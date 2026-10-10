@@ -1,0 +1,20 @@
+{
+  "default": {
+    "id": "default",
+    "name": "Default Glass Overlay",
+    "twitch": "",
+    "youtube": "",
+    "tiktok": "",
+    "theme": "glass",
+    "fontSize": 15,
+    "hideDelay": 0,
+    "showBadges": true,
+    "showAvatars": true,
+    "showAlerts": true,
+    "showEmotes": true,
+    "customCss": "/* Kustomisasi CSS untuk OBS Overlay Anda */\n.overlay-chat-item {\n  /* margin-bottom: 8px; */\n}\n.overlay-chat-text {\n  /* font-weight: 500; */\n}",
+    "customJs": "// Skrip JS kustom (opsional)",
+    "createdAt": 1728560000000,
+    "updatedAt": 1728560000000
+  }
+}

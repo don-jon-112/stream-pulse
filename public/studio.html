@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OBS Overlay Studio & Customizer - StreamPulse</title>
+  <meta name="description" content="Kustomisasi tampilan OBS Browser Source Chat Overlay Anda dengan tema, ukuran font, custom CSS dan JS.">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 10%, rgba(99, 102, 241, 0.12) 0%, rgba(6, 8, 13, 1) 100%), #06080d;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .studio-header {
+      padding: 14px 24px;
+      background: rgba(13, 17, 27, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .studio-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+      padding: 20px 24px;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 1024px) {
+      .studio-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Control Panel */
+    .controls-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+      margin-top: 4px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 0.85rem;
+      box-sizing: border-box;
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: #090c15;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: #a5b4fc;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      resize: vertical;
+      box-sizing: border-box;
+      line-height: 1.5;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 24px;
+    }
+    .toggle-slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .toggle-slider { background-color: var(--accent-primary); }
+    input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+    /* Right Live Preview Canvas */
+    .preview-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .preview-window {
+      flex: 1;
+      min-height: 520px;
+      background: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><g fill="%231e2638" fill-opacity="0.3"><path d="M0 0h20v20H0zM20 20h20v20H20z"/></g></svg>'), #0a0e17;
+      border: 2px dashed rgba(99, 102, 241, 0.4);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 24px;
+    }
+
+    .preview-badge-overlay {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      font-size: 0.72rem;
+      padding: 4px 12px;
+      color: #94a3b8;
+    }
+
+    /* OBS Link Box */
+    .obs-link-card {
+      background: rgba(13, 17, 27, 0.95);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .obs-link-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .obs-link-input {
+      flex: 1;
+      padding: 10px 14px;
+      background: #06080d;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: #67e8f9;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+  </style>
+
+  <!-- Live Dynamic Injected CSS for Preview -->
+  <style id="livePreviewCustomCss"></style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="studio-header">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+        <div class="brand-logo" style="width:34px; height:34px;">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div style="font-weight:800; font-size:1.15rem; color:#fff;">
+          StreamPulse <span class="brand-badge" style="background:#f59e0b; color:#000;">OVERLAY STUDIO</span>
+        </div>
+      </a>
+      <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.8rem; padding:6px 12px;">
+        ← Kembali ke Dashboard
+      </a>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button id="btnSaveOverlay" class="btn-icon btn-primary" style="padding: 8px 20px; font-weight:800;">
+        💾 Simpan Pengaturan
+      </button>
+    </div>
+  </header>
+
+  <!-- Studio Layout -->
+  <main class="studio-layout">
+
+    <!-- LEFT: Customizer Controls -->
+    <div class="controls-panel">
+      
+      <!-- 1. Channel Linking -->
+      <div class="section-title">📡 Saluran Live Stream</div>
+      <div class="form-group">
+        <label class="form-label" for="settingTwitch">Twitch Channel</label>
+        <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="settingYouTube">YouTube Live Stream</label>
+        <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="settingTikTok">TikTok LIVE Username</label>
+        <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)">
+      </div>
+
+      <!-- 2. Visual Style & Theme -->
+      <div class="section-title">🎨 Gaya & Tampilan Chat</div>
+      <div class="form-group">
+        <label class="form-label" for="settingTheme">Tema Overlay</label>
+        <select id="settingTheme" class="form-select">
+          <option value="glass">💎 Glassmorphism Dark (Default)</option>
+          <option value="minimal">⬛ Minimalist Semi-Transparent</option>
+          <option value="cyberpunk">⚡ Cyberpunk Neon Glow</option>
+          <option value="light">⚪ Clean Light Paper</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">
+          <span>Ukuran Font</span>
+          <span id="labelFontSize" style="color:#67e8f9; font-family:var(--font-mono);">15px</span>
+        </div>
+        <input type="range" id="settingFontSize" min="12" max="28" value="15" style="width:100%;">
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">
+          <span>Durasi Pesan Menghilang (Auto-Hide)</span>
+          <span id="labelHideDelay" style="color:#67e8f9; font-family:var(--font-mono);">Selalu Tampil (0s)</span>
+        </div>
+        <input type="range" id="settingHideDelay" min="0" max="60" step="5" value="0" style="width:100%;">
+      </div>
+
+      <!-- 3. Toggles -->
+      <div class="section-title">⚙️ Elemen Tampilan</div>
+      <div class="toggle-row">
+        <span style="font-size:0.85rem;">Tampilkan Badge Twitch & YouTube (👑 Mod, VIP, Sub)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingShowBadges" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span style="font-size:0.85rem;">Tampilkan Foto Profil / Avatar Viewer</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingShowAvatars" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span style="font-size:0.85rem;">Tampilkan Emote 7TV & Twitch</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingShowEmotes" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span style="font-size:0.85rem;">Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingShowAlerts" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- 4. Custom CSS Editor -->
+      <div class="section-title">💻 Custom CSS Editor</div>
+      <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0;">
+        Ubah warna font, shadow, border radius, atau animasi sesuai gaya streaming Anda:
+      </p>
+      <textarea id="settingCustomCss" class="form-textarea" rows="6" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}"></textarea>
+
+      <!-- 5. Custom JS Editor -->
+      <div class="section-title">⚡ Custom JavaScript (Opsional)</div>
+      <textarea id="settingCustomJs" class="form-textarea" rows="4" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat"></textarea>
+
+    </div>
+
+    <!-- RIGHT: Live Preview & OBS Link -->
+    <div class="preview-panel">
+      
+      <!-- OBS URL Generator Box -->
+      <div class="obs-link-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.9rem; font-weight:800; color:#fff;">🔗 Link OBS Browser Source Anda</span>
+          <span style="font-size:0.75rem; color:#10b981;">✓ Siap Digunakan di OBS</span>
+        </div>
+        <div class="obs-link-row">
+          <input type="text" id="obsFinalUrl" readonly class="obs-link-input" value="">
+          <button id="btnCopyObsUrl" class="btn-icon btn-primary" style="padding: 8px 20px; font-weight:800; white-space:nowrap;">
+            📋 Salin Link
+          </button>
+        </div>
+        <p style="font-size:0.72rem; color:var(--text-tertiary); margin:0;">
+          💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>
+        </p>
+      </div>
+
+      <!-- Live Preview Controls -->
+      <div class="preview-header">
+        <div style="font-size:0.9rem; font-weight:800; color:#cbd5e1;">
+          👁️ Live Preview (Transparan di OBS)
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;">💬 Test Chat</button>
+          <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;">💎 Test VIP Twitch</button>
+          <button id="btnTestRedeem" class="btn-icon" style="font-size:0.75rem;">💠 Test Redeem Poin</button>
+          <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem;">🎉 Test Alert Sub</button>
+        </div>
+      </div>
+
+      <!-- Preview Window (Simulating OBS Canvas) -->
+      <div class="preview-window" id="previewWindow">
+        <div class="preview-badge-overlay">Preview OBS Canvas</div>
+        <iframe id="previewIframe" src="/overlay?id=default" style="width:100%; height:100%; border:none; background:transparent;"></iframe>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const settingTwitch = document.getElementById('settingTwitch');
+      const settingYouTube = document.getElementById('settingYouTube');
+      const settingTikTok = document.getElementById('settingTikTok');
+      const settingTheme = document.getElementById('settingTheme');
+      const settingFontSize = document.getElementById('settingFontSize');
+      const labelFontSize = document.getElementById('labelFontSize');
+      const settingHideDelay = document.getElementById('settingHideDelay');
+      const labelHideDelay = document.getElementById('labelHideDelay');
+      const settingShowBadges = document.getElementById('settingShowBadges');
+      const settingShowAvatars = document.getElementById('settingShowAvatars');
+      const settingShowEmotes = document.getElementById('settingShowEmotes');
+      const settingShowAlerts = document.getElementById('settingShowAlerts');
+      const settingCustomCss = document.getElementById('settingCustomCss');
+      const settingCustomJs = document.getElementById('settingCustomJs');
+
+      const obsFinalUrl = document.getElementById('obsFinalUrl');
+      const btnCopyObsUrl = document.getElementById('btnCopyObsUrl');
+      const btnSaveOverlay = document.getElementById('btnSaveOverlay');
+      const previewIframe = document.getElementById('previewIframe');
+
+      const btnTestChat = document.getElementById('btnTestChat');
+      const btnTestTwitchVip = document.getElementById('btnTestTwitchVip');
+      const btnTestRedeem = document.getElementById('btnTestRedeem');
+      const btnTestAlert = document.getElementById('btnTestAlert');
+
+      // Ambil profile saat ini atau localStorage
+      let profileId = localStorage.getItem('streampulse_overlay_profile_id') || 'default';
+
+      // Load saved channels dari dashboard jika ada
+      const savedChannels = JSON.parse(localStorage.getItem('streampulse_my_channels') || '{}');
+      if (savedChannels.twitch) settingTwitch.value = savedChannels.twitch;
+      if (savedChannels.youtube) settingYouTube.value = savedChannels.youtube;
+      if (savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
+
+      async function loadProfile() {
+        try {
+          const res = await fetch(`/api/overlays/${profileId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.twitch) settingTwitch.value = data.twitch;
+            if (data.youtube) settingYouTube.value = data.youtube;
+            if (data.tiktok) settingTikTok.value = data.tiktok;
+            if (data.theme) settingTheme.value = data.theme;
+            if (data.fontSize) settingFontSize.value = data.fontSize;
+            if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
+            if (data.showBadges !== undefined) settingShowBadges.checked = data.showBadges;
+            if (data.showAvatars !== undefined) settingShowAvatars.checked = data.showAvatars;
+            if (data.showEmotes !== undefined) settingShowEmotes.checked = data.showEmotes;
+            if (data.showAlerts !== undefined) settingShowAlerts.checked = data.showAlerts;
+            if (data.customCss) settingCustomCss.value = data.customCss;
+            if (data.customJs) settingCustomJs.value = data.customJs;
+            updateLabels();
+            updateUrl();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function updateLabels() {
+        labelFontSize.textContent = `${settingFontSize.value}px`;
+        const delay = parseInt(settingHideDelay.value, 10);
+        labelHideDelay.textContent = delay === 0 ? 'Selalu Tampil (0s)' : `${delay} detik`;
+      }
+
+      function getOverlayConfig() {
+        return {
+          id: profileId,
+          twitch: settingTwitch.value.trim(),
+          youtube: settingYouTube.value.trim(),
+          tiktok: settingTikTok.value.trim(),
+          theme: settingTheme.value,
+          fontSize: parseInt(settingFontSize.value, 10),
+          hideDelay: parseInt(settingHideDelay.value, 10),
+          showBadges: settingShowBadges.checked,
+          showAvatars: settingShowAvatars.checked,
+          showEmotes: settingShowEmotes.checked,
+          showAlerts: settingShowAlerts.checked,
+          customCss: settingCustomCss.value,
+          customJs: settingCustomJs.value
+        };
+      }
+
+      function updateUrl() {
+        const fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
+        obsFinalUrl.value = fullUrl;
+      }
+
+      function refreshPreview() {
+        // Simpan konfigurasi sementara ke backend lalu reload iframe
+        saveProfile(false);
+      }
+
+      async function saveProfile(showAlert = true) {
+        const cfg = getOverlayConfig();
+        try {
+          const res = await fetch('/api/overlays', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cfg)
+          });
+          if (res.ok) {
+            const data = await res.json();
+            profileId = data.id;
+            localStorage.setItem('streampulse_overlay_profile_id', profileId);
+            updateUrl();
+            previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
+            if (showAlert) {
+              alert('✅ Pengaturan OBS Overlay berhasil disimpan!');
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // Event listeners
+      settingFontSize.addEventListener('input', () => { updateLabels(); });
+      settingHideDelay.addEventListener('input', () => { updateLabels(); });
+      
+      [settingTheme, settingFontSize, settingHideDelay, settingShowBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts].forEach(el => {
+        el.addEventListener('change', () => {
+          updateLabels();
+          refreshPreview();
+        });
+      });
+
+      settingCustomCss.addEventListener('input', () => {
+        // Debounce update iframe CSS
+        clearTimeout(window._cssTimer);
+        window._cssTimer = setTimeout(() => {
+          refreshPreview();
+        }, 800);
+      });
+
+      btnSaveOverlay.addEventListener('click', () => saveProfile(true));
+
+      btnCopyObsUrl.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(obsFinalUrl.value);
+          const orig = btnCopyObsUrl.innerHTML;
+          btnCopyObsUrl.innerHTML = '✓ Tersalin!';
+          btnCopyObsUrl.style.background = '#10b981';
+          setTimeout(() => {
+            btnCopyObsUrl.innerHTML = orig;
+            btnCopyObsUrl.style.background = '';
+          }, 2000);
+        } catch (e) {
+          obsFinalUrl.select();
+          document.execCommand('copy');
+          alert('Link tersalin!');
+        }
+      });
+
+      // Simulation buttons inside Preview
+      btnTestChat.addEventListener('click', () => {
+        const iframeDoc = previewIframe.contentWindow;
+        if (iframeDoc && iframeDoc.document) {
+          const event = new CustomEvent('socket_sim', {
+            detail: {
+              type: 'chat',
+              data: {
+                platform: 'twitch',
+                author: { name: 'SarahStreamer', color: '#a855f7' },
+                text: 'Keren banget overlay-nya! GG gameplay OMEGALUL 🔥',
+                timestamp: Date.now()
+              }
+            }
+          });
+          iframeDoc.dispatchEvent(event);
+        }
+      });
+
+      btnTestTwitchVip.addEventListener('click', () => {
+        const iframeDoc = previewIframe.contentWindow;
+        if (iframeDoc && iframeDoc.document) {
+          const event = new CustomEvent('socket_sim', {
+            detail: {
+              type: 'chat',
+              data: {
+                platform: 'twitch',
+                author: {
+                  name: 'ProGamerVIP',
+                  color: '#00f2fe',
+                  badges: { vip: '1', moderator: '1' }
+                },
+                text: 'Halo halo! Mabar kapan nih bang? catJAM',
+                timestamp: Date.now()
+              }
+            }
+          });
+          iframeDoc.dispatchEvent(event);
+        }
+      });
+
+      btnTestRedeem.addEventListener('click', () => {
+        const iframeDoc = previewIframe.contentWindow;
+        if (iframeDoc && iframeDoc.document) {
+          const event = new CustomEvent('socket_sim', {
+            detail: {
+              type: 'chat',
+              data: {
+                platform: 'twitch',
+                isRedeem: true,
+                author: { name: 'LoyalViewer99', color: '#f59e0b', badges: { subscriber: '12' } },
+                text: 'Hydrate bang! Jangan lupa minum air putih!',
+                timestamp: Date.now()
+              }
+            }
+          });
+          iframeDoc.dispatchEvent(event);
+        }
+      });
+
+      btnTestAlert.addEventListener('click', () => {
+        const iframeDoc = previewIframe.contentWindow;
+        if (iframeDoc && iframeDoc.document) {
+          const event = new CustomEvent('socket_sim', {
+            detail: {
+              type: 'event',
+              data: {
+                platform: 'twitch',
+                eventType: 'subscription',
+                title: 'Twitch New Subscriber!',
+                author: 'SultanGamer',
+                detail: 'Berlangganan Tier 1 Sub! ⭐',
+                message: 'Semangat terus streamingnya bang!'
+              }
+            }
+          });
+          iframeDoc.dispatchEvent(event);
+        }
+      });
+
+      // Initial Load
+      loadProfile();
+    });
+  </script>
+</body>
+</html>
