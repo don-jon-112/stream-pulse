@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
   <title>OBS Overlay Studio & Customizer - StreamPulse</title>
-  <meta name="description" content="Kustomisasi tampilan OBS Browser Source Chat Overlay Anda dengan tema, ukuran font, custom CSS dan JS.">
+  <meta name="description" content="Kustomisasi tampilan OBS Browser Source Chat Overlay Anda dengan tema, ukuran font, batas bubble chat, sensor link, custom CSS dan JS.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="stylesheet" href="/css/style.css">
   <style>
@@ -19,7 +19,7 @@
 
     .studio-header {
       padding: 14px 24px;
-      background: rgba(13, 17, 27, 0.9);
+      background: rgba(13, 17, 27, 0.95);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-color);
       display: flex;
@@ -33,7 +33,7 @@
     .studio-layout {
       flex: 1;
       display: grid;
-      grid-template-columns: 460px 1fr;
+      grid-template-columns: 480px 1fr;
       gap: 20px;
       padding: 20px 24px;
       max-width: 1600px;
@@ -58,7 +58,7 @@
       flex-direction: column;
       gap: 18px;
       overflow-y: auto;
-      max-height: calc(100vh - 120px);
+      max-height: calc(100vh - 110px);
     }
 
     .section-title {
@@ -141,19 +141,88 @@
     input:checked + .toggle-slider { background-color: var(--accent-primary); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-    /* Right Live Preview Canvas */
+    /* Manager & Anti-Abuse Card */
+    .overlay-manager-card {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .box-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .box-desc {
+      font-size: 0.73rem;
+      color: var(--text-tertiary);
+      margin: 2px 0 8px 0;
+      line-height: 1.4;
+    }
+
+    .slot-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 12px;
+      border-radius: var(--radius-xs);
+      font-size: 0.8rem;
+    }
+
+    .slot-item.active {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* Modal Overlay (Centered) */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .modal-overlay.show { display: flex !important; }
+
+    .modal-card {
+      background: #0d111b;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      box-sizing: border-box;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Preview Panel */
     .preview-panel {
       display: flex;
       flex-direction: column;
       gap: 16px;
-    }
-
-    .preview-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
     }
 
     .preview-window {
@@ -182,7 +251,6 @@
       color: #94a3b8;
     }
 
-    /* OBS Link Box */
     .obs-link-card {
       background: rgba(13, 17, 27, 0.95);
       border: 1px solid rgba(99, 102, 241, 0.4);
@@ -193,11 +261,7 @@
       gap: 10px;
     }
 
-    .obs-link-row {
-      display: flex;
-      gap: 10px;
-    }
-
+    .obs-link-row { display: flex; gap: 10px; }
     .obs-link-input {
       flex: 1;
       padding: 10px 14px;
@@ -209,9 +273,6 @@
       font-size: 0.85rem;
     }
   </style>
-
-  <!-- Live Dynamic Injected CSS for Preview -->
-  <style id="livePreviewCustomCss"></style>
 </head>
 <body>
 
@@ -227,11 +288,18 @@
         </div>
       </a>
       <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.8rem; padding:6px 12px;">
-        ← Kembali ke Dashboard
+        ← Dashboard Chat
       </a>
     </div>
 
     <div style="display:flex; align-items:center; gap:10px;">
+      <!-- Account Info / Login Button -->
+      <div id="accountPillContainer">
+        <button id="btnOpenAuth" class="btn-icon" style="font-size:0.8rem;">
+          🔐 Login / Daftar Akun
+        </button>
+      </div>
+
       <button id="btnSaveOverlay" class="btn-icon btn-primary" style="padding: 8px 20px; font-weight:800;">
         💾 Simpan Pengaturan
       </button>
@@ -244,24 +312,47 @@
     <!-- LEFT: Customizer Controls -->
     <div class="controls-panel">
       
-      <!-- 0. Profile Selector -->
-      <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-md); padding: 14px; display:flex; flex-direction:column; gap:10px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="font-size:0.85rem; font-weight:800; color:#fff;">🆔 Profil Overlay ID</span>
-            <span id="badgeProfileId" style="font-family:var(--font-mono); font-size:0.75rem; background:rgba(99, 102, 241, 0.25); color:#a5b4fc; padding:2px 8px; border-radius:4px; font-weight:700;">default</span>
+      <!-- 0. LOAD URL & GENERATE OVERLAY (MAX 3 SLOTS PER USER) -->
+      <div class="overlay-manager-card">
+        
+        <!-- Part A: Load URL Sebelumnya -->
+        <div style="background:rgba(13,17,27,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:12px;">
+          <div class="box-title">📥 Punya URL Overlay Sebelumnya?</div>
+          <p class="box-desc">Masukkan URL OBS Anda untuk memuat dan mengedit pengaturannya kembali:</p>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="inputLoadUrl" class="form-input" placeholder="Tempel URL (https://.../overlay?id=ovl_xyz) atau ID">
+            <button id="btnLoadUrl" type="button" class="btn-icon btn-primary" style="white-space:nowrap; padding:8px 12px;">
+              📥 Load & Edit
+            </button>
           </div>
-          <button type="button" id="btnNewProfile" class="btn-icon btn-primary" style="font-size:0.75rem; padding:5px 10px;">
-            + Buat ID Baru
-          </button>
         </div>
-        <div class="form-group" style="margin:0;">
-          <label class="form-label" for="selectProfileList">Pilih Profil Overlay:</label>
-          <select id="selectProfileList" class="form-select" style="font-family:var(--font-mono); font-size:0.82rem;"></select>
+
+        <!-- Part B: Generate New URL (Quota Limited 3 Slots) -->
+        <div style="background:rgba(13,17,27,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <div class="box-title">✨ Buat URL Overlay Baru</div>
+              <div style="font-size:0.75rem; color:var(--text-tertiary);">
+                Kuota Pengguna: <strong id="slotCounter" style="color:#67e8f9;">0 / 3 Slot Terpakai</strong>
+              </div>
+            </div>
+            <button id="btnGenerateOverlay" type="button" class="btn-icon btn-primary" style="font-size:0.8rem; padding:8px 14px; font-weight:800;">
+              + Generate URL Baru
+            </button>
+          </div>
+
+          <!-- Slots Container -->
+          <div id="slotsContainer" style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
+            <!-- Populated via JS -->
+          </div>
         </div>
-        <p style="font-size:0.72rem; color:var(--text-tertiary); margin:0;">
-          💡 <em>Tiap ID Profil memiliki saluran, tema, dan CSS/JS sendiri. OBS URL akan berbeda untuk tiap ID.</em>
-        </p>
+
+        <!-- Currently Active Overlay Banner -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.4); padding:8px 12px; border-radius:var(--radius-xs); border:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:0.75rem; color:var(--text-secondary);">Sedang Mengedit ID:</span>
+          <span id="activeOverlayIdBadge" style="font-family:var(--font-mono); font-size:0.85rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:4px;">default</span>
+        </div>
+
       </div>
 
       <!-- 1. Channel Linking -->
@@ -307,8 +398,30 @@
         <input type="range" id="settingHideDelay" min="0" max="60" step="5" value="0" style="width:100%;">
       </div>
 
-      <!-- 3. Toggles -->
-      <div class="section-title">⚙️ Elemen Tampilan</div>
+      <!-- BATAS MAKSIMAL BUBBLE CHAT -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>Batas Maksimal Bubble Chat di Layar OBS</span>
+          <span id="labelMaxMessages" style="color:#67e8f9; font-family:var(--font-mono);">15 Pesan</span>
+        </div>
+        <input type="range" id="settingMaxMessages" min="3" max="50" step="1" value="15" style="width:100%;">
+      </div>
+
+      <!-- 3. Toggles & Security Link Masking -->
+      <div class="section-title">⚙️ Elemen Tampilan & Filter</div>
+      
+      <!-- SENSOR / HIDE LINK -->
+      <div class="toggle-row">
+        <div>
+          <span style="font-size:0.85rem; font-weight:700;">Sensor Link Otomatis</span>
+          <div style="font-size:0.72rem; color:var(--text-tertiary);">Ubah URL di chat menjadi <code>[LINK]</code> di layar OBS</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingMaskLinks">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
       <div class="toggle-row">
         <span style="font-size:0.85rem;">Tampilkan Badge Twitch & YouTube (👑 Mod, VIP, Sub)</span>
         <label class="toggle-switch">
@@ -375,14 +488,14 @@
       </div>
 
       <!-- Live Preview Controls -->
-      <div class="preview-header">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
         <div style="font-size:0.9rem; font-weight:800; color:#cbd5e1;">
           👁️ Live Preview (Transparan di OBS)
         </div>
         <div style="display:flex; gap:8px;">
-          <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;">💬 Test Chat</button>
+          <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;">💬 Test Chat Biasa</button>
+          <button id="btnTestLinkChat" class="btn-icon" style="font-size:0.75rem;">🔗 Test Chat Link</button>
           <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;">💎 Test VIP Twitch</button>
-          <button id="btnTestRedeem" class="btn-icon" style="font-size:0.75rem;">💠 Test Redeem Poin</button>
           <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem;">🎉 Test Alert Sub</button>
         </div>
       </div>
@@ -397,8 +510,49 @@
 
   </main>
 
+  <!-- AUTH MODAL (LOGIN / REGISTER) -->
+  <div id="authModal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="authModalTitle" style="margin:0; font-size:1.15rem; color:#fff; font-weight:800;">Masuk Akun Streamer</h3>
+        <button id="closeAuthModal" class="btn-icon" style="padding:4px 8px;">✕</button>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-tertiary); margin:6px 0 14px 0;">
+        Login agar overlay Anda tersimpan aman dan tidak bisa diedit oleh orang lain.
+      </p>
+
+      <div style="display:flex; gap:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
+        <button id="tabAuthLogin" class="btn-icon btn-primary" style="flex:1; justify-content:center; padding:8px;">Masuk (Login)</button>
+        <button id="tabAuthRegister" class="btn-icon" style="flex:1; justify-content:center; padding:8px;">Daftar Akun Baru</button>
+      </div>
+
+      <form id="formAuth" style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+        <div class="form-group">
+          <label class="form-label" for="authUsername">Username (3-20 karakter)</label>
+          <input type="text" id="authUsername" required class="form-input" placeholder="Contoh: gamer_joo" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="authPassword">Password (Min. 4 karakter)</label>
+          <input type="password" id="authPassword" required minlength="4" class="form-input" placeholder="Password..." autocomplete="current-password">
+        </div>
+        <div id="authErrorMsg" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
+        <button type="submit" id="btnSubmitAuth" class="btn-icon btn-primary" style="justify-content:center; padding:10px; font-weight:800;">
+          Masuk ke Akun 🚀
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Elements
+      const inputLoadUrl = document.getElementById('inputLoadUrl');
+      const btnLoadUrl = document.getElementById('btnLoadUrl');
+      const btnGenerateOverlay = document.getElementById('btnGenerateOverlay');
+      const slotCounter = document.getElementById('slotCounter');
+      const slotsContainer = document.getElementById('slotsContainer');
+      const activeOverlayIdBadge = document.getElementById('activeOverlayIdBadge');
+
       const settingTwitch = document.getElementById('settingTwitch');
       const settingYouTube = document.getElementById('settingYouTube');
       const settingTikTok = document.getElementById('settingTikTok');
@@ -407,6 +561,9 @@
       const labelFontSize = document.getElementById('labelFontSize');
       const settingHideDelay = document.getElementById('settingHideDelay');
       const labelHideDelay = document.getElementById('labelHideDelay');
+      const settingMaxMessages = document.getElementById('settingMaxMessages');
+      const labelMaxMessages = document.getElementById('labelMaxMessages');
+      const settingMaskLinks = document.getElementById('settingMaskLinks');
       const settingShowBadges = document.getElementById('settingShowBadges');
       const settingShowAvatars = document.getElementById('settingShowAvatars');
       const settingShowEmotes = document.getElementById('settingShowEmotes');
@@ -420,84 +577,277 @@
       const previewIframe = document.getElementById('previewIframe');
 
       const btnTestChat = document.getElementById('btnTestChat');
+      const btnTestLinkChat = document.getElementById('btnTestLinkChat');
       const btnTestTwitchVip = document.getElementById('btnTestTwitchVip');
-      const btnTestRedeem = document.getElementById('btnTestRedeem');
       const btnTestAlert = document.getElementById('btnTestAlert');
-      const badgeProfileId = document.getElementById('badgeProfileId');
-      const selectProfileList = document.getElementById('selectProfileList');
-      const btnNewProfile = document.getElementById('btnNewProfile');
 
-      // Ambil profile dari query string URL (?id=...) jika ada, atau localStorage, atau 'default'
+      // Auth elements
+      const accountPillContainer = document.getElementById('accountPillContainer');
+      const btnOpenAuth = document.getElementById('btnOpenAuth');
+      const authModal = document.getElementById('authModal');
+      const closeAuthModal = document.getElementById('closeAuthModal');
+      const tabAuthLogin = document.getElementById('tabAuthLogin');
+      const tabAuthRegister = document.getElementById('tabAuthRegister');
+      const formAuth = document.getElementById('formAuth');
+      const authUsername = document.getElementById('authUsername');
+      const authPassword = document.getElementById('authPassword');
+      const authErrorMsg = document.getElementById('authErrorMsg');
+      const btnSubmitAuth = document.getElementById('btnSubmitAuth');
+      const authModalTitle = document.getElementById('authModalTitle');
+
+      let isAuthRegisterMode = false;
+      let userToken = localStorage.getItem('streampulse_user_token') || '';
+      let currentUser = null;
+
+      // Active overlay profile ID
       const urlParams = new URLSearchParams(window.location.search);
       let profileId = urlParams.get('id') || localStorage.getItem('streampulse_overlay_profile_id') || 'default';
 
-      // Load saved channels dari dashboard jika ada
+      // Load channels from main dashboard if new profile
       const savedChannels = JSON.parse(localStorage.getItem('streampulse_my_channels') || '{}');
       if (savedChannels.twitch) settingTwitch.value = savedChannels.twitch;
       if (savedChannels.youtube) settingYouTube.value = savedChannels.youtube;
       if (savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
 
-      async function fetchProfileList() {
-        try {
-          const res = await fetch('/api/overlays');
-          if (res.ok) {
-            const list = await res.json();
-            selectProfileList.innerHTML = '';
-            
-            let foundCurrent = false;
-            list.forEach(p => {
-              if (p.id === profileId) foundCurrent = true;
-              const opt = document.createElement('option');
-              opt.value = p.id;
-              const info = p.twitch || p.youtube || p.theme || 'default';
-              opt.textContent = `${p.id} (${info})`;
-              selectProfileList.appendChild(opt);
-            });
-
-            if (!foundCurrent) {
-              const opt = document.createElement('option');
-              opt.value = profileId;
-              opt.textContent = `${profileId} (aktif)`;
-              selectProfileList.appendChild(opt);
-            }
-
-            selectProfileList.value = profileId;
-            badgeProfileId.textContent = profileId;
-          }
-        } catch (e) {
-          console.warn('Gagal memuat list profile overlay:', e);
+      // Auth Handlers
+      function renderUserStatus() {
+        if (currentUser && userToken) {
+          const count = (currentUser.overlayIds || []).length;
+          accountPillContainer.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:0.8rem; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:4px 10px; border-radius:999px; color:#a5b4fc; font-weight:700;">
+                👤 ${currentUser.username} (${count}/3 Slot)
+              </span>
+              <button id="btnLogoutUser" class="btn-icon" style="font-size:0.75rem; padding:4px 8px;" title="Keluar dari akun">
+                Logout
+              </button>
+            </div>
+          `;
+          document.getElementById('btnLogoutUser').addEventListener('click', () => {
+            userToken = '';
+            currentUser = null;
+            localStorage.removeItem('streampulse_user_token');
+            renderUserStatus();
+            renderSlotsList([]);
+            alert('Telah keluar dari akun.');
+          });
+          slotCounter.textContent = `${count} / 3 Slot Terpakai`;
+          renderSlotsList(currentUser.overlayIds || []);
+        } else {
+          accountPillContainer.innerHTML = `
+            <button id="btnOpenAuthDynamic" class="btn-icon" style="font-size:0.8rem;">
+              🔐 Login / Daftar Akun
+            </button>
+          `;
+          document.getElementById('btnOpenAuthDynamic').addEventListener('click', openAuthModal);
+          slotCounter.textContent = 'Login untuk batas 3 slot';
+          renderSlotsList([]);
         }
       }
 
-      selectProfileList.addEventListener('change', () => {
-        profileId = selectProfileList.value;
+      function openAuthModal() {
+        authModal.classList.add('show');
+        authErrorMsg.style.display = 'none';
+        authUsername.focus();
+      }
+
+      function closeAuth() {
+        authModal.classList.remove('show');
+        formAuth.reset();
+        authErrorMsg.style.display = 'none';
+      }
+
+      if (btnOpenAuth) btnOpenAuth.addEventListener('click', openAuthModal);
+      closeAuthModal.addEventListener('click', closeAuth);
+      authModal.addEventListener('click', (e) => { if (e.target === authModal) closeAuth(); });
+
+      tabAuthLogin.addEventListener('click', () => {
+        isAuthRegisterMode = false;
+        tabAuthLogin.className = 'btn-icon btn-primary';
+        tabAuthRegister.className = 'btn-icon';
+        authModalTitle.textContent = 'Masuk Akun Streamer';
+        btnSubmitAuth.textContent = 'Masuk ke Akun 🚀';
+      });
+
+      tabAuthRegister.addEventListener('click', () => {
+        isAuthRegisterMode = true;
+        tabAuthRegister.className = 'btn-icon btn-primary';
+        tabAuthLogin.className = 'btn-icon';
+        authModalTitle.textContent = 'Daftar Akun Baru Streamer';
+        btnSubmitAuth.textContent = 'Daftar & Buat Akun 🎉';
+      });
+
+      formAuth.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        authErrorMsg.style.display = 'none';
+        const u = authUsername.value.trim();
+        const p = authPassword.value;
+        const endpoint = isAuthRegisterMode ? '/api/user/register' : '/api/user/login';
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            currentUser = data.user;
+            userToken = data.user.token;
+            localStorage.setItem('streampulse_user_token', userToken);
+            renderUserStatus();
+            closeAuth();
+            alert(`Berhasil ${isAuthRegisterMode ? 'mendaftar' : 'masuk'} sebagai ${currentUser.username}!`);
+          } else {
+            authErrorMsg.textContent = data.error || 'Gagal login';
+            authErrorMsg.style.display = 'block';
+          }
+        } catch (err) {
+          authErrorMsg.textContent = 'Error menghubungi server';
+          authErrorMsg.style.display = 'block';
+        }
+      });
+
+      async function checkUserSession() {
+        if (!userToken) {
+          renderUserStatus();
+          return;
+        }
+        try {
+          const res = await fetch('/api/user/me', {
+            headers: { 'x-user-token': userToken }
+          });
+          if (res.ok) {
+            currentUser = await res.json();
+            renderUserStatus();
+          } else {
+            userToken = '';
+            currentUser = null;
+            localStorage.removeItem('streampulse_user_token');
+            renderUserStatus();
+          }
+        } catch (e) {
+          renderUserStatus();
+        }
+      }
+
+      function renderSlotsList(slots) {
+        slotsContainer.innerHTML = '';
+        if (!slots || slots.length === 0) {
+          slotsContainer.innerHTML = `
+            <div style="font-size:0.75rem; color:var(--text-tertiary); padding:6px; text-align:center;">
+              Belum ada slot overlay aktif. Klik "+ Generate URL Baru" di atas!
+            </div>
+          `;
+          return;
+        }
+
+        slots.forEach((sId, idx) => {
+          const item = document.createElement('div');
+          const isActive = (sId === profileId);
+          item.className = `slot-item ${isActive ? 'active' : ''}`;
+          item.innerHTML = `
+            <div>
+              <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono);">Slot ${idx + 1}: ${sId}</strong>
+              ${isActive ? '<span style="font-size:0.65rem; color:#f59e0b; margin-left:6px; font-weight:700;">(Aktif Diedit)</span>' : ''}
+            </div>
+            <div style="display:flex; gap:6px;">
+              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}">✏️ Edit</button>` : ''}
+              <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="Hapus slot ini untuk mengosongkan kuota">🗑️</button>
+            </div>
+          `;
+
+          const switchBtn = item.querySelector('.btn-switch-slot');
+          if (switchBtn) {
+            switchBtn.addEventListener('click', () => {
+              switchProfile(sId);
+            });
+          }
+
+          item.querySelector('.btn-delete-slot').addEventListener('click', async () => {
+            if (confirm(`Yakin ingin menghapus slot overlay "${sId}"?`)) {
+              const delRes = await fetch(`/api/user/overlays/${encodeURIComponent(sId)}`, {
+                method: 'DELETE',
+                headers: { 'x-user-token': userToken }
+              });
+              if (delRes.ok) {
+                await checkUserSession();
+                if (profileId === sId) switchProfile('default');
+              }
+            }
+          });
+
+          slotsContainer.appendChild(item);
+        });
+      }
+
+      // Load URL Sebelumnya Workflow
+      btnLoadUrl.addEventListener('click', async () => {
+        const raw = inputLoadUrl.value.trim();
+        if (!raw) return alert('Silakan tempel URL atau ID Overlay terlebih dahulu!');
+
+        try {
+          const res = await fetch('/api/user/overlays/claim', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-token': userToken || ''
+            },
+            body: JSON.stringify({ urlOrId: raw })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            switchProfile(data.id);
+            inputLoadUrl.value = '';
+            await checkUserSession();
+            alert(`✅ Pengaturan overlay "${data.id}" berhasil dimuat!`);
+          } else {
+            alert(data.error || 'Overlay tidak ditemukan');
+          }
+        } catch (e) {
+          alert('Gagal menghubungi server');
+        }
+      });
+
+      // Generate New URL Workflow (Anti-Abuse, Limit 3)
+      btnGenerateOverlay.addEventListener('click', async () => {
+        if (!userToken || !currentUser) {
+          alert('Silakan login atau daftar akun terlebih dahulu agar overlay Anda tidak disalahgunakan orang lain (Maksimal 3 slot per akun).');
+          openAuthModal();
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/user/overlays/generate', {
+            method: 'POST',
+            headers: { 'x-user-token': userToken }
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await checkUserSession();
+            switchProfile(data.id);
+            alert(`🎉 URL Overlay baru "${data.id}" berhasil digenerate!\nLink OBS siap disalin di panel sebelah kanan.`);
+          } else {
+            alert(data.error || 'Gagal generate overlay');
+          }
+        } catch (e) {
+          alert('Error menghubungi server');
+        }
+      });
+
+      function switchProfile(newId) {
+        profileId = newId;
         localStorage.setItem('streampulse_overlay_profile_id', profileId);
-        badgeProfileId.textContent = profileId;
+        activeOverlayIdBadge.textContent = profileId;
         loadProfile();
+        updateUrl();
         previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
-      });
-
-      btnNewProfile.addEventListener('click', async () => {
-        const randId = 'ovl_' + Math.random().toString(36).substring(2, 8);
-        const inputName = prompt('Masukkan ID / Nama unik untuk Overlay baru ini:', randId);
-        if (!inputName) return;
-
-        const cleanId = inputName.trim().replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
-        if (!cleanId) return;
-
-        profileId = cleanId;
-        localStorage.setItem('streampulse_overlay_profile_id', profileId);
-        badgeProfileId.textContent = profileId;
-        
-        await saveProfile(false);
-        await fetchProfileList();
-        loadProfile();
-        alert(`✅ Overlay ID baru "${profileId}" berhasil dibuat!\nAnda dapat mengatur saluran, tema, dan CSS untuk overlay ini.`);
-      });
+        if (currentUser) renderSlotsList(currentUser.overlayIds || []);
+      }
 
       async function loadProfile() {
         try {
-          badgeProfileId.textContent = profileId;
+          activeOverlayIdBadge.textContent = profileId;
           const res = await fetch(`/api/overlays/${profileId}`);
           if (res.ok) {
             const data = await res.json();
@@ -507,6 +857,8 @@
             if (data.theme !== undefined) settingTheme.value = data.theme;
             if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
+            if (data.maxMessages !== undefined) settingMaxMessages.value = data.maxMessages;
+            if (data.maskLinks !== undefined) settingMaskLinks.checked = data.maskLinks;
             if (data.showBadges !== undefined) settingShowBadges.checked = data.showBadges;
             if (data.showAvatars !== undefined) settingShowAvatars.checked = data.showAvatars;
             if (data.showEmotes !== undefined) settingShowEmotes.checked = data.showEmotes;
@@ -525,6 +877,7 @@
         labelFontSize.textContent = `${settingFontSize.value}px`;
         const delay = parseInt(settingHideDelay.value, 10);
         labelHideDelay.textContent = delay === 0 ? 'Selalu Tampil (0s)' : `${delay} detik`;
+        labelMaxMessages.textContent = `${settingMaxMessages.value} Pesan`;
       }
 
       function getOverlayConfig() {
@@ -536,6 +889,8 @@
           theme: settingTheme.value,
           fontSize: parseInt(settingFontSize.value, 10),
           hideDelay: parseInt(settingHideDelay.value, 10),
+          maxMessages: parseInt(settingMaxMessages.value, 10) || 15,
+          maskLinks: settingMaskLinks.checked,
           showBadges: settingShowBadges.checked,
           showAvatars: settingShowAvatars.checked,
           showEmotes: settingShowEmotes.checked,
@@ -551,7 +906,6 @@
       }
 
       function refreshPreview() {
-        // Simpan konfigurasi sementara ke backend lalu reload iframe
         saveProfile(false);
       }
 
@@ -560,7 +914,10 @@
         try {
           const res = await fetch('/api/overlays', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-token': userToken || ''
+            },
             body: JSON.stringify(cfg)
           });
           if (res.ok) {
@@ -568,7 +925,6 @@
             profileId = data.id;
             localStorage.setItem('streampulse_overlay_profile_id', profileId);
             updateUrl();
-            fetchProfileList();
             previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
             if (showAlert) {
               alert('✅ Pengaturan OBS Overlay berhasil disimpan!');
@@ -579,11 +935,12 @@
         }
       }
 
-      // Event listeners
-      settingFontSize.addEventListener('input', () => { updateLabels(); });
-      settingHideDelay.addEventListener('input', () => { updateLabels(); });
-      
-      [settingTheme, settingFontSize, settingHideDelay, settingShowBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts].forEach(el => {
+      // Input change listeners
+      settingFontSize.addEventListener('input', updateLabels);
+      settingHideDelay.addEventListener('input', updateLabels);
+      settingMaxMessages.addEventListener('input', updateLabels);
+
+      [settingTheme, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts].forEach(el => {
         el.addEventListener('change', () => {
           updateLabels();
           refreshPreview();
@@ -591,7 +948,6 @@
       });
 
       settingCustomCss.addEventListener('input', () => {
-        // Debounce update iframe CSS
         clearTimeout(window._cssTimer);
         window._cssTimer = setTimeout(() => {
           refreshPreview();
@@ -617,7 +973,7 @@
         }
       });
 
-      // Simulation buttons inside Preview
+      // Simulation Test Buttons
       btnTestChat.addEventListener('click', () => {
         const iframeDoc = previewIframe.contentWindow;
         if (iframeDoc && iframeDoc.document) {
@@ -628,6 +984,24 @@
                 platform: 'twitch',
                 author: { name: 'SarahStreamer', color: '#a855f7' },
                 text: 'Keren banget overlay-nya! GG gameplay OMEGALUL 🔥',
+                timestamp: Date.now()
+              }
+            }
+          });
+          iframeDoc.dispatchEvent(event);
+        }
+      });
+
+      btnTestLinkChat.addEventListener('click', () => {
+        const iframeDoc = previewIframe.contentWindow;
+        if (iframeDoc && iframeDoc.document) {
+          const event = new CustomEvent('socket_sim', {
+            detail: {
+              type: 'chat',
+              data: {
+                platform: 'twitch',
+                author: { name: 'Chatter123', color: '#38bdf8' },
+                text: 'Cek gameplay mantap ini https://youtube.com/watch?v=123 dan https://discord.gg/xyz gan!',
                 timestamp: Date.now()
               }
             }
@@ -649,26 +1023,7 @@
                   color: '#00f2fe',
                   badges: { vip: '1', moderator: '1' }
                 },
-                text: 'Halo halo! Mabar kapan nih bang? catJAM',
-                timestamp: Date.now()
-              }
-            }
-          });
-          iframeDoc.dispatchEvent(event);
-        }
-      });
-
-      btnTestRedeem.addEventListener('click', () => {
-        const iframeDoc = previewIframe.contentWindow;
-        if (iframeDoc && iframeDoc.document) {
-          const event = new CustomEvent('socket_sim', {
-            detail: {
-              type: 'chat',
-              data: {
-                platform: 'twitch',
-                isRedeem: true,
-                author: { name: 'LoyalViewer99', color: '#f59e0b', badges: { subscriber: '12' } },
-                text: 'Hydrate bang! Jangan lupa minum air putih!',
+                text: 'Halo halo! Suaranya jernih banget bang!',
                 timestamp: Date.now()
               }
             }
@@ -697,8 +1052,8 @@
         }
       });
 
-      // Initial Load
-      fetchProfileList();
+      // Initial boot
+      checkUserSession();
       loadProfile();
     });
   </script>

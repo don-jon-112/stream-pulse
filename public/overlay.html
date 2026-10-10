@@ -350,14 +350,23 @@
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       }
 
+      function maskLinksInText(text) {
+        if (!config.maskLinks || !text) return text;
+        return text.replace(/(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9.-]+\.(com|net|org|io|gg|id|tv|be|me|link|site|xyz|online|app|co|live)(\/[^\s]*)?)/gi, '[LINK]');
+      }
+
       // Emote Parsers
       function parse7tvTokens(rawText) {
         if (!rawText) return '';
-        if (!config.showEmotes) return escapeHtml(rawText);
-        const tokens = rawText.split(/(\s+)/);
+        const masked = maskLinksInText(rawText);
+        if (!config.showEmotes) return escapeHtml(masked);
+        const tokens = masked.split(/(\s+)/);
         return tokens.map(token => {
           if (!token || /^\s+$/.test(token)) return token;
           const clean = token.trim();
+          if (clean === '[LINK]') {
+            return `<span class="masked-link" style="color:#94a3b8; font-weight:700; background:rgba(255,255,255,0.08); padding:1px 5px; border-radius:3px;">[LINK]</span>`;
+          }
           if (twitchEmotes[clean]) {
             return `<img class="chat-emote" src="${escapeHtml(twitchEmotes[clean])}" alt="${escapeHtml(clean)}" referrerpolicy="no-referrer" loading="lazy">`;
           }
@@ -555,8 +564,9 @@
 
         container.appendChild(el);
 
-        // Keep maximum 25 items on overlay
-        if (container.children.length > 25) {
+        // Batasi jumlah bubble chat di layar OBS
+        const maxLimit = parseInt(config.maxMessages, 10) || 15;
+        while (container.children.length > maxLimit) {
           container.removeChild(container.firstChild);
         }
 

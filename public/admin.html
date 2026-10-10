@@ -4,29 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="referrer" content="no-referrer">
-  <title>Admin Feature Manager - StreamPulse</title>
-  <meta name="description" content="Panel Admin untuk mengelola, mengubah progres Kanban, dan membalas usulan fitur pengguna StreamPulse.">
+  <title>Admin Portal - StreamPulse</title>
+  <meta name="description" content="Panel Admin Lengkap StreamPulse untuk mengelola Roadmap Fitur, Monitoring OBS Overlay, Kuota User, dan Keamanan Server.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="stylesheet" href="/css/style.css">
   <style>
     body {
-      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(6, 8, 13, 1) 100%), #06080d;
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, rgba(6, 8, 13, 1) 100%), #06080d;
       color: var(--text-primary);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      margin: 0;
+      padding: 0;
     }
 
+    /* Header */
     .admin-header {
-      padding: 16px 24px;
-      background: rgba(13, 17, 27, 0.9);
+      padding: 14px 24px;
+      background: rgba(13, 17, 27, 0.95);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -39,46 +40,22 @@
       text-decoration: none;
     }
 
-    .admin-title-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .admin-title-badge h1 {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #ffffff;
-      margin: 0;
-    }
-
     .badge-admin {
       background: linear-gradient(135deg, #ef4444, #f59e0b);
       color: #fff;
       font-size: 0.65rem;
       font-weight: 800;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 4px;
       letter-spacing: 0.05em;
     }
 
-    .admin-container {
-      flex: 1;
-      padding: 24px;
-      max-width: 1400px;
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Auth Card View */
+    /* Auth Overlay */
     .auth-overlay {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 60vh;
+      min-height: calc(100vh - 80px);
       padding: 20px;
     }
 
@@ -86,7 +63,7 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 32px;
+      padding: 36px 32px;
       width: 100%;
       max-width: 420px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.6);
@@ -97,8 +74,8 @@
     }
 
     .auth-icon {
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
       margin: 0 auto;
       border-radius: 50%;
       background: rgba(99, 102, 241, 0.15);
@@ -106,13 +83,128 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
+      font-size: 2rem;
+    }
+
+    /* Proper Admin Layout with Sidebar */
+    .admin-wrapper {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 65px);
+    }
+
+    .admin-sidebar {
+      width: 250px;
+      background: rgba(10, 14, 23, 0.95);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 8px 12px 4px 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.4);
+      color: #818cf8;
+    }
+
+    .admin-content-area {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      max-width: 1400px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Centered Modal Popup */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .modal-overlay.show {
+      display: flex !important;
+    }
+
+    .modal-card {
+      background: #0f1422;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 520px;
+      margin: auto;
+      padding: 24px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     /* KPI Stats Bar */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 14px;
     }
 
@@ -146,7 +238,7 @@
       font-family: var(--font-display);
     }
 
-    /* Filter Toolbar */
+    /* Toolbar */
     .toolbar-bar {
       background: rgba(13, 17, 27, 0.8);
       border: 1px solid var(--border-color);
@@ -166,25 +258,14 @@
       gap: 8px;
     }
 
-    .select-filter {
+    .select-filter, .search-input {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       color: #fff;
       padding: 8px 12px;
       border-radius: var(--radius-sm);
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       outline: none;
-      cursor: pointer;
-    }
-
-    .search-input {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 0.8rem;
-      min-width: 220px;
     }
 
     /* Cards Grid */
@@ -240,17 +321,6 @@
       overflow-y: auto;
     }
 
-    .admin-card-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.72rem;
-      color: var(--text-tertiary);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 8px;
-    }
-
-    /* Status Selector Dropdown inside Card */
     .status-select {
       padding: 4px 8px;
       border-radius: var(--radius-xs);
@@ -261,31 +331,25 @@
       cursor: pointer;
     }
 
-    .status-select.todo {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border-color: rgba(245, 158, 11, 0.3);
-    }
+    .status-select.todo { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+    .status-select.in_progress { background: rgba(99, 102, 241, 0.2); color: #818cf8; border-color: rgba(99, 102, 241, 0.4); }
+    .status-select.done { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+    .status-select.rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
 
-    .status-select.in_progress {
-      background: rgba(99, 102, 241, 0.2);
-      color: #818cf8;
-      border-color: rgba(99, 102, 241, 0.4);
+    .cat-tag {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
     }
+    .cat-tag.twitch { background: rgba(145, 70, 255, 0.2); color: #a970ff; border: 1px solid rgba(145, 70, 255, 0.4); }
+    .cat-tag.youtube { background: rgba(255, 0, 0, 0.2); color: #ff4e4e; border: 1px solid rgba(255, 0, 0, 0.4); }
+    .cat-tag.tiktok { background: rgba(0, 242, 254, 0.2); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.4); }
+    .cat-tag.overlay { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .cat-tag.core { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .cat-tag.general { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
 
-    .status-select.done {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .status-select.rejected {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    /* Admin Note Bubble */
     .admin-note-box {
       background: rgba(99, 102, 241, 0.08);
       border-left: 2px solid #818cf8;
@@ -303,7 +367,7 @@
     }
 
     .btn-action-sm {
-      padding: 4px 10px;
+      padding: 5px 10px;
       border-radius: var(--radius-xs);
       font-size: 0.72rem;
       font-weight: 600;
@@ -313,18 +377,36 @@
       color: var(--text-secondary);
       transition: all 0.15s ease;
     }
+    .btn-action-sm:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+    .btn-action-sm.danger:hover { background: rgba(239, 68, 68, 0.25); border-color: #ef4444; color: #fca5a5; }
 
-    .btn-action-sm:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
+    /* Tables */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(13, 17, 27, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
     }
 
-    .btn-action-sm.danger:hover {
-      background: rgba(239, 68, 68, 0.25);
-      border-color: #ef4444;
-      color: #fca5a5;
+    .data-table th, .data-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.85rem;
     }
 
+    .data-table th {
+      background: rgba(20, 26, 40, 0.9);
+      color: var(--text-tertiary);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Toast */
     .toast-msg {
       position: fixed;
       bottom: 24px;
@@ -337,169 +419,316 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       font-size: 0.85rem;
       font-weight: 600;
-      z-index: 1000;
+      z-index: 100000;
       transform: translateY(100px);
       opacity: 0;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    .toast-msg.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    .toast-msg.show { transform: translateY(0); opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- ADMIN HEADER -->
+  <!-- Header -->
   <header class="admin-header">
-    <div class="admin-brand">
-      <a href="/" class="brand-logo" title="Kembali ke Dashboard">
-        <svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:var(--accent-primary);">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <a href="/" class="admin-brand">
+        <div class="brand-logo" style="width:34px; height:34px;">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div style="font-weight:800; font-size:1.15rem; color:#fff;">
+          StreamPulse <span class="badge-admin">ADMIN PORTAL</span>
+        </div>
       </a>
-      <div class="admin-title-badge">
-        <h1>Feature Request Admin</h1>
-        <span class="badge-admin">ADMIN CONSOLE</span>
-      </div>
     </div>
 
     <div style="display:flex; align-items:center; gap:10px;">
       <a href="/features" target="_blank" class="btn-icon" title="Lihat Papan Kanban Publik">
         <span>Lihat Kanban Publik ↗</span>
       </a>
-      <button id="btnChangePass" class="btn-icon" style="display:none;" title="Ganti Password Admin">
-        <span>🔑 Ganti Password</span>
-      </button>
+      <a href="/studio" target="_blank" class="btn-icon" title="Buka Overlay Studio">
+        <span>Overlay Studio 🖥️</span>
+      </a>
       <button id="btnLogout" class="btn-icon" style="display:none;" title="Keluar dari Panel Admin">
         <span>Keluar 🚪</span>
       </button>
     </div>
   </header>
 
-  <!-- AUTH VIEW (LOGIN FORM) -->
+  <!-- AUTH SECTION (LOGIN FORM) -->
   <div id="authSection" class="auth-overlay">
     <div class="auth-card">
       <div class="auth-icon">🔐</div>
-      <h2 style="font-size:1.3rem; font-weight:800; color:#fff; margin:0;">Login Admin</h2>
+      <h2 style="font-size:1.3rem; font-weight:800; color:#fff; margin:0;">Login Administrator</h2>
       <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
-        Masukkan Password Admin untuk mengelola usulan fitur dan memperbarui status roadmap.
+        Masukkan Password Admin untuk mengelola usulan fitur, memantau akun user, dan mengelola OBS Overlay.
       </p>
 
       <form id="formLogin" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
-        <input type="password" id="inputPassword" placeholder="Masukkan Password Admin..." required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem;">
+        <input type="password" id="inputPassword" placeholder="Masukkan Password Admin..." required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem; box-sizing:border-box;">
         <div id="loginError" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
-        <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:10px;">
+        <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:12px; font-weight:800;">
           Buka Panel Admin 🚀
         </button>
       </form>
     </div>
   </div>
 
-  <!-- MAIN ADMIN DASHBOARD (HIDDEN UNTIL LOGIN) -->
-  <main id="dashboardSection" class="admin-container" style="display:none;">
+  <!-- MAIN ADMIN DASHBOARD WITH SIDEBAR (SHOWN AFTER LOGIN) -->
+  <div id="dashboardSection" class="admin-wrapper" style="display:none;">
 
-    <!-- KPI STATS -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-label">Total Fitur</span>
-        <span id="statTotal" class="stat-val">0</span>
-      </div>
-      <div class="stat-card todo">
-        <span class="stat-label">📋 Todo / Antrean</span>
-        <span id="statTodo" class="stat-val">0</span>
-      </div>
-      <div class="stat-card prog">
-        <span class="stat-label">⚡ Dikerjakan (In Progress)</span>
-        <span id="statProg" class="stat-val">0</span>
-      </div>
-      <div class="stat-card done">
-        <span class="stat-label">✅ Selesai & Rilis</span>
-        <span id="statDone" class="stat-val">0</span>
-      </div>
-      <div class="stat-card rej">
-        <span class="stat-label">❌ Ditolak</span>
-        <span id="statRej" class="stat-val">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">👍 Total Upvotes</span>
-        <span id="statVotes" class="stat-val">0</span>
-      </div>
-    </div>
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="admin-sidebar">
+      <div class="nav-label">Menu Utama</div>
+      
+      <button class="nav-item active" data-tab="tabFeatures">
+        <span>📋</span> Usulan Fitur (Roadmap)
+      </button>
+      <button class="nav-item" data-tab="tabOverlays">
+        <span>🖥️</span> Semua OBS Overlay
+      </button>
+      <button class="nav-item" data-tab="tabUsers">
+        <span>👥</span> Akun & Kuota User
+      </button>
 
-    <!-- TOOLBAR & FILTERS -->
-    <div class="toolbar-bar">
-      <div class="filter-group">
-        <select id="filterStatus" class="select-filter">
-          <option value="all">Semua Status</option>
-          <option value="todo">📋 Todo</option>
-          <option value="in_progress">⚡ In Progress</option>
-          <option value="done">✅ Done</option>
-          <option value="rejected">❌ Ditolak</option>
-        </select>
+      <div class="nav-label" style="margin-top:10px;">Sistem & Keamanan</div>
+      <button class="nav-item" data-tab="tabSecurity">
+        <span>🔐</span> Ganti Password Admin
+      </button>
+      <button class="nav-item" data-tab="tabSystem">
+        <span>⚡</span> Status Server VPS
+      </button>
 
-        <select id="filterCategory" class="select-filter">
-          <option value="all">Semua Kategori</option>
-          <option value="twitch">🟣 Twitch</option>
-          <option value="youtube">🔴 YouTube</option>
-          <option value="tiktok">🎵 TikTok</option>
-          <option value="overlay">🖥️ OBS Overlay</option>
-          <option value="core">⚡ Core / Sistem</option>
-          <option value="general">✨ General</option>
-        </select>
-
-        <input type="text" id="inputSearch" class="search-input" placeholder="Cari judul, deskripsi, atau pembuat...">
-      </div>
-
-      <div style="display:flex; gap:8px;">
-        <button id="btnRefresh" class="btn-icon" title="Muat Ulang Data">
-          <span>🔄 Refresh</span>
-        </button>
-        <button id="btnNewFeatureModal" class="btn-icon btn-primary" title="Tambah Fitur Baru sebagai Admin">
-          <span>+ Buat Fitur Resmi</span>
+      <div style="margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
+        <button id="btnSideLogout" class="nav-item" style="color:#ef4444;">
+          <span>🚪</span> Keluar Panel Admin
         </button>
       </div>
-    </div>
+    </aside>
 
-    <!-- CARDS GRID -->
-    <div id="cardsGrid" class="admin-cards-grid">
-      <!-- Injected via JavaScript -->
-    </div>
-  </main>
+    <!-- CONTENT AREA -->
+    <main class="admin-content-area">
 
-  <!-- MODAL: EDIT / CREATE FEATURE -->
-  <div id="editModal" class="modal-backdrop">
-    <div class="modal-content" style="max-width: 540px;">
-      <div class="modal-header">
-        <div class="modal-title" id="modalTitle" style="color:#818cf8;">
-          <span>Edit Usulan Fitur</span>
+      <!-- TAB 1: USULAN FITUR / ROADMAP -->
+      <section id="tabFeatures" class="tab-content active">
+        <!-- KPI STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Total Fitur</span>
+            <span id="statTotal" class="stat-val">0</span>
+          </div>
+          <div class="stat-card todo">
+            <span class="stat-label">📋 Todo / Antrean</span>
+            <span id="statTodo" class="stat-val">0</span>
+          </div>
+          <div class="stat-card prog">
+            <span class="stat-label">⚡ Sedang Dikerjakan</span>
+            <span id="statProg" class="stat-val">0</span>
+          </div>
+          <div class="stat-card done">
+            <span class="stat-label">✅ Selesai & Rilis</span>
+            <span id="statDone" class="stat-val">0</span>
+          </div>
+          <div class="stat-card rej">
+            <span class="stat-label">❌ Ditolak</span>
+            <span id="statRej" class="stat-val">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">👍 Total Upvotes</span>
+            <span id="statVotes" class="stat-val">0</span>
+          </div>
         </div>
-        <button id="closeEditModal" class="modal-close">&times;</button>
+
+        <!-- TOOLBAR & FILTERS -->
+        <div class="toolbar-bar">
+          <div class="filter-group">
+            <select id="filterStatus" class="select-filter">
+              <option value="all">Semua Status</option>
+              <option value="todo">📋 Todo</option>
+              <option value="in_progress">⚡ In Progress</option>
+              <option value="done">✅ Done</option>
+              <option value="rejected">❌ Ditolak</option>
+            </select>
+
+            <select id="filterCategory" class="select-filter">
+              <option value="all">Semua Kategori</option>
+              <option value="twitch">🟣 Twitch</option>
+              <option value="youtube">🔴 YouTube</option>
+              <option value="tiktok">🎵 TikTok</option>
+              <option value="overlay">🖥️ OBS Overlay</option>
+              <option value="core">⚡ Core / Sistem</option>
+              <option value="general">✨ General</option>
+            </select>
+
+            <input type="text" id="inputSearch" class="search-input" placeholder="Cari judul, deskripsi, atau pembuat..." style="min-width:220px;">
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button id="btnRefreshFeatures" class="btn-icon" title="Refresh data">🔄 Segarkan</button>
+            <button id="btnNewFeatureModal" class="btn-icon btn-primary">+ Buat Fitur Resmi</button>
+          </div>
+        </div>
+
+        <!-- CARDS GRID -->
+        <div id="cardsGrid" class="admin-cards-grid"></div>
+      </section>
+
+      <!-- TAB 2: SEMUA OBS OVERLAY -->
+      <section id="tabOverlays" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;">Monitoring Semua OBS Overlay</h2>
+            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;">Daftar seluruh URL overlay yang pernah dibuat di server ini.</p>
+          </div>
+          <button id="btnRefreshOverlays" class="btn-icon">🔄 Segarkan</button>
+        </div>
+
+        <div id="overlaysTableContainer">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Overlay ID</th>
+                <th>Pemilik (Akun)</th>
+                <th>Saluran Aktif</th>
+                <th>Tema</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="overlaysTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 3: AKUN & KUOTA USER -->
+      <section id="tabUsers" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;">Daftar Akun Pengguna & Kuota (Batas 3 Slot)</h2>
+            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;">Setiap pengguna dibatasi maksimal 3 Overlay ID untuk mencegah abuse / spam server.</p>
+          </div>
+          <button id="btnRefreshUsers" class="btn-icon">🔄 Segarkan</button>
+        </div>
+
+        <div id="usersTableContainer">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Terdaftar Pada</th>
+                <th>Jumlah Slot Terpakai</th>
+                <th>Daftar ID Overlay Milik User</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 4: GANTI PASSWORD ADMIN -->
+      <section id="tabSecurity" class="tab-content">
+        <div style="max-width:560px; background:rgba(13,17,27,0.8); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:28px;">
+          <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0 0 6px 0;">🔐 Ganti Password Administrator</h2>
+          <p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 20px 0;">
+            Ubah password panel admin Anda. Password baru akan langsung aktif dan disimpan permanen di server.
+          </p>
+
+          <form id="formTabChangePass" style="display:flex; flex-direction:column; gap:16px;">
+            <div class="channel-field">
+              <label class="channel-label" for="tabInputNewPass">Password Baru (Min. 4 karakter)</label>
+              <input type="password" id="tabInputNewPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ketik password baru...">
+            </div>
+
+            <div class="channel-field">
+              <label class="channel-label" for="tabInputConfirmPass">Konfirmasi Password Baru</label>
+              <input type="password" id="tabInputConfirmPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ulangi ketik password baru...">
+            </div>
+
+            <div id="tabPassError" style="font-size:0.8rem; color:#ef4444; display:none;"></div>
+
+            <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:12px; font-weight:800; margin-top:6px;">
+              💾 Simpan Password Baru
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- TAB 5: STATUS SERVER VPS -->
+      <section id="tabSystem" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h2 style="font-size:1.2rem; font-weight:800; color:#fff; margin:0;">⚡ Status Sistem & Resource VPS</h2>
+            <p style="font-size:0.8rem; color:var(--text-tertiary); margin:4px 0 0 0;">Informasi performa runtime Node.js dan penggunaan memori server.</p>
+          </div>
+          <button id="btnRefreshStats" class="btn-icon">🔄 Segarkan</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Waktu Aktif (Uptime)</span>
+            <span id="sysUptime" class="stat-val" style="font-size:1.2rem; color:#10b981;">0m</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">RAM Node.js (RSS)</span>
+            <span id="sysRamRss" class="stat-val" style="color:#67e8f9;">0 MB</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">RAM Heap Used</span>
+            <span id="sysRamHeap" class="stat-val" style="color:#a5b4fc;">0 MB</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Versi Node.js</span>
+            <span id="sysNodeVer" class="stat-val" style="font-size:1.2rem;">-</span>
+          </div>
+        </div>
+
+        <div style="background:rgba(13,17,27,0.7); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:18px; margin-top:10px;">
+          <h3 style="font-size:0.95rem; font-weight:800; color:#fff; margin:0 0 10px 0;">ℹ️ Konfigurasi Hosting Domain & VPS</h3>
+          <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6; margin:0;">
+            • <strong>Menyambungkan Domain Pribadi:</strong> Buat <code>A Record</code> di DNS provider Anda yang mengarah ke IP VPS Anda.<br>
+            • <strong>Cloudflare:</strong> Tidak wajib, namun sangat dianjurkan untuk mendapatkan SSL (HTTPS) gratis dan proteksi DDoS otomatis.<br>
+            • <strong>Tanpa Cloudflare:</strong> Anda bisa menggunakan Nginx di VPS dengan Let's Encrypt Certbot untuk HTTPS.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL EDIT / BUAT FITUR (CENTERED) -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 id="modalTitle" style="font-size:1.15rem; font-weight:800; color:#fff; margin:0;">Edit Usulan Fitur</h3>
+        <button id="closeEditModal" class="btn-icon" style="padding:4px 8px;">✕</button>
       </div>
 
-      <form id="formEditFeature" class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
+      <form id="formEditFeature" style="display:flex; flex-direction:column; gap:12px;">
         <input type="hidden" id="editId">
 
         <div class="channel-field">
-          <label class="channel-label" for="editTitle">Judul Fitur *</label>
-          <input type="text" id="editTitle" required placeholder="Judul fitur..." autocomplete="off">
+          <label class="channel-label" for="editTitle">Judul Usulan Fitur *</label>
+          <input type="text" id="editTitle" required placeholder="Contoh: Tambah Emote 7TV di OBS" autocomplete="off" class="search-input" style="width:100%; box-sizing:border-box;">
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="channel-field">
-            <label class="channel-label" for="editStatus">Status Progress</label>
-            <select id="editStatus" style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem;">
-              <option value="todo">📋 Todo (Antrean)</option>
-              <option value="in_progress">⚡ In Progress (Dikerjakan)</option>
-              <option value="done">✅ Done (Selesai & Rilis)</option>
-              <option value="rejected">❌ Ditolak (Rejected)</option>
+            <label class="channel-label" for="editStatus">Status Roadmap</label>
+            <select id="editStatus" class="select-filter" style="width:100%;">
+              <option value="todo">📋 Todo</option>
+              <option value="in_progress">⚡ In Progress</option>
+              <option value="done">✅ Done</option>
+              <option value="rejected">❌ Ditolak</option>
             </select>
           </div>
 
           <div class="channel-field">
-            <label class="channel-label" for="editCategory">Kategori Platform</label>
-            <select id="editCategory" style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem;">
+            <label class="channel-label" for="editCategory">Kategori</label>
+            <select id="editCategory" class="select-filter" style="width:100%;">
               <option value="twitch">🟣 Twitch</option>
               <option value="youtube">🔴 YouTube</option>
               <option value="tiktok">🎵 TikTok</option>
@@ -513,58 +742,32 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="channel-field">
             <label class="channel-label" for="editAuthor">Nama Pengusul</label>
-            <input type="text" id="editAuthor" placeholder="Nama pengusul..." autocomplete="off">
+            <input type="text" id="editAuthor" class="search-input" placeholder="Nama..." style="width:100%; box-sizing:border-box;">
           </div>
-
           <div class="channel-field">
-            <label class="channel-label" for="editUpvotes">Jumlah Upvotes</label>
-            <input type="number" id="editUpvotes" min="0" placeholder="0" autocomplete="off">
+            <label class="channel-label" for="editUpvotes">Upvotes</label>
+            <input type="number" id="editUpvotes" min="0" class="search-input" placeholder="0" style="width:100%; box-sizing:border-box;">
           </div>
         </div>
 
         <div class="channel-field">
           <label class="channel-label" for="editDesc">Deskripsi Fitur *</label>
-          <textarea id="editDesc" required rows="3" placeholder="Deskripsi fitur..." style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem; resize:vertical;"></textarea>
+          <textarea id="editDesc" required rows="3" class="search-input" style="width:100%; resize:vertical; box-sizing:border-box;"></textarea>
         </div>
 
         <div class="channel-field">
-          <label class="channel-label" for="editAdminNote">💬 Tanggapan / Catatan Pengembang (Ditampilkan ke Publik)</label>
-          <textarea id="editAdminNote" rows="2" placeholder="Contoh: Fitur sedang dalam tahap pengujian untuk rilis v1.3!" style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#67e8f9; font-size:0.85rem; resize:vertical;"></textarea>
+          <label class="channel-label" for="editAdminNote">💬 Tanggapan Admin (Publik)</label>
+          <textarea id="editAdminNote" rows="2" class="search-input" placeholder="Catatan untuk penonton..." style="width:100%; color:#67e8f9; resize:vertical; box-sizing:border-box;"></textarea>
         </div>
 
-        <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+        <div style="display:flex; align-items:center; gap:8px;">
           <input type="checkbox" id="editPinned" style="width:16px; height:16px; accent-color:#f59e0b;">
-          <label for="editPinned" style="font-size:0.85rem; color:#fbbf24; cursor:pointer; font-weight:700;">⭐ Pin Fitur Unggulan (Tampil di urutan teratas papan)</label>
+          <label for="editPinned" style="font-size:0.85rem; color:#fbbf24; cursor:pointer; font-weight:700;">⭐ Pin Fitur Unggulan (Tampil di atas)</label>
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
           <button type="button" id="btnCancelEdit" class="btn-icon">Batal</button>
           <button type="submit" class="btn-icon btn-primary">Simpan Perubahan 💾</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL CHANGE PASSWORD -->
-  <div id="changePassModal" class="modal-overlay">
-    <div class="modal-card" style="max-width:400px;">
-      <div class="modal-header">
-        <h3 style="margin:0; font-size:1.1rem; color:#fff;">Ganti Password Admin</h3>
-        <button id="closePassModal" class="btn-icon" style="padding:4px 8px;">✕</button>
-      </div>
-      <form id="formChangePass" style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
-        <div class="channel-field">
-          <label class="channel-label" for="inputNewPass">Password Baru (Min. 4 karakter)</label>
-          <input type="password" id="inputNewPass" class="search-input" style="width:100%;" required minlength="4" placeholder="Ketik password baru...">
-        </div>
-        <div class="channel-field">
-          <label class="channel-label" for="inputConfirmPass">Konfirmasi Password Baru</label>
-          <input type="password" id="inputConfirmPass" class="search-input" style="width:100%;" required minlength="4" placeholder="Ulangi password baru...">
-        </div>
-        <div id="passError" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
-        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-          <button type="button" id="btnCancelPass" class="btn-icon">Batal</button>
-          <button type="submit" class="btn-icon btn-primary">Simpan Password 💾</button>
         </div>
       </form>
     </div>
@@ -584,67 +787,28 @@
       const inputPassword = document.getElementById('inputPassword');
       const loginError = document.getElementById('loginError');
       const btnLogout = document.getElementById('btnLogout');
-      const btnChangePass = document.getElementById('btnChangePass');
+      const btnSideLogout = document.getElementById('btnSideLogout');
 
-      const changePassModal = document.getElementById('changePassModal');
-      const closePassModal = document.getElementById('closePassModal');
-      const btnCancelPass = document.getElementById('btnCancelPass');
-      const formChangePass = document.getElementById('formChangePass');
-      const inputNewPass = document.getElementById('inputNewPass');
-      const inputConfirmPass = document.getElementById('inputConfirmPass');
-      const passError = document.getElementById('passError');
+      // Tabs
+      const navItems = document.querySelectorAll('.nav-item[data-tab]');
+      const tabContents = document.querySelectorAll('.tab-content');
 
-      const closePass = () => {
-        changePassModal.classList.remove('show');
-        formChangePass.reset();
-        passError.style.display = 'none';
-      };
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const target = item.dataset.tab;
+          navItems.forEach(n => n.classList.remove('active'));
+          tabContents.forEach(t => t.classList.remove('active'));
+          item.classList.add('active');
+          const tEl = document.getElementById(target);
+          if (tEl) tEl.classList.add('active');
 
-      btnChangePass.addEventListener('click', () => {
-        changePassModal.classList.add('show');
-        inputNewPass.focus();
-      });
-      closePassModal.addEventListener('click', closePass);
-      btnCancelPass.addEventListener('click', closePass);
-      changePassModal.addEventListener('click', (e) => {
-        if (e.target === changePassModal) closePass();
+          if (target === 'tabOverlays') fetchAdminOverlays();
+          if (target === 'tabUsers') fetchAdminUsers();
+          if (target === 'tabSystem') fetchAdminSystemStats();
+        });
       });
 
-      formChangePass.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const p1 = inputNewPass.value.trim();
-        const p2 = inputConfirmPass.value.trim();
-        passError.style.display = 'none';
-        if (p1 !== p2) {
-          passError.textContent = 'Password baru dan konfirmasi tidak cocok!';
-          passError.style.display = 'block';
-          return;
-        }
-        try {
-          const res = await fetch('/api/admin/change-password', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-admin-key': adminToken
-            },
-            body: JSON.stringify({ newPassword: p1 })
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            adminToken = data.token;
-            sessionStorage.setItem('streampulse_admin_token', adminToken);
-            showToast('Password admin berhasil diubah! 🔑');
-            closePass();
-          } else {
-            passError.textContent = data.error || 'Gagal mengubah password';
-            passError.style.display = 'block';
-          }
-        } catch (err) {
-          passError.textContent = 'Error menghubungi server';
-          passError.style.display = 'block';
-        }
-      });
-
+      // KPI & Features
       const statTotal = document.getElementById('statTotal');
       const statTodo = document.getElementById('statTodo');
       const statProg = document.getElementById('statProg');
@@ -655,10 +819,11 @@
       const filterStatus = document.getElementById('filterStatus');
       const filterCategory = document.getElementById('filterCategory');
       const inputSearch = document.getElementById('inputSearch');
-      const btnRefresh = document.getElementById('btnRefresh');
+      const btnRefreshFeatures = document.getElementById('btnRefreshFeatures');
       const btnNewFeatureModal = document.getElementById('btnNewFeatureModal');
       const cardsGrid = document.getElementById('cardsGrid');
 
+      // Edit Modal
       const editModal = document.getElementById('editModal');
       const modalTitle = document.getElementById('modalTitle');
       const closeEditModal = document.getElementById('closeEditModal');
@@ -684,12 +849,11 @@
       }
 
       function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       }
 
       function formatDate(ts) {
-        if (!ts) return '';
+        if (!ts) return '-';
         const d = new Date(ts);
         return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
       }
@@ -726,31 +890,33 @@
         }
       });
 
-      btnLogout.addEventListener('click', () => {
+      const handleLogout = () => {
         adminToken = '';
         sessionStorage.removeItem('streampulse_admin_token');
         authSection.style.display = 'flex';
         dashboardSection.style.display = 'none';
         btnLogout.style.display = 'none';
-        btnChangePass.style.display = 'none';
         showToast('Telah keluar dari Admin');
-      });
+      };
+
+      btnLogout.addEventListener('click', handleLogout);
+      btnSideLogout.addEventListener('click', handleLogout);
 
       function showDashboard() {
         authSection.style.display = 'none';
         dashboardSection.style.display = 'flex';
         btnLogout.style.display = 'inline-flex';
-        btnChangePass.style.display = 'inline-flex';
         fetchAdminFeatures();
       }
 
+      // Tab 1: Features
       async function fetchAdminFeatures() {
         try {
           const res = await fetch('/api/admin/feedback', {
             headers: { 'x-admin-key': adminToken }
           });
           if (res.status === 401) {
-            btnLogout.click();
+            handleLogout();
             return;
           }
           if (!res.ok) throw new Error('Gagal mengambil data');
@@ -802,7 +968,7 @@
         if (filtered.length === 0) {
           cardsGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align:center; padding: 40px; color:var(--text-tertiary);">
-              Tidak ada fitur yang cocok dengan filter.
+              Tidak ada fitur yang cocok dengan filter pencarian.
             </div>
           `;
           return;
@@ -811,8 +977,6 @@
         filtered.forEach(item => {
           const card = document.createElement('div');
           card.className = `admin-card ${item.pinned ? 'pinned' : ''}`;
-          card.dataset.id = item.id;
-
           const catName = (item.category || 'general').toUpperCase();
 
           card.innerHTML = `
@@ -821,7 +985,7 @@
                 <span class="cat-tag ${item.category || 'general'}">${catName}</span>
                 ${item.pinned ? '<span style="font-size:0.75rem; color:#fbbf24;" title="Disematkan di atas">⭐ Pinned</span>' : ''}
               </div>
-              <select class="status-select ${item.status}" data-id="${item.id}" title="Ubah status progres langsung">
+              <select class="status-select ${item.status}" data-id="${item.id}">
                 <option value="todo" ${item.status === 'todo' ? 'selected' : ''}>📋 Todo</option>
                 <option value="in_progress" ${item.status === 'in_progress' ? 'selected' : ''}>⚡ In Progress</option>
                 <option value="done" ${item.status === 'done' ? 'selected' : ''}>✅ Done</option>
@@ -838,42 +1002,39 @@
               </div>
             ` : ''}
 
-            <div class="admin-card-meta">
+            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-tertiary); border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
               <span>👤 ${escapeHtml(item.author || 'Anonim')}</span>
               <span>👍 ${item.upvotes || 0} vote • ${formatDate(item.createdAt)}</span>
             </div>
 
             <div class="admin-actions">
-              <button class="btn-action-sm btn-edit" data-id="${item.id}">✏️ Edit Lengkap</button>
+              <button class="btn-action-sm btn-edit" data-id="${item.id}">✏️ Edit</button>
               <button class="btn-action-sm btn-pin" data-id="${item.id}">${item.pinned ? 'Unpin' : '⭐ Pin'}</button>
               <button class="btn-action-sm danger btn-delete" data-id="${item.id}" style="margin-left:auto;">🗑️ Hapus</button>
             </div>
           `;
 
-          // Quick Status Change Listener
-          const selStatus = card.querySelector('.status-select');
-          selStatus.addEventListener('change', async (e) => {
+          // Quick status change
+          const selectEl = card.querySelector('.status-select');
+          selectEl.addEventListener('change', async (e) => {
             const newStatus = e.target.value;
             await updateFeatureItem(item.id, { status: newStatus });
-            selStatus.className = `status-select ${newStatus}`;
           });
 
-          // Pin/Unpin
+          // Pin toggle
           const btnPin = card.querySelector('.btn-pin');
           btnPin.addEventListener('click', async () => {
             await updateFeatureItem(item.id, { pinned: !item.pinned });
           });
 
-          // Edit Modal Trigger
+          // Edit modal
           const btnEdit = card.querySelector('.btn-edit');
-          btnEdit.addEventListener('click', () => {
-            openEditModal(item);
-          });
+          btnEdit.addEventListener('click', () => openEditModal(item));
 
-          // Delete Trigger
-          const btnDelete = card.querySelector('.btn-delete');
-          btnDelete.addEventListener('click', async () => {
-            if (confirm(`Yakin ingin menghapus fitur: "${item.title}"?`)) {
+          // Delete
+          const btnDel = card.querySelector('.btn-delete');
+          btnDel.addEventListener('click', async () => {
+            if (confirm(`Yakin ingin menghapus fitur "${item.title}"?`)) {
               await deleteFeatureItem(item.id);
             }
           });
@@ -958,7 +1119,7 @@
       });
 
       btnNewFeatureModal.addEventListener('click', () => openEditModal(null));
-      btnRefresh.addEventListener('click', () => {
+      btnRefreshFeatures.addEventListener('click', () => {
         fetchAdminFeatures();
         showToast('Data diperbarui 🔄');
       });
@@ -981,10 +1142,8 @@
         };
 
         if (id) {
-          // Update Existing
           await updateFeatureItem(id, payload);
         } else {
-          // Create New
           try {
             const res = await fetch('/api/admin/feedback', {
               method: 'POST',
@@ -1008,6 +1167,185 @@
         }
         closeEdit();
       });
+
+      // Tab 2: Overlays Monitoring
+      const overlaysTableBody = document.getElementById('overlaysTableBody');
+      const btnRefreshOverlays = document.getElementById('btnRefreshOverlays');
+
+      async function fetchAdminOverlays() {
+        try {
+          const res = await fetch('/api/admin/all-overlays', {
+            headers: { 'x-admin-key': adminToken }
+          });
+          if (res.ok) {
+            const list = await res.json();
+            overlaysTableBody.innerHTML = '';
+            if (list.length === 0) {
+              overlaysTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-tertiary); padding:24px;">Belum ada overlay tersimpan.</td></tr>`;
+              return;
+            }
+            list.forEach(o => {
+              const tr = document.createElement('tr');
+              const channels = [
+                o.twitch ? `🟣 ${o.twitch}` : '',
+                o.youtube ? `🔴 ${o.youtube}` : '',
+                o.tiktok ? `🎵 ${o.tiktok}` : ''
+              ].filter(Boolean).join(' • ') || 'Belum diatur';
+
+              tr.innerHTML = `
+                <td><strong style="color:#67e8f9; font-family:var(--font-mono);">${escapeHtml(o.id)}</strong></td>
+                <td><span style="color:#a5b4fc;">👤 ${escapeHtml(o.owner || 'Publik')}</span></td>
+                <td><span style="font-size:0.8rem;">${escapeHtml(channels)}</span></td>
+                <td><span class="cat-tag general">${escapeHtml(o.theme || 'glass')}</span></td>
+                <td>
+                  <a href="/overlay?id=${encodeURIComponent(o.id)}" target="_blank" class="btn-action-sm" style="text-decoration:none; display:inline-block;">👁️ Buka</a>
+                  <button class="btn-action-sm danger btn-delete-overlay" data-id="${escapeHtml(o.id)}">🗑️ Hapus</button>
+                </td>
+              `;
+
+              tr.querySelector('.btn-delete-overlay').addEventListener('click', async () => {
+                if (confirm(`Hapus overlay "${o.id}"? Tindakan ini tidak bisa dibatalkan.`)) {
+                  const delRes = await fetch(`/api/admin/overlays/${encodeURIComponent(o.id)}`, {
+                    method: 'DELETE',
+                    headers: { 'x-admin-key': adminToken }
+                  });
+                  if (delRes.ok) {
+                    showToast('Overlay berhasil dihapus! 🗑️');
+                    fetchAdminOverlays();
+                  }
+                }
+              });
+
+              overlaysTableBody.appendChild(tr);
+            });
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      btnRefreshOverlays.addEventListener('click', fetchAdminOverlays);
+
+      // Tab 3: Users Monitoring
+      const usersTableBody = document.getElementById('usersTableBody');
+      const btnRefreshUsers = document.getElementById('btnRefreshUsers');
+
+      async function fetchAdminUsers() {
+        try {
+          const res = await fetch('/api/admin/users', {
+            headers: { 'x-admin-key': adminToken }
+          });
+          if (res.ok) {
+            const list = await res.json();
+            usersTableBody.innerHTML = '';
+            if (list.length === 0) {
+              usersTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-tertiary); padding:24px;">Belum ada user terdaftar.</td></tr>`;
+              return;
+            }
+            list.forEach(u => {
+              const tr = document.createElement('tr');
+              const overlayChips = (u.overlayIds || []).map(id => `<code style="background:rgba(99,102,241,0.2); padding:2px 6px; border-radius:3px; color:#a5b4fc; margin-right:4px;">${escapeHtml(id)}</code>`).join('') || '<span style="color:var(--text-tertiary);">-</span>';
+
+              tr.innerHTML = `
+                <td><strong style="color:#fff;">👤 ${escapeHtml(u.username)}</strong></td>
+                <td><span style="font-size:0.8rem; color:var(--text-tertiary);">${formatDate(u.createdAt)}</span></td>
+                <td><strong style="color:${u.overlayCount >= 3 ? '#ef4444' : '#10b981'};">${u.overlayCount} / 3 Slot</strong></td>
+                <td>${overlayChips}</td>
+                <td>
+                  <button class="btn-action-sm danger btn-delete-user" data-user="${escapeHtml(u.username)}">🗑️ Hapus Akun</button>
+                </td>
+              `;
+
+              tr.querySelector('.btn-delete-user').addEventListener('click', async () => {
+                if (confirm(`Yakin ingin menghapus user "${u.username}" beserta seluruh slot overlay miliknya?`)) {
+                  const delRes = await fetch(`/api/admin/users/${encodeURIComponent(u.username)}`, {
+                    method: 'DELETE',
+                    headers: { 'x-admin-key': adminToken }
+                  });
+                  if (delRes.ok) {
+                    showToast('Akun user berhasil dihapus! 🗑️');
+                    fetchAdminUsers();
+                  }
+                }
+              });
+
+              usersTableBody.appendChild(tr);
+            });
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      btnRefreshUsers.addEventListener('click', fetchAdminUsers);
+
+      // Tab 4: Security (Change Admin Password)
+      const formTabChangePass = document.getElementById('formTabChangePass');
+      const tabInputNewPass = document.getElementById('tabInputNewPass');
+      const tabInputConfirmPass = document.getElementById('tabInputConfirmPass');
+      const tabPassError = document.getElementById('tabPassError');
+
+      formTabChangePass.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const p1 = tabInputNewPass.value.trim();
+        const p2 = tabInputConfirmPass.value.trim();
+        tabPassError.style.display = 'none';
+
+        if (p1 !== p2) {
+          tabPassError.textContent = 'Password baru dan konfirmasi tidak cocok!';
+          tabPassError.style.display = 'block';
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/admin/change-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-key': adminToken
+            },
+            body: JSON.stringify({ newPassword: p1 })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            adminToken = data.token;
+            sessionStorage.setItem('streampulse_admin_token', adminToken);
+            formTabChangePass.reset();
+            showToast('Password Admin berhasil diubah permanen! 🔑');
+          } else {
+            tabPassError.textContent = data.error || 'Gagal mengubah password';
+            tabPassError.style.display = 'block';
+          }
+        } catch (err) {
+          tabPassError.textContent = 'Error menghubungi server';
+          tabPassError.style.display = 'block';
+        }
+      });
+
+      // Tab 5: System Stats
+      const btnRefreshStats = document.getElementById('btnRefreshStats');
+      const sysUptime = document.getElementById('sysUptime');
+      const sysRamRss = document.getElementById('sysRamRss');
+      const sysRamHeap = document.getElementById('sysRamHeap');
+      const sysNodeVer = document.getElementById('sysNodeVer');
+
+      async function fetchAdminSystemStats() {
+        try {
+          const res = await fetch('/api/admin/system-stats', {
+            headers: { 'x-admin-key': adminToken }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const mins = Math.floor(data.uptime / 60);
+            const hrs = Math.floor(mins / 60);
+            sysUptime.textContent = hrs > 0 ? `${hrs}j ${mins % 60}m` : `${mins} menit`;
+            sysRamRss.textContent = `${data.ramRssMb} MB`;
+            sysRamHeap.textContent = `${data.ramHeapMb} MB`;
+            sysNodeVer.textContent = data.nodeVersion || '-';
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      btnRefreshStats.addEventListener('click', fetchAdminSystemStats);
     });
   </script>
 </body>

@@ -17,6 +17,7 @@ const __dirname = path.dirname(__filename);
 const FEEDBACK_FILE = path.join(__dirname, 'data', 'feedback.json');
 const OVERLAYS_FILE = path.join(__dirname, 'data', 'overlays.json');
 const ADMIN_FILE = path.join(__dirname, 'data', 'admin.json');
+const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 
 function readJsonFile(filePath, defaultValue) {
   try {
@@ -335,6 +336,215 @@ app.post('/api/admin/feedback', (req, res) => {
 });
 
 // ==========================================
+// USER AUTH & OVERLAY LIMITS (MAX 3 PER USER)
+// ==========================================
+function getUserFromReq(req) {
+  const token = (req.headers['x-user-token'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  const users = readJsonFile(USERS_FILE, {});
+  return Object.values(users).find(u => u.token === token) || null;
+}
+
+app.post('/api/user/register', (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username dan password wajib diisi' });
+  }
+  const cleanUser = String(username).trim().toLowerCase();
+  if (!/^[a-zA-Z0-9_-]{3,20}$/.test(cleanUser)) {
+    return res.status(400).json({ error: 'Username harus 3-20 karakter alfanumerik (a-z, 0-9, _, -)' });
+  }
+  if (String(password).length < 4) {
+    return res.status(400).json({ error: 'Password minimal 4 karakter' });
+  }
+
+  const users = readJsonFile(USERS_FILE, {});
+  if (users[cleanUser]) {
+    return res.status(400).json({ error: 'Username ini sudah terdaftar! Silakan login.' });
+  }
+
+  const token = `usr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const newUser = {
+    username: cleanUser,
+    password: String(password),
+    token,
+    overlayIds: [],
+    createdAt: Date.now()
+  };
+
+  users[cleanUser] = newUser;
+  writeJsonFile(USERS_FILE, users);
+
+  res.json({
+    success: true,
+    user: {
+      username: newUser.username,
+      token: newUser.token,
+      overlayIds: newUser.overlayIds
+    }
+  });
+});
+
+app.post('/api/user/login', (req, res) => {
+  const { username, password } = req.body || {};
+  const cleanUser = String(username || '').trim().toLowerCase();
+  const users = readJsonFile(USERS_FILE, {});
+  const user = users[cleanUser];
+
+  if (!user || user.password !== String(password)) {
+    return res.status(401).json({ error: 'Username atau password salah!' });
+  }
+
+  if (!user.token) {
+    user.token = `usr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    users[cleanUser] = user;
+    writeJsonFile(USERS_FILE, users);
+  }
+
+  res.json({
+    success: true,
+    user: {
+      username: user.username,
+      token: user.token,
+      overlayIds: user.overlayIds || []
+    }
+  });
+});
+
+app.get('/api/user/me', (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) {
+    return res.status(401).json({ error: 'Belum login' });
+  }
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  const userOverlays = (user.overlayIds || []).map(id => overlays[id] || { id, theme: 'glass' });
+  res.json({
+    username: user.username,
+    token: user.token,
+    overlayIds: user.overlayIds || [],
+    overlays: userOverlays,
+    maxLimit: 3
+  });
+});
+
+// Generate URL Overlay Baru (Maksimal 3 per user)
+app.post('/api/user/overlays/generate', (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) {
+    return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk membuat overlay baru.' });
+  }
+
+  const users = readJsonFile(USERS_FILE, {});
+  const currentUser = users[user.username] || user;
+  if (!currentUser.overlayIds) currentUser.overlayIds = [];
+
+  if (currentUser.overlayIds.length >= 3) {
+    return res.status(400).json({
+      error: 'Batas kuota 3 Overlay per akun telah tercapai! Anda dapat mengedit salah satu dari 3 overlay yang ada atau menghapusnya untuk membuat yang baru.'
+    });
+  }
+
+  const newId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  overlays[newId] = {
+    id: newId,
+    owner: currentUser.username,
+    theme: 'glass',
+    fontSize: 15,
+    hideDelay: 0,
+    showBadges: true,
+    showAvatars: true,
+    showEmotes: true,
+    showAlerts: true,
+    maskLinks: false,
+    maxMessages: 15,
+    customCss: '',
+    customJs: '',
+    updatedAt: Date.now()
+  };
+
+  currentUser.overlayIds.push(newId);
+  users[currentUser.username] = currentUser;
+
+  writeJsonFile(OVERLAYS_FILE, overlays);
+  writeJsonFile(USERS_FILE, users);
+
+  res.json({
+    success: true,
+    id: newId,
+    overlay: overlays[newId],
+    count: currentUser.overlayIds.length,
+    maxLimit: 3
+  });
+});
+
+// Load / Claim existing overlay into user's slot (if slots available)
+app.post('/api/user/overlays/claim', (req, res) => {
+  const user = getUserFromReq(req);
+  const { urlOrId } = req.body || {};
+  if (!urlOrId) return res.status(400).json({ error: 'URL atau ID Overlay tidak boleh kosong' });
+
+  let targetId = String(urlOrId).trim();
+  try {
+    if (targetId.includes('?id=')) {
+      const u = new URL(targetId, 'http://localhost');
+      targetId = u.searchParams.get('id') || targetId;
+    } else if (targetId.startsWith('http')) {
+      const u = new URL(targetId);
+      targetId = u.searchParams.get('id') || targetId;
+    }
+  } catch (e) {}
+
+  targetId = targetId.replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!targetId) return res.status(400).json({ error: 'Format URL/ID tidak valid' });
+
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  if (!overlays[targetId]) {
+    return res.status(404).json({ error: `Overlay dengan ID "${targetId}" tidak ditemukan!` });
+  }
+
+  if (user) {
+    const users = readJsonFile(USERS_FILE, {});
+    const currentUser = users[user.username] || user;
+    if (!currentUser.overlayIds) currentUser.overlayIds = [];
+    if (!currentUser.overlayIds.includes(targetId)) {
+      if (currentUser.overlayIds.length >= 3) {
+        return res.status(400).json({
+          error: 'Slot overlay Anda penuh (maksimal 3). Hapus salah satu terlebih dahulu untuk menautkan ID ini.'
+        });
+      }
+      currentUser.overlayIds.push(targetId);
+      users[currentUser.username] = currentUser;
+      writeJsonFile(USERS_FILE, users);
+    }
+  }
+
+  res.json({ success: true, id: targetId, overlay: overlays[targetId] });
+});
+
+// Delete user overlay slot
+app.delete('/api/user/overlays/:id', (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) return res.status(401).json({ error: 'Belum login' });
+  const { id } = req.params;
+
+  const users = readJsonFile(USERS_FILE, {});
+  const currentUser = users[user.username] || user;
+  if (!currentUser.overlayIds) currentUser.overlayIds = [];
+  currentUser.overlayIds = currentUser.overlayIds.filter(x => x !== id);
+  users[currentUser.username] = currentUser;
+  writeJsonFile(USERS_FILE, users);
+
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  if (overlays[id] && (overlays[id].owner === currentUser.username || !overlays[id].owner)) {
+    delete overlays[id];
+    writeJsonFile(OVERLAYS_FILE, overlays);
+  }
+
+  res.json({ success: true, remaining: currentUser.overlayIds });
+});
+
+// ==========================================
 // OBS OVERLAY PROFILES API
 // ==========================================
 app.get('/api/overlays', (req, res) => {
@@ -362,15 +572,119 @@ app.post('/api/overlays', (req, res) => {
   const id = data.id && /^[a-zA-Z0-9_-]+$/.test(data.id) ? data.id : `ovl_${Math.random().toString(36).substr(2, 8)}`;
   const overlays = readJsonFile(OVERLAYS_FILE, {});
 
+  // If user is authenticated, associate with user
+  const user = getUserFromReq(req);
+  if (user) {
+    const users = readJsonFile(USERS_FILE, {});
+    const currentUser = users[user.username];
+    if (currentUser) {
+      if (!currentUser.overlayIds) currentUser.overlayIds = [];
+      if (!currentUser.overlayIds.includes(id) && currentUser.overlayIds.length < 3) {
+        currentUser.overlayIds.push(id);
+        writeJsonFile(USERS_FILE, users);
+      }
+    }
+  }
+
   overlays[id] = {
     ...overlays[id],
     ...data,
     id,
+    owner: overlays[id]?.owner || (user ? user.username : 'public'),
     updatedAt: Date.now()
   };
 
   writeJsonFile(OVERLAYS_FILE, overlays);
   res.json({ success: true, id, overlay: overlays[id] });
+});
+
+// ==========================================
+// ADMIN USER & OVERLAY MONITORING ENDPOINTS
+// ==========================================
+app.get('/api/admin/users', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak' });
+  }
+  const users = readJsonFile(USERS_FILE, {});
+  const list = Object.values(users).map(u => ({
+    username: u.username,
+    createdAt: u.createdAt || 0,
+    overlayCount: (u.overlayIds || []).length,
+    overlayIds: u.overlayIds || []
+  }));
+  res.json(list);
+});
+
+app.delete('/api/admin/users/:username', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak' });
+  }
+  const { username } = req.params;
+  const users = readJsonFile(USERS_FILE, {});
+  if (!users[username]) return res.status(404).json({ error: 'User tidak ditemukan' });
+
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  (users[username].overlayIds || []).forEach(id => {
+    delete overlays[id];
+  });
+  delete users[username];
+
+  writeJsonFile(USERS_FILE, users);
+  writeJsonFile(OVERLAYS_FILE, overlays);
+  res.json({ success: true, deletedUser: username });
+});
+
+app.get('/api/admin/all-overlays', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak' });
+  }
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  const list = Object.keys(overlays).map(id => ({
+    id,
+    owner: overlays[id].owner || 'Publik / Anonim',
+    theme: overlays[id].theme || 'glass',
+    twitch: overlays[id].twitch || '',
+    youtube: overlays[id].youtube || '',
+    tiktok: overlays[id].tiktok || '',
+    updatedAt: overlays[id].updatedAt || 0
+  }));
+  res.json(list);
+});
+
+app.delete('/api/admin/overlays/:id', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak' });
+  }
+  const { id } = req.params;
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  if (!overlays[id]) return res.status(404).json({ error: 'Overlay tidak ditemukan' });
+  delete overlays[id];
+  writeJsonFile(OVERLAYS_FILE, overlays);
+
+  const users = readJsonFile(USERS_FILE, {});
+  for (const u of Object.values(users)) {
+    if (u.overlayIds && u.overlayIds.includes(id)) {
+      u.overlayIds = u.overlayIds.filter(x => x !== id);
+    }
+  }
+  writeJsonFile(USERS_FILE, users);
+
+  res.json({ success: true, deletedId: id });
+});
+
+app.get('/api/admin/system-stats', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak' });
+  }
+  const mem = process.memoryUsage();
+  res.json({
+    uptime: Math.floor(process.uptime()),
+    ramRssMb: Math.round(mem.rss / 1024 / 1024),
+    ramHeapMb: Math.round(mem.heapUsed / 1024 / 1024),
+    nodeVersion: process.version,
+    platform: process.platform,
+    port: PORT
+  });
 });
 
 // Start Server & display local IP for mobile access
