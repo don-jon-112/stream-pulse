@@ -1305,39 +1305,150 @@ body.obs-mode #exitObsBtn {
   background: rgba(0, 0, 0, 0.25);
 }
 
+/* DEMO MODAL DIALOG */
+.modal-demo-content {
+  max-width: 620px;
+}
+
+.demo-sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.demo-group {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.demo-group::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.demo-group.twitch { border-color: rgba(169, 112, 255, 0.25); }
+.demo-group.twitch::before { background: var(--twitch); }
+
+.demo-group.youtube { border-color: rgba(255, 0, 0, 0.25); }
+.demo-group.youtube::before { background: var(--youtube); }
+
+.demo-group.tiktok { border-color: rgba(0, 242, 254, 0.25); }
+.demo-group.tiktok::before { background: linear-gradient(180deg, var(--tiktok-cyan), var(--tiktok-magenta)); }
+
+.demo-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.demo-group-title {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-group.twitch .demo-group-title { color: #c084fc; }
+.demo-group.youtube .demo-group-title { color: #f87171; }
+.demo-group.tiktok .demo-group-title { color: #67e8f9; }
+
+.demo-group-badge {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
 /* DEMO BUTTONS GRID */
 .demo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
+}
+
+@media (max-width: 540px) {
+  .demo-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .demo-btn {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px 8px;
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
   color: var(--text-primary);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
   font-family: var(--font-display);
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 600;
   transition: all var(--transition-fast);
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  user-select: none;
+}
+
+.demo-btn .btn-emoji {
+  font-size: 1.05rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.demo-btn .btn-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .demo-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
-  border-color: var(--border-glass);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
-.demo-btn.twitch:hover { border-color: var(--twitch); }
-.demo-btn.youtube:hover { border-color: var(--youtube); }
-.demo-btn.tiktok:hover { border-color: var(--tiktok-cyan); }
+.demo-btn:active,
+.demo-btn.clicked {
+  transform: scale(0.96);
+}
+
+.demo-btn.twitch:hover {
+  border-color: var(--twitch);
+  background: rgba(169, 112, 255, 0.15);
+  color: #fff;
+}
+
+.demo-btn.youtube:hover {
+  border-color: var(--youtube);
+  background: rgba(255, 0, 0, 0.15);
+  color: #fff;
+}
+
+.demo-btn.tiktok:hover {
+  border-color: var(--tiktok-cyan);
+  background: rgba(0, 242, 254, 0.15);
+  color: #fff;
+}
 
 /* MOBILE BOTTOM NAVIGATION */
 .mobile-nav {
@@ -1443,7 +1554,7 @@ body.lite-mode .chat-item.event-item {
   box-shadow: none !important;
 }
 
-body.lite-mode .chat-avatar img {
+body.lite-mode .chat-avatar {
   display: none !important;
 }
 

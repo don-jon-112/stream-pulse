@@ -21,9 +21,9 @@ if errorlevel 1 (
 
 :: Jalankan jendela aplikasi desktop via Windows Edge Native App (RAM ~40MB)
 if not %EDGE_PATH%=="" (
-    start "" %EDGE_PATH% --app=http://localhost:3000 --window-size=1360,840 --mute-audio
+    start "" %EDGE_PATH% --app=http://localhost:3000/?lite=1 --window-size=1360,840 --mute-audio
 ) else (
-    start http://localhost:3000
+    start http://localhost:3000/?lite=1
 )
 
 exit

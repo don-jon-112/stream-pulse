@@ -62,7 +62,7 @@ namespace StreamPulse
                 edgePath = @"C:\Program Files\Microsoft\Edge\Application\msedge.exe";
             }
 
-            string appUrl = "http://localhost:" + port;
+            string appUrl = "http://localhost:" + port + "/?lite=1";
 
             if (File.Exists(edgePath))
             {

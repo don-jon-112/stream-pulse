@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Header Elements
   const wakelockBtn = document.getElementById('wakelockBtn');
   const wakelockText = document.getElementById('wakelockText');
+  const wakelockSub = document.getElementById('wakelockSub');
   const latencyDot = document.getElementById('latencyDot');
   const latencyText = document.getElementById('latencyText');
   const chipTwitch = document.getElementById('chipTwitch');
@@ -73,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const fxCtx = fxCanvas.getContext('2d');
   let particles = [];
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const isUrlLite = urlParams.get('lite') === '1' || urlParams.get('lite') === 'true' || urlParams.get('mode') === 'lite';
+
   // Application State
   const state = {
     activeFilter: 'all',
@@ -85,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     density: localStorage.getItem('chat_density') || 'comfortable',
     chatOrder: localStorage.getItem('chat_order') || 'top', // 'top' (newest on top) or 'bottom'
     maxChatLimit: parseInt(localStorage.getItem('max_chat_limit') || '50', 10),
-    liteMode: localStorage.getItem('lite_mode') === 'true',
+    liteMode: isUrlLite || localStorage.getItem('lite_mode') === 'true',
     obsMode: false,
     statuses: {
       twitch: 'idle',
@@ -188,10 +192,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (status === 'active' || status === 'fallback') {
         wakelockBtn.classList.remove('inactive');
         wakelockText.textContent = 'LAYAR AKTIF (Anti-Sleep ON)';
+        if (wakelockSub) wakelockSub.textContent = 'Layar Dicegah Mati';
         wakelockBtn.title = 'Layar HP / Monitor Anda dicegah tidur atau mati otomatis';
       } else {
         wakelockBtn.classList.add('inactive');
         wakelockText.textContent = 'Layar Tidur Normal';
+        if (wakelockSub) wakelockSub.textContent = 'Fitur Anti-Mati Nonaktif';
         wakelockBtn.title = 'Klik untuk mengaktifkan mode Layar Selalu Menyala';
       }
     });
@@ -343,6 +349,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnLiteMode.classList.remove('active');
         liteLabel.textContent = 'Lite: OFF';
       }
+    }
+    // Jika lite mode diaktifkan, langsung hapus elemen avatar yang sudah ada untuk membebaskan memori
+    if (isLite) {
+      document.querySelectorAll('.chat-avatar').forEach(el => el.remove());
     }
     if (isLite && state.maxChatLimit > 50) {
       state.maxChatLimit = 30;
@@ -549,7 +559,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorName = author.name || 'Anonymous';
     const authorColor = author.color || '#f8fafc';
     const initial = (authorName[0] || '?').toUpperCase();
-    const avatarImg = (author.avatar && !state.liteMode) ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">` : `<div class="chat-avatar">${initial}</div>`;
+    // Pada Lite Mode: Jangan render avatar/profile pic sama sekali (hemat bandwidth, CPU decode & RAM)
+    const avatarImg = state.liteMode
+      ? ''
+      : (author.avatar
+          ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
+          : `<div class="chat-avatar">${initial}</div>`);
 
     let badgesHtml = getPlatformBadge(chat.platform);
     if (chat.platform === 'twitch') {
@@ -623,7 +638,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const authorName = evt.author || 'Viewer';
     const initial = (authorName[0] || '★').toUpperCase();
-    const avatarImg = evt.avatar ? `<img src="${escapeHtml(evt.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">` : `<div class="chat-avatar" style="background: linear-gradient(135deg, #6366f1, #ec4899);">${initial}</div>`;
+    // Pada Lite Mode: Jangan render avatar/profile pic pada pesan event
+    const avatarImg = state.liteMode
+      ? ''
+      : (evt.avatar
+          ? `<img src="${escapeHtml(evt.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
+          : `<div class="chat-avatar" style="background: linear-gradient(135deg, #6366f1, #ec4899);">${initial}</div>`);
 
     const platBadge = getPlatformBadge(evt.platform);
     const badgePill = evt.badge ? `<span class="badge-user" style="background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(59, 130, 246, 0.5); font-weight:800;">${escapeHtml(evt.badge)}</span>` : '';
@@ -839,6 +859,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.demo-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 200);
       const plat = btn.dataset.plat;
       const type = btn.dataset.type;
       socket.emit('send_test_event', { platform: plat, type: type });

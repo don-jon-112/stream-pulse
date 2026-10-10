@@ -62,7 +62,7 @@
         <div class="wakelock-radar"></div>
         <div class="wakelock-label-group">
           <span id="wakelockText" class="wakelock-text">LAYAR AKTIF (Anti-Sleep ON)</span>
-          <span class="wakelock-sub">Screen Lock Prevented</span>
+          <span id="wakelockSub" class="wakelock-sub">Layar Dicegah Mati</span>
         </div>
       </button>
 
@@ -111,7 +111,7 @@
 
 
         <!-- Lite Mode Toggle (Ultra Ringan & Hemat Daya) -->
-        <button id="btnLiteMode" class="btn-icon" title="Mode Super Ringan: Matikan blur & efek berat agar HP dingin & hemat baterai">
+        <button id="btnLiteMode" class="btn-icon" title="Mode Super Ringan: Matikan foto profil/avatar, blur & efek animasi agar hemat RAM dan lancar">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
             <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
           </svg>
@@ -371,7 +371,7 @@
 
   <!-- MODAL: TEST / DEMO SIMULATION -->
   <div id="demoModal" class="modal-backdrop">
-    <div class="modal-content">
+    <div class="modal-content modal-demo-content">
       <div class="modal-header">
         <div class="modal-title">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -380,91 +380,120 @@
           <span>Simulasi & Uji Coba Event</span>
         </div>
         <button id="closeDemoModal" class="modal-close" aria-label="Tutup Modal">&times;</button>
+      </div>
+
       <div class="modal-body">
-        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">
-          Uji coba aliran pesan live chat, notifikasi event, dan partikel animasi:
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">
+          Pilih salah satu event di bawah untuk menguji aliran chat, kartu event, dan animasi secara langsung:
         </p>
 
-        <!-- Twitch Tests -->
-        <div>
-          <h4 style="font-size: 0.8rem; color: var(--twitch); margin-bottom: 8px;">🟣 TWITCH DEMO</h4>
-          <div class="demo-grid">
-            <button class="demo-btn twitch" data-plat="twitch" data-type="chat">
-              💬 <span>Test Chat</span>
-            </button>
-            <button class="demo-btn twitch" data-plat="twitch" data-type="sub">
-              ⭐ <span>Tier 1 Sub</span>
-            </button>
-            <button class="demo-btn twitch" data-plat="twitch" data-type="bits">
-              💎 <span>500 Bits</span>
-            </button>
-            <button class="demo-btn twitch" data-plat="twitch" data-type="redeem">
-              💠 <span>Channel Points Redeem</span>
-            </button>
-            <button class="demo-btn twitch" data-plat="twitch" data-type="submysterygift">
-              🎁 <span>5 Gift Subs</span>
-            </button>
+        <div class="demo-sections-container">
+          <!-- Twitch Tests -->
+          <div class="demo-group twitch">
+            <div class="demo-group-header">
+              <span class="demo-group-title">🟣 TWITCH SIMULATION</span>
+              <span class="demo-group-badge">5 Event</span>
+            </div>
+            <div class="demo-grid">
+              <button class="demo-btn twitch" data-plat="twitch" data-type="chat">
+                <span class="btn-emoji">💬</span>
+                <span class="btn-text">Test Chat</span>
+              </button>
+              <button class="demo-btn twitch" data-plat="twitch" data-type="sub">
+                <span class="btn-emoji">⭐</span>
+                <span class="btn-text">Tier 1 Sub</span>
+              </button>
+              <button class="demo-btn twitch" data-plat="twitch" data-type="bits">
+                <span class="btn-emoji">💎</span>
+                <span class="btn-text">500 Bits</span>
+              </button>
+              <button class="demo-btn twitch" data-plat="twitch" data-type="redeem">
+                <span class="btn-emoji">💠</span>
+                <span class="btn-text">Points Redeem</span>
+              </button>
+              <button class="demo-btn twitch" data-plat="twitch" data-type="submysterygift">
+                <span class="btn-emoji">🎁</span>
+                <span class="btn-text">5 Gift Subs</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- YouTube Tests -->
+          <div class="demo-group youtube">
+            <div class="demo-group-header">
+              <span class="demo-group-title">🔴 YOUTUBE SIMULATION</span>
+              <span class="demo-group-badge">6 Event</span>
+            </div>
+            <div class="demo-grid">
+              <button class="demo-btn youtube" data-plat="youtube" data-type="chat">
+                <span class="btn-emoji">💬</span>
+                <span class="btn-text">Test Chat</span>
+              </button>
+              <button class="demo-btn youtube" data-plat="youtube" data-type="superchat">
+                <span class="btn-emoji">💰</span>
+                <span class="btn-text">Super Chat 50k</span>
+              </button>
+              <button class="demo-btn youtube" data-plat="youtube" data-type="supersticker">
+                <span class="btn-emoji">⭐</span>
+                <span class="btn-text">Super Sticker</span>
+              </button>
+              <button class="demo-btn youtube" data-plat="youtube" data-type="member">
+                <span class="btn-emoji">🌟</span>
+                <span class="btn-text">New Member</span>
+              </button>
+              <button class="demo-btn youtube" data-plat="youtube" data-type="gift_member">
+                <span class="btn-emoji">🎁</span>
+                <span class="btn-text">5 Gift Members</span>
+              </button>
+              <button class="demo-btn youtube" data-plat="youtube" data-type="jewels">
+                <span class="btn-emoji">💎</span>
+                <span class="btn-text">200 Jewels</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TikTok Tests -->
+          <div class="demo-group tiktok">
+            <div class="demo-group-header">
+              <span class="demo-group-title">🎵 TIKTOK LIVE SIMULATION</span>
+              <span class="demo-group-badge">5 Event</span>
+            </div>
+            <div class="demo-grid">
+              <button class="demo-btn tiktok" data-plat="tiktok" data-type="chat">
+                <span class="btn-emoji">💬</span>
+                <span class="btn-text">Test Chat</span>
+              </button>
+              <button class="demo-btn tiktok" data-plat="tiktok" data-type="gift">
+                <span class="btn-emoji">🌹</span>
+                <span class="btn-text">Gift Mawar x50</span>
+              </button>
+              <button class="demo-btn tiktok" data-plat="tiktok" data-type="gift">
+                <span class="btn-emoji">🦁</span>
+                <span class="btn-text">Singa / Paus 💎</span>
+              </button>
+              <button class="demo-btn tiktok" data-plat="tiktok" data-type="subscribe">
+                <span class="btn-emoji">⭐</span>
+                <span class="btn-text">LIVE Sub</span>
+              </button>
+              <button class="demo-btn tiktok" data-plat="tiktok" data-type="like">
+                <span class="btn-emoji">❤️</span>
+                <span class="btn-text">Tap 50 Likes</span>
+              </button>
+            </div>
           </div>
         </div>
-
-        <!-- YouTube Tests -->
-        <div style="margin-top: 10px;">
-          <h4 style="font-size: 0.8rem; color: var(--youtube); margin-bottom: 8px;">🔴 YOUTUBE DEMO</h4>
-          <div class="demo-grid">
-            <button class="demo-btn youtube" data-plat="youtube" data-type="chat">
-              💬 <span>Test Chat</span>
-            </button>
-            <button class="demo-btn youtube" data-plat="youtube" data-type="superchat">
-              💰 <span>Super Chat Rp50rb</span>
-            </button>
-            <button class="demo-btn youtube" data-plat="youtube" data-type="supersticker">
-              ⭐ <span>Super Sticker</span>
-            </button>
-            <button class="demo-btn youtube" data-plat="youtube" data-type="member">
-              🌟 <span>New Member</span>
-            </button>
-            <button class="demo-btn youtube" data-plat="youtube" data-type="gift_member">
-              🎁 <span>Gift 5 Memberships</span>
-            </button>
-            <button class="demo-btn youtube" data-plat="youtube" data-type="jewels">
-              💎 <span>200 Jewels Gift</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- TikTok Tests -->
-        <div style="margin-top: 10px;">
-          <h4 style="font-size: 0.8rem; color: var(--tiktok-cyan); margin-bottom: 8px;">🎵 TIKTOK LIVE DEMO</h4>
-          <div class="demo-grid">
-            <button class="demo-btn tiktok" data-plat="tiktok" data-type="chat">
-              💬 <span>Test Chat</span>
-            </button>
-            <button class="demo-btn tiktok" data-plat="tiktok" data-type="gift">
-              🌹 <span>Gift Mawar x50</span>
-            </button>
-            <button class="demo-btn tiktok" data-plat="tiktok" data-type="gift">
-              🦁 <span>Singa / Paus 💎</span>
-            </button>
-            <button class="demo-btn tiktok" data-plat="tiktok" data-type="subscribe">
-              ⭐ <span>TikTok LIVE Sub</span>
-            </button>
-            <button class="demo-btn tiktok" data-plat="tiktok" data-type="like">
-              ❤️ <span>Tap 50 Likes</span>
-            </button>
-          </div>
-        </div>
-
       </div>
 
       <div class="modal-footer">
-        <button id="btnFinishDemo" class="btn-icon btn-primary">Selesai</button>
+        <button id="btnFinishDemo" class="btn-icon btn-primary" style="padding: 8px 24px;">Selesai</button>
       </div>
     </div>
   </div>
 
   <!-- Socket.io & App Scripts -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/wakelock.js?v=fresh_4"></script>
-  <script src="/js/app.js?v=fresh_4"></script>
+  <script src="/js/nosleep.min.js"></script>
+  <script src="/js/wakelock.js?v=fresh_5"></script>
+  <script src="/js/app.js?v=fresh_5"></script>
 </body>
 </html>
