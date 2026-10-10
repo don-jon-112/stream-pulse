@@ -8,6 +8,7 @@
   <meta name="description" content="Kustomisasi tampilan OBS Browser Source Chat Overlay Anda dengan tema, ukuran font, batas bubble chat, sensor link, custom CSS dan JS.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/sp-popup.js?v=fresh_6"></script>
   <style>
     body {
       background: radial-gradient(circle at 50% 10%, rgba(99, 102, 241, 0.12) 0%, rgba(6, 8, 13, 1) 100%), #06080d;
@@ -293,6 +294,12 @@
     </div>
 
     <div style="display:flex; align-items:center; gap:10px;">
+      <!-- Language Switcher (Flag ID / EN) -->
+      <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
+        <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
+        <span>ID</span>
+      </button>
+
       <!-- Account Info / Login Button -->
       <div id="accountPillContainer">
         <button id="btnOpenAuth" class="btn-icon" style="font-size:0.8rem;">
@@ -565,8 +572,10 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="authPassword">Password (Min. 4 karakter)</label>
-          <input type="password" id="authPassword" required minlength="4" class="form-input" placeholder="Password akun..." autocomplete="current-password">
+          <label class="form-label" for="authPassword" data-i18n="auth_pass_label">Password (Min. 4 karakter)</label>
+          <div class="password-input-wrap">
+            <input type="password" id="authPassword" required minlength="4" class="form-input" placeholder="Password akun..." autocomplete="current-password">
+          </div>
         </div>
         <div id="authErrorMsg" style="font-size:0.75rem; color:#ef4444; display:none; line-height:1.4;"></div>
         <div id="authSuccessMsg" style="font-size:0.75rem; color:#10b981; display:none; line-height:1.4;"></div>
@@ -950,7 +959,8 @@
           const overwriteBtn = item.querySelector('.btn-overwrite-slot');
           if (overwriteBtn) {
             overwriteBtn.addEventListener('click', async () => {
-              if (confirm(`Yakin ingin menimpa (overwrite) Slot ${idx + 1} ("${sId}") dengan konfigurasi yang sedang Anda ubah saat ini?`)) {
+              const ok = await spConfirm(`Yakin ingin menimpa (overwrite) Slot ${idx + 1} ("${sId}") dengan konfigurasi yang sedang Anda ubah saat ini?`, 'Konfirmasi Overwrite Slot', 'warning');
+              if (ok) {
                 profileId = sId;
                 await saveProfile(true);
               }
@@ -958,7 +968,8 @@
           }
 
           item.querySelector('.btn-delete-slot').addEventListener('click', async () => {
-            if (confirm(`Yakin ingin menghapus slot overlay "${sId}"?`)) {
+            const ok = await spConfirm(`Yakin ingin menghapus slot overlay "${sId}"?`, 'Hapus Slot Overlay', 'danger');
+            if (ok) {
               const delRes = await fetch(`/api/user/overlays/${encodeURIComponent(sId)}`, {
                 method: 'DELETE',
                 headers: { 'x-user-token': userToken }
@@ -966,6 +977,7 @@
               if (delRes.ok) {
                 await checkUserSession();
                 if (profileId === sId) switchProfile('default');
+                spToast(`Slot "${sId}" berhasil dihapus`, 'success');
               }
             }
           });

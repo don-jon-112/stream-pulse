@@ -6,7 +6,7 @@
     "category": "twitch",
     "status": "done",
     "author": "StreamPulse Community",
-    "upvotes": 28,
+    "upvotes": 35,
     "createdAt": 1728560000000
   },
   {
@@ -16,17 +16,17 @@
     "category": "core",
     "status": "done",
     "author": "StreamPulse Community",
-    "upvotes": 24,
+    "upvotes": 31,
     "createdAt": 1728561000000
   },
   {
     "id": "req_3",
-    "title": "OBS Browser Source Chat Overlay Khusus",
-    "description": "Halaman transparan tanpa background untuk dimasukkan sebagai Browser Source di OBS Studio / Streamlabs.",
+    "title": "OBS Browser Source Chat Overlay Khusus & Studio Kustomisasi",
+    "description": "Halaman transparan tanpa background untuk dimasukkan sebagai Browser Source di OBS Studio / Streamlabs dengan custom CSS & JS.",
     "category": "overlay",
-    "status": "in_progress",
+    "status": "done",
     "author": "joo_nathan",
-    "upvotes": 19,
+    "upvotes": 29,
     "createdAt": 1728562000000
   },
   {
@@ -34,19 +34,19 @@
     "title": "Detail Badge Twitch & Alert (Raid, Bits, Subs, Channel Points)",
     "description": "Menampilkan badge resmi Twitch (Broadcaster, Mod, VIP, Sub) dan highlight visual saat penonton menukarkan poin saluran.",
     "category": "twitch",
-    "status": "in_progress",
+    "status": "done",
     "author": "joo_nathan",
-    "upvotes": 17,
+    "upvotes": 26,
     "createdAt": 1728563000000
   },
   {
     "id": "req_5",
     "title": "Custom CSS & JS Editor untuk OBS Overlay",
-    "description": "Pengguna dapat memodifikasi styling CSS, font, animasi, dan skrip kustom untuk tampilan chat overlay mereka sendiri.",
+    "description": "Pengguna dapat memodifikasi styling CSS, font, animasi, dan skrip kustom untuk tampilan chat overlay mereka sendiri secara realtime.",
     "category": "overlay",
-    "status": "todo",
+    "status": "done",
     "author": "joo_nathan",
-    "upvotes": 15,
+    "upvotes": 22,
     "createdAt": 1728564000000
   },
   {
@@ -54,9 +54,89 @@
     "title": "Kustomisasi Badge & Super Chat YouTube Live",
     "description": "Dukungan badge member VIP / sponsor dan highlight kartu Super Chat berwarna khas YouTube.",
     "category": "youtube",
-    "status": "todo",
+    "status": "done",
     "author": "Viewer",
-    "upvotes": 8,
+    "upvotes": 19,
     "createdAt": 1728565000000
+  },
+  {
+    "id": "req_7",
+    "title": "Login Management & Enkripsi Password Argon2id",
+    "description": "Sistem autentikasi streamer terisolasi dengan hashing kata sandi Argon2id berstandar industri dan anti brute-force.",
+    "category": "core",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 27,
+    "createdAt": 1728566000000
+  },
+  {
+    "id": "req_8",
+    "title": "Verifikasi Email OTP 6-Digit & Rate Limiting",
+    "description": "Pendaftaran akun mewajibkan verifikasi kode OTP 6-digit via email SMTP (Resend/Domain) dengan proteksi rate limit 5x per jam.",
+    "category": "core",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 25,
+    "createdAt": 1728567000000
+  },
+  {
+    "id": "req_9",
+    "title": "Enkripsi AES-256-GCM Token OAuth Twitch (Channel Points Redeem)",
+    "description": "Penyimpanan token akses Twitch streamer dengan enkripsi simetris AES-256 tingkat militer di server untuk deteksi EventSub otomatis.",
+    "category": "twitch",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 24,
+    "createdAt": 1728568000000
+  },
+  {
+    "id": "req_10",
+    "title": "Manajemen Kuota 3 Slot Overlay Cloud & Fitur Overwrite",
+    "description": "Streamer dapat menyimpan hingga 3 preset overlay OBS di cloud akun mereka dan menimpa (overwrite) konfigurasi kapan saja.",
+    "category": "overlay",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 23,
+    "createdAt": 1728569000000
+  },
+  {
+    "id": "req_11",
+    "title": "Sensor Tautan Otomatis ([LINK]) & Batas Bubble Chat",
+    "description": "Filter link otomatis untuk mencegah URL spam di layar OBS dan slider pembatas maksimal bubble chat agar tidak memenuhi monitor.",
+    "category": "overlay",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 21,
+    "createdAt": 1728570000000
+  },
+  {
+    "id": "req_12",
+    "title": "Halaman Privacy Policy & Menu Penghapusan Akun Permanen",
+    "description": "Transparansi data pengguna sesuai GDPR dan fitur hapus akun mandiri dengan konfirmasi kata sandi.",
+    "category": "general",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 20,
+    "createdAt": 1728571000000
+  },
+  {
+    "id": "req_13",
+    "title": "Dukungan Multi-Bahasa (Indonesia 🇮🇩 & English 🇬🇧)",
+    "description": "Pilihan penggantian bahasa tampilan web dengan tombol bendera dan penyimpanan preferensi lokal.",
+    "category": "general",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 18,
+    "createdAt": 1728572000000
+  },
+  {
+    "id": "req_14",
+    "title": "Sistem Popup Dialog & Toast Cantik (Pengganti Alert Bawaan)",
+    "description": "Mengganti alert browser standar dengan notifikasi toast dan popup modal modern berdesain glassmorphism.",
+    "category": "general",
+    "status": "done",
+    "author": "joo_nathan",
+    "upvotes": 16,
+    "createdAt": 1728573000000
   }
 ]

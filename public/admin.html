@@ -8,6 +8,7 @@
   <meta name="description" content="Panel Admin Lengkap StreamPulse untuk mengelola Roadmap Fitur, Monitoring OBS Overlay, Kuota User, dan Keamanan Server.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/sp-popup.js?v=fresh_6"></script>
   <style>
     body {
       background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, rgba(6, 8, 13, 1) 100%), #06080d;
@@ -465,7 +466,9 @@
       </p>
 
       <form id="formLogin" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
-        <input type="password" id="inputPassword" placeholder="Masukkan Password Admin..." required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem; box-sizing:border-box;">
+        <div class="password-input-wrap">
+          <input type="password" id="inputPassword" placeholder="Masukkan Password Admin..." required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem; box-sizing:border-box;">
+        </div>
         <div id="loginError" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
         <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:12px; font-weight:800;">
           Buka Panel Admin 🚀
@@ -640,12 +643,16 @@
           <form id="formTabChangePass" style="display:flex; flex-direction:column; gap:16px;">
             <div class="channel-field">
               <label class="channel-label" for="tabInputNewPass">Password Baru (Min. 4 karakter)</label>
-              <input type="password" id="tabInputNewPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ketik password baru...">
+              <div class="password-input-wrap">
+                <input type="password" id="tabInputNewPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ketik password baru...">
+              </div>
             </div>
 
             <div class="channel-field">
               <label class="channel-label" for="tabInputConfirmPass">Konfirmasi Password Baru</label>
-              <input type="password" id="tabInputConfirmPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ulangi ketik password baru...">
+              <div class="password-input-wrap">
+                <input type="password" id="tabInputConfirmPass" class="search-input" style="width:100%; box-sizing:border-box;" required minlength="4" placeholder="Ulangi ketik password baru...">
+              </div>
             </div>
 
             <div id="tabPassError" style="font-size:0.8rem; color:#ef4444; display:none;"></div>

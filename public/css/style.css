@@ -1788,3 +1788,246 @@ body.lite-mode #fxCanvas {
   filter: brightness(1.08);
 }
 
+/* ==========================================================================
+   PASSWORD SHOW / HIDE TOGGLE (EYE ICON)
+   ========================================================================== */
+.password-input-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrap input {
+  padding-right: 44px !important;
+  width: 100%;
+}
+
+.btn-password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.btn-password-toggle:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   STREAM PULSE CUSTOM POPUP & DIALOG SYSTEM (GLASSMORPHISM)
+   ========================================================================== */
+.sp-popup-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(3, 5, 10, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  padding: 20px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sp-popup-overlay.show {
+  display: flex !important;
+  opacity: 1 !important;
+}
+
+.sp-popup-card {
+  background: rgba(13, 17, 27, 0.95);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius-lg);
+  max-width: 440px;
+  width: 100%;
+  padding: 26px 24px 22px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transform: scale(0.92);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+
+.sp-popup-overlay.show .sp-popup-card {
+  transform: scale(1);
+}
+
+.sp-popup-icon-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 4px auto;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.sp-popup-card.type-success .sp-popup-icon-wrap {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+.sp-popup-card.type-error .sp-popup-icon-wrap {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+.sp-popup-card.type-warning .sp-popup-icon-wrap {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.sp-popup-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.sp-popup-message {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  word-break: break-word;
+}
+
+.sp-popup-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.sp-popup-btn {
+  flex: 1;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sp-popup-btn.primary {
+  background: var(--accent-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+.sp-popup-btn.primary:hover {
+  background: var(--accent-primary-hover);
+  transform: translateY(-1px);
+}
+
+.sp-popup-btn.danger {
+  background: var(--status-danger);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+.sp-popup-btn.danger:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.sp-popup-btn.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+}
+.sp-popup-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ==========================================================================
+   TOAST NOTIFICATION CONTAINER
+   ========================================================================== */
+.sp-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.sp-toast {
+  pointer-events: auto;
+  background: rgba(13, 17, 27, 0.95);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 380px;
+}
+
+.sp-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.sp-toast.toast-success { border-color: rgba(16, 185, 129, 0.5); }
+.sp-toast.toast-error { border-color: rgba(239, 68, 68, 0.5); }
+.sp-toast.toast-info { border-color: rgba(99, 102, 241, 0.5); }
+
+/* Language Switcher Pill */
+.btn-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.btn-lang-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+

@@ -1178,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   btnExportJson.addEventListener('click', () => {
     if (state.eventsList.length === 0) {
-      alert('Belum ada event untuk di-export.');
+      spAlert('Belum ada event yang tercatat untuk di-export.', 'Export JSON', 'info');
       return;
     }
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state.eventsList, null, 2));
@@ -1190,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnExportCsv.addEventListener('click', () => {
     if (state.eventsList.length === 0) {
-      alert('Belum ada event untuk di-export.');
+      spAlert('Belum ada event yang tercatat untuk di-export.', 'Export CSV', 'info');
       return;
     }
     let csv = 'Timestamp,Platform,Event Type,Title,Author,Detail,Message\n';
@@ -1214,9 +1214,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dlAnchor.click();
   });
 
-  btnClearEvents.addEventListener('click', () => {
-    if (confirm('Bersihkan semua riwayat event tercatat?')) {
+  btnClearEvents.addEventListener('click', async () => {
+    const ok = await spConfirm('Bersihkan semua riwayat event yang tercatat saat ini?', 'Bersihkan Riwayat Event', 'warning');
+    if (ok) {
       socket.emit('clear_events');
+      spToast('Riwayat event berhasil dibersihkan', 'success');
     }
   });
 
