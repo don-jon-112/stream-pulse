@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="referrer" content="no-referrer">
+  <title>Admin Feature Manager - StreamPulse</title>
+  <meta name="description" content="Panel Admin untuk mengelola, mengubah progres Kanban, dan membalas usulan fitur pengguna StreamPulse.">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(6, 8, 13, 1) 100%), #06080d;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-header {
+      padding: 16px 24px;
+      background: rgba(13, 17, 27, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .admin-title-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .admin-title-badge h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .badge-admin {
+      background: linear-gradient(135deg, #ef4444, #f59e0b);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .admin-container {
+      flex: 1;
+      padding: 24px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Auth Card View */
+    .auth-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .auth-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    /* KPI Stats Bar */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: rgba(13, 17, 27, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-card.todo { border-left: 3px solid #f59e0b; }
+    .stat-card.prog { border-left: 3px solid #6366f1; }
+    .stat-card.done { border-left: 3px solid #10b981; }
+    .stat-card.rej  { border-left: 3px solid #ef4444; }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: var(--font-display);
+    }
+
+    /* Filter Toolbar */
+    .toolbar-bar {
+      background: rgba(13, 17, 27, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .select-filter {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .search-input {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      min-width: 220px;
+    }
+
+    /* Cards Grid */
+    .admin-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+
+    .admin-card {
+      background: rgba(13, 17, 27, 0.75);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .admin-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .admin-card.pinned {
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, rgba(13, 17, 27, 0.75) 100%);
+    }
+
+    .admin-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .admin-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    .admin-card-desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .admin-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 8px;
+    }
+
+    /* Status Selector Dropdown inside Card */
+    .status-select {
+      padding: 4px 8px;
+      border-radius: var(--radius-xs);
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .status-select.todo {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .status-select.in_progress {
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .status-select.done {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .status-select.rejected {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Admin Note Bubble */
+    .admin-note-box {
+      background: rgba(99, 102, 241, 0.08);
+      border-left: 2px solid #818cf8;
+      padding: 6px 10px;
+      border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+      font-size: 0.75rem;
+      color: #c7d2fe;
+    }
+
+    .admin-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .btn-action-sm {
+      padding: 4px 10px;
+      border-radius: var(--radius-xs);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+    }
+
+    .btn-action-sm:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .btn-action-sm.danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e1b4b;
+      border: 1px solid #6366f1;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-msg.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN HEADER -->
+  <header class="admin-header">
+    <div class="admin-brand">
+      <a href="/" class="brand-logo" title="Kembali ke Dashboard">
+        <svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:var(--accent-primary);">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </a>
+      <div class="admin-title-badge">
+        <h1>Feature Request Admin</h1>
+        <span class="badge-admin">ADMIN CONSOLE</span>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px;">
+      <a href="/features" target="_blank" class="btn-icon" title="Lihat Papan Kanban Publik">
+        <span>Lihat Kanban Publik ↗</span>
+      </a>
+      <button id="btnLogout" class="btn-icon" style="display:none;" title="Keluar dari Panel Admin">
+        <span>Keluar 🚪</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- AUTH VIEW (LOGIN FORM) -->
+  <div id="authSection" class="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-icon">🔐</div>
+      <h2 style="font-size:1.3rem; font-weight:800; color:#fff; margin:0;">Login Admin</h2>
+      <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+        Masukkan Password Admin untuk mengelola usulan fitur dan memperbarui status roadmap.
+      </p>
+
+      <form id="formLogin" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+        <input type="password" id="inputPassword" placeholder="Password Admin (Default: admin123)" required autocomplete="current-password" class="search-input" style="width:100%; text-align:center; padding:12px; font-size:0.95rem;">
+        <div id="loginError" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
+        <button type="submit" class="btn-icon btn-primary" style="justify-content:center; padding:10px;">
+          Buka Panel Admin 🚀
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN ADMIN DASHBOARD (HIDDEN UNTIL LOGIN) -->
+  <main id="dashboardSection" class="admin-container" style="display:none;">
+
+    <!-- KPI STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Fitur</span>
+        <span id="statTotal" class="stat-val">0</span>
+      </div>
+      <div class="stat-card todo">
+        <span class="stat-label">📋 Todo / Antrean</span>
+        <span id="statTodo" class="stat-val">0</span>
+      </div>
+      <div class="stat-card prog">
+        <span class="stat-label">⚡ Dikerjakan (In Progress)</span>
+        <span id="statProg" class="stat-val">0</span>
+      </div>
+      <div class="stat-card done">
+        <span class="stat-label">✅ Selesai & Rilis</span>
+        <span id="statDone" class="stat-val">0</span>
+      </div>
+      <div class="stat-card rej">
+        <span class="stat-label">❌ Ditolak</span>
+        <span id="statRej" class="stat-val">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">👍 Total Upvotes</span>
+        <span id="statVotes" class="stat-val">0</span>
+      </div>
+    </div>
+
+    <!-- TOOLBAR & FILTERS -->
+    <div class="toolbar-bar">
+      <div class="filter-group">
+        <select id="filterStatus" class="select-filter">
+          <option value="all">Semua Status</option>
+          <option value="todo">📋 Todo</option>
+          <option value="in_progress">⚡ In Progress</option>
+          <option value="done">✅ Done</option>
+          <option value="rejected">❌ Ditolak</option>
+        </select>
+
+        <select id="filterCategory" class="select-filter">
+          <option value="all">Semua Kategori</option>
+          <option value="twitch">🟣 Twitch</option>
+          <option value="youtube">🔴 YouTube</option>
+          <option value="tiktok">🎵 TikTok</option>
+          <option value="overlay">🖥️ OBS Overlay</option>
+          <option value="core">⚡ Core / Sistem</option>
+          <option value="general">✨ General</option>
+        </select>
+
+        <input type="text" id="inputSearch" class="search-input" placeholder="Cari judul, deskripsi, atau pembuat...">
+      </div>
+
+      <div style="display:flex; gap:8px;">
+        <button id="btnRefresh" class="btn-icon" title="Muat Ulang Data">
+          <span>🔄 Refresh</span>
+        </button>
+        <button id="btnNewFeatureModal" class="btn-icon btn-primary" title="Tambah Fitur Baru sebagai Admin">
+          <span>+ Buat Fitur Resmi</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CARDS GRID -->
+    <div id="cardsGrid" class="admin-cards-grid">
+      <!-- Injected via JavaScript -->
+    </div>
+  </main>
+
+  <!-- MODAL: EDIT / CREATE FEATURE -->
+  <div id="editModal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 540px;">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle" style="color:#818cf8;">
+          <span>Edit Usulan Fitur</span>
+        </div>
+        <button id="closeEditModal" class="modal-close">&times;</button>
+      </div>
+
+      <form id="formEditFeature" class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
+        <input type="hidden" id="editId">
+
+        <div class="channel-field">
+          <label class="channel-label" for="editTitle">Judul Fitur *</label>
+          <input type="text" id="editTitle" required placeholder="Judul fitur..." autocomplete="off">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="channel-field">
+            <label class="channel-label" for="editStatus">Status Progress</label>
+            <select id="editStatus" style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem;">
+              <option value="todo">📋 Todo (Antrean)</option>
+              <option value="in_progress">⚡ In Progress (Dikerjakan)</option>
+              <option value="done">✅ Done (Selesai & Rilis)</option>
+              <option value="rejected">❌ Ditolak (Rejected)</option>
+            </select>
+          </div>
+
+          <div class="channel-field">
+            <label class="channel-label" for="editCategory">Kategori Platform</label>
+            <select id="editCategory" style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem;">
+              <option value="twitch">🟣 Twitch</option>
+              <option value="youtube">🔴 YouTube</option>
+              <option value="tiktok">🎵 TikTok</option>
+              <option value="overlay">🖥️ OBS Overlay</option>
+              <option value="core">⚡ Core / Sistem</option>
+              <option value="general">✨ General</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="channel-field">
+            <label class="channel-label" for="editAuthor">Nama Pengusul</label>
+            <input type="text" id="editAuthor" placeholder="Nama pengusul..." autocomplete="off">
+          </div>
+
+          <div class="channel-field">
+            <label class="channel-label" for="editUpvotes">Jumlah Upvotes</label>
+            <input type="number" id="editUpvotes" min="0" placeholder="0" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="channel-field">
+          <label class="channel-label" for="editDesc">Deskripsi Fitur *</label>
+          <textarea id="editDesc" required rows="3" placeholder="Deskripsi fitur..." style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#fff; font-size:0.85rem; resize:vertical;"></textarea>
+        </div>
+
+        <div class="channel-field">
+          <label class="channel-label" for="editAdminNote">💬 Tanggapan / Catatan Pengembang (Ditampilkan ke Publik)</label>
+          <textarea id="editAdminNote" rows="2" placeholder="Contoh: Fitur sedang dalam tahap pengujian untuk rilis v1.3!" style="width:100%; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#67e8f9; font-size:0.85rem; resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+          <input type="checkbox" id="editPinned" style="width:16px; height:16px; accent-color:#f59e0b;">
+          <label for="editPinned" style="font-size:0.85rem; color:#fbbf24; cursor:pointer; font-weight:700;">⭐ Pin Fitur Unggulan (Tampil di urutan teratas papan)</label>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+          <button type="button" id="btnCancelEdit" class="btn-icon">Batal</button>
+          <button type="submit" class="btn-icon btn-primary">Simpan Perubahan 💾</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast-msg"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let adminToken = sessionStorage.getItem('streampulse_admin_token') || '';
+      let featuresData = [];
+
+      const authSection = document.getElementById('authSection');
+      const dashboardSection = document.getElementById('dashboardSection');
+      const formLogin = document.getElementById('formLogin');
+      const inputPassword = document.getElementById('inputPassword');
+      const loginError = document.getElementById('loginError');
+      const btnLogout = document.getElementById('btnLogout');
+
+      const statTotal = document.getElementById('statTotal');
+      const statTodo = document.getElementById('statTodo');
+      const statProg = document.getElementById('statProg');
+      const statDone = document.getElementById('statDone');
+      const statRej = document.getElementById('statRej');
+      const statVotes = document.getElementById('statVotes');
+
+      const filterStatus = document.getElementById('filterStatus');
+      const filterCategory = document.getElementById('filterCategory');
+      const inputSearch = document.getElementById('inputSearch');
+      const btnRefresh = document.getElementById('btnRefresh');
+      const btnNewFeatureModal = document.getElementById('btnNewFeatureModal');
+      const cardsGrid = document.getElementById('cardsGrid');
+
+      const editModal = document.getElementById('editModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const closeEditModal = document.getElementById('closeEditModal');
+      const btnCancelEdit = document.getElementById('btnCancelEdit');
+      const formEditFeature = document.getElementById('formEditFeature');
+
+      const editId = document.getElementById('editId');
+      const editTitle = document.getElementById('editTitle');
+      const editStatus = document.getElementById('editStatus');
+      const editCategory = document.getElementById('editCategory');
+      const editAuthor = document.getElementById('editAuthor');
+      const editUpvotes = document.getElementById('editUpvotes');
+      const editDesc = document.getElementById('editDesc');
+      const editAdminNote = document.getElementById('editAdminNote');
+      const editPinned = document.getElementById('editPinned');
+
+      const toast = document.getElementById('toast');
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function formatDate(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+      }
+
+      // Check Authentication
+      if (adminToken) {
+        showDashboard();
+      }
+
+      formLogin.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const pwd = inputPassword.value.trim();
+        loginError.style.display = 'none';
+
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pwd })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            adminToken = data.token;
+            sessionStorage.setItem('streampulse_admin_token', adminToken);
+            showDashboard();
+            showToast('Berhasil masuk sebagai Admin! 🚀');
+          } else {
+            loginError.textContent = data.error || 'Password salah';
+            loginError.style.display = 'block';
+          }
+        } catch (err) {
+          loginError.textContent = 'Gagal menghubungi server';
+          loginError.style.display = 'block';
+        }
+      });
+
+      btnLogout.addEventListener('click', () => {
+        adminToken = '';
+        sessionStorage.removeItem('streampulse_admin_token');
+        authSection.style.display = 'flex';
+        dashboardSection.style.display = 'none';
+        btnLogout.style.display = 'none';
+        showToast('Telah keluar dari Admin');
+      });
+
+      function showDashboard() {
+        authSection.style.display = 'none';
+        dashboardSection.style.display = 'flex';
+        btnLogout.style.display = 'inline-flex';
+        fetchAdminFeatures();
+      }
+
+      async function fetchAdminFeatures() {
+        try {
+          const res = await fetch('/api/admin/feedback', {
+            headers: { 'x-admin-key': adminToken }
+          });
+          if (res.status === 401) {
+            btnLogout.click();
+            return;
+          }
+          if (!res.ok) throw new Error('Gagal mengambil data');
+          featuresData = await res.json();
+          renderStats();
+          renderFilteredCards();
+        } catch (err) {
+          console.error(err);
+          showToast('Error memuat data fitur');
+        }
+      }
+
+      function renderStats() {
+        let todo = 0, prog = 0, done = 0, rej = 0, votes = 0;
+        featuresData.forEach(item => {
+          if (item.status === 'todo') todo++;
+          else if (item.status === 'in_progress') prog++;
+          else if (item.status === 'done') done++;
+          else if (item.status === 'rejected') rej++;
+          votes += (item.upvotes || 0);
+        });
+
+        statTotal.textContent = featuresData.length;
+        statTodo.textContent = todo;
+        statProg.textContent = prog;
+        statDone.textContent = done;
+        statRej.textContent = rej;
+        statVotes.textContent = votes;
+      }
+
+      function renderFilteredCards() {
+        cardsGrid.innerHTML = '';
+        const st = filterStatus.value;
+        const cat = filterCategory.value;
+        const q = inputSearch.value.trim().toLowerCase();
+
+        const filtered = featuresData.filter(item => {
+          if (st !== 'all' && item.status !== st) return false;
+          if (cat !== 'all' && item.category !== cat) return false;
+          if (q) {
+            const matchTitle = (item.title || '').toLowerCase().includes(q);
+            const matchDesc = (item.description || '').toLowerCase().includes(q);
+            const matchAuthor = (item.author || '').toLowerCase().includes(q);
+            if (!matchTitle && !matchDesc && !matchAuthor) return false;
+          }
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          cardsGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align:center; padding: 40px; color:var(--text-tertiary);">
+              Tidak ada fitur yang cocok dengan filter.
+            </div>
+          `;
+          return;
+        }
+
+        filtered.forEach(item => {
+          const card = document.createElement('div');
+          card.className = `admin-card ${item.pinned ? 'pinned' : ''}`;
+          card.dataset.id = item.id;
+
+          const catName = (item.category || 'general').toUpperCase();
+
+          card.innerHTML = `
+            <div class="admin-card-header">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="cat-tag ${item.category || 'general'}">${catName}</span>
+                ${item.pinned ? '<span style="font-size:0.75rem; color:#fbbf24;" title="Disematkan di atas">⭐ Pinned</span>' : ''}
+              </div>
+              <select class="status-select ${item.status}" data-id="${item.id}" title="Ubah status progres langsung">
+                <option value="todo" ${item.status === 'todo' ? 'selected' : ''}>📋 Todo</option>
+                <option value="in_progress" ${item.status === 'in_progress' ? 'selected' : ''}>⚡ In Progress</option>
+                <option value="done" ${item.status === 'done' ? 'selected' : ''}>✅ Done</option>
+                <option value="rejected" ${item.status === 'rejected' ? 'selected' : ''}>❌ Ditolak</option>
+              </select>
+            </div>
+
+            <div class="admin-card-title">${escapeHtml(item.title)}</div>
+            <div class="admin-card-desc">${escapeHtml(item.description)}</div>
+
+            ${item.adminNote ? `
+              <div class="admin-note-box">
+                <strong>💬 Tanggapan Admin:</strong> ${escapeHtml(item.adminNote)}
+              </div>
+            ` : ''}
+
+            <div class="admin-card-meta">
+              <span>👤 ${escapeHtml(item.author || 'Anonim')}</span>
+              <span>👍 ${item.upvotes || 0} vote • ${formatDate(item.createdAt)}</span>
+            </div>
+
+            <div class="admin-actions">
+              <button class="btn-action-sm btn-edit" data-id="${item.id}">✏️ Edit Lengkap</button>
+              <button class="btn-action-sm btn-pin" data-id="${item.id}">${item.pinned ? 'Unpin' : '⭐ Pin'}</button>
+              <button class="btn-action-sm danger btn-delete" data-id="${item.id}" style="margin-left:auto;">🗑️ Hapus</button>
+            </div>
+          `;
+
+          // Quick Status Change Listener
+          const selStatus = card.querySelector('.status-select');
+          selStatus.addEventListener('change', async (e) => {
+            const newStatus = e.target.value;
+            await updateFeatureItem(item.id, { status: newStatus });
+            selStatus.className = `status-select ${newStatus}`;
+          });
+
+          // Pin/Unpin
+          const btnPin = card.querySelector('.btn-pin');
+          btnPin.addEventListener('click', async () => {
+            await updateFeatureItem(item.id, { pinned: !item.pinned });
+          });
+
+          // Edit Modal Trigger
+          const btnEdit = card.querySelector('.btn-edit');
+          btnEdit.addEventListener('click', () => {
+            openEditModal(item);
+          });
+
+          // Delete Trigger
+          const btnDelete = card.querySelector('.btn-delete');
+          btnDelete.addEventListener('click', async () => {
+            if (confirm(`Yakin ingin menghapus fitur: "${item.title}"?`)) {
+              await deleteFeatureItem(item.id);
+            }
+          });
+
+          cardsGrid.appendChild(card);
+        });
+      }
+
+      async function updateFeatureItem(id, payload) {
+        try {
+          const res = await fetch(`/api/admin/feedback/${id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-key': adminToken
+            },
+            body: JSON.stringify(payload)
+          });
+          const resData = await res.json();
+          if (res.ok && resData.success) {
+            showToast('Data berhasil diperbarui! 💾');
+            fetchAdminFeatures();
+          } else {
+            showToast(resData.error || 'Gagal update data');
+          }
+        } catch (e) {
+          console.error(e);
+          showToast('Error menghubungi server');
+        }
+      }
+
+      async function deleteFeatureItem(id) {
+        try {
+          const res = await fetch(`/api/admin/feedback/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-key': adminToken }
+          });
+          if (res.ok) {
+            showToast('Fitur berhasil dihapus 🗑️');
+            fetchAdminFeatures();
+          } else {
+            showToast('Gagal menghapus fitur');
+          }
+        } catch (e) {
+          console.error(e);
+          showToast('Error menghubungi server');
+        }
+      }
+
+      function openEditModal(item = null) {
+        if (item) {
+          modalTitle.textContent = 'Edit Usulan Fitur';
+          editId.value = item.id;
+          editTitle.value = item.title || '';
+          editStatus.value = item.status || 'todo';
+          editCategory.value = item.category || 'general';
+          editAuthor.value = item.author || '';
+          editUpvotes.value = item.upvotes || 0;
+          editDesc.value = item.description || '';
+          editAdminNote.value = item.adminNote || '';
+          editPinned.checked = Boolean(item.pinned);
+        } else {
+          modalTitle.textContent = 'Buat Fitur Resmi Baru';
+          editId.value = '';
+          editTitle.value = '';
+          editStatus.value = 'todo';
+          editCategory.value = 'core';
+          editAuthor.value = 'Pengembang (Admin)';
+          editUpvotes.value = 5;
+          editDesc.value = '';
+          editAdminNote.value = '';
+          editPinned.checked = false;
+        }
+        editModal.classList.add('show');
+      }
+
+      const closeEdit = () => editModal.classList.remove('show');
+      closeEditModal.addEventListener('click', closeEdit);
+      btnCancelEdit.addEventListener('click', closeEdit);
+      editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) closeEdit();
+      });
+
+      btnNewFeatureModal.addEventListener('click', () => openEditModal(null));
+      btnRefresh.addEventListener('click', () => {
+        fetchAdminFeatures();
+        showToast('Data diperbarui 🔄');
+      });
+
+      [filterStatus, filterCategory].forEach(el => el.addEventListener('change', renderFilteredCards));
+      inputSearch.addEventListener('input', renderFilteredCards);
+
+      formEditFeature.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = editId.value;
+        const payload = {
+          title: editTitle.value.trim(),
+          status: editStatus.value,
+          category: editCategory.value,
+          author: editAuthor.value.trim(),
+          upvotes: parseInt(editUpvotes.value, 10) || 0,
+          description: editDesc.value.trim(),
+          adminNote: editAdminNote.value.trim(),
+          pinned: editPinned.checked
+        };
+
+        if (id) {
+          // Update Existing
+          await updateFeatureItem(id, payload);
+        } else {
+          // Create New
+          try {
+            const res = await fetch('/api/admin/feedback', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': adminToken
+              },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              showToast('Fitur baru berhasil dibuat! 🎉');
+              fetchAdminFeatures();
+            } else {
+              showToast(data.error || 'Gagal membuat fitur');
+            }
+          } catch (err) {
+            console.error(err);
+            showToast('Error menghubungi server');
+          }
+        }
+        closeEdit();
+      });
+    });
+  </script>
+</body>
+</html>

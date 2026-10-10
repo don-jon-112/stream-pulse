@@ -124,6 +124,10 @@ app.get(['/overlay-studio', '/studio'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'studio.html'));
 });
 
+app.get(['/admin', '/features-admin', '/admin-features'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // REST Endpoints
 app.get('/api/status', (req, res) => {
   res.json(streamManager.getInitialState());
@@ -151,11 +155,19 @@ app.post('/api/channels', async (req, res) => {
 // ==========================================
 // FEATURE REQUESTS & KANBAN API
 // ==========================================
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
+function checkAdminAuth(req) {
+  const token = (req.headers['x-admin-key'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
+  return token === ADMIN_PASSWORD;
+}
+
 app.get('/api/feedback', (req, res) => {
   const list = readJsonFile(FEEDBACK_FILE, []);
-  // Urutkan berdasarkan upvotes terbanyak, lalu tanggal terbaru
-  list.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0) || b.createdAt - a.createdAt);
-  res.json(list);
+  // Sembunyikan item yang di-reject dari publik, prioritaskan pinned
+  const publicList = list.filter(x => x.status !== 'rejected');
+  publicList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.createdAt - a.createdAt);
+  res.json(publicList);
 });
 
 app.post('/api/feedback', (req, res) => {
@@ -172,6 +184,8 @@ app.post('/api/feedback', (req, res) => {
     category: ['twitch', 'youtube', 'tiktok', 'overlay', 'core', 'general'].includes(category) ? category : 'general',
     author: (author ? String(author).trim().slice(0, 50) : 'Streamer Anonymous'),
     status: 'todo',
+    adminNote: '',
+    pinned: false,
     upvotes: 1,
     createdAt: Date.now()
   };
@@ -206,6 +220,97 @@ app.patch('/api/feedback/:id/status', (req, res) => {
   item.status = status;
   writeJsonFile(FEEDBACK_FILE, list);
   res.json({ success: true, item });
+});
+
+// ==========================================
+// ADMIN FEATURE MANAGEMENT ENDPOINTS
+// ==========================================
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body || {};
+  if (password === ADMIN_PASSWORD) {
+    return res.json({ success: true, token: ADMIN_PASSWORD });
+  }
+  return res.status(401).json({ error: 'Password Admin salah! Silakan coba lagi.' });
+});
+
+app.get('/api/admin/feedback', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
+  }
+  const list = readJsonFile(FEEDBACK_FILE, []);
+  list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.createdAt - a.createdAt);
+  res.json(list);
+});
+
+app.patch('/api/admin/feedback/:id', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
+  }
+  const { id } = req.params;
+  const { status, adminNote, pinned, title, description, category, upvotes } = req.body || {};
+
+  const list = readJsonFile(FEEDBACK_FILE, []);
+  const item = list.find(x => x.id === id);
+  if (!item) return res.status(404).json({ error: 'Request fitur tidak ditemukan' });
+
+  if (status !== undefined) {
+    if (!['todo', 'in_progress', 'done', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Status tidak valid' });
+    }
+    item.status = status;
+  }
+  if (adminNote !== undefined) item.adminNote = String(adminNote).trim().slice(0, 500);
+  if (pinned !== undefined) item.pinned = Boolean(pinned);
+  if (title !== undefined && title.trim()) item.title = String(title).trim().slice(0, 150);
+  if (description !== undefined && description.trim()) item.description = String(description).trim().slice(0, 1000);
+  if (category !== undefined) item.category = category;
+  if (upvotes !== undefined && !isNaN(upvotes)) item.upvotes = Math.max(0, parseInt(upvotes, 10));
+  item.updatedAt = Date.now();
+
+  writeJsonFile(FEEDBACK_FILE, list);
+  res.json({ success: true, item });
+});
+
+app.delete('/api/admin/feedback/:id', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
+  }
+  const { id } = req.params;
+  let list = readJsonFile(FEEDBACK_FILE, []);
+  const initialLen = list.length;
+  list = list.filter(x => x.id !== id);
+  if (list.length === initialLen) return res.status(404).json({ error: 'Request fitur tidak ditemukan' });
+
+  writeJsonFile(FEEDBACK_FILE, list);
+  res.json({ success: true, deletedId: id });
+});
+
+app.post('/api/admin/feedback', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
+  }
+  const { title, description, category, author, status, adminNote, pinned } = req.body || {};
+  if (!title || !description) {
+    return res.status(400).json({ error: 'Judul dan deskripsi wajib diisi' });
+  }
+
+  const list = readJsonFile(FEEDBACK_FILE, []);
+  const newItem = {
+    id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+    title: String(title).trim().slice(0, 150),
+    description: String(description).trim().slice(0, 1000),
+    category: ['twitch', 'youtube', 'tiktok', 'overlay', 'core', 'general'].includes(category) ? category : 'core',
+    author: (author ? String(author).trim().slice(0, 50) : 'Pengembang (Admin)'),
+    status: ['todo', 'in_progress', 'done', 'rejected'].includes(status) ? status : 'todo',
+    adminNote: adminNote ? String(adminNote).trim().slice(0, 500) : '',
+    pinned: Boolean(pinned),
+    upvotes: 5,
+    createdAt: Date.now()
+  };
+
+  list.push(newItem);
+  writeJsonFile(FEEDBACK_FILE, list);
+  res.json({ success: true, item: newItem });
 });
 
 // ==========================================

@@ -259,6 +259,9 @@
     </div>
 
     <div style="display:flex; align-items:center; gap:10px;">
+      <a href="/admin" class="btn-icon" style="text-decoration:none; font-size:0.8rem;" title="Login Admin untuk mengelola fitur">
+        ⚙️ Kelola (Admin)
+      </a>
       <a href="/donate" class="btn-icon btn-donate" style="text-decoration:none; font-size:0.8rem;">
         Dukung / Donasi ☕
       </a>
@@ -446,11 +449,19 @@
 
         card.innerHTML = `
           <div class="card-top">
-            <span class="cat-tag ${catClass}">${item.category || 'General'}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="cat-tag ${catClass}">${item.category || 'General'}</span>
+              ${item.pinned ? '<span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:4px; padding:1px 5px; font-weight:700;">⭐ Unggulan</span>' : ''}
+            </div>
             <span style="font-size:0.68rem; color:var(--text-tertiary); font-family:var(--font-mono);">${formatDate(item.createdAt)}</span>
           </div>
           <div class="card-title">${escapeHtml(item.title)}</div>
           <div class="card-desc">${escapeHtml(item.description)}</div>
+          ${item.adminNote ? `
+            <div class="card-admin-note" style="margin-top:8px; padding:6px 10px; background:rgba(99,102,241,0.1); border-left:2px solid #818cf8; border-radius:0 4px 4px 0; font-size:0.75rem; color:#c7d2fe;">
+              <strong style="color:#818cf8;">💬 Catatan Pengembang:</strong> ${escapeHtml(item.adminNote)}
+            </div>
+          ` : ''}
           <div class="card-footer">
             <div class="card-author">
               <span>👤</span>
