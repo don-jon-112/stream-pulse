@@ -206,19 +206,26 @@ document.addEventListener('DOMContentLoaded', () => {
     window.screenKeepAlive.onStatusChange((status) => {
       if (status === 'active' || status === 'fallback') {
         wakelockBtn.classList.remove('inactive');
-        wakelockText.textContent = 'LAYAR AKTIF (Anti-Sleep ON)';
-        if (wakelockSub) wakelockSub.textContent = 'Layar Dicegah Mati';
+        wakelockText.textContent = window.t ? window.t('nav_wakelock_on') : 'LAYAR AKTIF (Anti-Sleep ON)';
+        if (wakelockSub) wakelockSub.textContent = window.t ? window.t('nav_wakelock_sub') : 'Layar Dicegah Mati';
         wakelockBtn.title = 'Layar HP / Monitor Anda dicegah tidur atau mati otomatis';
       } else {
         wakelockBtn.classList.add('inactive');
-        wakelockText.textContent = 'Layar Tidur Normal';
-        if (wakelockSub) wakelockSub.textContent = 'Fitur Anti-Mati Nonaktif';
+        wakelockText.textContent = window.t ? window.t('nav_wakelock_off') : 'LAYAR NORMAL (Auto-Sleep)';
+        if (wakelockSub) wakelockSub.textContent = window.t ? window.t('nav_wakelock_sub_off') : 'Bisa Mati Otomatis';
         wakelockBtn.title = 'Klik untuk mengaktifkan mode Layar Selalu Menyala';
       }
     });
 
     wakelockBtn.addEventListener('click', async () => {
       await window.screenKeepAlive.toggle();
+    });
+
+    window.addEventListener('language_changed', () => {
+      const isAct = window.screenKeepAlive.status === 'active' || window.screenKeepAlive.status === 'fallback';
+      wakelockText.textContent = window.t ? (isAct ? window.t('nav_wakelock_on') : window.t('nav_wakelock_off')) : (isAct ? 'LAYAR AKTIF (Anti-Sleep ON)' : 'LAYAR NORMAL (Auto-Sleep)');
+      if (wakelockSub) wakelockSub.textContent = window.t ? (isAct ? window.t('nav_wakelock_sub') : window.t('nav_wakelock_sub_off')) : (isAct ? 'Layar Dicegah Mati' : 'Bisa Mati Otomatis');
+      updateOrderUI();
     });
   }
 
@@ -269,11 +276,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btnOrderToggle) return;
     if (state.chatOrder === 'top') {
       btnOrderToggle.classList.add('active');
-      orderLabel.textContent = 'Terbaru di Atas';
+      orderLabel.textContent = window.t ? window.t('order_newest_top') : 'Terbaru di Atas';
       orderIcon.innerHTML = '<path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>';
     } else {
       btnOrderToggle.classList.remove('active');
-      orderLabel.textContent = 'Terbaru di Bawah';
+      orderLabel.textContent = window.t ? window.t('order_newest_bottom') : 'Terbaru di Bawah';
       orderIcon.innerHTML = '<path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>';
     }
   };

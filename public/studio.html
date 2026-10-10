@@ -332,32 +332,20 @@
         </button>
       </div>
 
-      <!-- 0. LOAD URL & GENERATE OVERLAY (MAX 3 SLOTS PER USER - LOGGED IN ONLY) -->
+      <!-- 0. GENERATE & MANAGE OVERLAY (MAX 3 SLOTS PER USER - LOGGED IN ONLY) -->
       <div id="overlayManagerCard" class="overlay-manager-card">
         
-        <!-- Part A: Load URL Sebelumnya -->
-        <div style="background:rgba(13,17,27,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:12px;">
-          <div class="box-title">📥 Punya URL Overlay Sebelumnya?</div>
-          <p class="box-desc">Masukkan URL OBS Anda untuk memuat dan mengedit pengaturannya kembali:</p>
-          <div style="display:flex; gap:8px;">
-            <input type="text" id="inputLoadUrl" class="form-input" placeholder="Tempel URL (https://.../overlay?id=ovl_xyz) atau ID">
-            <button id="btnLoadUrl" type="button" class="btn-icon btn-primary" style="white-space:nowrap; padding:8px 12px;">
-              📥 Load & Edit
-            </button>
-          </div>
-        </div>
-
-        <!-- Part B: Generate New URL (Quota Limited 3 Slots) -->
+        <!-- Slot Management (Quota Limited 3 Slots) -->
         <div style="background:rgba(13,17,27,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
-              <div class="box-title">✨ Slot OBS Overlay Cloud</div>
+              <div class="box-title" data-i18n="studio_slots_title">✨ Slot OBS Overlay Cloud</div>
               <div style="font-size:0.75rem; color:var(--text-tertiary);">
-                Kuota Pengguna: <strong id="slotCounter" style="color:#67e8f9;">0 / 3 Slot Terpakai</strong>
+                <span data-i18n="studio_quota_label">Kuota Pengguna:</span> <strong id="slotCounter" style="color:#67e8f9;">0 / 3 Slot Terpakai</strong>
               </div>
             </div>
             <button id="btnGenerateOverlay" type="button" class="btn-icon btn-primary" style="font-size:0.8rem; padding:8px 14px; font-weight:800;">
-              + Generate URL Baru
+              <span data-i18n="studio_btn_new_slot">+ Generate URL Baru</span>
             </button>
           </div>
 
@@ -369,25 +357,36 @@
 
         <!-- Currently Active Overlay Banner -->
         <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.4); padding:8px 12px; border-radius:var(--radius-xs); border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-size:0.75rem; color:var(--text-secondary);">Sedang Mengedit ID:</span>
+          <span style="font-size:0.75rem; color:var(--text-secondary);" data-i18n="studio_editing_badge">Sedang Mengedit ID:</span>
           <span id="activeOverlayIdBadge" style="font-family:var(--font-mono); font-size:0.85rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:4px;">default</span>
         </div>
 
       </div>
 
       <!-- 1. Channel Linking -->
-      <div class="section-title">📡 Saluran Live Stream</div>
+      <div class="section-title" data-i18n="sec_channels">📡 Saluran Live Stream</div>
+      <div style="font-size:0.73rem; color:var(--text-tertiary); margin-bottom:10px; line-height:1.4;" data-i18n="sec_channels_tip">
+        💡 Bebas mengisi salah satu platform saja (misal hanya Twitch) atau gabungan ketiganya. Perubahan username langsung terhubung otomatis ke live preview di sebelah kanan.
+      </div>
+
       <div class="form-group">
-        <label class="form-label" for="settingTwitch">Twitch Channel</label>
-        <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)">
+        <label class="form-label" for="settingTwitch" data-i18n="label_twitch_channel">Twitch Channel</label>
+        <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch">
       </div>
       <div class="form-group">
-        <label class="form-label" for="settingYouTube">YouTube Live Stream</label>
-        <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live">
+        <label class="form-label" for="settingYouTube" data-i18n="label_youtube_channel">YouTube Live Stream</label>
+        <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube">
       </div>
       <div class="form-group">
-        <label class="form-label" for="settingTikTok">TikTok LIVE Username</label>
-        <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)">
+        <label class="form-label" for="settingTikTok" data-i18n="label_tiktok_channel">TikTok LIVE Username</label>
+        <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok">
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px; margin-bottom:12px;">
+        <button type="button" id="btnSaveChannelsStudio" class="btn-icon" style="font-size:0.78rem; padding:6px 14px;">
+          <span data-i18n="btn_save_channels">💾 Simpan Saluran</span>
+        </button>
+        <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700; display:none;" data-i18n="status_channel_synced">✓ Tersinkron</span>
       </div>
 
       <!-- 2. Visual Style & Theme -->
@@ -589,8 +588,6 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // Elements
-      const inputLoadUrl = document.getElementById('inputLoadUrl');
-      const btnLoadUrl = document.getElementById('btnLoadUrl');
       const btnGenerateOverlay = document.getElementById('btnGenerateOverlay');
       const slotCounter = document.getElementById('slotCounter');
       const slotsContainer = document.getElementById('slotsContainer');
@@ -911,6 +908,13 @@
           if (res.ok) {
             currentUser = await res.json();
             renderUserStatus();
+            // Auto-load channels if current inputs are empty
+            if (currentUser.channels) {
+              if (!settingTwitch.value && currentUser.channels.twitch) settingTwitch.value = currentUser.channels.twitch;
+              if (!settingYouTube.value && currentUser.channels.youtube) settingYouTube.value = currentUser.channels.youtube;
+              if (!settingTikTok.value && currentUser.channels.tiktok) settingTikTok.value = currentUser.channels.tiktok;
+              refreshPreview();
+            }
           } else {
             userToken = '';
             currentUser = null;
@@ -986,33 +990,6 @@
         });
       }
 
-      // Load URL Sebelumnya Workflow
-      btnLoadUrl.addEventListener('click', async () => {
-        const raw = inputLoadUrl.value.trim();
-        if (!raw) return alert('Silakan tempel URL atau ID Overlay terlebih dahulu!');
-
-        try {
-          const res = await fetch('/api/user/overlays/claim', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-user-token': userToken || ''
-            },
-            body: JSON.stringify({ urlOrId: raw })
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            switchProfile(data.id);
-            inputLoadUrl.value = '';
-            await checkUserSession();
-            alert(`✅ Pengaturan overlay "${data.id}" berhasil dimuat!`);
-          } else {
-            alert(data.error || 'Overlay tidak ditemukan');
-          }
-        } catch (e) {
-          alert('Gagal menghubungi server');
-        }
-      });
 
       // Generate New URL Workflow (Anti-Abuse, Limit 3)
       btnGenerateOverlay.addEventListener('click', async () => {
@@ -1059,6 +1036,12 @@
             if (data.twitch !== undefined) settingTwitch.value = data.twitch;
             if (data.youtube !== undefined) settingYouTube.value = data.youtube;
             if (data.tiktok !== undefined) settingTikTok.value = data.tiktok;
+
+            // Fallback to savedChannels or user channels if profile channel is empty
+            if (!settingTwitch.value && savedChannels.twitch) settingTwitch.value = savedChannels.twitch;
+            if (!settingYouTube.value && savedChannels.youtube) settingYouTube.value = savedChannels.youtube;
+            if (!settingTikTok.value && savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
+
             if (data.theme !== undefined) settingTheme.value = data.theme;
             if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
@@ -1072,6 +1055,7 @@
             if (data.customJs !== undefined) settingCustomJs.value = data.customJs;
             updateLabels();
             updateUrl();
+            refreshPreview();
           }
         } catch (e) {
           console.error(e);
@@ -1123,6 +1107,74 @@
             config: cfg
           }, '*');
         }
+      }
+
+      previewIframe.addEventListener('load', () => {
+        refreshPreview();
+      });
+
+      // Channels Input Listeners & Auto-Sync
+      const btnSaveChannelsStudio = document.getElementById('btnSaveChannelsStudio');
+      const channelSyncStatus = document.getElementById('channelSyncStatus');
+      let channelSyncTimer = null;
+
+      function onChannelInput() {
+        if (channelSyncStatus) {
+          channelSyncStatus.style.display = 'inline';
+          channelSyncStatus.textContent = 'Menghubungkan...';
+          channelSyncStatus.style.color = '#f59e0b';
+        }
+        clearTimeout(channelSyncTimer);
+        channelSyncTimer = setTimeout(() => {
+          const chData = {
+            twitch: settingTwitch.value.trim(),
+            youtube: settingYouTube.value.trim(),
+            tiktok: settingTikTok.value.trim()
+          };
+          localStorage.setItem('streampulse_my_channels', JSON.stringify(chData));
+          refreshPreview();
+          if (channelSyncStatus) {
+            channelSyncStatus.style.display = 'inline';
+            channelSyncStatus.textContent = '✓ Terhubung ke Preview';
+            channelSyncStatus.style.color = '#10b981';
+          }
+        }, 400);
+      }
+
+      [settingTwitch, settingYouTube, settingTikTok].forEach(el => {
+        el.addEventListener('input', onChannelInput);
+        el.addEventListener('change', onChannelInput);
+      });
+
+      if (btnSaveChannelsStudio) {
+        btnSaveChannelsStudio.addEventListener('click', async () => {
+          const chData = {
+            twitch: settingTwitch.value.trim(),
+            youtube: settingYouTube.value.trim(),
+            tiktok: settingTikTok.value.trim()
+          };
+          localStorage.setItem('streampulse_my_channels', JSON.stringify(chData));
+          refreshPreview();
+
+          if (userToken && currentUser) {
+            try {
+              await fetch('/api/user/channels', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-user-token': userToken
+                },
+                body: JSON.stringify(chData)
+              });
+              await saveProfile(false);
+              spToast('✅ Saluran live stream & overlay berhasil disimpan!', 'success');
+            } catch (e) {
+              spToast('Saluran tersimpan secara lokal', 'info');
+            }
+          } else {
+            spToast('✓ Saluran aktif disinkronkan ke live preview', 'success');
+          }
+        });
       }
 
       async function saveProfile(showAlert = true) {

@@ -659,6 +659,9 @@
         if (e.data && e.data.type === 'update_preview_config') {
           const newCfg = e.data.config;
           if (!newCfg) return;
+          const oldTwitch = config.twitch;
+          const oldYoutube = config.youtube;
+          const oldTiktok = config.tiktok;
           config = { ...config, ...newCfg };
           if (newCfg.theme) {
             document.body.className = newCfg.theme === 'glass' ? '' : `theme-${newCfg.theme}`;
@@ -668,6 +671,16 @@
           }
           if (newCfg.customCss !== undefined && customCssEl) {
             customCssEl.textContent = newCfg.customCss;
+          }
+          // If channels were updated in Studio, immediately update Socket.io live subscription
+          if (newCfg.twitch !== undefined || newCfg.youtube !== undefined || newCfg.tiktok !== undefined) {
+            if (config.twitch !== oldTwitch || config.youtube !== oldYoutube || config.tiktok !== oldTiktok) {
+              socket.emit('update_channels', {
+                twitch: config.twitch || '',
+                youtube: config.youtube || '',
+                tiktok: config.tiktok || ''
+              });
+            }
           }
         }
       });

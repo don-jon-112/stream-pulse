@@ -13,6 +13,9 @@
   const translations = {
     id: {
       // Navigation & Header
+      page_title: "StreamPulse MultiChat - Livestream Monitor Terpadu",
+      btn_exit_obs: "✕ Keluar OBS Mode",
+      wss_live: "WSS Live",
       nav_dashboard: "← Dashboard Chat",
       nav_setup_channels: "Atur Channel",
       nav_obs_mode: "OBS Mode",
@@ -27,11 +30,64 @@
       nav_wakelock_off: "LAYAR NORMAL (Auto-Sleep)",
       nav_wakelock_sub_off: "Bisa Mati Otomatis",
 
-      // Filters
+      // Filters & Toolbar
       filter_all: "Semua Chat",
       filter_twitch: "Twitch",
       filter_youtube: "YouTube",
       filter_tiktok: "TikTok",
+      filter_events: "Event Saja",
+      density_comfortable: "STD",
+      density_compact: "RAPAT",
+      order_newest_top: "Terbaru di Atas",
+      order_newest_bottom: "Terbaru di Bawah",
+      ph_search_chat: "Cari chat...",
+      tip_clear_screen: "Bersihkan chat lama dari layar agar enteng",
+
+      // Empty State & Alerts
+      empty_chat_title: "Menunggu Chat Masuk...",
+      empty_chat_desc: "Klik tombol \"Atur Channel\" di pojok kanan atas untuk memasukkan username Twitch, YouTube, atau TikTok LIVE. Anda juga dapat mencoba klik \"Test Demo\" untuk simulasi event secara instan!",
+      scroll_paused: "⬇️ Scroll Dijeda (Ada Chat Baru Masuk) — Ketuk untuk Mengikuti",
+
+      // KPI & Recorder
+      stat_total_chats: "Total Chat",
+      stat_all_events: "Semua Event",
+      stat_total_gifts: "Hadiah / Donasi",
+      recorder_title: "Rekaman Event (Activity)",
+      tip_export_json: "Download Data JSON",
+      tip_export_csv: "Download Data CSV",
+      tip_clear_history: "Hapus Riwayat",
+      empty_recorder_desc: "Setiap Gift TikTok, Super Chat YouTube, Subs, dan Bits Twitch akan otomatis terekam di sini secara kronologis.",
+
+      // Mobile Bottom Nav
+      mob_live_chat: "Live Chat",
+      mob_event_log: "Event Log",
+      mob_channel: "Channel",
+      mob_donate: "Donasi ☕",
+
+      // Modal Setup
+      setup_modal_title: "Pengaturan Channel Monitor",
+      label_twitch: "🟣 Twitch Channel",
+      tip_twitch: "Contoh: shroud atau windah_basudara",
+      ph_twitch_input: "Masukkan username Twitch...",
+      label_youtube: "🔴 YouTube Live Stream",
+      tip_youtube: "Handle (@channel) atau URL Live",
+      ph_youtube_input: "@NamaChannel atau URL live...",
+      label_tiktok: "🎵 TikTok LIVE Username",
+      tip_tiktok: "Username akun yang sedang live (tanpa @)",
+      ph_tiktok_input: "Username TikTok live...",
+      btn_cancel: "Batal",
+      btn_save_connect: "Simpan & Hubungkan",
+      setup_bottom_tip: "💡 Tips: Anda bisa memantau ketiga platform sekaligus atau hanya platform tertentu saja. Kosongkan kolom jika tidak ingin menghubungkan platform tersebut.",
+
+      // Modal Demo
+      demo_title: "Simulasi & Uji Coba Event",
+      demo_desc: "Pilih salah satu event di bawah untuk menguji aliran chat, kartu event, dan animasi secara langsung:",
+      btn_done: "Selesai",
+
+      // Modal Donate
+      donate_modal_title: "Dukung StreamPulse (100% Gratis)",
+      donate_h2: "Suka Menggunakan StreamPulse?",
+      btn_close: "Tutup",
 
       // Overlay Studio Header & Actions
       studio_title: "StreamPulse OVERLAY STUDIO",
@@ -48,8 +104,23 @@
       studio_guest_lock_desc: "Anda saat ini berada dalam mode Tamu (Guest). Anda bebas mencoba kustomisasi visual & live preview, namun untuk menyimpan konfigurasi, mengelola 3 slot cloud, dan menyalin URL OBS, silakan masuk ke akun Anda.",
       studio_guest_lock_btn: "🔐 Login / Daftar Akun Sekarang",
 
-      // Studio Customizer Sections
+      // Studio Slots & Channels
+      studio_slots_title: "✨ Slot OBS Overlay Cloud",
+      studio_quota_label: "Kuota Pengguna:",
+      studio_btn_new_slot: "+ Generate URL Baru",
+      studio_editing_badge: "Sedang Mengedit ID:",
       sec_channels: "📡 Saluran Live Stream",
+      sec_channels_tip: "💡 Bebas mengisi salah satu platform saja (misal hanya Twitch) atau gabungan ketiganya. Perubahan username langsung terhubung otomatis ke live preview di sebelah kanan.",
+      label_twitch_channel: "Twitch Channel",
+      label_youtube_channel: "YouTube Live Stream",
+      label_tiktok_channel: "TikTok LIVE Username",
+      ph_twitch: "Contoh: shroud (tanpa #)",
+      ph_youtube: "Contoh: @Streamer / URL Live",
+      ph_tiktok: "Contoh: streamer_tiktok (tanpa @)",
+      btn_save_channels: "💾 Simpan Saluran",
+      status_channel_synced: "✓ Tersinkron",
+
+      // Studio Customizer Sections
       sec_visual: "🎨 Gaya & Tampilan Chat",
       sec_elements: "⚙️ Elemen Tampilan & Filter",
       sec_custom_css: "💻 Custom CSS Editor",
@@ -92,6 +163,9 @@
     },
     en: {
       // Navigation & Header
+      page_title: "StreamPulse MultiChat - Unified Livestream Monitor",
+      btn_exit_obs: "✕ Exit OBS Mode",
+      wss_live: "WSS Live",
       nav_dashboard: "← Chat Dashboard",
       nav_setup_channels: "Channels Setup",
       nav_obs_mode: "OBS Mode",
@@ -106,11 +180,64 @@
       nav_wakelock_off: "NORMAL SCREEN (Auto-Sleep)",
       nav_wakelock_sub_off: "Standard timeout",
 
-      // Filters
+      // Filters & Toolbar
       filter_all: "All Chats",
       filter_twitch: "Twitch",
       filter_youtube: "YouTube",
       filter_tiktok: "TikTok",
+      filter_events: "Events Only",
+      density_comfortable: "STD",
+      density_compact: "COMPACT",
+      order_newest_top: "Newest on Top",
+      order_newest_bottom: "Newest at Bottom",
+      ph_search_chat: "Search chat...",
+      tip_clear_screen: "Clear old chat messages to save memory",
+
+      // Empty State & Alerts
+      empty_chat_title: "Waiting for Incoming Chat...",
+      empty_chat_desc: "Click \"Channels Setup\" at the top to enter your Twitch, YouTube, or TikTok LIVE username. You can also click \"Test Demo\" to simulate live events instantly!",
+      scroll_paused: "⬇️ Auto-Scroll Paused (New chat arrived) — Tap to follow",
+
+      // KPI & Recorder
+      stat_total_chats: "Total Chats",
+      stat_all_events: "All Events",
+      stat_total_gifts: "Gifts / Donations",
+      recorder_title: "Event Activity Log",
+      tip_export_json: "Download JSON Data",
+      tip_export_csv: "Download CSV Data",
+      tip_clear_history: "Clear History",
+      empty_recorder_desc: "Every TikTok Gift, YouTube Super Chat, Twitch Sub and Bits event will be recorded chronologically here.",
+
+      // Mobile Bottom Nav
+      mob_live_chat: "Live Chat",
+      mob_event_log: "Event Log",
+      mob_channel: "Channels",
+      mob_donate: "Donate ☕",
+
+      // Modal Setup
+      setup_modal_title: "Monitor Channels Setup",
+      label_twitch: "🟣 Twitch Channel",
+      tip_twitch: "e.g.: shroud or streamer_name",
+      ph_twitch_input: "Enter Twitch username...",
+      label_youtube: "🔴 YouTube Live Stream",
+      tip_youtube: "Handle (@channel) or Live URL",
+      ph_youtube_input: "@ChannelName or live stream URL...",
+      label_tiktok: "🎵 TikTok LIVE Username",
+      tip_tiktok: "Username currently streaming live (without @)",
+      ph_tiktok_input: "TikTok LIVE username...",
+      btn_cancel: "Cancel",
+      btn_save_connect: "Save & Connect",
+      setup_bottom_tip: "💡 Tips: You can monitor all three platforms together or just a specific one (e.g. Twitch only). Leave unused fields blank.",
+
+      // Modal Demo
+      demo_title: "Event Simulation & Demo",
+      demo_desc: "Select any event below to test chat feed, event cards, and animations in real-time:",
+      btn_done: "Done",
+
+      // Modal Donate
+      donate_modal_title: "Support StreamPulse (100% Free)",
+      donate_h2: "Enjoying StreamPulse?",
+      btn_close: "Close",
 
       // Overlay Studio Header & Actions
       studio_title: "StreamPulse OVERLAY STUDIO",
@@ -127,8 +254,23 @@
       studio_guest_lock_desc: "You are currently in Guest Mode. Feel free to tweak visual styles and view the live canvas preview, but saving configurations, managing 3 cloud slots, and copying the OBS Browser Source URL require an account.",
       studio_guest_lock_btn: "🔐 Login / Create Account Now",
 
-      // Studio Customizer Sections
+      // Studio Slots & Channels
+      studio_slots_title: "✨ OBS Overlay Cloud Slots",
+      studio_quota_label: "User Quota:",
+      studio_btn_new_slot: "+ Generate New URL",
+      studio_editing_badge: "Currently Editing ID:",
       sec_channels: "📡 Live Stream Channels",
+      sec_channels_tip: "💡 You can monitor just one platform (e.g., Twitch only) or all three together. Changes are automatically updated in the live preview on the right.",
+      label_twitch_channel: "Twitch Channel",
+      label_youtube_channel: "YouTube Live Stream",
+      label_tiktok_channel: "TikTok LIVE Username",
+      ph_twitch: "e.g.: shroud (without #)",
+      ph_youtube: "e.g.: @Streamer / Live URL",
+      ph_tiktok: "e.g.: streamer_tiktok (without @)",
+      btn_save_channels: "💾 Save Channels",
+      status_channel_synced: "✓ Synced",
+
+      // Studio Customizer Sections
       sec_visual: "🎨 Chat Visual Style & Theme",
       sec_elements: "⚙️ Visual Elements & Moderation",
       sec_custom_css: "💻 Custom CSS Editor",
@@ -171,6 +313,121 @@
     }
   };
 
+  // Bidirectional Text Phrase Dictionary for Universal Matching
+  const phrasePairs = [
+    // Header & Wakelock
+    ["LAYAR AKTIF (Anti-Sleep ON)", "SCREEN AWAKE (Anti-Sleep ON)"],
+    ["Layar Dicegah Mati", "Screen sleep prevented"],
+    ["LAYAR NORMAL (Auto-Sleep)", "NORMAL SCREEN (Auto-Sleep)"],
+    ["Bisa Mati Otomatis", "Standard timeout"],
+    ["Layar Tidur Normal", "Normal Screen Sleep"],
+    ["Fitur Anti-Mati Nonaktif", "Anti-Sleep Disabled"],
+    ["✕ Keluar OBS Mode", "✕ Exit OBS Mode"],
+    ["Atur Channel", "Channels Setup"],
+    ["OBS Mode", "OBS Mode"],
+    ["Overlay Studio 🎨", "Overlay Studio 🎨"],
+    ["Roadmap 💡", "Roadmap 💡"],
+    ["Dukung ☕", "Support ☕"],
+    ["Donasi ☕", "Donate ☕"],
+    ["Test Demo", "Test Demo"],
+    ["Login / Akun", "Login / Account"],
+    ["🔐 Login / Akun", "🔐 Login / Account"],
+    ["🛡️ Privacy", "🛡️ Privacy"],
+
+    // Toolbar & Filters
+    ["Semua Chat", "All Chats"],
+    ["Event Saja", "Events Only"],
+    ["Terbaru di Atas", "Newest on Top"],
+    ["Terbaru di Bawah", "Newest at Bottom"],
+    ["Total Chat", "Total Chats"],
+    ["Semua Event", "All Events"],
+    ["Hadiah / Donasi", "Gifts / Donations"],
+    ["Rekaman Event (Activity)", "Event Activity Log"],
+    ["Download Data JSON", "Download JSON Data"],
+    ["Download Data CSV", "Download CSV Data"],
+    ["Hapus Riwayat", "Clear History"],
+    ["Menunggu Chat Masuk...", "Waiting for Incoming Chat..."],
+    ["Pengaturan Channel Monitor", "Monitor Channels Setup"],
+    ["Batal", "Cancel"],
+    ["Simpan & Hubungkan", "Save & Connect"],
+    ["Simulasi & Uji Coba Event", "Event Simulation & Demo"],
+    ["Selesai", "Done"],
+    ["Tutup", "Close"],
+    ["Dukung StreamPulse (100% Gratis)", "Support StreamPulse (100% Free)"],
+    ["Suka Menggunakan StreamPulse?", "Enjoying StreamPulse?"],
+    ["Traktir Kopi di SociaBuzz (joo_nathan)", "Buy a Coffee on SociaBuzz (joo_nathan)"],
+
+    // Studio Customizer
+    ["Simpan Pengaturan", "Save Settings"],
+    ["💾 Simpan Pengaturan", "💾 Save Settings"],
+    ["Login / Daftar Akun", "Login / Register"],
+    ["🔐 Login / Daftar Akun", "🔐 Login / Register"],
+    ["Slot OBS Overlay Cloud", "OBS Overlay Cloud Slots"],
+    ["✨ Slot OBS Overlay Cloud", "✨ OBS Overlay Cloud Slots"],
+    ["+ Generate URL Baru", "+ Generate New URL"],
+    ["Sedang Mengedit ID:", "Currently Editing ID:"],
+    ["Saluran Live Stream", "Live Stream Channels"],
+    ["📡 Saluran Live Stream", "📡 Live Stream Channels"],
+    ["Twitch Channel", "Twitch Channel"],
+    ["YouTube Live Stream", "YouTube Live Stream"],
+    ["TikTok LIVE Username", "TikTok LIVE Username"],
+    ["Simpan Saluran", "Save Channels"],
+    ["💾 Simpan Saluran", "💾 Save Channels"],
+    ["Tersinkron", "Synced"],
+    ["✓ Tersinkron", "✓ Synced"],
+    ["Gaya & Tampilan Chat", "Chat Visual Style & Theme"],
+    ["🎨 Gaya & Tampilan Chat", "🎨 Chat Visual Style & Theme"],
+    ["Tema Overlay", "Overlay Theme"],
+    ["Ukuran Font", "Font Size"],
+    ["Durasi Pesan Menghilang (Auto-Hide)", "Message Auto-Hide Delay"],
+    ["Selalu Tampil (0s)", "Always Visible (0s)"],
+    ["Batas Maksimal Bubble Chat di Layar OBS", "Max Chat Bubbles on OBS Screen"],
+    ["Elemen Tampilan & Filter", "Visual Elements & Moderation"],
+    ["⚙️ Elemen Tampilan & Filter", "⚙️ Visual Elements & Moderation"],
+    ["Sensor Link Otomatis", "Auto-Sensor Links"],
+    ["Ubah URL di chat menjadi [LINK] di layar OBS", "Mask URLs in chat as [LINK] on OBS"],
+    ["Tampilkan Badge Twitch & YouTube (👑 Mod, VIP, Sub)", "Show Twitch & YouTube Badges (👑 Mod, VIP, Sub)"],
+    ["Tampilkan Foto Profil / Avatar Viewer", "Show Viewer Profile Avatars"],
+    ["Tampilkan Emote 7TV & Twitch", "Show 7TV & Twitch Emotes"],
+    ["Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)", "Show Event Alert Banners (Raid, Cheer, Sub, Super Chat)"],
+    ["Custom CSS Editor", "Custom CSS Editor"],
+    ["💻 Custom CSS Editor", "💻 Custom CSS Editor"],
+    ["Custom JavaScript (Opsional)", "Custom JavaScript (Optional)"],
+    ["⚡ Custom JavaScript (Opsional)", "⚡ Custom JavaScript (Optional)"],
+    ["Salin Link", "Copy Link"],
+    ["📋 Salin Link", "📋 Copy Link"],
+    ["Tersalin!", "Copied!"],
+    ["✓ Tersalin!", "✓ Copied!"],
+    ["Live Preview (Transparan di OBS)", "Live Preview (Transparent in OBS)"],
+    ["👁️ Live Preview (Transparan di OBS)", "👁️ Live Preview (Transparent in OBS)"],
+    ["Test Chat Biasa", "Test Normal Chat"],
+    ["💬 Test Chat Biasa", "💬 Test Normal Chat"],
+    ["Test Chat Link", "Test Link Chat"],
+    ["🔗 Test Chat Link", "🔗 Test Link Chat"],
+    ["Test VIP Twitch", "Test Twitch VIP"],
+    ["💎 Test VIP Twitch", "💎 Test Twitch VIP"],
+    ["Test Alert Sub", "Test Sub Alert"],
+    ["🎉 Test Alert Sub", "🎉 Test Sub Alert"],
+    ["Preview OBS Canvas", "Preview OBS Canvas"],
+    ["Masuk (Login)", "Sign In (Login)"],
+    ["Daftar Akun Baru", "Create New Account"],
+    ["Masuk Akun Streamer", "Streamer Sign In"],
+    ["Daftar Akun Baru Streamer", "Create Streamer Account"],
+    ["Masuk ke Akun 🚀", "Sign In 🚀"],
+    ["Daftar & Buat Akun 🎉", "Register & Create Account 🎉"]
+  ];
+
+  const placeholderPairs = [
+    ["Cari chat...", "Search chat..."],
+    ["Masukkan username Twitch...", "Enter Twitch username..."],
+    ["@NamaChannel atau URL live...", "@ChannelName or live stream URL..."],
+    ["Username TikTok live...", "TikTok LIVE username..."],
+    ["Contoh: shroud (tanpa #)", "e.g.: shroud (without #)"],
+    ["Contoh: @Streamer / URL Live", "e.g.: @Streamer / Live URL"],
+    ["Contoh: streamer_tiktok (tanpa @)", "e.g.: streamer_tiktok (without @)"],
+    ["Password akun...", "Account password..."]
+  ];
+
   let currentLang = localStorage.getItem('streampulse_lang') || 'id';
 
   function t(key) {
@@ -194,7 +451,7 @@
       }
     });
 
-    // Translate all elements with data-i18n attribute
+    // 1. Translate all elements with data-i18n attribute
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       if (key) {
@@ -207,13 +464,56 @@
       }
     });
 
-    // Translate tooltips
+    // 2. Translate placeholders with data-i18n-ph
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const key = el.getAttribute('data-i18n-ph');
+      if (key) el.setAttribute('placeholder', t(key));
+    });
+
+    // 3. Translate tooltips with data-i18n-title
     document.querySelectorAll('[data-i18n-title]').forEach(el => {
       const key = el.getAttribute('data-i18n-title');
       if (key) el.title = t(key);
     });
 
-    // Fire custom event
+    // 4. Translate raw text elements via bidirectional phrasePairs
+    const isEn = (currentLang === 'en');
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    let node;
+    while ((node = walker.nextNode())) {
+      const parent = node.parentElement;
+      if (!parent || parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE' || parent.hasAttribute('data-i18n')) continue;
+      const text = node.nodeValue.trim();
+      if (!text) continue;
+
+      for (const [idText, enText] of phrasePairs) {
+        if (isEn && text === idText) {
+          node.nodeValue = node.nodeValue.replace(idText, enText);
+          break;
+        } else if (!isEn && text === enText) {
+          node.nodeValue = node.nodeValue.replace(enText, idText);
+          break;
+        }
+      }
+    }
+
+    // 5. Translate raw input placeholders via placeholderPairs
+    document.querySelectorAll('input, textarea').forEach(input => {
+      if (input.hasAttribute('data-i18n-ph')) return;
+      const ph = input.getAttribute('placeholder');
+      if (!ph) return;
+      for (const [idPh, enPh] of placeholderPairs) {
+        if (isEn && ph === idPh) {
+          input.setAttribute('placeholder', enPh);
+          break;
+        } else if (!isEn && ph === enPh) {
+          input.setAttribute('placeholder', idPh);
+          break;
+        }
+      }
+    });
+
+    // Fire custom event for dynamic components
     window.dispatchEvent(new CustomEvent('language_changed', { detail: { lang: currentLang } }));
   }
 
