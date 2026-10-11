@@ -568,8 +568,22 @@
         return '#67e8f9';
       }
 
+      // Cache ID pesan untuk mencegah tampilan duplikat di OBS overlay
+      const processedOverlayMsgIds = new Set();
+
       // Add Chat Item to Overlay
       function addOverlayMessage(item) {
+        if (!item) return;
+
+        // Cegah pesan ganda tampil di layar OBS
+        const dedupeKey = item.id || `${item.platform || ''}_${item.author?.name || ''}_${item.text || ''}`;
+        if (processedOverlayMsgIds.has(dedupeKey)) return;
+        processedOverlayMsgIds.add(dedupeKey);
+        if (processedOverlayMsgIds.size > 200) {
+          const first = processedOverlayMsgIds.values().next().value;
+          processedOverlayMsgIds.delete(first);
+        }
+
         const el = document.createElement('div');
         el.className = 'overlay-item';
         if (item.isRedeem) el.classList.add('highlighted');
@@ -633,9 +647,20 @@
         }
       }
 
+      // Cache ID event untuk mencegah duplikasi alert di OBS overlay
+      const processedOverlayEventIds = new Set();
+
       // Add Event Item (Raid, Cheer, Sub, Super Chat, Gifts)
       function addOverlayEvent(evt) {
-        if (!config.showAlerts) return;
+        if (!config.showAlerts || !evt) return;
+
+        const evtKey = evt.id || `${evt.platform || ''}_${evt.eventType || ''}_${evt.author || ''}_${evt.detail || ''}_${evt.message || ''}`;
+        if (processedOverlayEventIds.has(evtKey)) return;
+        processedOverlayEventIds.add(evtKey);
+        if (processedOverlayEventIds.size > 100) {
+          const first = processedOverlayEventIds.values().next().value;
+          processedOverlayEventIds.delete(first);
+        }
 
         const el = document.createElement('div');
         el.className = 'overlay-item overlay-event';

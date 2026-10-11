@@ -879,7 +879,21 @@ document.addEventListener('DOMContentLoaded', () => {
     return '';
   }
 
+  // Cache ID pesan untuk mencegah tampilan duplikat di homepage
+  const processedChatMessageIds = new Set();
+
   function addChatMessage(chat) {
+    if (!chat) return;
+
+    // Cegah duplikasi pesan di chat monitoring
+    const dedupeKey = chat.id || `${chat.platform || ''}_${chat.author?.name || ''}_${chat.text || ''}`;
+    if (processedChatMessageIds.has(dedupeKey)) return;
+    processedChatMessageIds.add(dedupeKey);
+    if (processedChatMessageIds.size > 500) {
+      const first = processedChatMessageIds.values().next().value;
+      processedChatMessageIds.delete(first);
+    }
+
     const emptyState = chatMessages.querySelector('.empty-state');
     if (emptyState) emptyState.remove();
 
