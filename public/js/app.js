@@ -422,9 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
     checkUserSession();
   });
 
-  // Restore saved chats and events from localStorage on startup
-  restoreSavedChatAndEvents();
-
   let userToken = localStorage.getItem('streampulse_user_token') || '';
   let currentUser = null;
 
@@ -530,32 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function clearPersistedEvents() {
     localStorage.removeItem(STORAGE_KEY_SAVED_EVENTS);
-  }
-
-  function restoreSavedChatAndEvents() {
-    // Restore events recorder
-    const savedEvents = getPersistedEvents();
-    if (savedEvents && savedEvents.length > 0) {
-      savedEvents.forEach(evt => {
-        addEventToRecorder(evt, false);
-      });
-      state.totalEvents = savedEvents.length;
-      if (statTotalEvents) statTotalEvents.textContent = state.totalEvents;
-    }
-
-    // Restore chat stream
-    const savedChats = getPersistedChats();
-    if (savedChats && savedChats.length > 0) {
-      savedChats.forEach(item => {
-        if (item.kind === 'event') {
-          addEventMessageToChat(item.data, item.isHighTier);
-        } else if (item.data) {
-          addChatMessage(item.data);
-        }
-      });
-      state.totalChats = savedChats.filter(c => c.kind !== 'event').length;
-      if (statTotalChats) statTotalChats.textContent = state.totalChats;
-    }
   }
 
   async function checkUserSession() {
@@ -1106,6 +1077,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function addEventMessageToChat(evt, isHighTier = false) {
+    if (!evt) return;
+    const dedupeKey = evt.id || `evt_${evt.platform || ''}_${evt.author || ''}_${evt.timestamp || ''}_${evt.title || ''}`;
+    if (processedChatMessageIds.has(dedupeKey)) return;
+    processedChatMessageIds.add(dedupeKey);
+    if (processedChatMessageIds.size > 500) {
+      const first = processedChatMessageIds.values().next().value;
+      processedChatMessageIds.delete(first);
+    }
+
     const emptyState = chatMessages.querySelector('.empty-state');
     if (emptyState) emptyState.remove();
 
@@ -1550,4 +1530,50 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnInstallPwa) btnInstallPwa.style.display = 'none';
     deferredPrompt = null;
   });
+
+  // ==========================================
+  // RESTORE PERSISTED CHAT & EVENT LOGS ON STARTUP
+  // ==========================================
+  function restoreSavedChatAndEvents() {
+    try {
+      const savedEvents = getPersistedEvents();
+      if (Array.isArray(savedEvents) && savedEvents.length > 0) {
+        savedEvents.forEach(evt => {
+          try {
+            addEventToRecorder(evt, false);
+          } catch (e) {
+            console.warn('[StreamPulse] Error restoring event item:', e);
+          }
+        });
+        state.totalEvents = savedEvents.length;
+        if (statTotalEvents) statTotalEvents.textContent = state.totalEvents;
+
+        const giftTypes = ['gift', 'superchat', 'supersticker', 'jewels', 'cheer', 'gift_member', 'submysterygift', 'redeem'];
+        state.totalGiftsCount = savedEvents.filter(e => e && giftTypes.includes(e.eventType)).length;
+        if (statTotalGifts) statTotalGifts.textContent = state.totalGiftsCount;
+      }
+
+      const savedChats = getPersistedChats();
+      if (Array.isArray(savedChats) && savedChats.length > 0) {
+        savedChats.forEach(item => {
+          try {
+            if (item.kind === 'event' && item.data) {
+              addEventMessageToChat(item.data, item.isHighTier);
+            } else if (item.data) {
+              addChatMessage(item.data);
+            }
+          } catch (e) {
+            console.warn('[StreamPulse] Error restoring chat item:', e);
+          }
+        });
+        state.totalChats = savedChats.filter(c => c && c.kind !== 'event').length;
+        if (statTotalChats) statTotalChats.textContent = state.totalChats;
+      }
+    } catch (err) {
+      console.warn('[StreamPulse] Failed to restore saved chat/events:', err);
+    }
+  }
+
+  // Restore cache immediately after all components, handlers, and sets are initialized
+  restoreSavedChatAndEvents();
 });
