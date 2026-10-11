@@ -547,7 +547,7 @@
       }
 
       function getAuthorColor(author, platform) {
-        if (!author) return '#67e8f9';
+        if (!author) return '#000000';
         if (author.color) {
           return ensureReadableColor(author.color);
         }
@@ -565,7 +565,7 @@
           }
           return TWITCH_PALETTE[Math.abs(hash) % TWITCH_PALETTE.length];
         }
-        return '#67e8f9';
+        return '#000000';
       }
 
       // Cache ID pesan untuk mencegah tampilan duplikat di OBS overlay
@@ -607,7 +607,8 @@
         }
 
         const el = document.createElement('div');
-        el.className = 'overlay-item';
+        el.className = `overlay-item platform-${item.platform || 'twitch'}`;
+        el.dataset.platform = item.platform || '';
         if (item.isRedeem) el.classList.add('is-redeem', 'highlighted');
 
         const authorColor = getAuthorColor(author, item.platform);
@@ -712,13 +713,14 @@
         }
 
         const el = document.createElement('div');
-        el.className = 'overlay-item overlay-event';
+        el.className = `overlay-item overlay-event platform-${evt.platform || 'twitch'}`;
+        el.dataset.platform = evt.platform || '';
         if (isRedeem) el.classList.add('is-redeem', 'highlighted');
         if (evt.eventType === 'superchat') el.classList.add('youtube-superchat');
         if (evt.eventType === 'raid') el.classList.add('twitch-raid');
 
         const initial = (authorName[0] || '★').toUpperCase();
-        const authorColor = evt.authorColor || (evt.author && evt.author.color) || '#67e8f9';
+        const authorColor = evt.authorColor || (evt.author && evt.author.color) || getAuthorColor(evt.author, evt.platform);
 
         const avatarHtml = config.showAvatars
           ? (evt.avatar 
