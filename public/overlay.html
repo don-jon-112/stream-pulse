@@ -70,6 +70,10 @@
       border: 1px solid #a855f7;
       box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
     }
+    .overlay-item.is-redeem .overlay-text,
+    .overlay-text.is-redeem {
+      font-style: italic !important;
+    }
 
     /* Event Banner Item (Sub, Raid, Bits, Super Chat, Gifts) */
     .overlay-item.overlay-event {
@@ -287,6 +291,8 @@
         showAvatars: urlParams.get('avatars') !== '0',
         showAlerts: urlParams.get('alerts') !== '0',
         showEmotes: urlParams.get('emotes') !== '0',
+        showTikTokLikes: urlParams.get('ttLikes') !== '0' && urlParams.get('tiktokLikes') !== '0',
+        showTikTokGifts: urlParams.get('ttGifts') !== '0' && urlParams.get('tiktokGifts') !== '0',
         twitch: urlParams.get('twitch') || '',
         youtube: urlParams.get('youtube') || '',
         tiktok: urlParams.get('tiktok') || '',
@@ -302,6 +308,12 @@
           config = {
             ...config,
             ...profile,
+            showTikTokLikes: urlParams.get('ttLikes') !== null 
+              ? (urlParams.get('ttLikes') !== '0') 
+              : (profile.showTikTokLikes !== undefined ? profile.showTikTokLikes : true),
+            showTikTokGifts: urlParams.get('ttGifts') !== null 
+              ? (urlParams.get('ttGifts') !== '0') 
+              : (profile.showTikTokGifts !== undefined ? profile.showTikTokGifts : true),
             // Override with URL query params if explicitly present
             twitch: urlParams.get('twitch') || profile.twitch || config.twitch,
             youtube: urlParams.get('youtube') || profile.youtube || config.youtube,
@@ -510,7 +522,7 @@
         }
 
         if (chat.isRedeem) {
-          html += `<span class="badge-icon redeem-tag">💠 Poin</span>`;
+          html += `<span class="badge-icon redeem-tag">💠 Points</span>`;
         }
 
         return html;
@@ -643,7 +655,7 @@
           const detail = item.redeemDetail || 'Channel Points';
           const cleanText = (item.text || '').trim();
           textHtml = cleanText.length > 0
-            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: ${textHtml}`
+            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: <i class="redeem-msg">${textHtml}</i>`
             : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
         }
 
@@ -695,6 +707,13 @@
       // Add Event Item (Raid, Cheer, Sub, Super Chat, Gifts, Channel Points Redeem)
       function addOverlayEvent(evt) {
         if (!evt) return;
+
+        // Filter event TikTok berdasarkan pengaturan checkbox
+        if (evt.platform === 'tiktok') {
+          if (evt.eventType === 'like' && config.showTikTokLikes === false) return;
+          if (evt.eventType === 'gift' && config.showTikTokGifts === false) return;
+        }
+
         const isTwitchRedeem = (evt.platform === 'twitch') && evt.eventType === 'redeem';
         if (!config.showAlerts && !isTwitchRedeem) return;
 
@@ -742,7 +761,7 @@
           const detail = evt.detail || evt.title || 'Channel Points';
           const msg = (evt.message || '').trim();
           const formattedText = msg.length > 0
-            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: ${escapeHtml(msg)}`
+            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: <i class="redeem-msg">${escapeHtml(msg)}</i>`
             : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
           bodyContent = `
             <div class="overlay-header">
@@ -751,7 +770,7 @@
               <span class="overlay-author-name" style="color:${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
-            <div class="overlay-text is-redeem bubble-pink">${formattedText}</div>
+            <div class="overlay-text is-redeem bubble-pink" style="font-style: italic;">${formattedText}</div>
           `;
         } else {
           bodyContent = `
@@ -829,6 +848,8 @@
           const oldYoutube = config.youtube;
           const oldTiktok = config.tiktok;
           config = { ...config, ...newCfg };
+          if (newCfg.showTikTokLikes !== undefined) config.showTikTokLikes = newCfg.showTikTokLikes;
+          if (newCfg.showTikTokGifts !== undefined) config.showTikTokGifts = newCfg.showTikTokGifts;
           if (newCfg.theme) {
             document.body.className = newCfg.theme === 'glass' ? '' : `theme-${newCfg.theme}`;
           }

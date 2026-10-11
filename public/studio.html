@@ -473,6 +473,29 @@
         </label>
       </div>
 
+      <!-- FILTER EVENT TIKTOK (LIKES & GIFTS) -->
+      <div class="toggle-row">
+        <div>
+          <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_likes">Tampilkan Event TikTok Likes (❤️)</span>
+          <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton tap layar / like live TikTok</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingShowTikTokLikes" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div>
+          <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_gifts">Tampilkan Event TikTok Gift (🎁)</span>
+          <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton mengirim saweran gift TikTok</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingShowTikTokGifts" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
       <!-- 4. Custom CSS Editor -->
       <div class="section-title" data-i18n="sec_custom_css">💻 Custom CSS Editor</div>
       <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0;" data-i18n="desc_custom_css">
@@ -610,6 +633,8 @@
       const settingShowAvatars = document.getElementById('settingShowAvatars');
       const settingShowEmotes = document.getElementById('settingShowEmotes');
       const settingShowAlerts = document.getElementById('settingShowAlerts');
+      const settingShowTikTokLikes = document.getElementById('settingShowTikTokLikes');
+      const settingShowTikTokGifts = document.getElementById('settingShowTikTokGifts');
       const settingCustomCss = document.getElementById('settingCustomCss');
       const settingCustomJs = document.getElementById('settingCustomJs');
 
@@ -1067,6 +1092,8 @@
             if (data.showAvatars !== undefined) settingShowAvatars.checked = data.showAvatars;
             if (data.showEmotes !== undefined) settingShowEmotes.checked = data.showEmotes;
             if (data.showAlerts !== undefined) settingShowAlerts.checked = data.showAlerts;
+            if (data.showTikTokLikes !== undefined) settingShowTikTokLikes.checked = data.showTikTokLikes;
+            if (data.showTikTokGifts !== undefined) settingShowTikTokGifts.checked = data.showTikTokGifts;
             if (data.customCss !== undefined) settingCustomCss.value = data.customCss;
             if (data.customJs !== undefined) settingCustomJs.value = data.customJs;
             updateLabels();
@@ -1100,6 +1127,8 @@
           showAvatars: settingShowAvatars.checked,
           showEmotes: settingShowEmotes.checked,
           showAlerts: settingShowAlerts.checked,
+          showTikTokLikes: settingShowTikTokLikes.checked,
+          showTikTokGifts: settingShowTikTokGifts.checked,
           customCss: settingCustomCss.value,
           customJs: settingCustomJs.value
         };
@@ -1110,7 +1139,9 @@
           obsFinalUrl.value = '🔒 Khusus Pengguna Login - Silakan Login / Daftar untuk Mendapatkan & Menyalin URL OBS';
           return;
         }
-        const fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
+        let fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
+        if (!settingShowTikTokLikes.checked) fullUrl += '&ttLikes=0';
+        if (!settingShowTikTokGifts.checked) fullUrl += '&ttGifts=0';
         obsFinalUrl.value = fullUrl;
       }
 
@@ -1240,9 +1271,10 @@
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts].forEach(el => {
+      [settingTheme, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts].forEach(el => {
         el.addEventListener('change', () => {
           updateLabels();
+          updateUrl();
           refreshPreview();
         });
       });
@@ -1377,7 +1409,7 @@
                   eventType: 'redeem',
                   title: 'Twitch Channel Points Redeem!',
                   author: 'Joo_Nathan_Botz',
-                  detail: 'Hydrate / Minum Air (500 Poin)',
+                  detail: 'Hydrate / Minum Air (500 Points)',
                   message: 'Jangan lupa minum air bang!'
                 }
               }
@@ -1400,7 +1432,7 @@
                   eventType: 'redeem',
                   title: 'Twitch Channel Points Redeem!',
                   author: 'Joo_Nathan_Botz',
-                  detail: 'Hydrate / Minum Air (500 Poin)',
+                  detail: 'Hydrate / Minum Air (500 Points)',
                   message: ''
                 }
               }
