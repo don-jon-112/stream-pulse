@@ -638,7 +638,8 @@
           textHtml = parse7tvTokens(item.text);
         }
 
-        if (item.isRedeem) {
+        const isTwitchRedeem = (item.platform === 'twitch') && item.isRedeem;
+        if (isTwitchRedeem) {
           const detail = item.redeemDetail || 'Channel Points';
           const cleanText = (item.text || '').trim();
           textHtml = cleanText.length > 0
@@ -694,8 +695,8 @@
       // Add Event Item (Raid, Cheer, Sub, Super Chat, Gifts, Channel Points Redeem)
       function addOverlayEvent(evt) {
         if (!evt) return;
-        const isRedeem = evt.eventType === 'redeem';
-        if (!config.showAlerts && !isRedeem) return;
+        const isTwitchRedeem = (evt.platform === 'twitch') && evt.eventType === 'redeem';
+        if (!config.showAlerts && !isTwitchRedeem) return;
 
         const evtKey = evt.id || `${evt.platform || ''}_${evt.eventType || ''}_${evt.author || ''}_${evt.detail || ''}_${evt.message || ''}`;
         if (processedOverlayEventIds.has(evtKey)) return;
@@ -708,14 +709,14 @@
         const authorName = (typeof evt.author === 'object' ? evt.author.name : evt.author) || 'Viewer';
 
         // Cegah duplikasi Channel Points Redeem yang sama dari new_chat
-        if (isRedeem && evt.message && isDuplicateRedeem(authorName, evt.message)) {
+        if (isTwitchRedeem && evt.message && isDuplicateRedeem(authorName, evt.message)) {
           return;
         }
 
         const el = document.createElement('div');
         el.className = `overlay-item overlay-event platform-${evt.platform || 'twitch'}`;
         el.dataset.platform = evt.platform || '';
-        if (isRedeem) el.classList.add('is-redeem', 'highlighted');
+        if (isTwitchRedeem) el.classList.add('is-redeem', 'highlighted');
         if (evt.eventType === 'superchat') el.classList.add('youtube-superchat');
         if (evt.eventType === 'raid') el.classList.add('twitch-raid');
 
@@ -729,15 +730,15 @@
           : '';
 
         let badgesHtml = '';
-        if (isRedeem) {
+        if (isTwitchRedeem) {
           badgesHtml = renderBadges({
-            platform: evt.platform || 'twitch',
+            platform: 'twitch',
             author: typeof evt.author === 'object' ? evt.author : { name: authorName, badges: evt.badges, badgesList: evt.badgesList }
           });
         }
 
         let bodyContent = '';
-        if (isRedeem) {
+        if (isTwitchRedeem) {
           const detail = evt.detail || evt.title || 'Channel Points';
           const msg = (evt.message || '').trim();
           const formattedText = msg.length > 0
@@ -793,6 +794,7 @@
       socket.on('connect', () => {
         // Subscribe to configured channels
         socket.emit('update_channels', {
+          overlayId: profileId,
           twitch: config.twitch || '',
           youtube: config.youtube || '',
           tiktok: config.tiktok || ''

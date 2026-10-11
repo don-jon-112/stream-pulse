@@ -429,11 +429,33 @@ document.addEventListener('DOMContentLoaded', () => {
     userToken = localStorage.getItem('streampulse_user_token') || '';
     if (!userToken) {
       currentUser = null;
-      // Tamu (Guest) selalu default kosong
-      inputTwitch.value = '';
-      if (inputTwitchToken) inputTwitchToken.value = '';
-      inputYouTube.value = '';
-      inputTikTok.value = '';
+      // Muat saluran sesi tamu yang disimpan lokal jika ada
+      const guestSaved = localStorage.getItem('streampulse_guest_channels');
+      const guestToken = sessionStorage.getItem('streampulse_guest_twitch_token') || '';
+      if (guestSaved) {
+        try {
+          const parsed = JSON.parse(guestSaved);
+          inputTwitch.value = parsed.twitch || '';
+          inputYouTube.value = parsed.youtube || '';
+          inputTikTok.value = parsed.tiktok || '';
+          if (inputTwitchToken && guestToken) {
+            inputTwitchToken.value = guestToken;
+          }
+          if (parsed.twitch || parsed.youtube || parsed.tiktok) {
+            socket.emit('update_channels', {
+              twitch: parsed.twitch || '',
+              twitchToken: guestToken,
+              youtube: parsed.youtube || '',
+              tiktok: parsed.tiktok || ''
+            });
+          }
+        } catch (e) {}
+      } else {
+        inputTwitch.value = '';
+        if (inputTwitchToken) inputTwitchToken.value = '';
+        inputYouTube.value = '';
+        inputTikTok.value = '';
+      }
       renderAuthNotice();
       return;
     }
@@ -1192,7 +1214,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken });
     } else {
-      // Mode Tamu: Hanya sambungkan untuk sesi ini, tidak disimpan ke cloud akun
+      // Mode Tamu: Sambungkan untuk sesi ini dan simpan di cache lokal
+      localStorage.setItem('streampulse_guest_channels', JSON.stringify({ twitch, youtube, tiktok }));
+      if (twitchToken) {
+        sessionStorage.setItem('streampulse_guest_twitch_token', twitchToken);
+      }
       socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok });
     }
 

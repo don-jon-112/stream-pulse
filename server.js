@@ -106,13 +106,36 @@ io.on('connection', (socket) => {
   // Update channels yang dipantau oleh client ini
   socket.on('update_channels', async (data) => {
     let token = data?.twitchToken;
+    const cleanTwitch = (data?.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
+
     if (data?.userToken) {
       const users = readJsonFile(USERS_FILE, {});
       const u = Object.values(users).find(x => x.token === data.userToken);
-      if (u && (!token || token.includes('***') || token.includes('Tersimpan'))) {
+      if (u && (!token || token.includes('***') || token.includes('Tersimpan') || token.includes('••••'))) {
         token = decryptToken(u.channels?.twitchTokenEncrypted);
       }
     }
+
+    // Jika tidak ada token (misal dari OBS overlay), cari dari owner overlay atau dari pool yang sudah berjalan
+    if (!token && data?.overlayId) {
+      const overlays = readJsonFile(OVERLAYS_FILE, {});
+      const ovl = overlays[data.overlayId];
+      if (ovl && ovl.owner) {
+        const users = readJsonFile(USERS_FILE, {});
+        const u = users[ovl.owner];
+        if (u?.channels?.twitchTokenEncrypted) {
+          token = decryptToken(u.channels.twitchTokenEncrypted);
+        }
+      }
+    }
+
+    if (!token && cleanTwitch) {
+      const existingPool = streamManager.twitchPool.get(cleanTwitch);
+      if (existingPool && existingPool.token) {
+        token = existingPool.token;
+      }
+    }
+
     await streamManager.updateClientChannels(socket, { ...data, twitchToken: token });
   });
 
@@ -730,7 +753,8 @@ app.post('/api/user/channels', (req, res) => {
   if (tiktok !== undefined) currentUser.channels.tiktok = String(tiktok).trim();
 
   // Encrypt OAuth Token if provided and not masked placeholder
-  if (twitchToken !== undefined && !String(twitchToken).includes('***') && String(twitchToken).trim()) {
+  const isMaskedToken = String(twitchToken).includes('***') || String(twitchToken).includes('••••') || String(twitchToken).includes('Tersimpan');
+  if (twitchToken !== undefined && !isMaskedToken && String(twitchToken).trim()) {
     currentUser.channels.twitchTokenEncrypted = encryptToken(String(twitchToken).trim());
   } else if (twitchToken === '') {
     currentUser.channels.twitchTokenEncrypted = '';
