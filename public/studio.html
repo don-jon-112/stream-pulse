@@ -215,6 +215,10 @@
       justify-content: space-between;
     }
 
+    :root {
+      color-scheme: dark;
+    }
+
     .form-input, .form-select {
       width: 100%;
       padding: 9px 12px;
@@ -224,6 +228,13 @@
       color: #fff;
       font-size: 0.85rem;
       box-sizing: border-box;
+      color-scheme: dark;
+    }
+
+    .form-select option, .form-select optgroup {
+      background-color: #0f172a !important;
+      color: #f8fafc !important;
+      padding: 8px 12px;
     }
 
     .form-textarea {
@@ -600,6 +611,18 @@
         </div>
       </div>
 
+      <!-- Kustomisasi Warna Nama Pengirim Pesan (Username Color) -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>Warna Nama Pengirim (Username Color)</span>
+          <span id="labelAuthorColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#67e8f9</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="color" id="settingAuthorColor" value="#67e8f9" style="width:44px; height:36px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
+          <span style="font-size:0.75rem; color:var(--text-tertiary);">Kustomisasi warna nama akun pengirim pesan di OBS</span>
+        </div>
+      </div>
+
       <div class="form-group">
         <div class="form-label">
           <span data-i18n="sec_font_size">Ukuran Font</span>
@@ -686,6 +709,106 @@
           </label>
         </div>
 
+        <!-- Gunakan Warna Tiap User Twitch -->
+        <div class="toggle-row">
+          <div>
+            <span style="font-size:0.85rem;">Gunakan Warna Asli Username Twitch (Warna Profil User)</span>
+            <div style="font-size:0.72rem; color:var(--text-tertiary);">
+              Jika aktif, nama pengirim Twitch menggunakan warna profil masing-masing user (!important). Jika nonaktif, menggunakan warna nama pengirim umum dari Gaya & Tampilan Chat.
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingUseTwitchColors" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Kustomisasi Alert Streaming Twitch -->
+        <div style="margin-top:8px; padding-top:10px; border-top:1px dashed rgba(168, 85, 247, 0.3);">
+          <div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;" data-i18n="sec_alert_custom">
+            🔔 Kustomisasi Alert Streaming (Twitch)
+          </div>
+          <div style="font-size:0.72rem; color:var(--text-tertiary); margin-bottom:10px; line-height:1.4;">
+            Sesuaikan background, warna teks, dan pesan untuk setiap jenis alert interaksi live stream Twitch Anda:
+          </div>
+
+          <!-- Subscription Alert Customizer -->
+          <div style="background:rgba(145,70,255,0.06); border:1px solid rgba(145,70,255,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+            <div style="font-size:0.8rem; font-weight:800; color:#c084fc; margin-bottom:6px;">⭐ Subscription / Langganan</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                <input type="text" id="settingAlertSubBg" class="form-input" placeholder="linear-gradient(...) / #hex" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                <input type="color" id="settingAlertSubTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {detail})</label>
+              <input type="text" id="settingAlertSubText" class="form-input" placeholder="Misal: {author} berlangganan!" style="font-size:0.75rem; padding:6px 8px;">
+            </div>
+          </div>
+
+          <!-- Cheer / Bits Alert Customizer -->
+          <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+            <div style="font-size:0.8rem; font-weight:800; color:#fbbf24; margin-bottom:6px;">💎 Bits / Cheer Alert</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                <input type="text" id="settingAlertCheerBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                <input type="color" id="settingAlertCheerTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {bits})</label>
+              <input type="text" id="settingAlertCheerText" class="form-input" placeholder="Misal: {author} bersorak {bits} Bits!" style="font-size:0.75rem; padding:6px 8px;">
+            </div>
+          </div>
+
+          <!-- Raid Alert Customizer -->
+          <div style="background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+            <div style="font-size:0.8rem; font-weight:800; color:#fb7185; margin-bottom:6px;">🚀 Raid Alert</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                <input type="text" id="settingAlertRaidBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                <input type="color" id="settingAlertRaidTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {viewers})</label>
+              <input type="text" id="settingAlertRaidText" class="form-input" placeholder="Misal: {author} raid bersama {viewers} penonton!" style="font-size:0.75rem; padding:6px 8px;">
+            </div>
+          </div>
+
+          <!-- Channel Points Redeem Alert Customizer -->
+          <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+            <div style="font-size:0.8rem; font-weight:800; color:#34d399; margin-bottom:6px;">💠 Channel Points Redeem</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                <input type="text" id="settingAlertRedeemBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                <input type="color" id="settingAlertRedeemTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {reward}, {message})</label>
+              <input type="text" id="settingAlertRedeemText" class="form-input" placeholder="Misal: {author} menukarkan {reward}" style="font-size:0.75rem; padding:6px 8px;">
+            </div>
+          </div>
+        </div>
+
         <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_twitch_info">
           💡 Redeem Channel Points, Bits, dan Subscription aktif otomatis di OBS overlay.
         </div>
@@ -740,88 +863,6 @@
             <input type="checkbox" id="settingShowTikTokGifts" checked>
             <span class="toggle-slider"></span>
           </label>
-        </div>
-      </div>
-
-      <!-- 3B. Alert Customization (Twitch, YouTube, TikTok) -->
-      <div class="section-title" data-i18n="sec_alert_custom">🔔 Kustomisasi Alert Streaming</div>
-      <div style="font-size:0.73rem; color:var(--text-tertiary); margin-bottom:10px; line-height:1.4;">
-        Sesuaikan warna background, warna teks, dan pesan teks untuk setiap jenis alert interaksi live stream Anda.
-      </div>
-
-      <!-- Subscription Alert Customizer -->
-      <div style="background:rgba(145,70,255,0.06); border:1px solid rgba(145,70,255,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-        <div style="font-size:0.8rem; font-weight:800; color:#c084fc; margin-bottom:6px;">⭐ Subscription / Langganan</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-            <input type="text" id="settingAlertSubBg" class="form-input" placeholder="linear-gradient(...) / #hex" style="font-size:0.75rem; padding:6px 8px;">
-          </div>
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-            <input type="color" id="settingAlertSubTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-          </div>
-        </div>
-        <div>
-          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {detail})</label>
-          <input type="text" id="settingAlertSubText" class="form-input" placeholder="Misal: {author} berlangganan!" style="font-size:0.75rem; padding:6px 8px;">
-        </div>
-      </div>
-
-      <!-- Cheer / Bits Alert Customizer -->
-      <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-        <div style="font-size:0.8rem; font-weight:800; color:#fbbf24; margin-bottom:6px;">💎 Bits / Cheer Alert</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-            <input type="text" id="settingAlertCheerBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
-          </div>
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-            <input type="color" id="settingAlertCheerTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-          </div>
-        </div>
-        <div>
-          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {bits})</label>
-          <input type="text" id="settingAlertCheerText" class="form-input" placeholder="Misal: {author} bersorak {bits} Bits!" style="font-size:0.75rem; padding:6px 8px;">
-        </div>
-      </div>
-
-      <!-- Raid Alert Customizer -->
-      <div style="background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-        <div style="font-size:0.8rem; font-weight:800; color:#fb7185; margin-bottom:6px;">🚀 Raid Alert</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-            <input type="text" id="settingAlertRaidBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
-          </div>
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-            <input type="color" id="settingAlertRaidTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-          </div>
-        </div>
-        <div>
-          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {viewers})</label>
-          <input type="text" id="settingAlertRaidText" class="form-input" placeholder="Misal: {author} raid bersama {viewers} penonton!" style="font-size:0.75rem; padding:6px 8px;">
-        </div>
-      </div>
-
-      <!-- Channel Points Redeem Alert Customizer -->
-      <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-        <div style="font-size:0.8rem; font-weight:800; color:#34d399; margin-bottom:6px;">💠 Channel Points Redeem</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-            <input type="text" id="settingAlertRedeemBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
-          </div>
-          <div>
-            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-            <input type="color" id="settingAlertRedeemTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-          </div>
-        </div>
-        <div>
-          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {reward}, {message})</label>
-          <input type="text" id="settingAlertRedeemText" class="form-input" placeholder="Misal: {author} menukarkan {reward}" style="font-size:0.75rem; padding:6px 8px;">
         </div>
       </div>
 
@@ -1002,6 +1043,9 @@
       const labelBgOpacity = document.getElementById('labelBgOpacity');
       const settingTextColor = document.getElementById('settingTextColor');
       const labelTextColorHex = document.getElementById('labelTextColorHex');
+      const settingAuthorColor = document.getElementById('settingAuthorColor');
+      const labelAuthorColorHex = document.getElementById('labelAuthorColorHex');
+      const settingUseTwitchColors = document.getElementById('settingUseTwitchColors');
 
       // Alert Customizers
       const settingAlertSubBg = document.getElementById('settingAlertSubBg');
@@ -1565,6 +1609,13 @@
               settingTextColor.value = data.textColor;
               if (labelTextColorHex) labelTextColorHex.textContent = data.textColor;
             }
+            if (data.authorColor !== undefined) {
+              settingAuthorColor.value = data.authorColor;
+              if (labelAuthorColorHex) labelAuthorColorHex.textContent = data.authorColor;
+            }
+            if (data.useTwitchColors !== undefined) {
+              settingUseTwitchColors.checked = data.useTwitchColors;
+            }
 
             if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
@@ -1630,6 +1681,8 @@
           bgColor: settingBgColor ? settingBgColor.value : '#0d111b',
           bgOpacity: settingBgOpacity ? parseInt(settingBgOpacity.value, 10) : 88,
           textColor: settingTextColor ? settingTextColor.value : '#e2e8f0',
+          authorColor: settingAuthorColor ? settingAuthorColor.value : '#67e8f9',
+          useTwitchColors: settingUseTwitchColors ? settingUseTwitchColors.checked : true,
           fontSize: parseInt(settingFontSize.value, 10),
           hideDelay: parseInt(settingHideDelay.value, 10),
           maxMessages: parseInt(settingMaxMessages.value, 10) || 15,
@@ -1669,6 +1722,8 @@
         if (settingBgColor && settingBgColor.value !== '#0d111b') fullUrl += `&bgColor=${encodeURIComponent(settingBgColor.value)}`;
         if (settingBgOpacity && settingBgOpacity.value !== '88') fullUrl += `&bgOpacity=${settingBgOpacity.value}`;
         if (settingTextColor && settingTextColor.value !== '#e2e8f0') fullUrl += `&textColor=${encodeURIComponent(settingTextColor.value)}`;
+        if (settingAuthorColor && settingAuthorColor.value !== '#67e8f9') fullUrl += `&authorColor=${encodeURIComponent(settingAuthorColor.value)}`;
+        if (settingUseTwitchColors && !settingUseTwitchColors.checked) fullUrl += '&useTwitchColors=0';
         if (!settingShowTikTokLikes.checked) fullUrl += '&ttLikes=0';
         if (!settingShowTikTokGifts.checked) fullUrl += '&ttGifts=0';
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
@@ -1847,6 +1902,19 @@
       if (settingTextColor) {
         settingTextColor.addEventListener('input', () => {
           if (labelTextColorHex) labelTextColorHex.textContent = settingTextColor.value;
+          updateUrl();
+          refreshPreview();
+        });
+      }
+      if (settingAuthorColor) {
+        settingAuthorColor.addEventListener('input', () => {
+          if (labelAuthorColorHex) labelAuthorColorHex.textContent = settingAuthorColor.value;
+          updateUrl();
+          refreshPreview();
+        });
+      }
+      if (settingUseTwitchColors) {
+        settingUseTwitchColors.addEventListener('change', () => {
           updateUrl();
           refreshPreview();
         });

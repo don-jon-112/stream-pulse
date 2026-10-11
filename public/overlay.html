@@ -246,7 +246,7 @@
     .overlay-author-name {
       font-size: 0.9rem;
       font-weight: 800;
-      color: #f8fafc;
+      color: var(--author-custom, #67e8f9);
       text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
 
@@ -326,6 +326,8 @@
         showEmotes: urlParams.get('emotes') !== '0',
         showTikTokLikes: urlParams.get('ttLikes') !== '0' && urlParams.get('tiktokLikes') !== '0',
         showTikTokGifts: urlParams.get('ttGifts') !== '0' && urlParams.get('tiktokGifts') !== '0',
+        authorColor: urlParams.get('authorColor') || '',
+        useTwitchColors: urlParams.get('useTwitchColors') !== '0',
         twitch: urlParams.get('twitch') || '',
         youtube: urlParams.get('youtube') || '',
         tiktok: urlParams.get('tiktok') || '',
@@ -353,6 +355,10 @@
             showYtBadges: urlParams.get('ytBadges') !== null
               ? (urlParams.get('ytBadges') !== '0')
               : (profile.showYtBadges !== undefined ? profile.showYtBadges : (profile.showBadges !== undefined ? profile.showBadges : true)),
+            authorColor: urlParams.get('authorColor') || profile.authorColor || config.authorColor,
+            useTwitchColors: urlParams.get('useTwitchColors') !== null
+              ? (urlParams.get('useTwitchColors') !== '0')
+              : (profile.useTwitchColors !== undefined ? profile.useTwitchColors : true),
             // Override with URL query params if explicitly present
             twitch: urlParams.get('twitch') || profile.twitch || config.twitch,
             youtube: urlParams.get('youtube') || profile.youtube || config.youtube,
@@ -395,6 +401,9 @@
 
         if (config.textColor) {
           document.documentElement.style.setProperty('--text-custom', config.textColor);
+        }
+        if (config.authorColor) {
+          document.documentElement.style.setProperty('--author-custom', config.authorColor);
         }
       }
       applyVisualConfig();
@@ -628,25 +637,43 @@
       }
 
       function getAuthorColor(author, platform) {
-        if (!author) return '#000000';
+        if (!author) return config.authorColor || '#67e8f9';
+
+        // Jika platform Twitch
+        if (platform === 'twitch') {
+          // Opsi toggle apakah ingin menggunakan warna masing-masing user Twitch (default true)
+          if (config.useTwitchColors !== false) {
+            if (author.color) {
+              return ensureReadableColor(author.color);
+            }
+            if (author.name) {
+              const TWITCH_PALETTE = [
+                '#FF4A4A', '#38BDF8', '#00FF7F', '#FF7F50', '#A3E635',
+                '#FF6B35', '#2DD4BF', '#FBBF24', '#FB923C', '#22D3EE',
+                '#60A5FA', '#C084FC', '#4ADE80', '#34D399', '#F472B6'
+              ];
+              let hash = 0;
+              const name = author.name.toLowerCase();
+              for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+              }
+              return TWITCH_PALETTE[Math.abs(hash) % TWITCH_PALETTE.length];
+            }
+          } else if (config.authorColor) {
+            return config.authorColor;
+          }
+        }
+
+        // Platform selain Twitch atau jika warna kustom umum diset
+        if (config.authorColor) {
+          return config.authorColor;
+        }
+
         if (author.color) {
           return ensureReadableColor(author.color);
         }
-        // Fallback deterministik palet Twitch jika warna belum terisi
-        if (platform === 'twitch' && author.name) {
-          const TWITCH_PALETTE = [
-            '#FF4A4A', '#38BDF8', '#00FF7F', '#FF7F50', '#A3E635',
-            '#FF6B35', '#2DD4BF', '#FBBF24', '#FB923C', '#22D3EE',
-            '#60A5FA', '#C084FC', '#4ADE80', '#34D399', '#F472B6'
-          ];
-          let hash = 0;
-          const name = author.name.toLowerCase();
-          for (let i = 0; i < name.length; i++) {
-            hash = name.charCodeAt(i) + ((hash << 5) - hash);
-          }
-          return TWITCH_PALETTE[Math.abs(hash) % TWITCH_PALETTE.length];
-        }
-        return '#000000';
+
+        return '#67e8f9';
       }
 
       // Cache ID pesan untuk mencegah tampilan duplikat di OBS overlay
@@ -776,7 +803,7 @@
             <div class="overlay-header">
               ${badgesHtml}
               ${item.isRedeem ? '<span class="badge-icon redeem-tag">💠 Redeem</span>' : ''}
-              <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
+              <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)} ${item.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
           </div>
@@ -844,7 +871,7 @@
         if (evt.eventType === 'raid') el.classList.add('twitch-raid');
 
         const initial = (authorName[0] || '★').toUpperCase();
-        const authorColor = evt.authorColor || (evt.author && evt.author.color) || getAuthorColor(evt.author, evt.platform);
+        const authorColor = getAuthorColor(typeof evt.author === 'object' ? evt.author : { name: authorName, color: evt.authorColor }, evt.platform);
 
         const avatarHtml = config.showAvatars
           ? (evt.avatar 
@@ -910,7 +937,7 @@
             <div class="overlay-header">
               ${badgesHtml}
               <span class="badge-icon redeem-tag">💠 Redeem</span>
-              <span class="overlay-author-name" style="color:${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
+              <span class="overlay-author-name" style="color:${escapeHtml(authorColor)} ${evt.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-event-title" ${customAlertTextColor ? `style="color:${escapeHtml(customAlertTextColor)};"` : ''}>${escapeHtml(customTitle)}${customDetail ? ` • ${escapeHtml(customDetail)}` : ''}</div>
             <div class="overlay-text is-redeem bubble-pink" style="font-style: italic; ${customAlertTextColor ? `color:${escapeHtml(customAlertTextColor)};` : ''}">${formattedText}</div>
@@ -928,7 +955,7 @@
           bodyContent = `
             <div class="overlay-header">
               <span class="badge-icon" style="background:#f59e0b; color:#000;">🎉 ALERT</span>
-              <span class="overlay-author-name" style="color:#67e8f9;">${escapeHtml(authorName)}</span>
+              <span class="overlay-author-name" style="color:${escapeHtml(authorColor)} ${evt.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-event-title" ${customAlertTextColor ? `style="color:${escapeHtml(customAlertTextColor)};"` : ''}>${escapeHtml(customTitle)}${customDetail ? ` • ${escapeHtml(customDetail)}` : ''}</div>
             ${displayMsg ? `<div class="overlay-text" style="font-style:italic; ${customAlertTextColor ? `color:${escapeHtml(customAlertTextColor)};` : ''}">"${escapeHtml(displayMsg)}"</div>` : ''}
