@@ -422,34 +422,162 @@ document.addEventListener('DOMContentLoaded', () => {
     checkUserSession();
   });
 
+  // Restore saved chats and events from localStorage on startup
+  restoreSavedChatAndEvents();
+
   let userToken = localStorage.getItem('streampulse_user_token') || '';
   let currentUser = null;
+
+  // ==========================================
+  // CHANNEL SYNCHRONIZATION HELPERS (SHARED WITH OVERLAY STUDIO)
+  // ==========================================
+  function getStoredUserChannels() {
+    return JSON.parse(
+      localStorage.getItem('streampulse_user_channels') ||
+      localStorage.getItem('streampulse_guest_channels') ||
+      localStorage.getItem('streampulse_my_channels') ||
+      '{}'
+    );
+  }
+
+  function saveStoredUserChannels(chData) {
+    localStorage.setItem('streampulse_user_channels', JSON.stringify(chData));
+    localStorage.setItem('streampulse_guest_channels', JSON.stringify(chData));
+    localStorage.setItem('streampulse_my_channels', JSON.stringify(chData));
+  }
+
+  // Cross-tab real-time sync with Overlay Studio
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'streampulse_user_channels' || e.key === 'streampulse_my_channels' || e.key === 'streampulse_guest_channels') {
+      try {
+        const ch = JSON.parse(e.newValue || '{}');
+        let changed = false;
+        if (ch.twitch !== undefined && inputTwitch.value !== ch.twitch) {
+          inputTwitch.value = ch.twitch;
+          changed = true;
+        }
+        if (ch.youtube !== undefined && inputYouTube.value !== ch.youtube) {
+          inputYouTube.value = ch.youtube;
+          changed = true;
+        }
+        if (ch.tiktok !== undefined && inputTikTok.value !== ch.tiktok) {
+          inputTikTok.value = ch.tiktok;
+          changed = true;
+        }
+        if (changed) {
+          const guestToken = sessionStorage.getItem('streampulse_guest_twitch_token') || '';
+          socket.emit('update_channels', {
+            twitch: inputTwitch.value.trim(),
+            twitchToken: guestToken,
+            youtube: inputYouTube.value.trim(),
+            tiktok: inputTikTok.value.trim(),
+            userToken: userToken || undefined
+          });
+        }
+      } catch (err) {}
+    }
+  });
+
+  // ==========================================
+  // LOCAL STORAGE PERSISTENCE FOR CHAT & EVENTS
+  // ==========================================
+  const STORAGE_KEY_SAVED_CHATS = 'streampulse_saved_chats_v1';
+  const STORAGE_KEY_SAVED_EVENTS = 'streampulse_saved_events_v1';
+  const MAX_PERSISTED_CHATS = 60;
+  const MAX_PERSISTED_EVENTS = 60;
+
+  function getPersistedChats() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY_SAVED_CHATS) || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function savePersistedChat(item) {
+    try {
+      const list = getPersistedChats();
+      list.push(item);
+      if (list.length > MAX_PERSISTED_CHATS) {
+        list.splice(0, list.length - MAX_PERSISTED_CHATS);
+      }
+      localStorage.setItem(STORAGE_KEY_SAVED_CHATS, JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  function getPersistedEvents() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY_SAVED_EVENTS) || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function savePersistedEvent(evt) {
+    try {
+      const list = getPersistedEvents();
+      list.push(evt);
+      if (list.length > MAX_PERSISTED_EVENTS) {
+        list.splice(0, list.length - MAX_PERSISTED_EVENTS);
+      }
+      localStorage.setItem(STORAGE_KEY_SAVED_EVENTS, JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  function clearPersistedChats() {
+    localStorage.removeItem(STORAGE_KEY_SAVED_CHATS);
+  }
+
+  function clearPersistedEvents() {
+    localStorage.removeItem(STORAGE_KEY_SAVED_EVENTS);
+  }
+
+  function restoreSavedChatAndEvents() {
+    // Restore events recorder
+    const savedEvents = getPersistedEvents();
+    if (savedEvents && savedEvents.length > 0) {
+      savedEvents.forEach(evt => {
+        addEventToRecorder(evt, false);
+      });
+      state.totalEvents = savedEvents.length;
+      if (statTotalEvents) statTotalEvents.textContent = state.totalEvents;
+    }
+
+    // Restore chat stream
+    const savedChats = getPersistedChats();
+    if (savedChats && savedChats.length > 0) {
+      savedChats.forEach(item => {
+        if (item.kind === 'event') {
+          addEventMessageToChat(item.data, item.isHighTier);
+        } else if (item.data) {
+          addChatMessage(item.data);
+        }
+      });
+      state.totalChats = savedChats.filter(c => c.kind !== 'event').length;
+      if (statTotalChats) statTotalChats.textContent = state.totalChats;
+    }
+  }
 
   async function checkUserSession() {
     userToken = localStorage.getItem('streampulse_user_token') || '';
     if (!userToken) {
       currentUser = null;
       // Muat saluran sesi tamu yang disimpan lokal jika ada
-      const guestSaved = localStorage.getItem('streampulse_guest_channels');
+      const saved = getStoredUserChannels();
       const guestToken = sessionStorage.getItem('streampulse_guest_twitch_token') || '';
-      if (guestSaved) {
-        try {
-          const parsed = JSON.parse(guestSaved);
-          inputTwitch.value = parsed.twitch || '';
-          inputYouTube.value = parsed.youtube || '';
-          inputTikTok.value = parsed.tiktok || '';
-          if (inputTwitchToken && guestToken) {
-            inputTwitchToken.value = guestToken;
-          }
-          if (parsed.twitch || parsed.youtube || parsed.tiktok) {
-            socket.emit('update_channels', {
-              twitch: parsed.twitch || '',
-              twitchToken: guestToken,
-              youtube: parsed.youtube || '',
-              tiktok: parsed.tiktok || ''
-            });
-          }
-        } catch (e) {}
+      if (saved && (saved.twitch || saved.youtube || saved.tiktok)) {
+        inputTwitch.value = saved.twitch || '';
+        inputYouTube.value = saved.youtube || '';
+        inputTikTok.value = saved.tiktok || '';
+        if (inputTwitchToken && guestToken) {
+          inputTwitchToken.value = guestToken;
+        }
+        socket.emit('update_channels', {
+          twitch: saved.twitch || '',
+          twitchToken: guestToken,
+          youtube: saved.youtube || '',
+          tiktok: saved.tiktok || ''
+        });
       } else {
         inputTwitch.value = '';
         if (inputTwitchToken) inputTwitchToken.value = '';
@@ -470,6 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
           inputTwitch.value = currentUser.channels.twitch || '';
           inputYouTube.value = currentUser.channels.youtube || '';
           inputTikTok.value = currentUser.channels.tiktok || '';
+          saveStoredUserChannels(currentUser.channels);
           if (currentUser.channels.hasTwitchToken && inputTwitchToken) {
             inputTwitchToken.value = '•••••••• (Token Twitch Tersimpan Aman & Terenkripsi AES-256)';
           }
@@ -569,6 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statTotalChats.textContent = state.totalChats;
 
     addChatMessage(chatItem);
+    savePersistedChat({ kind: 'chat', data: chatItem });
   });
 
   socket.on('new_event', (eventItem) => {
@@ -597,6 +727,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addEventMessageToChat(eventItem, isHighTier);
     addEventToRecorder(eventItem, true);
+    savePersistedChat({ kind: 'event', data: eventItem, isHighTier });
+    savePersistedEvent(eventItem);
   });
 
   socket.on('events_cleared', () => {
@@ -605,6 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.totalGiftsCount = 0;
     statTotalEvents.textContent = '0';
     statTotalGifts.textContent = '0';
+    clearPersistedEvents();
     recorderList.innerHTML = `
       <div class="empty-state" style="padding: 20px;">
         <p>Belum ada event tercatat.</p>
@@ -1056,6 +1189,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // EVENT RECORDER LIST
   // ==========================================
   function addEventToRecorder(evt, isNew = true) {
+    if (!evt) return;
+    if (state.eventsList.some(e => (e.id && evt.id && e.id === evt.id) || (e.timestamp === evt.timestamp && e.author === evt.author && e.title === evt.title))) {
+      return;
+    }
     state.eventsList.push(evt);
     if (state.eventsList.length > 100) {
       state.eventsList.shift();
@@ -1193,6 +1330,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const youtube = inputYouTube.value.trim();
     const tiktok = inputTikTok.value.trim();
 
+    const chData = { twitch, youtube, tiktok };
+    saveStoredUserChannels(chData);
+
     if (currentUser && userToken) {
       // Streamer Terdaftar: Simpan ke cloud akun dan enkripsi Twitch Token di server
       try {
@@ -1215,7 +1355,6 @@ document.addEventListener('DOMContentLoaded', () => {
       socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken });
     } else {
       // Mode Tamu: Sambungkan untuk sesi ini dan simpan di cache lokal
-      localStorage.setItem('streampulse_guest_channels', JSON.stringify({ twitch, youtube, tiktok }));
       if (twitchToken) {
         sessionStorage.setItem('streampulse_guest_twitch_token', twitchToken);
       }
@@ -1310,12 +1449,49 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnClearEvents.addEventListener('click', async () => {
-    const ok = await spConfirm('Bersihkan semua riwayat event yang tercatat saat ini?', 'Bersihkan Riwayat Event', 'warning');
+    const ok = await spConfirm(
+      window.getCurrentLang && window.getCurrentLang() === 'en'
+        ? 'Clear all recorded events and history storage?'
+        : 'Bersihkan semua riwayat event yang tercatat saat ini?',
+      window.t ? window.t('dialog_confirm') : 'Bersihkan Riwayat Event',
+      'warning'
+    );
     if (ok) {
+      clearPersistedEvents();
       socket.emit('clear_events');
-      spToast('Riwayat event berhasil dibersihkan', 'success');
+      spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Event history cleared' : 'Riwayat event berhasil dibersihkan', 'success');
     }
   });
+
+  if (btnClearChatScreen) {
+    btnClearChatScreen.addEventListener('click', async () => {
+      const ok = await spConfirm(
+        window.getCurrentLang && window.getCurrentLang() === 'en'
+          ? 'Clear all chat messages from screen and storage?'
+          : 'Bersihkan semua chat dari layar dan penyimpanan lokal?',
+        window.t ? window.t('dialog_confirm') : 'Bersihkan Layar Chat',
+        'warning'
+      );
+      if (ok) {
+        clearPersistedChats();
+        chatMessages.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
+              </svg>
+            </div>
+            <h3 data-i18n="empty_chat_title">Layar Chat Dibersihkan</h3>
+            <p>Menunggu chat baru masuk dari stream...</p>
+          </div>
+        `;
+        processedChatMessageIds.clear();
+        state.totalChats = 0;
+        if (statTotalChats) statTotalChats.textContent = '0';
+        spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Chat screen cleared' : 'Layar chat berhasil dibersihkan', 'success');
+      }
+    });
+  }
 
   // ==========================================
   // MOBILE NAVIGATION TABS

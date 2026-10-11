@@ -288,6 +288,8 @@
         fontSize: parseInt(urlParams.get('fontSize') || '15', 10),
         hideDelay: parseInt(urlParams.get('hideDelay') || '0', 10),
         showBadges: urlParams.get('badges') !== '0',
+        showTwitchBadges: urlParams.get('twitchBadges') !== '0',
+        showYtBadges: urlParams.get('ytBadges') !== '0',
         showAvatars: urlParams.get('avatars') !== '0',
         showAlerts: urlParams.get('alerts') !== '0',
         showEmotes: urlParams.get('emotes') !== '0',
@@ -314,6 +316,12 @@
             showTikTokGifts: urlParams.get('ttGifts') !== null 
               ? (urlParams.get('ttGifts') !== '0') 
               : (profile.showTikTokGifts !== undefined ? profile.showTikTokGifts : true),
+            showTwitchBadges: urlParams.get('twitchBadges') !== null
+              ? (urlParams.get('twitchBadges') !== '0')
+              : (profile.showTwitchBadges !== undefined ? profile.showTwitchBadges : (profile.showBadges !== undefined ? profile.showBadges : true)),
+            showYtBadges: urlParams.get('ytBadges') !== null
+              ? (urlParams.get('ytBadges') !== '0')
+              : (profile.showYtBadges !== undefined ? profile.showYtBadges : (profile.showBadges !== undefined ? profile.showBadges : true)),
             // Override with URL query params if explicitly present
             twitch: urlParams.get('twitch') || profile.twitch || config.twitch,
             youtube: urlParams.get('youtube') || profile.youtube || config.youtube,
@@ -459,6 +467,7 @@
         const author = chat.author || {};
 
         if (chat.platform === 'twitch') {
+          if (config.showTwitchBadges === false) return '';
           // Prioritaskan custom badges dari channel Twitch (max 3 badges)
           if (Array.isArray(author.badgesList) && author.badgesList.length > 0) {
             author.badgesList.slice(0, 3).forEach(b => {
@@ -495,6 +504,7 @@
             html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
           }
         } else if (chat.platform === 'youtube') {
+          if (config.showYtBadges === false) return '';
           // 1. YouTube Official Owner Badge
           if (author.isOwner) {
             html += `
@@ -848,6 +858,8 @@
           const oldYoutube = config.youtube;
           const oldTiktok = config.tiktok;
           config = { ...config, ...newCfg };
+          if (newCfg.showTwitchBadges !== undefined) config.showTwitchBadges = newCfg.showTwitchBadges;
+          if (newCfg.showYtBadges !== undefined) config.showYtBadges = newCfg.showYtBadges;
           if (newCfg.showTikTokLikes !== undefined) config.showTikTokLikes = newCfg.showTikTokLikes;
           if (newCfg.showTikTokGifts !== undefined) config.showTikTokGifts = newCfg.showTikTokGifts;
           if (newCfg.theme) {

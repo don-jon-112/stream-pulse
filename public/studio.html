@@ -553,74 +553,122 @@
         <input type="range" id="settingMaxMessages" min="3" max="50" step="1" value="15" style="width:100%;">
       </div>
 
-      <!-- 3. Toggles & Security Link Masking -->
+      <!-- 3. Toggles & Platform Elements -->
       <div class="section-title" data-i18n="sec_elements">⚙️ Elemen Tampilan & Filter</div>
       
-      <!-- SENSOR / HIDE LINK -->
-      <div class="toggle-row">
-        <div>
-          <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_mask_links">Sensor Link Otomatis</span>
-          <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n-html="sec_mask_links_sub">Ubah URL di chat menjadi <code>[LINK]</code> di layar OBS</div>
+      <!-- General / Moderation -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">🌐 Tampilan Umum & Sensor</div>
+        
+        <!-- SENSOR / HIDE LINK -->
+        <div class="toggle-row">
+          <div>
+            <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_mask_links">Sensor Link Otomatis</span>
+            <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n-html="sec_mask_links_sub">Ubah URL di chat menjadi <code>[LINK]</code> di layar OBS</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingMaskLinks">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingMaskLinks">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
 
-      <div class="toggle-row">
-        <span style="font-size:0.85rem;" data-i18n="sec_show_badges">Tampilkan Badge Twitch & YouTube (👑 Mod, VIP, Sub)</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingShowBadges" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <span style="font-size:0.85rem;" data-i18n="sec_show_avatars">Tampilkan Foto Profil / Avatar Viewer</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingShowAvatars" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <span style="font-size:0.85rem;" data-i18n="sec_show_emotes">Tampilkan Emote 7TV & Twitch</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingShowEmotes" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <span style="font-size:0.85rem;" data-i18n="sec_show_alerts">Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingShowAlerts" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <!-- FILTER EVENT TIKTOK (LIKES & GIFTS) -->
-      <div class="toggle-row">
-        <div>
-          <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_likes">Tampilkan Event TikTok Likes (❤️)</span>
-          <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton tap layar / like live TikTok</div>
+        <div class="toggle-row">
+          <span style="font-size:0.85rem;" data-i18n="sec_show_avatars">Tampilkan Foto Profil / Avatar Viewer</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingShowAvatars" checked>
+            <span class="toggle-slider"></span>
+          </label>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingShowTikTokLikes" checked>
-          <span class="toggle-slider"></span>
-        </label>
+
+        <div class="toggle-row">
+          <span style="font-size:0.85rem;" data-i18n="sec_show_alerts">Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingShowAlerts" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
 
-      <div class="toggle-row">
-        <div>
-          <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_gifts">Tampilkan Event TikTok Gift (🎁)</span>
-          <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton mengirim saweran gift TikTok</div>
+      <!-- Twitch Section -->
+      <div style="background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="#a855f7"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+          <span data-i18n="sec_twitch_settings">Pengaturan Twitch</span>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="settingShowTikTokGifts" checked>
-          <span class="toggle-slider"></span>
-        </label>
+
+        <div class="toggle-row">
+          <div>
+            <span style="font-size:0.85rem;" data-i18n="sec_show_twitch_badges">Tampilkan Badge Twitch (👑 Broadcaster, Mod, VIP, Sub)</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingShowTwitchBadges" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <span style="font-size:0.85rem;" data-i18n="sec_show_emotes">Tampilkan Emote 7TV & Twitch</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingShowEmotes" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_twitch_info">
+          💡 Redeem Channel Points, Bits, dan Subscription aktif otomatis di OBS overlay.
+        </div>
+      </div>
+
+      <!-- YouTube Section -->
+      <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size:0.75rem; font-weight:800; color:#f87171; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="#ef4444"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          <span data-i18n="sec_yt_settings">Pengaturan YouTube</span>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <span style="font-size:0.85rem;" data-i18n="sec_show_yt_badges">Tampilkan Badge YouTube (Owner, Mod, Member)</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingShowYtBadges" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_yt_info">
+          💡 Super Chat, Super Stickers, dan Membership muncul otomatis dalam overlay.
+        </div>
+      </div>
+
+      <!-- TikTok Section -->
+      <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size:0.75rem; font-weight:800; color:#22d3ee; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="#06b6d4"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
+          <span data-i18n="sec_tiktok_settings">Pengaturan TikTok LIVE</span>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_likes">Tampilkan Event TikTok Likes (❤️)</span>
+            <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton tap layar / like live TikTok</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingShowTikTokLikes" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_gifts">Tampilkan Event TikTok Gift (🎁)</span>
+            <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton mengirim saweran gift TikTok</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingShowTikTokGifts" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
 
       <!-- 4. Custom CSS Editor -->
@@ -633,6 +681,11 @@
       <!-- 5. Custom JS Editor -->
       <div class="section-title" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
       <textarea id="settingCustomJs" class="form-textarea" rows="4" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
+
+      <!-- Save Button for Custom CSS & JS -->
+      <button type="button" id="btnSaveCustomCode" class="btn-icon btn-primary" style="margin-top:10px; width:100%; justify-content:center; padding:10px; font-weight:800;">
+        <span data-i18n="studio_save_custom_code">💾 Simpan Kustom CSS & JS</span>
+      </button>
 
       <!-- Discord Button -->
       <a href="https://discord.gg/GMrBUgwNFu" target="_blank" rel="noopener noreferrer" class="btn-discord-cta" style="margin-top: 10px;">
@@ -764,7 +817,9 @@
       const settingMaxMessages = document.getElementById('settingMaxMessages');
       const labelMaxMessages = document.getElementById('labelMaxMessages');
       const settingMaskLinks = document.getElementById('settingMaskLinks');
-      const settingShowBadges = document.getElementById('settingShowBadges');
+      const settingShowTwitchBadges = document.getElementById('settingShowTwitchBadges');
+      const settingShowYtBadges = document.getElementById('settingShowYtBadges');
+      const settingShowBadges = settingShowTwitchBadges;
       const settingShowAvatars = document.getElementById('settingShowAvatars');
       const settingShowEmotes = document.getElementById('settingShowEmotes');
       const settingShowAlerts = document.getElementById('settingShowAlerts');
@@ -772,6 +827,7 @@
       const settingShowTikTokGifts = document.getElementById('settingShowTikTokGifts');
       const settingCustomCss = document.getElementById('settingCustomCss');
       const settingCustomJs = document.getElementById('settingCustomJs');
+      const btnSaveCustomCode = document.getElementById('btnSaveCustomCode');
 
       const obsFinalUrl = document.getElementById('obsFinalUrl');
       const btnCopyObsUrl = document.getElementById('btnCopyObsUrl');
@@ -826,8 +882,23 @@
       const urlParams = new URLSearchParams(window.location.search);
       let profileId = urlParams.get('id') || localStorage.getItem('streampulse_overlay_profile_id') || 'default';
 
-      // Load channels from main dashboard if new profile
-      const savedChannels = JSON.parse(localStorage.getItem('streampulse_my_channels') || '{}');
+      function getStoredChannels() {
+        return JSON.parse(
+          localStorage.getItem('streampulse_user_channels') ||
+          localStorage.getItem('streampulse_my_channels') ||
+          localStorage.getItem('streampulse_guest_channels') ||
+          '{}'
+        );
+      }
+
+      function saveStoredChannels(chData) {
+        localStorage.setItem('streampulse_user_channels', JSON.stringify(chData));
+        localStorage.setItem('streampulse_my_channels', JSON.stringify(chData));
+        localStorage.setItem('streampulse_guest_channels', JSON.stringify(chData));
+      }
+
+      // Load channels from shared storage if new profile
+      const savedChannels = getStoredChannels();
       if (savedChannels.twitch) settingTwitch.value = savedChannels.twitch;
       if (savedChannels.youtube) settingYouTube.value = savedChannels.youtube;
       if (savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
@@ -1078,11 +1149,12 @@
           if (res.ok) {
             currentUser = await res.json();
             renderUserStatus();
-            // Auto-load channels if current inputs are empty
+            // Sync channels from account
             if (currentUser.channels) {
-              if (!settingTwitch.value && currentUser.channels.twitch) settingTwitch.value = currentUser.channels.twitch;
-              if (!settingYouTube.value && currentUser.channels.youtube) settingYouTube.value = currentUser.channels.youtube;
-              if (!settingTikTok.value && currentUser.channels.tiktok) settingTikTok.value = currentUser.channels.tiktok;
+              if (currentUser.channels.twitch !== undefined) settingTwitch.value = currentUser.channels.twitch;
+              if (currentUser.channels.youtube !== undefined) settingYouTube.value = currentUser.channels.youtube;
+              if (currentUser.channels.tiktok !== undefined) settingTikTok.value = currentUser.channels.tiktok;
+              saveStoredChannels(currentUser.channels);
               refreshPreview();
             }
           } else {
@@ -1223,7 +1295,16 @@
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
             if (data.maxMessages !== undefined) settingMaxMessages.value = data.maxMessages;
             if (data.maskLinks !== undefined) settingMaskLinks.checked = data.maskLinks;
-            if (data.showBadges !== undefined) settingShowBadges.checked = data.showBadges;
+            if (data.showTwitchBadges !== undefined) {
+              settingShowTwitchBadges.checked = data.showTwitchBadges;
+            } else if (data.showBadges !== undefined) {
+              settingShowTwitchBadges.checked = data.showBadges;
+            }
+            if (data.showYtBadges !== undefined) {
+              settingShowYtBadges.checked = data.showYtBadges;
+            } else if (data.showBadges !== undefined) {
+              settingShowYtBadges.checked = data.showBadges;
+            }
             if (data.showAvatars !== undefined) settingShowAvatars.checked = data.showAvatars;
             if (data.showEmotes !== undefined) settingShowEmotes.checked = data.showEmotes;
             if (data.showAlerts !== undefined) settingShowAlerts.checked = data.showAlerts;
@@ -1258,7 +1339,9 @@
           hideDelay: parseInt(settingHideDelay.value, 10),
           maxMessages: parseInt(settingMaxMessages.value, 10) || 15,
           maskLinks: settingMaskLinks.checked,
-          showBadges: settingShowBadges.checked,
+          showBadges: settingShowTwitchBadges.checked || settingShowYtBadges.checked,
+          showTwitchBadges: settingShowTwitchBadges.checked,
+          showYtBadges: settingShowYtBadges.checked,
           showAvatars: settingShowAvatars.checked,
           showEmotes: settingShowEmotes.checked,
           showAlerts: settingShowAlerts.checked,
@@ -1277,6 +1360,8 @@
         let fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
         if (!settingShowTikTokLikes.checked) fullUrl += '&ttLikes=0';
         if (!settingShowTikTokGifts.checked) fullUrl += '&ttGifts=0';
+        if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
+        if (!settingShowYtBadges.checked) fullUrl += '&ytBadges=0';
         obsFinalUrl.value = fullUrl;
       }
 
@@ -1313,7 +1398,7 @@
             youtube: settingYouTube.value.trim(),
             tiktok: settingTikTok.value.trim()
           };
-          localStorage.setItem('streampulse_my_channels', JSON.stringify(chData));
+          saveStoredChannels(chData);
           refreshPreview();
           if (channelSyncStatus) {
             channelSyncStatus.style.display = 'inline';
@@ -1335,7 +1420,7 @@
             youtube: settingYouTube.value.trim(),
             tiktok: settingTikTok.value.trim()
           };
-          localStorage.setItem('streampulse_my_channels', JSON.stringify(chData));
+          saveStoredChannels(chData);
           refreshPreview();
 
           if (userToken && currentUser) {
@@ -1349,15 +1434,33 @@
                 body: JSON.stringify(chData)
               });
               await saveProfile(false);
-              spToast('✅ Saluran live stream & overlay berhasil disimpan!', 'success');
+              spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? '✅ Live channels & overlay saved!' : '✅ Saluran live stream & overlay berhasil disimpan!', 'success');
             } catch (e) {
-              spToast('Saluran tersimpan secara lokal', 'info');
+              spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Channels saved locally' : 'Saluran tersimpan secara lokal', 'info');
             }
           } else {
-            spToast('✓ Saluran aktif disinkronkan ke live preview', 'success');
+            spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? '✓ Channels synced to homepage & preview' : '✓ Saluran aktif disinkronkan ke beranda & preview', 'success');
           }
         });
       }
+
+      // Sync across tabs if user changes channels in homepage
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'streampulse_user_channels' || e.key === 'streampulse_my_channels' || e.key === 'streampulse_guest_channels') {
+          try {
+            const ch = JSON.parse(e.newValue || '{}');
+            if (ch.twitch !== undefined) settingTwitch.value = ch.twitch;
+            if (ch.youtube !== undefined) settingYouTube.value = ch.youtube;
+            if (ch.tiktok !== undefined) settingTikTok.value = ch.tiktok;
+            refreshPreview();
+            if (channelSyncStatus) {
+              channelSyncStatus.style.display = 'inline';
+              channelSyncStatus.textContent = '✓ Disinkronkan dari Beranda';
+              channelSyncStatus.style.color = '#10b981';
+            }
+          } catch (err) {}
+        }
+      });
 
       async function saveProfile(showAlert = true) {
         if (!currentUser || !userToken) {
@@ -1406,7 +1509,7 @@
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts].forEach(el => {
+      [settingTheme, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts].forEach(el => {
         el.addEventListener('change', () => {
           updateLabels();
           updateUrl();
@@ -1420,6 +1523,10 @@
           refreshPreview();
         }, 800);
       });
+
+      if (btnSaveCustomCode) {
+        btnSaveCustomCode.addEventListener('click', () => saveProfile(true));
+      }
 
       btnSaveOverlay.addEventListener('click', () => saveProfile(true));
 

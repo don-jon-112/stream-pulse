@@ -191,6 +191,16 @@
       sec_show_avatars: "Tampilkan Foto Profil / Avatar Viewer",
       sec_show_emotes: "Tampilkan Emote 7TV & Twitch",
       sec_show_alerts: "Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)",
+      sec_twitch_settings: "🟣 Integrasi Twitch",
+      sec_show_twitch_badges: "Tampilkan Badge Resmi Twitch (👑 Mod, VIP, Sub, Founder)",
+      sec_twitch_info: "💠 Channel Points Redeem otomatis dideteksi dan ditampilkan dengan teks miring.",
+      sec_yt_settings: "🔴 Integrasi YouTube",
+      sec_show_yt_badges: "Tampilkan Badge Resmi YouTube (⭐ Member, 🔧 Moderator, Owner)",
+      sec_yt_info: "🎨 Warna nama penonton YouTube berganti warna acak secara dinamis di overlay.",
+      sec_tiktok_settings: "🎵 Integrasi TikTok LIVE",
+      sec_show_tiktok_likes: "Tampilkan Event TikTok Likes (❤️)",
+      sec_show_tiktok_gifts: "Tampilkan Event TikTok Gift (🎁)",
+      studio_save_custom_code: "💾 Simpan Custom CSS & JS",
 
       // Studio OBS Link & Live Preview
       obs_link_title: "🔗 Link OBS Browser Source Anda",
@@ -536,6 +546,16 @@
       sec_show_avatars: "Show Viewer Profile Avatars",
       sec_show_emotes: "Show 7TV & Twitch Emotes",
       sec_show_alerts: "Show Event Alert Banners (Raid, Cheer, Sub, Super Chat)",
+      sec_twitch_settings: "🟣 Twitch Integration",
+      sec_show_twitch_badges: "Show Official Twitch Badges (👑 Mod, VIP, Sub, Founder)",
+      sec_twitch_info: "💠 Channel Points Redeem is automatically detected and formatted in italics.",
+      sec_yt_settings: "🔴 YouTube Integration",
+      sec_show_yt_badges: "Show Official YouTube Badges (⭐ Member, 🔧 Moderator, Owner)",
+      sec_yt_info: "🎨 YouTube usernames dynamically cycle through random colors on the overlay.",
+      sec_tiktok_settings: "🎵 TikTok LIVE Integration",
+      sec_show_tiktok_likes: "Show TikTok Likes Event (❤️)",
+      sec_show_tiktok_gifts: "Show TikTok Gifts Event (🎁)",
+      studio_save_custom_code: "💾 Save Custom CSS & JS",
 
       // Studio OBS Link & Live Preview
       obs_link_title: "🔗 Your OBS Browser Source URL",
