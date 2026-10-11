@@ -133,6 +133,9 @@
       donate_cta_btn: "Traktir Kopi di SociaBuzz (joo_nathan)",
       donate_payment_note: "Mendukung QRIS, GoPay, OVO, Dana, ShopeePay, & Transfer Bank",
       donate_back_link: "← Kembali ke Dashboard StreamPulse",
+      discord_support_title: "🎮 Butuh Custom Overlay Chat?",
+      discord_support_desc: "Jika Anda membutuhkan custom overlay chat atau desain khusus, Anda dapat menghubungi saya di Discord:",
+      discord_cta_btn: "Join Discord / Kontak Saya (discord.gg/GMrBUgwNFu)",
       btn_close: "Tutup",
 
       // Overlay Studio Header & Actions
@@ -475,6 +478,9 @@
       donate_cta_btn: "Buy a Coffee on SociaBuzz (joo_nathan)",
       donate_payment_note: "Supports QRIS, GoPay, OVO, Dana, ShopeePay, & Bank Transfer",
       donate_back_link: "← Back to StreamPulse Dashboard",
+      discord_support_title: "🎮 Need Custom Overlay Chat?",
+      discord_support_desc: "If you need a custom overlay chat or custom design, you can contact me on Discord:",
+      discord_cta_btn: "Join Discord / Contact Me (discord.gg/GMrBUgwNFu)",
       btn_close: "Close",
 
       // Overlay Studio Header & Actions
@@ -740,6 +746,9 @@
     ["Dukung StreamPulse (100% Gratis)", "Support StreamPulse (100% Free)"],
     ["Suka Menggunakan StreamPulse?", "Enjoying StreamPulse?"],
     ["Traktir Kopi di SociaBuzz (joo_nathan)", "Buy a Coffee on SociaBuzz (joo_nathan)"],
+    ["🎮 Butuh Custom Overlay Chat?", "🎮 Need Custom Overlay Chat?"],
+    ["Jika Anda membutuhkan custom overlay chat atau desain khusus, Anda dapat menghubungi saya di Discord:", "If you need a custom overlay chat or custom design, you can contact me on Discord:"],
+    ["Join Discord / Kontak Saya (discord.gg/GMrBUgwNFu)", "Join Discord / Contact Me (discord.gg/GMrBUgwNFu)"],
 
     // Studio Customizer
     ["Simpan Pengaturan", "Save Settings"],
