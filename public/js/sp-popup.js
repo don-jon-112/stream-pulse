@@ -135,7 +135,7 @@
       donate_back_link: "← Kembali ke Dashboard StreamPulse",
       discord_support_title: "🎮 Butuh Custom Overlay Chat?",
       discord_support_desc: "Jika Anda membutuhkan custom overlay chat atau desain khusus, Anda dapat menghubungi saya di Discord:",
-      discord_cta_btn: "Join Discord / Kontak Saya (discord.gg/GMrBUgwNFu)",
+      discord_cta_btn: "Join Discord",
       btn_close: "Tutup",
 
       // Overlay Studio Header & Actions
@@ -173,10 +173,9 @@
       sec_visual: "🎨 Gaya & Tampilan Chat",
       sec_elements: "⚙️ Elemen Tampilan & Filter",
       sec_custom_css: "💻 Custom CSS Editor",
-      desc_custom_css: "Ubah warna font, shadow, border radius, atau animasi sesuai gaya streaming Anda. Jika Anda butuh custom CSS atau desain khusus, Anda dapat menghubungi saya di Discord: <a href=\"https://discord.gg/GMrBUgwNFu\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#818cf8; font-weight:700;\">discord.gg/GMrBUgwNFu</a>",
+      desc_custom_css: "Ubah warna font, shadow, border radius, atau animasi sesuai gaya streaming Anda:",
       ph_custom_css: "/* Masukkan CSS kustom Anda di sini */\n.overlay-item {\n  border-radius: 12px;\n}",
       sec_custom_js: "⚡ Custom JavaScript (Opsional)",
-      desc_custom_js: "Kode JS kustom yang dieksekusi saat overlay dimuat. Jika Anda butuh custom script atau interaksi khusus, Anda dapat menghubungi saya di Discord: <a href=\"https://discord.gg/GMrBUgwNFu\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#818cf8; font-weight:700;\">discord.gg/GMrBUgwNFu</a>",
       ph_custom_js: "// Kode JS kustom yang dieksekusi saat overlay dimuat",
       sec_theme: "Tema Overlay",
       opt_theme_glass: "💎 Glassmorphism Dark (Default)",
@@ -481,7 +480,7 @@
       donate_back_link: "← Back to StreamPulse Dashboard",
       discord_support_title: "🎮 Need Custom Overlay Chat?",
       discord_support_desc: "If you need a custom overlay chat or custom design, you can contact me on Discord:",
-      discord_cta_btn: "Join Discord / Contact Me (discord.gg/GMrBUgwNFu)",
+      discord_cta_btn: "Join Discord",
       btn_close: "Close",
 
       // Overlay Studio Header & Actions
@@ -519,10 +518,9 @@
       sec_visual: "🎨 Chat Visual Style & Theme",
       sec_elements: "⚙️ Visual Elements & Moderation",
       sec_custom_css: "💻 Custom CSS Editor",
-      desc_custom_css: "Customize font colors, shadows, border radius, or animations to match your stream aesthetic. If you need custom CSS or custom design, you can contact me on Discord: <a href=\"https://discord.gg/GMrBUgwNFu\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#818cf8; font-weight:700;\">discord.gg/GMrBUgwNFu</a>",
+      desc_custom_css: "Customize font colors, shadows, border radius, or animations to match your stream aesthetic:",
       ph_custom_css: "/* Enter your custom CSS here */\n.overlay-item {\n  border-radius: 12px;\n}",
       sec_custom_js: "⚡ Custom JavaScript (Optional)",
-      desc_custom_js: "Custom JavaScript executed when overlay loads. If you need custom scripts or interactive features, you can contact me on Discord: <a href=\"https://discord.gg/GMrBUgwNFu\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#818cf8; font-weight:700;\">discord.gg/GMrBUgwNFu</a>",
       ph_custom_js: "// Custom JavaScript executed when overlay loads",
       sec_theme: "Overlay Theme",
       opt_theme_glass: "💎 Glassmorphism Dark (Default)",
@@ -750,7 +748,7 @@
     ["Traktir Kopi di SociaBuzz (joo_nathan)", "Buy a Coffee on SociaBuzz (joo_nathan)"],
     ["🎮 Butuh Custom Overlay Chat?", "🎮 Need Custom Overlay Chat?"],
     ["Jika Anda membutuhkan custom overlay chat atau desain khusus, Anda dapat menghubungi saya di Discord:", "If you need a custom overlay chat or custom design, you can contact me on Discord:"],
-    ["Join Discord / Kontak Saya (discord.gg/GMrBUgwNFu)", "Join Discord / Contact Me (discord.gg/GMrBUgwNFu)"],
+    ["Join Discord", "Join Discord"],
 
     // Studio Customizer
     ["Simpan Pengaturan", "Save Settings"],
