@@ -4,23 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="normal">
   <title>OBS Chat Overlay - StreamPulse</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
     /* OBS Transparent Canvas */
+    :root {
+      color-scheme: normal !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      --bg-bubble: rgba(13, 17, 27, 0.88);
+      --text-custom: #ffffff;
+    }
+
     html, body {
       background: transparent !important;
       background-color: transparent !important;
+      background-image: none !important;
+      color-scheme: normal !important;
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden !important;
-    }
-
-    :root {
-      --bg-bubble: rgba(13, 17, 27, 0.88);
-      --text-custom: #ffffff;
     }
 
     #overlayChatContainer {
@@ -328,6 +334,8 @@
         showTikTokGifts: urlParams.get('ttGifts') !== '0' && urlParams.get('tiktokGifts') !== '0',
         authorColor: urlParams.get('authorColor') || '',
         useTwitchColors: urlParams.get('useTwitchColors') !== '0',
+        containerBgColor: urlParams.get('containerBg') || '#0a0e17',
+        containerBgOpacity: urlParams.get('containerOpacity') !== null ? parseInt(urlParams.get('containerOpacity'), 10) : 0,
         twitch: urlParams.get('twitch') || '',
         youtube: urlParams.get('youtube') || '',
         tiktok: urlParams.get('tiktok') || '',
@@ -359,6 +367,10 @@
             useTwitchColors: urlParams.get('useTwitchColors') !== null
               ? (urlParams.get('useTwitchColors') !== '0')
               : (profile.useTwitchColors !== undefined ? profile.useTwitchColors : true),
+            containerBgColor: urlParams.get('containerBg') || profile.containerBgColor || config.containerBgColor || '#0a0e17',
+            containerBgOpacity: urlParams.get('containerOpacity') !== null 
+              ? parseInt(urlParams.get('containerOpacity'), 10) 
+              : (profile.containerBgOpacity !== undefined ? profile.containerBgOpacity : 0),
             // Override with URL query params if explicitly present
             twitch: urlParams.get('twitch') || profile.twitch || config.twitch,
             youtube: urlParams.get('youtube') || profile.youtube || config.youtube,
@@ -404,6 +416,31 @@
         }
         if (config.authorColor) {
           document.documentElement.style.setProperty('--author-custom', config.authorColor);
+        }
+
+        // Kustomisasi background box / container chat
+        if (config.containerBgColor && config.containerBgOpacity !== undefined) {
+          const cAlpha = parseInt(config.containerBgOpacity, 10) / 100;
+          if (cAlpha > 0) {
+            const cRgba = hexToRgba(config.containerBgColor, cAlpha);
+            container.style.backgroundColor = cRgba;
+            container.style.padding = '14px';
+            container.style.borderRadius = '16px';
+            container.style.border = '1px solid rgba(255, 255, 255, 0.12)';
+            container.style.backdropFilter = cAlpha > 0.05 ? 'blur(12px)' : 'none';
+          } else {
+            container.style.backgroundColor = 'transparent';
+            container.style.padding = '0';
+            container.style.borderRadius = '0';
+            container.style.border = 'none';
+            container.style.backdropFilter = 'none';
+          }
+        } else {
+          container.style.backgroundColor = 'transparent';
+          container.style.padding = '0';
+          container.style.borderRadius = '0';
+          container.style.border = 'none';
+          container.style.backdropFilter = 'none';
         }
       }
       applyVisualConfig();

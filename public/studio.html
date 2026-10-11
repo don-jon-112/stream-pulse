@@ -178,27 +178,57 @@
 
     /* Left Control Panel */
     .controls-panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      background: rgba(13, 17, 27, 0.88);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: var(--radius-lg);
       padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       overflow-y: auto;
       max-height: calc(100vh - 110px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .controls-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+    .controls-panel::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .controls-panel::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.35);
+      border-radius: 999px;
+    }
+    .controls-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.65);
+    }
+
+    .studio-card {
+      background: rgba(18, 24, 38, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .studio-card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
     }
 
     .section-title {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 800;
       color: #fff;
       display: flex;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin: 0;
       padding-bottom: 8px;
-      margin-top: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     .form-group {
@@ -383,7 +413,14 @@
     .preview-window {
       flex: 1;
       min-height: 520px;
-      background: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><g fill="%231e2638" fill-opacity="0.3"><path d="M0 0h20v20H0zM20 20h20v20H20z"/></g></svg>'), #0a0e17;
+      background:
+        linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+        #070a12;
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
       border: 2px dashed rgba(99, 102, 241, 0.4);
       border-radius: var(--radius-lg);
       position: relative;
@@ -392,6 +429,16 @@
       flex-direction: column;
       justify-content: flex-end;
       padding: 24px;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.85);
+    }
+
+    .preview-window iframe#previewIframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent !important;
+      background-color: transparent !important;
+      color-scheme: normal !important;
     }
 
     .preview-badge-overlay {
@@ -531,356 +578,401 @@
 
       </div>
 
-      <!-- 1. Channel Linking -->
-      <div class="section-title" data-i18n="sec_channels">📡 Saluran Live Stream</div>
-      <div style="font-size:0.73rem; color:var(--text-tertiary); margin-bottom:10px; line-height:1.4;" data-i18n="sec_channels_tip">
-        💡 Bebas mengisi salah satu platform saja (misal hanya Twitch) atau gabungan ketiganya. Perubahan username langsung terhubung otomatis ke live preview di sebelah kanan.
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="settingTwitch" data-i18n="label_twitch_channel">Twitch Channel</label>
-        <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="settingYouTube" data-i18n="label_youtube_channel">YouTube Live Stream</label>
-        <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="settingTikTok" data-i18n="label_tiktok_channel">TikTok LIVE Username</label>
-        <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok">
-      </div>
-
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px; margin-bottom:12px;">
-        <button type="button" id="btnSaveChannelsStudio" class="btn-icon" style="font-size:0.78rem; padding:6px 14px;">
-          <span data-i18n="btn_save_channels">💾 Simpan Saluran</span>
-        </button>
-        <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700; display:none;" data-i18n="status_channel_synced">✓ Tersinkron</span>
-      </div>
-
-      <!-- 2. Visual Style & Theme -->
-      <div class="section-title" data-i18n="sec_visual">🎨 Gaya & Tampilan Chat</div>
-      <div class="form-group">
-        <label class="form-label" for="settingTheme" data-i18n="sec_theme">Tema Overlay</label>
-        <select id="settingTheme" class="form-select">
-          <option value="glass" data-i18n="opt_theme_glass">💎 Glassmorphism Dark (Default)</option>
-          <option value="minimal" data-i18n="opt_theme_minimal">⬛ Minimalist Semi-Transparent</option>
-          <option value="cyberpunk" data-i18n="opt_theme_cyberpunk">⚡ Cyberpunk Neon Glow</option>
-          <option value="light" data-i18n="opt_theme_light">⚪ Clean Light Paper</option>
-        </select>
-      </div>
-
-      <!-- Orientasi / Alignment Chat -->
-      <div class="form-group">
-        <label class="form-label" for="settingChatAlign">Orientasi & Posisi Bubble Chat (Alignment)</label>
-        <select id="settingChatAlign" class="form-select">
-          <option value="left">👈 Rata Kiri (Left Align - Default)</option>
-          <option value="right">👉 Rata Kanan (Right Align - Avatar di Kanan)</option>
-        </select>
-      </div>
-
-      <!-- Kustomisasi Warna Background Bubble -->
-      <div class="form-group">
-        <div class="form-label">
-          <span>Warna Background Bubble</span>
-          <span id="labelBgColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#0d111b</span>
+      <!-- 1. Channel Linking Card -->
+      <div class="studio-card">
+        <div class="section-title" data-i18n="sec_channels">📡 Saluran Live Stream</div>
+        <div style="font-size:0.73rem; color:var(--text-tertiary); line-height:1.4;" data-i18n="sec_channels_tip">
+          💡 Bebas mengisi salah satu platform saja (misal hanya Twitch) atau gabungan ketiganya. Perubahan username langsung terhubung otomatis ke live preview di sebelah kanan.
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <input type="color" id="settingBgColor" value="#0d111b" style="width:44px; height:36px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
-          <span style="font-size:0.75rem; color:var(--text-tertiary);">Pilih warna dasar bubble chat</span>
+
+        <div class="form-group">
+          <label class="form-label" for="settingTwitch" data-i18n="label_twitch_channel">Twitch Channel</label>
+          <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="settingYouTube" data-i18n="label_youtube_channel">YouTube Live Stream</label>
+          <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="settingTikTok" data-i18n="label_tiktok_channel">TikTok LIVE Username</label>
+          <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok">
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:2px;">
+          <button type="button" id="btnSaveChannelsStudio" class="btn-icon" style="font-size:0.78rem; padding:6px 14px;">
+            <span data-i18n="btn_save_channels">💾 Simpan Saluran</span>
+          </button>
+          <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700; display:none;" data-i18n="status_channel_synced">✓ Tersinkron</span>
         </div>
       </div>
 
-      <!-- Transparansi Background (Opacity Slider) -->
-      <div class="form-group">
-        <div class="form-label">
-          <span>Transparansi Background (Opacity)</span>
-          <span id="labelBgOpacity" style="color:#67e8f9; font-family:var(--font-mono);">88%</span>
+      <!-- 2. Visual Style & Theme Card -->
+      <div class="studio-card">
+        <div class="section-title" data-i18n="sec_visual">🎨 Gaya & Tampilan Chat</div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label" for="settingTheme" data-i18n="sec_theme">Tema Overlay</label>
+            <select id="settingTheme" class="form-select">
+              <option value="glass" data-i18n="opt_theme_glass">💎 Glassmorphism Dark (Default)</option>
+              <option value="minimal" data-i18n="opt_theme_minimal">⬛ Minimalist Semi-Transparent</option>
+              <option value="cyberpunk" data-i18n="opt_theme_cyberpunk">⚡ Cyberpunk Neon Glow</option>
+              <option value="light" data-i18n="opt_theme_light">⚪ Clean Light Paper</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="settingChatAlign">Orientasi & Posisi Bubble</label>
+            <select id="settingChatAlign" class="form-select">
+              <option value="left">👈 Rata Kiri (Default)</option>
+              <option value="right">👉 Rata Kanan (Right)</option>
+            </select>
+          </div>
         </div>
-        <input type="range" id="settingBgOpacity" min="0" max="100" step="5" value="88" style="width:100%;">
+
+        <!-- Bubble Background & Opacity -->
+        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">💬 Bubble Chat Background</div>
+          
+          <div class="form-group">
+            <div class="form-label">
+              <span>Warna Background Bubble</span>
+              <span id="labelBgColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#0d111b</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <input type="color" id="settingBgColor" value="#0d111b" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
+              <span style="font-size:0.73rem; color:var(--text-tertiary);">Warna dasar bubble chat</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Transparansi Background Bubble (Opacity)</span>
+              <span id="labelBgOpacity" style="color:#67e8f9; font-family:var(--font-mono);">88%</span>
+            </div>
+            <input type="range" id="settingBgOpacity" min="0" max="100" step="5" value="88" style="width:100%;">
+          </div>
+        </div>
+
+        <!-- Text & Author Colors -->
+        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">✍️ Warna Teks & Pengirim</div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Warna Teks Pesan Chat</span>
+              <span id="labelTextColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#e2e8f0</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <input type="color" id="settingTextColor" value="#e2e8f0" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
+              <span style="font-size:0.73rem; color:var(--text-tertiary);">Kustomisasi warna huruf teks chat</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Warna Nama Pengirim (Username Color)</span>
+              <span id="labelAuthorColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#67e8f9</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <input type="color" id="settingAuthorColor" value="#67e8f9" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
+              <span style="font-size:0.73rem; color:var(--text-tertiary);">Kustomisasi warna nama akun pengirim pesan di OBS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW: Container Background & Opacity -->
+        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">📦 Background Box Container Chat</div>
+          <div style="font-size:0.72rem; color:var(--text-tertiary); line-height:1.4;">
+            Atur warna dan transparansi latar belakang box wadah seluruh chat (cocok jika ingin container chat dock semi-transparan).
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Warna Box Container</span>
+              <span id="labelContainerBgColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#0a0e17</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <input type="color" id="settingContainerBgColor" value="#0a0e17" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
+              <span style="font-size:0.73rem; color:var(--text-tertiary);">Warna latar belakang box pembungkus</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Transparansi Box Container</span>
+              <span id="labelContainerBgOpacity" style="color:#67e8f9; font-family:var(--font-mono);">0% (Transparan)</span>
+            </div>
+            <input type="range" id="settingContainerBgOpacity" min="0" max="100" step="5" value="0" style="width:100%;">
+            <div style="font-size:0.68rem; color:var(--text-tertiary);">
+              💡 0% = Transparan penuh di OBS (default), 100% = Solid.
+            </div>
+          </div>
+        </div>
+
+        <!-- Sliders: Font, Hide, Max -->
+        <div class="form-group">
+          <div class="form-label">
+            <span data-i18n="sec_font_size">Ukuran Font</span>
+            <span id="labelFontSize" style="color:#67e8f9; font-family:var(--font-mono);">15px</span>
+          </div>
+          <input type="range" id="settingFontSize" min="12" max="28" value="15" style="width:100%;">
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span data-i18n="sec_hide_delay">Durasi Pesan Menghilang (Auto-Hide)</span>
+            <span id="labelHideDelay" style="color:#67e8f9; font-family:var(--font-mono);">Selalu Tampil (0s)</span>
+          </div>
+          <input type="range" id="settingHideDelay" min="0" max="60" step="5" value="0" style="width:100%;">
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span data-i18n="sec_max_messages">Batas Maksimal Bubble Chat di Layar OBS</span>
+            <span id="labelMaxMessages" style="color:#67e8f9; font-family:var(--font-mono);">15 Pesan</span>
+          </div>
+          <input type="range" id="settingMaxMessages" min="3" max="50" step="1" value="15" style="width:100%;">
+        </div>
       </div>
 
-      <!-- Kustomisasi Warna Teks Pesan -->
-      <div class="form-group">
-        <div class="form-label">
-          <span>Warna Teks Pesan Chat</span>
-          <span id="labelTextColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#e2e8f0</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <input type="color" id="settingTextColor" value="#e2e8f0" style="width:44px; height:36px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
-          <span style="font-size:0.75rem; color:var(--text-tertiary);">Kustomisasi warna huruf teks chat</span>
-        </div>
-      </div>
-
-      <!-- Kustomisasi Warna Nama Pengirim Pesan (Username Color) -->
-      <div class="form-group">
-        <div class="form-label">
-          <span>Warna Nama Pengirim (Username Color)</span>
-          <span id="labelAuthorColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#67e8f9</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <input type="color" id="settingAuthorColor" value="#67e8f9" style="width:44px; height:36px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
-          <span style="font-size:0.75rem; color:var(--text-tertiary);">Kustomisasi warna nama akun pengirim pesan di OBS</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <div class="form-label">
-          <span data-i18n="sec_font_size">Ukuran Font</span>
-          <span id="labelFontSize" style="color:#67e8f9; font-family:var(--font-mono);">15px</span>
-        </div>
-        <input type="range" id="settingFontSize" min="12" max="28" value="15" style="width:100%;">
-      </div>
-
-      <div class="form-group">
-        <div class="form-label">
-          <span data-i18n="sec_hide_delay">Durasi Pesan Menghilang (Auto-Hide)</span>
-          <span id="labelHideDelay" style="color:#67e8f9; font-family:var(--font-mono);">Selalu Tampil (0s)</span>
-        </div>
-        <input type="range" id="settingHideDelay" min="0" max="60" step="5" value="0" style="width:100%;">
-      </div>
-
-      <!-- BATAS MAKSIMAL BUBBLE CHAT -->
-      <div class="form-group">
-        <div class="form-label">
-          <span data-i18n="sec_max_messages">Batas Maksimal Bubble Chat di Layar OBS</span>
-          <span id="labelMaxMessages" style="color:#67e8f9; font-family:var(--font-mono);">15 Pesan</span>
-        </div>
-        <input type="range" id="settingMaxMessages" min="3" max="50" step="1" value="15" style="width:100%;">
-      </div>
-
-      <!-- 3. Toggles & Platform Elements -->
-      <div class="section-title" data-i18n="sec_elements">⚙️ Elemen Tampilan & Filter</div>
-      
-      <!-- General / Moderation -->
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
-        <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">🌐 Tampilan Umum & Sensor</div>
+      <!-- 3. Toggles & Platform Elements Card -->
+      <div class="studio-card">
+        <div class="section-title" data-i18n="sec_elements">⚙️ Elemen Tampilan & Filter</div>
         
-        <!-- SENSOR / HIDE LINK -->
-        <div class="toggle-row">
-          <div>
-            <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_mask_links">Sensor Link Otomatis</span>
-            <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n-html="sec_mask_links_sub">Ubah URL di chat menjadi <code>[LINK]</code> di layar OBS</div>
+        <!-- General / Moderation -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">🌐 Tampilan Umum & Sensor</div>
+          
+          <!-- SENSOR / HIDE LINK -->
+          <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_mask_links">Sensor Link Otomatis</span>
+              <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n-html="sec_mask_links_sub">Ubah URL di chat menjadi <code>[LINK]</code> di layar OBS</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingMaskLinks">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingMaskLinks">
-            <span class="toggle-slider"></span>
-          </label>
+
+          <div class="toggle-row">
+            <span style="font-size:0.85rem;" data-i18n="sec_show_avatars">Tampilkan Foto Profil / Avatar Viewer</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowAvatars" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span style="font-size:0.85rem;" data-i18n="sec_show_alerts">Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowAlerts" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
 
-        <div class="toggle-row">
-          <span style="font-size:0.85rem;" data-i18n="sec_show_avatars">Tampilkan Foto Profil / Avatar Viewer</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingShowAvatars" checked>
-            <span class="toggle-slider"></span>
-          </label>
+        <!-- Twitch Section -->
+        <div style="background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="#a855f7"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+            <span data-i18n="sec_twitch_settings">Pengaturan Twitch</span>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem;" data-i18n="sec_show_twitch_badges">Tampilkan Badge Twitch (👑 Broadcaster, Mod, VIP, Sub)</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowTwitchBadges" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span style="font-size:0.85rem;" data-i18n="sec_show_emotes">Tampilkan Emote 7TV & Twitch</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowEmotes" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Gunakan Warna Tiap User Twitch -->
+          <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem;">Gunakan Warna Asli Username Twitch (Warna Profil User)</span>
+              <div style="font-size:0.72rem; color:var(--text-tertiary);">
+                Jika aktif, nama pengirim Twitch menggunakan warna profil masing-masing user (!important). Jika nonaktif, menggunakan warna nama pengirim umum dari Gaya & Tampilan Chat.
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingUseTwitchColors" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Kustomisasi Alert Streaming Twitch -->
+          <div style="margin-top:8px; padding-top:10px; border-top:1px dashed rgba(168, 85, 247, 0.3);">
+            <div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;" data-i18n="sec_alert_custom">
+              🔔 Kustomisasi Alert Streaming (Twitch)
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-tertiary); margin-bottom:10px; line-height:1.4;">
+              Sesuaikan background, warna teks, dan pesan untuk setiap jenis alert interaksi live stream Twitch Anda:
+            </div>
+
+            <!-- Subscription Alert Customizer -->
+            <div style="background:rgba(145,70,255,0.06); border:1px solid rgba(145,70,255,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+              <div style="font-size:0.8rem; font-weight:800; color:#c084fc; margin-bottom:6px;">⭐ Subscription / Langganan</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                  <input type="text" id="settingAlertSubBg" class="form-input" placeholder="linear-gradient(...) / #hex" style="font-size:0.75rem; padding:6px 8px;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                  <input type="color" id="settingAlertSubTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                </div>
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {detail})</label>
+                <input type="text" id="settingAlertSubText" class="form-input" placeholder="Misal: {author} berlangganan!" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+            </div>
+
+            <!-- Cheer / Bits Alert Customizer -->
+            <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+              <div style="font-size:0.8rem; font-weight:800; color:#fbbf24; margin-bottom:6px;">💎 Bits / Cheer Alert</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                  <input type="text" id="settingAlertCheerBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                  <input type="color" id="settingAlertCheerTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                </div>
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {bits})</label>
+                <input type="text" id="settingAlertCheerText" class="form-input" placeholder="Misal: {author} bersorak {bits} Bits!" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+            </div>
+
+            <!-- Raid Alert Customizer -->
+            <div style="background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+              <div style="font-size:0.8rem; font-weight:800; color:#fb7185; margin-bottom:6px;">🚀 Raid Alert</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                  <input type="text" id="settingAlertRaidBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                  <input type="color" id="settingAlertRaidTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                </div>
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {viewers})</label>
+                <input type="text" id="settingAlertRaidText" class="form-input" placeholder="Misal: {author} raid bersama {viewers} penonton!" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+            </div>
+
+            <!-- Channel Points Redeem Alert Customizer -->
+            <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+              <div style="font-size:0.8rem; font-weight:800; color:#34d399; margin-bottom:6px;">💠 Channel Points Redeem</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                  <input type="text" id="settingAlertRedeemBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                  <input type="color" id="settingAlertRedeemTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                </div>
+              </div>
+              <div>
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {reward}, {message})</label>
+                <input type="text" id="settingAlertRedeemText" class="form-input" placeholder="Misal: {author} menukarkan {reward}" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_twitch_info">
+            💡 Redeem Channel Points, Bits, dan Subscription aktif otomatis di OBS overlay.
+          </div>
         </div>
 
-        <div class="toggle-row">
-          <span style="font-size:0.85rem;" data-i18n="sec_show_alerts">Tampilkan Banner Alert (Raid, Cheer, Sub, Super Chat)</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingShowAlerts" checked>
-            <span class="toggle-slider"></span>
-          </label>
+        <!-- YouTube Section -->
+        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#f87171; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="#ef4444"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span data-i18n="sec_yt_settings">Pengaturan YouTube</span>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem;" data-i18n="sec_show_yt_badges">Tampilkan Badge YouTube (Owner, Mod, Member)</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowYtBadges" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_yt_info">
+            💡 Super Chat, Super Stickers, dan Membership muncul otomatis dalam overlay.
+          </div>
+        </div>
+
+        <!-- TikTok Section -->
+        <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:#22d3ee; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="#06b6d4"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
+            <span data-i18n="sec_tiktok_settings">Pengaturan TikTok LIVE</span>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_likes">Tampilkan Event TikTok Likes (❤️)</span>
+              <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton tap layar / like live TikTok</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowTikTokLikes" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_gifts">Tampilkan Event TikTok Gift (🎁)</span>
+              <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton mengirim saweran gift TikTok</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowTikTokGifts" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
       </div>
 
-      <!-- Twitch Section -->
-      <div style="background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
-        <div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="#a855f7"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-          <span data-i18n="sec_twitch_settings">Pengaturan Twitch</span>
-        </div>
+      <!-- 4. Custom CSS & JS Editor Card -->
+      <div class="studio-card">
+        <div class="section-title" data-i18n="sec_custom_css">💻 Custom CSS & JS Editor</div>
+        <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0;" data-i18n="desc_custom_css">
+          Ubah warna font, shadow, border radius, atau animasi sesuai gaya streaming Anda:
+        </p>
+        <textarea id="settingCustomCss" class="form-textarea" rows="10" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}" data-i18n-ph="ph_custom_css"></textarea>
 
-        <div class="toggle-row">
-          <div>
-            <span style="font-size:0.85rem;" data-i18n="sec_show_twitch_badges">Tampilkan Badge Twitch (👑 Broadcaster, Mod, VIP, Sub)</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingShowTwitchBadges" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
+        <div style="font-size:0.8rem; font-weight:700; color:#fff; margin-top:4px;" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
+        <textarea id="settingCustomJs" class="form-textarea" rows="6" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
 
-        <div class="toggle-row">
-          <span style="font-size:0.85rem;" data-i18n="sec_show_emotes">Tampilkan Emote 7TV & Twitch</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingShowEmotes" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <!-- Gunakan Warna Tiap User Twitch -->
-        <div class="toggle-row">
-          <div>
-            <span style="font-size:0.85rem;">Gunakan Warna Asli Username Twitch (Warna Profil User)</span>
-            <div style="font-size:0.72rem; color:var(--text-tertiary);">
-              Jika aktif, nama pengirim Twitch menggunakan warna profil masing-masing user (!important). Jika nonaktif, menggunakan warna nama pengirim umum dari Gaya & Tampilan Chat.
-            </div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingUseTwitchColors" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <!-- Kustomisasi Alert Streaming Twitch -->
-        <div style="margin-top:8px; padding-top:10px; border-top:1px dashed rgba(168, 85, 247, 0.3);">
-          <div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;" data-i18n="sec_alert_custom">
-            🔔 Kustomisasi Alert Streaming (Twitch)
-          </div>
-          <div style="font-size:0.72rem; color:var(--text-tertiary); margin-bottom:10px; line-height:1.4;">
-            Sesuaikan background, warna teks, dan pesan untuk setiap jenis alert interaksi live stream Twitch Anda:
-          </div>
-
-          <!-- Subscription Alert Customizer -->
-          <div style="background:rgba(145,70,255,0.06); border:1px solid rgba(145,70,255,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-            <div style="font-size:0.8rem; font-weight:800; color:#c084fc; margin-bottom:6px;">⭐ Subscription / Langganan</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-                <input type="text" id="settingAlertSubBg" class="form-input" placeholder="linear-gradient(...) / #hex" style="font-size:0.75rem; padding:6px 8px;">
-              </div>
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                <input type="color" id="settingAlertSubTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-              </div>
-            </div>
-            <div>
-              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {detail})</label>
-              <input type="text" id="settingAlertSubText" class="form-input" placeholder="Misal: {author} berlangganan!" style="font-size:0.75rem; padding:6px 8px;">
-            </div>
-          </div>
-
-          <!-- Cheer / Bits Alert Customizer -->
-          <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-            <div style="font-size:0.8rem; font-weight:800; color:#fbbf24; margin-bottom:6px;">💎 Bits / Cheer Alert</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-                <input type="text" id="settingAlertCheerBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
-              </div>
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                <input type="color" id="settingAlertCheerTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-              </div>
-            </div>
-            <div>
-              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {bits})</label>
-              <input type="text" id="settingAlertCheerText" class="form-input" placeholder="Misal: {author} bersorak {bits} Bits!" style="font-size:0.75rem; padding:6px 8px;">
-            </div>
-          </div>
-
-          <!-- Raid Alert Customizer -->
-          <div style="background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-            <div style="font-size:0.8rem; font-weight:800; color:#fb7185; margin-bottom:6px;">🚀 Raid Alert</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-                <input type="text" id="settingAlertRaidBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
-              </div>
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                <input type="color" id="settingAlertRaidTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-              </div>
-            </div>
-            <div>
-              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {viewers})</label>
-              <input type="text" id="settingAlertRaidText" class="form-input" placeholder="Misal: {author} raid bersama {viewers} penonton!" style="font-size:0.75rem; padding:6px 8px;">
-            </div>
-          </div>
-
-          <!-- Channel Points Redeem Alert Customizer -->
-          <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
-            <div style="font-size:0.8rem; font-weight:800; color:#34d399; margin-bottom:6px;">💠 Channel Points Redeem</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
-                <input type="text" id="settingAlertRedeemBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
-              </div>
-              <div>
-                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                <input type="color" id="settingAlertRedeemTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
-              </div>
-            </div>
-            <div>
-              <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {reward}, {message})</label>
-              <input type="text" id="settingAlertRedeemText" class="form-input" placeholder="Misal: {author} menukarkan {reward}" style="font-size:0.75rem; padding:6px 8px;">
-            </div>
-          </div>
-        </div>
-
-        <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_twitch_info">
-          💡 Redeem Channel Points, Bits, dan Subscription aktif otomatis di OBS overlay.
-        </div>
+        <!-- Save Button for Custom CSS & JS -->
+        <button type="button" id="btnSaveCustomCode" class="btn-icon btn-primary" style="margin-top:6px; width:100%; justify-content:center; padding:10px; font-weight:800;">
+          <span data-i18n="studio_save_custom_code">💾 Simpan Kustom CSS & JS</span>
+        </button>
       </div>
-
-      <!-- YouTube Section -->
-      <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
-        <div style="font-size:0.75rem; font-weight:800; color:#f87171; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="#ef4444"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-          <span data-i18n="sec_yt_settings">Pengaturan YouTube</span>
-        </div>
-
-        <div class="toggle-row">
-          <div>
-            <span style="font-size:0.85rem;" data-i18n="sec_show_yt_badges">Tampilkan Badge YouTube (Owner, Mod, Member)</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingShowYtBadges" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_yt_info">
-          💡 Super Chat, Super Stickers, dan Membership muncul otomatis dalam overlay.
-        </div>
-      </div>
-
-      <!-- TikTok Section -->
-      <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
-        <div style="font-size:0.75rem; font-weight:800; color:#22d3ee; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="#06b6d4"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
-          <span data-i18n="sec_tiktok_settings">Pengaturan TikTok LIVE</span>
-        </div>
-
-        <div class="toggle-row">
-          <div>
-            <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_likes">Tampilkan Event TikTok Likes (❤️)</span>
-            <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton tap layar / like live TikTok</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingShowTikTokLikes" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <div>
-            <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_gifts">Tampilkan Event TikTok Gift (🎁)</span>
-            <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton mengirim saweran gift TikTok</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="settingShowTikTokGifts" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 4. Custom CSS Editor -->
-      <div class="section-title" data-i18n="sec_custom_css">💻 Custom CSS Editor</div>
-      <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0;" data-i18n="desc_custom_css">
-        Ubah warna font, shadow, border radius, atau animasi sesuai gaya streaming Anda:
-      </p>
-      <textarea id="settingCustomCss" class="form-textarea" rows="12" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}" data-i18n-ph="ph_custom_css"></textarea>
-
-      <!-- 5. Custom JS Editor -->
-      <div class="section-title" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
-      <textarea id="settingCustomJs" class="form-textarea" rows="7" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
-
-      <!-- Save Button for Custom CSS & JS -->
-      <button type="button" id="btnSaveCustomCode" class="btn-icon btn-primary" style="margin-top:10px; width:100%; justify-content:center; padding:10px; font-weight:800;">
-        <span data-i18n="studio_save_custom_code">💾 Simpan Kustom CSS & JS</span>
-      </button>
 
       <!-- Discord Button -->
       <a href="https://discord.gg/GMrBUgwNFu" target="_blank" rel="noopener noreferrer" class="btn-discord-cta" style="margin-top: 10px;">
@@ -939,7 +1031,7 @@
       <!-- Preview Window (Simulating OBS Canvas) -->
       <div class="preview-window" id="previewWindow">
         <div class="preview-badge-overlay" data-i18n="preview_canvas_badge">Preview OBS Canvas</div>
-        <iframe id="previewIframe" src="/overlay?id=default" style="width:100%; height:100%; border:none; background:transparent;"></iframe>
+        <iframe id="previewIframe" src="/overlay?id=default" allowtransparency="true" style="width:100%; height:100%; border:none; background:transparent !important; background-color:transparent !important; color-scheme:normal !important;"></iframe>
       </div>
 
     </div>
@@ -1046,6 +1138,10 @@
       const settingAuthorColor = document.getElementById('settingAuthorColor');
       const labelAuthorColorHex = document.getElementById('labelAuthorColorHex');
       const settingUseTwitchColors = document.getElementById('settingUseTwitchColors');
+      const settingContainerBgColor = document.getElementById('settingContainerBgColor');
+      const labelContainerBgColorHex = document.getElementById('labelContainerBgColorHex');
+      const settingContainerBgOpacity = document.getElementById('settingContainerBgOpacity');
+      const labelContainerBgOpacity = document.getElementById('labelContainerBgOpacity');
 
       // Alert Customizers
       const settingAlertSubBg = document.getElementById('settingAlertSubBg');
@@ -1616,6 +1712,15 @@
             if (data.useTwitchColors !== undefined) {
               settingUseTwitchColors.checked = data.useTwitchColors;
             }
+            if (data.containerBgColor !== undefined) {
+              settingContainerBgColor.value = data.containerBgColor;
+              if (labelContainerBgColorHex) labelContainerBgColorHex.textContent = data.containerBgColor;
+            }
+            if (data.containerBgOpacity !== undefined) {
+              settingContainerBgOpacity.value = data.containerBgOpacity;
+              const cOpVal = parseInt(data.containerBgOpacity, 10);
+              if (labelContainerBgOpacity) labelContainerBgOpacity.textContent = `${cOpVal}% ${cOpVal === 0 ? '(Transparan)' : ''}`;
+            }
 
             if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
@@ -1683,6 +1788,8 @@
           textColor: settingTextColor ? settingTextColor.value : '#e2e8f0',
           authorColor: settingAuthorColor ? settingAuthorColor.value : '#67e8f9',
           useTwitchColors: settingUseTwitchColors ? settingUseTwitchColors.checked : true,
+          containerBgColor: settingContainerBgColor ? settingContainerBgColor.value : '#0a0e17',
+          containerBgOpacity: settingContainerBgOpacity ? parseInt(settingContainerBgOpacity.value, 10) : 0,
           fontSize: parseInt(settingFontSize.value, 10),
           hideDelay: parseInt(settingHideDelay.value, 10),
           maxMessages: parseInt(settingMaxMessages.value, 10) || 15,
@@ -1724,6 +1831,9 @@
         if (settingTextColor && settingTextColor.value !== '#e2e8f0') fullUrl += `&textColor=${encodeURIComponent(settingTextColor.value)}`;
         if (settingAuthorColor && settingAuthorColor.value !== '#67e8f9') fullUrl += `&authorColor=${encodeURIComponent(settingAuthorColor.value)}`;
         if (settingUseTwitchColors && !settingUseTwitchColors.checked) fullUrl += '&useTwitchColors=0';
+        if (settingContainerBgOpacity && parseInt(settingContainerBgOpacity.value, 10) > 0) {
+          fullUrl += `&containerBg=${encodeURIComponent(settingContainerBgColor.value)}&containerOpacity=${settingContainerBgOpacity.value}`;
+        }
         if (!settingShowTikTokLikes.checked) fullUrl += '&ttLikes=0';
         if (!settingShowTikTokGifts.checked) fullUrl += '&ttGifts=0';
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
@@ -1915,6 +2025,21 @@
       }
       if (settingUseTwitchColors) {
         settingUseTwitchColors.addEventListener('change', () => {
+          updateUrl();
+          refreshPreview();
+        });
+      }
+      if (settingContainerBgColor) {
+        settingContainerBgColor.addEventListener('input', () => {
+          if (labelContainerBgColorHex) labelContainerBgColorHex.textContent = settingContainerBgColor.value;
+          updateUrl();
+          refreshPreview();
+        });
+      }
+      if (settingContainerBgOpacity) {
+        settingContainerBgOpacity.addEventListener('input', () => {
+          const val = parseInt(settingContainerBgOpacity.value, 10);
+          if (labelContainerBgOpacity) labelContainerBgOpacity.textContent = `${val}% ${val === 0 ? '(Transparan)' : ''}`;
           updateUrl();
           refreshPreview();
         });
