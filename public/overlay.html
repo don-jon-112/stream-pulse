@@ -617,6 +617,17 @@
           textHtml = parse7tvTokens(item.text);
         }
 
+        let replyHtml = '';
+        if (item.reply && item.reply.parentText) {
+          replyHtml = `
+            <div class="overlay-reply-quote">
+              <span class="overlay-reply-icon">↩</span>
+              <span class="overlay-reply-author">@${escapeHtml(item.reply.parentAuthor || 'User')}:</span>
+              <span class="overlay-reply-text"><i>${escapeHtml(item.reply.parentText)}</i></span>
+            </div>
+          `;
+        }
+
         el.innerHTML = `
           ${avatarHtml}
           <div class="overlay-body">
@@ -624,7 +635,7 @@
               ${badgesHtml}
               <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
             </div>
-            <div class="overlay-text">${textHtml}</div>
+            <div class="overlay-text">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
           </div>
         `;
 
