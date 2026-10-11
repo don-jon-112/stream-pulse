@@ -1269,17 +1269,29 @@
         }
       });
 
-      // Simulation Test Buttons
+      // Simulation Test Buttons with distinct Twitch user colors
+      const testChatUsers = [
+        { name: 'SarahStreamer', color: '#B22222', text: 'Keren banget overlay-nya! GG gameplay OMEGALUL 🔥' },
+        { name: 'NinjaWarrior', color: '#00FF7F', text: 'Auto follow! Setup audio & overlay-nya bersih banget min 👍' },
+        { name: 'KopiTubruk', color: '#FF7F50', text: 'Halo bang! Nyimak sambil ngopi sore nih ☕' },
+        { name: 'GamerIndo', color: '#1E90FF', text: 'Lanjut game berikutnya seru parah PogChamp !' },
+        { name: 'AlexPro', color: '#DAA520', text: 'GGWP! Menang streak berapa ini bang?' },
+        { name: 'Valkyrie99', color: '#8A2BE2', text: 'Halo semua chatters! Semangat streamingnya ✨' }
+      ];
+      let testChatIdx = 0;
+
       btnTestChat.addEventListener('click', () => {
         const iframeDoc = previewIframe.contentWindow;
         if (iframeDoc && iframeDoc.document) {
+          const sample = testChatUsers[testChatIdx % testChatUsers.length];
+          testChatIdx++;
           const event = new CustomEvent('socket_sim', {
             detail: {
               type: 'chat',
               data: {
                 platform: 'twitch',
-                author: { name: 'SarahStreamer', color: '#a855f7' },
-                text: 'Keren banget overlay-nya! GG gameplay OMEGALUL 🔥',
+                author: { name: sample.name, color: sample.color },
+                text: sample.text,
                 timestamp: Date.now()
               }
             }

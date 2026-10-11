@@ -516,6 +516,58 @@
         return html;
       }
 
+      // Pastikan warna teks username terbaca kontras di latar belakang gelap/transparan OBS
+      function ensureReadableColor(hex) {
+        if (!hex || typeof hex !== 'string') return '#67e8f9';
+        let clean = hex.trim();
+        if (!clean.startsWith('#')) return clean;
+        clean = clean.replace('#', '');
+        if (clean.length === 3) {
+          clean = clean.split('').map(c => c + c).join('');
+        }
+        if (clean.length !== 6) return hex;
+
+        const r = parseInt(clean.substring(0, 2), 16);
+        const g = parseInt(clean.substring(2, 4), 16);
+        const b = parseInt(clean.substring(4, 6), 16);
+        if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
+
+        // Perceived luminance (ITU-R BT.709)
+        const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+        // Jika warna terlalu gelap (misalnya #0000FF blue), naikkan kecerahan agar tetap terbaca jelas
+        if (luminance < 95) {
+          const factor = (95 - luminance) / 255;
+          const nr = Math.min(255, Math.round(r + (255 - r) * factor * 0.85 + 40));
+          const ng = Math.min(255, Math.round(g + (255 - g) * factor * 0.85 + 40));
+          const nb = Math.min(255, Math.round(b + (255 - b) * factor * 0.85 + 50));
+          return `rgb(${nr}, ${ng}, ${nb})`;
+        }
+        return hex;
+      }
+
+      function getAuthorColor(author, platform) {
+        if (!author) return '#67e8f9';
+        if (author.color) {
+          return ensureReadableColor(author.color);
+        }
+        // Fallback deterministik palet Twitch jika warna belum terisi
+        if (platform === 'twitch' && author.name) {
+          const TWITCH_PALETTE = [
+            '#FF4A4A', '#38BDF8', '#00FF7F', '#FF7F50', '#A3E635',
+            '#FF6B35', '#2DD4BF', '#FBBF24', '#FB923C', '#22D3EE',
+            '#60A5FA', '#C084FC', '#4ADE80', '#34D399', '#F472B6'
+          ];
+          let hash = 0;
+          const name = author.name.toLowerCase();
+          for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+          }
+          return TWITCH_PALETTE[Math.abs(hash) % TWITCH_PALETTE.length];
+        }
+        return '#67e8f9';
+      }
+
       // Add Chat Item to Overlay
       function addOverlayMessage(item) {
         const el = document.createElement('div');
@@ -524,7 +576,7 @@
 
         const author = item.author || {};
         const authorName = author.name || 'Anonymous';
-        const authorColor = author.color || '#67e8f9';
+        const authorColor = getAuthorColor(author, item.platform);
         const initial = (authorName[0] || '?').toUpperCase();
 
         const avatarHtml = config.showAvatars
