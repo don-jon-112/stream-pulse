@@ -511,11 +511,13 @@
         <div style="font-size:0.9rem; font-weight:800; color:#cbd5e1;" data-i18n="live_preview_title">
           👁️ Live Preview (Transparan di OBS)
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_normal_chat">💬 Test Chat Biasa</button>
           <button id="btnTestLinkChat" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_link_chat">🔗 Test Chat Link</button>
           <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_twitch_vip">💎 Test VIP Twitch</button>
           <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_alert_sub">🎉 Test Alert Sub</button>
+          <button id="btnTestRedeem" class="btn-icon" style="font-size:0.75rem;">💠 Test Redeem (Teks)</button>
+          <button id="btnTestRedeemNoText" class="btn-icon" style="font-size:0.75rem;">💠 Test Redeem (Tanpa Teks)</button>
         </div>
       </div>
 
@@ -620,6 +622,8 @@
       const btnTestLinkChat = document.getElementById('btnTestLinkChat');
       const btnTestTwitchVip = document.getElementById('btnTestTwitchVip');
       const btnTestAlert = document.getElementById('btnTestAlert');
+      const btnTestRedeem = document.getElementById('btnTestRedeem');
+      const btnTestRedeemNoText = document.getElementById('btnTestRedeemNoText');
 
       // Auth elements
       const accountPillContainer = document.getElementById('accountPillContainer');
@@ -1359,6 +1363,52 @@
           iframeDoc.dispatchEvent(event);
         }
       });
+
+      if (btnTestRedeem) {
+        btnTestRedeem.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_redeem_${Date.now()}`,
+                  platform: 'twitch',
+                  eventType: 'redeem',
+                  title: 'Twitch Channel Points Redeem!',
+                  author: 'Joo_Nathan_Botz',
+                  detail: 'Hydrate / Minum Air (500 Poin)',
+                  message: 'Jangan lupa minum air bang!'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestRedeemNoText) {
+        btnTestRedeemNoText.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_redeem_notext_${Date.now()}`,
+                  platform: 'twitch',
+                  eventType: 'redeem',
+                  title: 'Twitch Channel Points Redeem!',
+                  author: 'Joo_Nathan_Botz',
+                  detail: 'Hydrate / Minum Air (500 Poin)',
+                  message: ''
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
 
       // Listen for language toggles
       window.addEventListener('language_changed', () => {
