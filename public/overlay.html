@@ -571,11 +571,25 @@
       // Cache ID pesan untuk mencegah tampilan duplikat di OBS overlay
       const processedOverlayMsgIds = new Set();
 
+      // Cache untuk mencegah duplikasi Channel Points Redeem antara new_event dan new_chat
+      const recentRedeemKeys = new Set();
+      function isDuplicateRedeem(author, text) {
+        const cleanAuthor = String(author || '').trim().toLowerCase();
+        const cleanText = String(text || '').trim().toLowerCase();
+        const key = `${cleanAuthor}__${cleanText}`;
+        if (recentRedeemKeys.has(key)) return true;
+        recentRedeemKeys.add(key);
+        setTimeout(() => {
+          recentRedeemKeys.delete(key);
+        }, 15000);
+        return false;
+      }
+
       // Add Chat Item to Overlay
       function addOverlayMessage(item) {
         if (!item) return;
 
-        // Cegah pesan ganda tampil di layar OBS
+        // Cegah duplikasi pesan chat
         const dedupeKey = item.id || `${item.platform || ''}_${item.author?.name || ''}_${item.text || ''}`;
         if (processedOverlayMsgIds.has(dedupeKey)) return;
         processedOverlayMsgIds.add(dedupeKey);
@@ -584,12 +598,18 @@
           processedOverlayMsgIds.delete(first);
         }
 
-        const el = document.createElement('div');
-        el.className = 'overlay-item';
-        if (item.isRedeem) el.classList.add('highlighted');
-
         const author = item.author || {};
         const authorName = author.name || 'Anonymous';
+
+        // Cegah duplikasi Channel Points Redeem yang sama dari new_event
+        if (item.isRedeem && isDuplicateRedeem(authorName, item.text)) {
+          return;
+        }
+
+        const el = document.createElement('div');
+        el.className = 'overlay-item';
+        if (item.isRedeem) el.classList.add('is-redeem', 'highlighted');
+
         const authorColor = getAuthorColor(author, item.platform);
         const initial = (authorName[0] || '?').toUpperCase();
 
@@ -617,6 +637,14 @@
           textHtml = parse7tvTokens(item.text);
         }
 
+        if (item.isRedeem) {
+          const detail = item.redeemDetail || 'Channel Points';
+          const cleanText = (item.text || '').trim();
+          textHtml = cleanText.length > 0
+            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: ${textHtml}`
+            : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
+        }
+
         let replyHtml = '';
         if (item.reply && item.reply.parentText) {
           replyHtml = `
@@ -633,9 +661,10 @@
           <div class="overlay-body">
             <div class="overlay-header">
               ${badgesHtml}
+              ${item.isRedeem ? '<span class="badge-icon redeem-tag">💠 Redeem</span>' : ''}
               <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
             </div>
-            <div class="overlay-text">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
+            <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
           </div>
         `;
 
@@ -661,9 +690,11 @@
       // Cache ID event untuk mencegah duplikasi alert di OBS overlay
       const processedOverlayEventIds = new Set();
 
-      // Add Event Item (Raid, Cheer, Sub, Super Chat, Gifts)
+      // Add Event Item (Raid, Cheer, Sub, Super Chat, Gifts, Channel Points Redeem)
       function addOverlayEvent(evt) {
-        if (!config.showAlerts || !evt) return;
+        if (!evt) return;
+        const isRedeem = evt.eventType === 'redeem';
+        if (!config.showAlerts && !isRedeem) return;
 
         const evtKey = evt.id || `${evt.platform || ''}_${evt.eventType || ''}_${evt.author || ''}_${evt.detail || ''}_${evt.message || ''}`;
         if (processedOverlayEventIds.has(evtKey)) return;
@@ -673,13 +704,21 @@
           processedOverlayEventIds.delete(first);
         }
 
+        const authorName = (typeof evt.author === 'object' ? evt.author.name : evt.author) || 'Viewer';
+
+        // Cegah duplikasi Channel Points Redeem yang sama dari new_chat
+        if (isRedeem && evt.message && isDuplicateRedeem(authorName, evt.message)) {
+          return;
+        }
+
         const el = document.createElement('div');
         el.className = 'overlay-item overlay-event';
+        if (isRedeem) el.classList.add('is-redeem', 'highlighted');
         if (evt.eventType === 'superchat') el.classList.add('youtube-superchat');
         if (evt.eventType === 'raid') el.classList.add('twitch-raid');
 
-        const authorName = evt.author || 'Viewer';
         const initial = (authorName[0] || '★').toUpperCase();
+        const authorColor = evt.authorColor || (evt.author && evt.author.color) || '#67e8f9';
 
         const avatarHtml = config.showAvatars
           ? (evt.avatar 
@@ -687,19 +726,54 @@
               : `<div class="overlay-avatar" style="background: linear-gradient(135deg,#6366f1,#ec4899);">${initial}</div>`)
           : '';
 
-        el.innerHTML = `
-          ${avatarHtml}
-          <div class="overlay-body">
+        let badgesHtml = '';
+        if (isRedeem) {
+          badgesHtml = renderBadges({
+            platform: evt.platform || 'twitch',
+            author: typeof evt.author === 'object' ? evt.author : { name: authorName, badges: evt.badges, badgesList: evt.badgesList }
+          });
+        }
+
+        let bodyContent = '';
+        if (isRedeem) {
+          const detail = evt.detail || evt.title || 'Channel Points';
+          const msg = (evt.message || '').trim();
+          const formattedText = msg.length > 0
+            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: ${escapeHtml(msg)}`
+            : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
+          bodyContent = `
+            <div class="overlay-header">
+              ${badgesHtml}
+              <span class="badge-icon redeem-tag">💠 Redeem</span>
+              <span class="overlay-author-name" style="color:${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
+            </div>
+            <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
+            <div class="overlay-text is-redeem bubble-pink">${formattedText}</div>
+          `;
+        } else {
+          bodyContent = `
             <div class="overlay-header">
               <span class="badge-icon" style="background:#f59e0b; color:#000;">🎉 ALERT</span>
               <span class="overlay-author-name" style="color:#67e8f9;">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
             ${evt.message ? `<div class="overlay-text" style="font-style:italic;">"${escapeHtml(evt.message)}"</div>` : ''}
+          `;
+        }
+
+        el.innerHTML = `
+          ${avatarHtml}
+          <div class="overlay-body">
+            ${bodyContent}
           </div>
         `;
 
         container.appendChild(el);
+
+        const maxLimit = parseInt(config.maxMessages, 10) || 15;
+        while (container.children.length > maxLimit) {
+          container.removeChild(container.firstChild);
+        }
 
         if (config.hideDelay && config.hideDelay > 0) {
           setTimeout(() => {
