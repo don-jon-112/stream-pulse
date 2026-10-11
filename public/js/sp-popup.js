@@ -200,6 +200,7 @@
       sec_tiktok_settings: "🎵 Integrasi TikTok LIVE",
       sec_show_tiktok_likes: "Tampilkan Event TikTok Likes (❤️)",
       sec_show_tiktok_gifts: "Tampilkan Event TikTok Gift (🎁)",
+      sec_alert_custom: "🔔 Kustomisasi Alert Streaming",
       studio_save_custom_code: "💾 Simpan Custom CSS & JS",
 
       // Studio OBS Link & Live Preview
@@ -555,6 +556,7 @@
       sec_tiktok_settings: "🎵 TikTok LIVE Integration",
       sec_show_tiktok_likes: "Show TikTok Likes Event (❤️)",
       sec_show_tiktok_gifts: "Show TikTok Gifts Event (🎁)",
+      sec_alert_custom: "🔔 Streaming Alert Customization",
       studio_save_custom_code: "💾 Save Custom CSS & JS",
 
       // Studio OBS Link & Live Preview
@@ -1106,6 +1108,53 @@
     });
   }
 
+  function spPrompt(message, title, defaultValue = '') {
+    return new Promise((resolve) => {
+      initPopupDom();
+      popupTitle.textContent = title || 'Input';
+      popupMsg.innerHTML = `
+        <div style="margin-bottom:10px; font-size:0.88rem; color:#cbd5e1;">${String(message || '').replace(/\n/g, '<br>')}</div>
+        <input type="text" id="spPopupInput" class="sp-popup-input" value="${String(defaultValue).replace(/"/g, '&quot;')}" style="width:100%; padding:9px 12px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.25); border-radius:6px; color:#fff; font-size:0.9rem; box-sizing:border-box; outline:none;">
+      `;
+
+      popupCard.className = 'sp-popup-card type-info';
+      popupIcon.textContent = '✏️';
+
+      popupActions.innerHTML = `
+        <button id="spPopupBtnCancel" class="sp-popup-btn secondary">${t('dialog_cancel')}</button>
+        <button id="spPopupBtnOk" class="sp-popup-btn primary">${t('dialog_ok')}</button>
+      `;
+
+      popupOverlay.classList.add('show');
+
+      const input = document.getElementById('spPopupInput');
+      const btnCancel = document.getElementById('spPopupBtnCancel');
+      const btnOk = document.getElementById('spPopupBtnOk');
+      if (input) {
+        input.focus();
+        input.select();
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            popupOverlay.classList.remove('show');
+            resolve(input.value.trim());
+          } else if (e.key === 'Escape') {
+            popupOverlay.classList.remove('show');
+            resolve(null);
+          }
+        });
+      }
+
+      btnCancel.onclick = () => {
+        popupOverlay.classList.remove('show');
+        resolve(null);
+      };
+      btnOk.onclick = () => {
+        popupOverlay.classList.remove('show');
+        resolve(input ? input.value.trim() : '');
+      };
+    });
+  }
+
   // Toast Notification Engine
   let toastContainer = null;
   function spToast(message, type = 'info', duration = 3200) {
@@ -1137,6 +1186,7 @@
   // Override browser native alert and confirm gracefully
   window.spAlert = spAlert;
   window.spConfirm = spConfirm;
+  window.spPrompt = spPrompt;
   window.spToast = spToast;
   window.t = t;
   window.setLanguage = applyLanguage;

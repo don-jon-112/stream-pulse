@@ -18,6 +18,11 @@
       overflow: hidden !important;
     }
 
+    :root {
+      --bg-bubble: rgba(13, 17, 27, 0.88);
+      --text-custom: #ffffff;
+    }
+
     #overlayChatContainer {
       position: absolute;
       bottom: 16px;
@@ -30,6 +35,32 @@
       pointer-events: none;
     }
 
+    #overlayChatContainer.align-right {
+      align-items: flex-end !important;
+      text-align: right !important;
+    }
+
+    #overlayChatContainer.align-right .overlay-item {
+      margin-left: auto !important;
+      flex-direction: row-reverse !important;
+      text-align: right !important;
+    }
+
+    #overlayChatContainer.align-right .overlay-body {
+      align-items: flex-end !important;
+    }
+
+    #overlayChatContainer.align-right .overlay-header {
+      flex-direction: row-reverse !important;
+      justify-content: flex-end !important;
+    }
+
+    #overlayChatContainer.align-right .overlay-reply-quote {
+      text-align: right !important;
+      border-left: none !important;
+      border-right: 2px solid var(--accent-primary) !important;
+    }
+
     /* Direction: normal (new at bottom) or reverse */
     .overlay-item {
       display: flex;
@@ -37,7 +68,7 @@
       gap: 10px;
       padding: 10px 14px;
       border-radius: var(--radius-md);
-      background: rgba(13, 17, 27, 0.88);
+      background: var(--bg-bubble);
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(12px);
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
@@ -221,7 +252,7 @@
 
     .overlay-text {
       font-size: 0.95rem;
-      color: #ffffff;
+      color: var(--text-custom, #ffffff);
       line-height: 1.45;
       font-weight: 500;
       text-shadow: 0 1px 3px rgba(0,0,0,0.8);
@@ -339,6 +370,34 @@
       if (config.fontSize) {
         document.documentElement.style.fontSize = `${config.fontSize}px`;
       }
+
+      function hexToRgba(hex, alpha = 0.88) {
+        if (!hex || hex === 'transparent') return 'transparent';
+        let c = String(hex).replace('#', '').trim();
+        if (c.length === 3) c = c.split('').map(x => x + x).join('');
+        const num = parseInt(c, 16);
+        if (isNaN(num)) return hex;
+        return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+      }
+
+      function applyVisualConfig() {
+        if (config.chatAlign === 'right') {
+          container.classList.add('align-right');
+        } else {
+          container.classList.remove('align-right');
+        }
+
+        if (config.bgColor) {
+          const alpha = config.bgOpacity !== undefined ? (parseInt(config.bgOpacity, 10) / 100) : 0.88;
+          const rgba = hexToRgba(config.bgColor, alpha);
+          document.documentElement.style.setProperty('--bg-bubble', rgba);
+        }
+
+        if (config.textColor) {
+          document.documentElement.style.setProperty('--text-custom', config.textColor);
+        }
+      }
+      applyVisualConfig();
 
       // Apply Custom CSS
       if (config.customCss) {
@@ -801,21 +860,60 @@
           });
         }
 
+        let customTitle = evt.title;
+        let customDetail = evt.detail || '';
+        let customAlertBg = null;
+        let customAlertTextColor = null;
+
+        // Custom alert styling & templates per-event type
+        if (evt.eventType === 'subscription' || evt.eventType === 'resub' || evt.eventType === 'subgift') {
+          if (config.alertSubBg) customAlertBg = config.alertSubBg;
+          if (config.alertSubTextColor) customAlertTextColor = config.alertSubTextColor;
+          if (config.alertSubText) {
+            customTitle = config.alertSubText.replace(/{author}|{user}/gi, authorName).replace(/{detail}/gi, customDetail);
+          }
+        } else if (evt.eventType === 'cheer') {
+          if (config.alertCheerBg) customAlertBg = config.alertCheerBg;
+          if (config.alertCheerTextColor) customAlertTextColor = config.alertCheerTextColor;
+          if (config.alertCheerText) {
+            customTitle = config.alertCheerText.replace(/{author}|{user}/gi, authorName).replace(/{detail}|{bits}/gi, customDetail);
+          }
+        } else if (evt.eventType === 'raid') {
+          if (config.alertRaidBg) customAlertBg = config.alertRaidBg;
+          if (config.alertRaidTextColor) customAlertTextColor = config.alertRaidTextColor;
+          if (config.alertRaidText) {
+            customTitle = config.alertRaidText.replace(/{author}|{user}/gi, authorName).replace(/{detail}|{viewers}/gi, customDetail);
+          }
+        } else if (isTwitchRedeem) {
+          if (config.alertRedeemBg) customAlertBg = config.alertRedeemBg;
+          if (config.alertRedeemTextColor) customAlertTextColor = config.alertRedeemTextColor;
+        }
+
+        if (customAlertBg) {
+          el.style.background = customAlertBg;
+        }
+        if (customAlertTextColor) {
+          el.style.color = customAlertTextColor;
+        }
+
         let bodyContent = '';
         if (isTwitchRedeem) {
-          const detail = evt.detail || evt.title || 'Channel Points';
+          const detail = customDetail || evt.title || 'Channel Points';
           const msg = (evt.message || '').trim();
-          const formattedText = msg.length > 0
+          let formattedText = msg.length > 0
             ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: <i class="redeem-msg">${escapeHtml(msg)}</i>`
             : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
+          if (config.alertRedeemText) {
+            formattedText = config.alertRedeemText.replace(/{author}|{user}/gi, escapeHtml(authorName)).replace(/{detail}|{reward}/gi, escapeHtml(detail)).replace(/{message}/gi, escapeHtml(msg));
+          }
           bodyContent = `
             <div class="overlay-header">
               ${badgesHtml}
               <span class="badge-icon redeem-tag">💠 Redeem</span>
               <span class="overlay-author-name" style="color:${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
             </div>
-            <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
-            <div class="overlay-text is-redeem bubble-pink" style="font-style: italic;">${formattedText}</div>
+            <div class="overlay-event-title" ${customAlertTextColor ? `style="color:${escapeHtml(customAlertTextColor)};"` : ''}>${escapeHtml(customTitle)}${customDetail ? ` • ${escapeHtml(customDetail)}` : ''}</div>
+            <div class="overlay-text is-redeem bubble-pink" style="font-style: italic; ${customAlertTextColor ? `color:${escapeHtml(customAlertTextColor)};` : ''}">${formattedText}</div>
           `;
         } else {
           // Bersihkan token bits seperti "cheer300" jika pesan hanya berisi instruksi cheer tanpa komentar tambahan
@@ -832,8 +930,8 @@
               <span class="badge-icon" style="background:#f59e0b; color:#000;">🎉 ALERT</span>
               <span class="overlay-author-name" style="color:#67e8f9;">${escapeHtml(authorName)}</span>
             </div>
-            <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
-            ${displayMsg ? `<div class="overlay-text" style="font-style:italic;">"${escapeHtml(displayMsg)}"</div>` : ''}
+            <div class="overlay-event-title" ${customAlertTextColor ? `style="color:${escapeHtml(customAlertTextColor)};"` : ''}>${escapeHtml(customTitle)}${customDetail ? ` • ${escapeHtml(customDetail)}` : ''}</div>
+            ${displayMsg ? `<div class="overlay-text" style="font-style:italic; ${customAlertTextColor ? `color:${escapeHtml(customAlertTextColor)};` : ''}">"${escapeHtml(displayMsg)}"</div>` : ''}
           `;
         }
 
@@ -915,6 +1013,7 @@
           if (newCfg.customCss !== undefined && customCssEl) {
             customCssEl.textContent = newCfg.customCss;
           }
+          applyVisualConfig();
           // If channels were updated in Studio, immediately update Socket.io live subscription
           if (newCfg.twitch !== undefined || newCfg.youtube !== undefined || newCfg.tiktok !== undefined) {
             if (config.twitch !== oldTwitch || config.youtube !== oldYoutube || config.tiktok !== oldTiktok) {

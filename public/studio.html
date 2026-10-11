@@ -228,16 +228,32 @@
 
     .form-textarea {
       width: 100%;
-      padding: 10px 12px;
+      min-height: 240px;
+      padding: 12px 14px;
       background: #090c15;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       color: #a5b4fc;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-family: var(--font-mono);
       resize: vertical;
       box-sizing: border-box;
       line-height: 1.5;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+    }
+
+    #settingCustomCss {
+      min-height: 260px;
+    }
+
+    #settingCustomJs {
+      min-height: 160px;
     }
 
     .toggle-row {
@@ -488,6 +504,20 @@
           <span id="activeOverlayIdBadge" style="font-family:var(--font-mono); font-size:0.85rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:4px;">default</span>
         </div>
 
+        <!-- Slot Name Editor -->
+        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-xs); padding:10px 12px;">
+          <label class="form-label" for="settingOverlayName" style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:4px;">🏷️ Nama Slot Overlay (Label / Custom Name)</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="settingOverlayName" class="form-input" placeholder="Beri nama slot (misal: Chat Utama, Chat Kanan)" style="font-size:0.82rem; padding:6px 10px; flex:1;">
+            <button type="button" id="btnRenameSlot" class="btn-icon" style="font-size:0.75rem; padding:6px 12px; white-space:nowrap; font-weight:700;">
+              <span>💾 Simpan Nama</span>
+            </button>
+          </div>
+          <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:4px;">
+            💡 URL Browser Source OBS tetap menggunakan ID unik slot ini agar pengaturan OBS Anda tidak rusak.
+          </div>
+        </div>
+
       </div>
 
       <!-- 1. Channel Linking -->
@@ -526,6 +556,48 @@
           <option value="cyberpunk" data-i18n="opt_theme_cyberpunk">⚡ Cyberpunk Neon Glow</option>
           <option value="light" data-i18n="opt_theme_light">⚪ Clean Light Paper</option>
         </select>
+      </div>
+
+      <!-- Orientasi / Alignment Chat -->
+      <div class="form-group">
+        <label class="form-label" for="settingChatAlign">Orientasi & Posisi Bubble Chat (Alignment)</label>
+        <select id="settingChatAlign" class="form-select">
+          <option value="left">👈 Rata Kiri (Left Align - Default)</option>
+          <option value="right">👉 Rata Kanan (Right Align - Avatar di Kanan)</option>
+        </select>
+      </div>
+
+      <!-- Kustomisasi Warna Background Bubble -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>Warna Background Bubble</span>
+          <span id="labelBgColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#0d111b</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="color" id="settingBgColor" value="#0d111b" style="width:44px; height:36px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
+          <span style="font-size:0.75rem; color:var(--text-tertiary);">Pilih warna dasar bubble chat</span>
+        </div>
+      </div>
+
+      <!-- Transparansi Background (Opacity Slider) -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>Transparansi Background (Opacity)</span>
+          <span id="labelBgOpacity" style="color:#67e8f9; font-family:var(--font-mono);">88%</span>
+        </div>
+        <input type="range" id="settingBgOpacity" min="0" max="100" step="5" value="88" style="width:100%;">
+      </div>
+
+      <!-- Kustomisasi Warna Teks Pesan -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>Warna Teks Pesan Chat</span>
+          <span id="labelTextColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#e2e8f0</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="color" id="settingTextColor" value="#e2e8f0" style="width:44px; height:36px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
+          <span style="font-size:0.75rem; color:var(--text-tertiary);">Kustomisasi warna huruf teks chat</span>
+        </div>
       </div>
 
       <div class="form-group">
@@ -671,16 +743,98 @@
         </div>
       </div>
 
+      <!-- 3B. Alert Customization (Twitch, YouTube, TikTok) -->
+      <div class="section-title" data-i18n="sec_alert_custom">🔔 Kustomisasi Alert Streaming</div>
+      <div style="font-size:0.73rem; color:var(--text-tertiary); margin-bottom:10px; line-height:1.4;">
+        Sesuaikan warna background, warna teks, dan pesan teks untuk setiap jenis alert interaksi live stream Anda.
+      </div>
+
+      <!-- Subscription Alert Customizer -->
+      <div style="background:rgba(145,70,255,0.06); border:1px solid rgba(145,70,255,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+        <div style="font-size:0.8rem; font-weight:800; color:#c084fc; margin-bottom:6px;">⭐ Subscription / Langganan</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+            <input type="text" id="settingAlertSubBg" class="form-input" placeholder="linear-gradient(...) / #hex" style="font-size:0.75rem; padding:6px 8px;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+            <input type="color" id="settingAlertSubTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {detail})</label>
+          <input type="text" id="settingAlertSubText" class="form-input" placeholder="Misal: {author} berlangganan!" style="font-size:0.75rem; padding:6px 8px;">
+        </div>
+      </div>
+
+      <!-- Cheer / Bits Alert Customizer -->
+      <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+        <div style="font-size:0.8rem; font-weight:800; color:#fbbf24; margin-bottom:6px;">💎 Bits / Cheer Alert</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+            <input type="text" id="settingAlertCheerBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+            <input type="color" id="settingAlertCheerTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {bits})</label>
+          <input type="text" id="settingAlertCheerText" class="form-input" placeholder="Misal: {author} bersorak {bits} Bits!" style="font-size:0.75rem; padding:6px 8px;">
+        </div>
+      </div>
+
+      <!-- Raid Alert Customizer -->
+      <div style="background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+        <div style="font-size:0.8rem; font-weight:800; color:#fb7185; margin-bottom:6px;">🚀 Raid Alert</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+            <input type="text" id="settingAlertRaidBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+            <input type="color" id="settingAlertRaidTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {viewers})</label>
+          <input type="text" id="settingAlertRaidText" class="form-input" placeholder="Misal: {author} raid bersama {viewers} penonton!" style="font-size:0.75rem; padding:6px 8px;">
+        </div>
+      </div>
+
+      <!-- Channel Points Redeem Alert Customizer -->
+      <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+        <div style="font-size:0.8rem; font-weight:800; color:#34d399; margin-bottom:6px;">💠 Channel Points Redeem</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+            <input type="text" id="settingAlertRedeemBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+            <input type="color" id="settingAlertRedeemTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {reward}, {message})</label>
+          <input type="text" id="settingAlertRedeemText" class="form-input" placeholder="Misal: {author} menukarkan {reward}" style="font-size:0.75rem; padding:6px 8px;">
+        </div>
+      </div>
+
       <!-- 4. Custom CSS Editor -->
       <div class="section-title" data-i18n="sec_custom_css">💻 Custom CSS Editor</div>
       <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0;" data-i18n="desc_custom_css">
         Ubah warna font, shadow, border radius, atau animasi sesuai gaya streaming Anda:
       </p>
-      <textarea id="settingCustomCss" class="form-textarea" rows="6" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}" data-i18n-ph="ph_custom_css"></textarea>
+      <textarea id="settingCustomCss" class="form-textarea" rows="12" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}" data-i18n-ph="ph_custom_css"></textarea>
 
       <!-- 5. Custom JS Editor -->
       <div class="section-title" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
-      <textarea id="settingCustomJs" class="form-textarea" rows="4" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
+      <textarea id="settingCustomJs" class="form-textarea" rows="7" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
 
       <!-- Save Button for Custom CSS & JS -->
       <button type="button" id="btnSaveCustomCode" class="btn-icon btn-primary" style="margin-top:10px; width:100%; justify-content:center; padding:10px; font-weight:800;">
@@ -838,6 +992,31 @@
       const settingCustomJs = document.getElementById('settingCustomJs');
       const btnSaveCustomCode = document.getElementById('btnSaveCustomCode');
 
+      // Slot Name, Orientation, & Generic Visual Settings
+      const settingOverlayName = document.getElementById('settingOverlayName');
+      const btnRenameSlot = document.getElementById('btnRenameSlot');
+      const settingChatAlign = document.getElementById('settingChatAlign');
+      const settingBgColor = document.getElementById('settingBgColor');
+      const labelBgColorHex = document.getElementById('labelBgColorHex');
+      const settingBgOpacity = document.getElementById('settingBgOpacity');
+      const labelBgOpacity = document.getElementById('labelBgOpacity');
+      const settingTextColor = document.getElementById('settingTextColor');
+      const labelTextColorHex = document.getElementById('labelTextColorHex');
+
+      // Alert Customizers
+      const settingAlertSubBg = document.getElementById('settingAlertSubBg');
+      const settingAlertSubTextColor = document.getElementById('settingAlertSubTextColor');
+      const settingAlertSubText = document.getElementById('settingAlertSubText');
+      const settingAlertCheerBg = document.getElementById('settingAlertCheerBg');
+      const settingAlertCheerTextColor = document.getElementById('settingAlertCheerTextColor');
+      const settingAlertCheerText = document.getElementById('settingAlertCheerText');
+      const settingAlertRaidBg = document.getElementById('settingAlertRaidBg');
+      const settingAlertRaidTextColor = document.getElementById('settingAlertRaidTextColor');
+      const settingAlertRaidText = document.getElementById('settingAlertRaidText');
+      const settingAlertRedeemBg = document.getElementById('settingAlertRedeemBg');
+      const settingAlertRedeemTextColor = document.getElementById('settingAlertRedeemTextColor');
+      const settingAlertRedeemText = document.getElementById('settingAlertRedeemText');
+
       const obsFinalUrl = document.getElementById('obsFinalUrl');
       const btnCopyObsUrl = document.getElementById('btnCopyObsUrl');
       const btnSaveOverlay = document.getElementById('btnSaveOverlay');
@@ -951,7 +1130,7 @@
           obsUrlHelpText.innerHTML = window.t ? window.t('obs_help_text') : '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>';
 
           slotCounter.textContent = `${count} / 3 ${window.t ? window.t('studio_slots_used_text') : 'Slot Terpakai'}`;
-          renderSlotsList(currentUser.overlayIds || []);
+          renderSlotsList(currentUser.overlays || currentUser.overlayIds || []);
           updateUrl();
         } else {
           // Guest State (Terkunci)
@@ -1183,6 +1362,11 @@
         }
       }
 
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
       function renderSlotsList(slots) {
         slotsContainer.innerHTML = '';
         if (!slots || slots.length === 0) {
@@ -1194,19 +1378,23 @@
           return;
         }
 
-        slots.forEach((sId, idx) => {
+        slots.forEach((slot, idx) => {
+          const sId = typeof slot === 'object' ? slot.id : slot;
+          const sName = (typeof slot === 'object' && slot.name) ? slot.name : sId;
           const item = document.createElement('div');
           const isActive = (sId === profileId);
           item.className = `slot-item ${isActive ? 'active' : ''}`;
           item.innerHTML = `
-            <div>
-              <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono);">Slot ${idx + 1}: ${sId}</strong>
-              ${isActive ? `<span style="font-size:0.65rem; color:#f59e0b; margin-left:6px; font-weight:700;">(${window.t ? window.t('active_badge_text') : 'Aktif'})</span>` : ''}
+            <div style="overflow:hidden; text-overflow:ellipsis; max-width:180px;">
+              <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono); font-size:0.82rem;">${escapeHtml(sName)}</strong>
+              ${sName !== sId ? `<span style="font-size:0.68rem; color:var(--text-tertiary); display:block;">ID: ${sId}</span>` : ''}
+              ${isActive ? `<span style="font-size:0.65rem; color:#f59e0b; font-weight:700;">(${window.t ? window.t('active_badge_text') : 'Aktif'})</span>` : ''}
             </div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}" title="${window.t ? window.t('btn_edit_slot_tip') : 'Muat dan edit konfigurasi slot ini'}">✏️ Edit</button>` : ''}
-              <button class="btn-action-sm btn-overwrite-slot" data-id="${sId}" style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc;" title="${window.t ? window.t('btn_overwrite_slot_tip') : 'Timpa (overwrite) slot ini dengan pengaturan yang sedang Anda edit saat ini'}">💾 Overwrite</button>
-              <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="${window.t ? window.t('btn_delete_slot_tip') : 'Hapus slot ini untuk mengosongkan kuota'}">🗑️</button>
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button class="btn-action-sm btn-rename-slot" data-id="${sId}" data-name="${escapeHtml(sName)}" title="Ganti Nama Slot">✏️ Nama</button>
+              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}" title="${window.t ? window.t('btn_edit_slot_tip') : 'Muat dan edit konfigurasi slot ini'}">⚙️ Edit</button>` : ''}
+              <button class="btn-action-sm btn-overwrite-slot" data-id="${sId}" style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc;" title="${window.t ? window.t('btn_overwrite_slot_tip') : 'Timpa (overwrite) slot ini'}">💾</button>
+              <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="${window.t ? window.t('btn_delete_slot_tip') : 'Hapus slot ini'}">🗑️</button>
             </div>
           `;
 
@@ -1217,10 +1405,37 @@
             });
           }
 
+          const renameBtn = item.querySelector('.btn-rename-slot');
+          if (renameBtn) {
+            renameBtn.addEventListener('click', async () => {
+              const currentName = renameBtn.dataset.name || sId;
+              const newName = await spPrompt(`Masukkan nama baru untuk slot overlay (${sId}):`, 'Ubah Nama Slot Overlay', currentName);
+              if (newName !== null && newName.trim()) {
+                const patchRes = await fetch(`/api/user/overlays/${encodeURIComponent(sId)}/rename`, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-token': userToken
+                  },
+                  body: JSON.stringify({ name: newName.trim() })
+                });
+                if (patchRes.ok) {
+                  spToast(`Nama slot berhasil diubah menjadi "${newName.trim()}"`, 'success');
+                  if (profileId === sId && settingOverlayName) {
+                    settingOverlayName.value = newName.trim();
+                  }
+                  await checkUserSession();
+                } else {
+                  spToast('Gagal mengubah nama slot', 'error');
+                }
+              }
+            });
+          }
+
           const overwriteBtn = item.querySelector('.btn-overwrite-slot');
           if (overwriteBtn) {
             overwriteBtn.addEventListener('click', async () => {
-              const ok = await spConfirm(`Yakin ingin menimpa (overwrite) Slot ${idx + 1} ("${sId}") dengan konfigurasi yang sedang Anda ubah saat ini?`, 'Konfirmasi Overwrite Slot', 'warning');
+              const ok = await spConfirm(`Yakin ingin menimpa (overwrite) Slot ${idx + 1} ("${sName}") dengan konfigurasi yang sedang Anda ubah saat ini?`, 'Konfirmasi Overwrite Slot', 'warning');
               if (ok) {
                 profileId = sId;
                 await saveProfile(true);
@@ -1229,7 +1444,7 @@
           }
 
           item.querySelector('.btn-delete-slot').addEventListener('click', async () => {
-            const ok = await spConfirm(`Yakin ingin menghapus slot overlay "${sId}"?`, 'Hapus Slot Overlay', 'danger');
+            const ok = await spConfirm(`Yakin ingin menghapus slot overlay "${sName}" (${sId})?`, 'Hapus Slot Overlay', 'danger');
             if (ok) {
               const delRes = await fetch(`/api/user/overlays/${encodeURIComponent(sId)}`, {
                 method: 'DELETE',
@@ -1238,12 +1453,37 @@
               if (delRes.ok) {
                 await checkUserSession();
                 if (profileId === sId) switchProfile('default');
-                spToast(`Slot "${sId}" berhasil dihapus`, 'success');
+                spToast(`Slot "${sName}" berhasil dihapus`, 'success');
               }
             }
           });
 
           slotsContainer.appendChild(item);
+        });
+      }
+
+      if (btnRenameSlot) {
+        btnRenameSlot.addEventListener('click', async () => {
+          if (!userToken || !currentUser) {
+            spToast('Silakan login untuk menyimpan nama slot', 'warning');
+            openAuthModal();
+            return;
+          }
+          const newName = settingOverlayName.value.trim() || profileId;
+          const patchRes = await fetch(`/api/user/overlays/${encodeURIComponent(profileId)}/rename`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-token': userToken
+            },
+            body: JSON.stringify({ name: newName })
+          });
+          if (patchRes.ok) {
+            spToast(`Nama slot berhasil disimpan: "${newName}"`, 'success');
+            await checkUserSession();
+          } else {
+            spToast('Gagal menyimpan nama slot', 'error');
+          }
         });
       }
 
@@ -1287,7 +1527,7 @@
         loadProfile();
         updateUrl();
         previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
-        if (currentUser) renderSlotsList(currentUser.overlayIds || []);
+        if (currentUser) renderSlotsList(currentUser.overlays || currentUser.overlayIds || []);
       }
 
       async function loadProfile() {
@@ -1296,6 +1536,12 @@
           const res = await fetch(`/api/overlays/${profileId}`);
           if (res.ok) {
             const data = await res.json();
+            if (data.name !== undefined) {
+              settingOverlayName.value = data.name;
+            } else {
+              settingOverlayName.value = profileId;
+            }
+
             if (data.twitch !== undefined) settingTwitch.value = data.twitch;
             if (data.youtube !== undefined) settingYouTube.value = data.youtube;
             if (data.tiktok !== undefined) settingTikTok.value = data.tiktok;
@@ -1306,6 +1552,20 @@
             if (!settingTikTok.value && savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
 
             if (data.theme !== undefined) settingTheme.value = data.theme;
+            if (data.chatAlign !== undefined) settingChatAlign.value = data.chatAlign;
+            if (data.bgColor !== undefined) {
+              settingBgColor.value = data.bgColor;
+              if (labelBgColorHex) labelBgColorHex.textContent = data.bgColor;
+            }
+            if (data.bgOpacity !== undefined) {
+              settingBgOpacity.value = data.bgOpacity;
+              if (labelBgOpacity) labelBgOpacity.textContent = `${data.bgOpacity}%`;
+            }
+            if (data.textColor !== undefined) {
+              settingTextColor.value = data.textColor;
+              if (labelTextColorHex) labelTextColorHex.textContent = data.textColor;
+            }
+
             if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
             if (data.maxMessages !== undefined) settingMaxMessages.value = data.maxMessages;
@@ -1325,6 +1585,21 @@
             if (data.showAlerts !== undefined) settingShowAlerts.checked = data.showAlerts;
             if (data.showTikTokLikes !== undefined) settingShowTikTokLikes.checked = data.showTikTokLikes;
             if (data.showTikTokGifts !== undefined) settingShowTikTokGifts.checked = data.showTikTokGifts;
+
+            // Alert Customizer fields
+            if (data.alertSubBg !== undefined) settingAlertSubBg.value = data.alertSubBg;
+            if (data.alertSubTextColor !== undefined) settingAlertSubTextColor.value = data.alertSubTextColor;
+            if (data.alertSubText !== undefined) settingAlertSubText.value = data.alertSubText;
+            if (data.alertCheerBg !== undefined) settingAlertCheerBg.value = data.alertCheerBg;
+            if (data.alertCheerTextColor !== undefined) settingAlertCheerTextColor.value = data.alertCheerTextColor;
+            if (data.alertCheerText !== undefined) settingAlertCheerText.value = data.alertCheerText;
+            if (data.alertRaidBg !== undefined) settingAlertRaidBg.value = data.alertRaidBg;
+            if (data.alertRaidTextColor !== undefined) settingAlertRaidTextColor.value = data.alertRaidTextColor;
+            if (data.alertRaidText !== undefined) settingAlertRaidText.value = data.alertRaidText;
+            if (data.alertRedeemBg !== undefined) settingAlertRedeemBg.value = data.alertRedeemBg;
+            if (data.alertRedeemTextColor !== undefined) settingAlertRedeemTextColor.value = data.alertRedeemTextColor;
+            if (data.alertRedeemText !== undefined) settingAlertRedeemText.value = data.alertRedeemText;
+
             if (data.customCss !== undefined) settingCustomCss.value = data.customCss;
             if (data.customJs !== undefined) settingCustomJs.value = data.customJs;
             updateLabels();
@@ -1346,10 +1621,15 @@
       function getOverlayConfig() {
         return {
           id: profileId,
+          name: settingOverlayName ? settingOverlayName.value.trim() : '',
           twitch: settingTwitch.value.trim(),
           youtube: settingYouTube.value.trim(),
           tiktok: settingTikTok.value.trim(),
           theme: settingTheme.value,
+          chatAlign: settingChatAlign ? settingChatAlign.value : 'left',
+          bgColor: settingBgColor ? settingBgColor.value : '#0d111b',
+          bgOpacity: settingBgOpacity ? parseInt(settingBgOpacity.value, 10) : 88,
+          textColor: settingTextColor ? settingTextColor.value : '#e2e8f0',
           fontSize: parseInt(settingFontSize.value, 10),
           hideDelay: parseInt(settingHideDelay.value, 10),
           maxMessages: parseInt(settingMaxMessages.value, 10) || 15,
@@ -1362,6 +1642,18 @@
           showAlerts: settingShowAlerts.checked,
           showTikTokLikes: settingShowTikTokLikes.checked,
           showTikTokGifts: settingShowTikTokGifts.checked,
+          alertSubBg: settingAlertSubBg ? settingAlertSubBg.value.trim() : '',
+          alertSubTextColor: settingAlertSubTextColor ? settingAlertSubTextColor.value : '#ffffff',
+          alertSubText: settingAlertSubText ? settingAlertSubText.value.trim() : '',
+          alertCheerBg: settingAlertCheerBg ? settingAlertCheerBg.value.trim() : '',
+          alertCheerTextColor: settingAlertCheerTextColor ? settingAlertCheerTextColor.value : '#ffffff',
+          alertCheerText: settingAlertCheerText ? settingAlertCheerText.value.trim() : '',
+          alertRaidBg: settingAlertRaidBg ? settingAlertRaidBg.value.trim() : '',
+          alertRaidTextColor: settingAlertRaidTextColor ? settingAlertRaidTextColor.value : '#ffffff',
+          alertRaidText: settingAlertRaidText ? settingAlertRaidText.value.trim() : '',
+          alertRedeemBg: settingAlertRedeemBg ? settingAlertRedeemBg.value.trim() : '',
+          alertRedeemTextColor: settingAlertRedeemTextColor ? settingAlertRedeemTextColor.value : '#ffffff',
+          alertRedeemText: settingAlertRedeemText ? settingAlertRedeemText.value.trim() : '',
           customCss: settingCustomCss.value,
           customJs: settingCustomJs.value
         };
@@ -1373,6 +1665,10 @@
           return;
         }
         let fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
+        if (settingChatAlign && settingChatAlign.value === 'right') fullUrl += '&align=right';
+        if (settingBgColor && settingBgColor.value !== '#0d111b') fullUrl += `&bgColor=${encodeURIComponent(settingBgColor.value)}`;
+        if (settingBgOpacity && settingBgOpacity.value !== '88') fullUrl += `&bgOpacity=${settingBgOpacity.value}`;
+        if (settingTextColor && settingTextColor.value !== '#e2e8f0') fullUrl += `&textColor=${encodeURIComponent(settingTextColor.value)}`;
         if (!settingShowTikTokLikes.checked) fullUrl += '&ttLikes=0';
         if (!settingShowTikTokGifts.checked) fullUrl += '&ttGifts=0';
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
@@ -1524,12 +1820,43 @@
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts].forEach(el => {
-        el.addEventListener('change', () => {
-          updateLabels();
+      [settingTheme, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts].forEach(el => {
+        if (el) {
+          el.addEventListener('change', () => {
+            updateLabels();
+            updateUrl();
+            refreshPreview();
+          });
+        }
+      });
+
+      if (settingBgColor) {
+        settingBgColor.addEventListener('input', () => {
+          if (labelBgColorHex) labelBgColorHex.textContent = settingBgColor.value;
           updateUrl();
           refreshPreview();
         });
+      }
+      if (settingBgOpacity) {
+        settingBgOpacity.addEventListener('input', () => {
+          if (labelBgOpacity) labelBgOpacity.textContent = `${settingBgOpacity.value}%`;
+          updateUrl();
+          refreshPreview();
+        });
+      }
+      if (settingTextColor) {
+        settingTextColor.addEventListener('input', () => {
+          if (labelTextColorHex) labelTextColorHex.textContent = settingTextColor.value;
+          updateUrl();
+          refreshPreview();
+        });
+      }
+
+      [settingAlertSubBg, settingAlertSubTextColor, settingAlertSubText, settingAlertCheerBg, settingAlertCheerTextColor, settingAlertCheerText, settingAlertRaidBg, settingAlertRaidTextColor, settingAlertRaidText, settingAlertRedeemBg, settingAlertRedeemTextColor, settingAlertRedeemText].forEach(el => {
+        if (el) {
+          el.addEventListener('input', () => refreshPreview());
+          el.addEventListener('change', () => refreshPreview());
+        }
       });
 
       settingCustomCss.addEventListener('input', () => {

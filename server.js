@@ -796,6 +796,7 @@ app.post('/api/user/overlays/generate', (req, res) => {
   const overlays = readJsonFile(OVERLAYS_FILE, {});
   overlays[newId] = {
     id: newId,
+    name: newId,
     owner: currentUser.username,
     theme: 'glass',
     fontSize: 15,
@@ -890,6 +891,32 @@ app.delete('/api/user/overlays/:id', (req, res) => {
   }
 
   res.json({ success: true, remaining: currentUser.overlayIds });
+});
+
+// Rename Single Overlay Slot
+app.patch('/api/user/overlays/:id/rename', (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) return res.status(401).json({ error: 'Belum login' });
+  const { id } = req.params;
+  const { name } = req.body || {};
+
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  if (!overlays[id] || (overlays[id].owner && overlays[id].owner !== user.username)) {
+    return res.status(404).json({ error: 'Slot overlay tidak ditemukan atau bukan milik Anda' });
+  }
+
+  overlays[id].name = String(name || '').trim();
+  overlays[id].updatedAt = Date.now();
+  writeJsonFile(OVERLAYS_FILE, overlays);
+
+  res.json({ success: true, id, name: overlays[id].name, overlay: overlays[id] });
+});
+
+// Twitch Avatar Resolver
+app.get('/api/twitch/avatar/:username', async (req, res) => {
+  const { username } = req.params;
+  const avatar = await streamManager.getTwitchAvatar(username);
+  res.json({ username, avatar });
 });
 
 // 9. Permanent Account Deletion (GDPR / Privacy Compliance)
