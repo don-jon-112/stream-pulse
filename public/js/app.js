@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     density: localStorage.getItem('chat_density') || 'comfortable',
     chatOrder: localStorage.getItem('chat_order') || 'top', // 'top' (newest on top) or 'bottom'
     maxChatLimit: parseInt(localStorage.getItem('max_chat_limit') || '50', 10),
+    hideAvatars: localStorage.getItem('hide_avatars') === 'true',
     liteMode: isUrlLite || localStorage.getItem('lite_mode') === 'true',
     obsMode: false,
     statuses: {
@@ -170,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fxCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
       fxCtx.restore();
     }
-    
+
     // Hanya terus looping bila ada partikel aktif (0% idle CPU)
     if (particles.length > 0) {
       fxAnimationId = requestAnimationFrame(updateParticles);
@@ -226,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
       wakelockText.textContent = window.t ? (isAct ? window.t('nav_wakelock_on') : window.t('nav_wakelock_off')) : (isAct ? 'LAYAR AKTIF (Anti-Sleep ON)' : 'LAYAR NORMAL (Auto-Sleep)');
       if (wakelockSub) wakelockSub.textContent = window.t ? (isAct ? window.t('nav_wakelock_sub') : window.t('nav_wakelock_sub_off')) : (isAct ? 'Layar Dicegah Mati' : 'Bisa Mati Otomatis');
       updateOrderUI();
+      updateAvatarUI();
       renderAuthNotice();
     });
   }
@@ -302,6 +304,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     updateOrderUI();
   }
+
+  // ==========================================
+  // RAM SAVER: TOGGLE HIDE AVATARS (PROFILE PIC)
+  // ==========================================
+  const btnToggleAvatars = document.getElementById('btnToggleAvatars');
+  const avatarToggleLabel = document.getElementById('avatarToggleLabel');
+
+  const updateAvatarUI = () => {
+    if (!btnToggleAvatars) return;
+    if (state.hideAvatars) {
+      btnToggleAvatars.classList.add('active');
+      document.body.classList.add('hide-avatars');
+      if (avatarToggleLabel) {
+        avatarToggleLabel.textContent = window.t ? window.t('btn_avatars_off') : 'Foto: NONAKTIF';
+      }
+    } else {
+      btnToggleAvatars.classList.remove('active');
+      document.body.classList.remove('hide-avatars');
+      if (avatarToggleLabel) {
+        avatarToggleLabel.textContent = window.t ? window.t('btn_avatars_on') : 'Foto: AKTIF';
+      }
+    }
+  };
+
+  if (btnToggleAvatars) {
+    btnToggleAvatars.addEventListener('click', () => {
+      state.hideAvatars = !state.hideAvatars;
+      localStorage.setItem('hide_avatars', state.hideAvatars ? 'true' : 'false');
+      updateAvatarUI();
+      if (state.hideAvatars) {
+        // Hapus langsung avatar dari chat yang ada di layar untuk bebaskan RAM seketika
+        document.querySelectorAll('#chatMessages .chat-avatar').forEach(el => el.remove());
+        spToast(window.t ? window.t('toast_avatars_hidden') : '⚡ Mode Hemat RAM: Foto profil disembunyikan', 'info');
+      } else {
+        spToast(window.t ? window.t('toast_avatars_shown') : 'Foto profil viewer diaktifkan', 'info');
+      }
+    });
+  }
+  updateAvatarUI();
 
   // ==========================================
   // PERFORMANCE: MAX CHAT LIMIT & CLEAR PURGE
@@ -489,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.twitchEmotes = { ...emotes, ...state.twitchEmotes };
       }
     })
-    .catch(() => {});
+    .catch(() => { });
 
   socket.on('twitch_emotes', ({ channel, emotes }) => {
     if (emotes && typeof emotes === 'object') {
@@ -512,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.totalEvents++;
     statTotalEvents.textContent = state.totalEvents;
 
-    const isHighTier = 
+    const isHighTier =
       (eventItem.diamonds && eventItem.diamonds >= 1000) ||
       (eventItem.detail && (
         eventItem.detail.includes('100.000') ||
@@ -851,9 +892,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorName = author.name || 'Anonymous';
     const authorColor = author.color || '#f8fafc';
     const initial = (authorName[0] || '?').toUpperCase();
-    const avatarImg = author.avatar
-      ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
-      : `<div class="chat-avatar">${initial}</div>`;
+    const showAvatar = !state.hideAvatars;
+    const avatarImg = showAvatar
+      ? (author.avatar
+        ? `<img src="${escapeHtml(author.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
+        : `<div class="chat-avatar">${initial}</div>`)
+      : '';
 
     const badgesHtml = getPlatformBadge(chat.platform) + getOfficialBadgesHtml(chat);
 
@@ -925,12 +969,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const authorName = evt.author || 'Viewer';
     const initial = (authorName[0] || '★').toUpperCase();
-    // Pada Lite Mode: Jangan render avatar/profile pic pada pesan event
-    const avatarImg = state.liteMode
+    // Pada Lite Mode atau mode Sembunyikan Avatar: Jangan render avatar/profile pic
+    const avatarImg = (state.liteMode || state.hideAvatars)
       ? ''
       : (evt.avatar
-          ? `<img src="${escapeHtml(evt.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
-          : `<div class="chat-avatar" style="background: linear-gradient(135deg, #6366f1, #ec4899);">${initial}</div>`);
+        ? `<img src="${escapeHtml(evt.avatar)}" class="chat-avatar" alt="${escapeHtml(authorName)}" onerror="this.onerror=null; this.outerHTML='<div class=\\'chat-avatar\\'>${initial}</div>'">`
+        : `<div class="chat-avatar" style="background: linear-gradient(135deg, #6366f1, #ec4899);">${initial}</div>`);
 
     const platBadge = getPlatformBadge(evt.platform);
     const badgePill = evt.badge ? `<span class="badge-user" style="background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(59, 130, 246, 0.5); font-weight:800;">${escapeHtml(evt.badge)}</span>` : '';
@@ -977,6 +1021,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   function addEventToRecorder(evt, isNew = true) {
     state.eventsList.push(evt);
+    if (state.eventsList.length > 100) {
+      state.eventsList.shift();
+    }
 
     const emptyState = recorderList.querySelector('.empty-state');
     if (emptyState) emptyState.remove();

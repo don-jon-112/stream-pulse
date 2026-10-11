@@ -42,7 +42,13 @@
       order_newest_top: "Terbaru di Atas",
       order_newest_bottom: "Terbaru di Bawah",
       tip_order_toggle: "Ubah urutan chat: Terbaru di Atas atau Terbaru di Bawah",
+      tip_toggle_avatars: "Sembunyikan atau tampilkan foto profil viewer untuk menghemat RAM (RAM Saver)",
+      btn_avatars_on: "Foto: AKTIF",
+      btn_avatars_off: "Foto: NONAKTIF",
+      toast_avatars_hidden: "⚡ Mode Hemat RAM Aktif: Foto profil viewer disembunyikan untuk menghemat RAM",
+      toast_avatars_shown: "Foto profil viewer diaktifkan kembali",
       tip_chat_limit: "Batas maksimal chat di layar untuk mencegah web lag / boros RAM",
+      limit_20: "20 (Ultra Ringan)",
       limit_30: "30 (Super Ringan)",
       limit_50: "50 (Hemat RAM)",
       limit_100: "100 (Standar)",
@@ -378,7 +384,13 @@
       order_newest_top: "Newest on Top",
       order_newest_bottom: "Newest at Bottom",
       tip_order_toggle: "Toggle order: Newest on Top or Newest at Bottom",
+      tip_toggle_avatars: "Hide or show viewer profile pictures to save RAM (RAM Saver)",
+      btn_avatars_on: "Avatars: ON",
+      btn_avatars_off: "Avatars: OFF",
+      toast_avatars_hidden: "⚡ RAM Saver Enabled: Viewer avatars hidden to save RAM",
+      toast_avatars_shown: "Viewer avatars re-enabled",
       tip_chat_limit: "Max on-screen chat count to prevent browser lag and save RAM",
+      limit_20: "20 (Ultra Light)",
       limit_30: "30 (Ultra Light)",
       limit_50: "50 (Memory Saver)",
       limit_100: "100 (Standard)",
@@ -831,7 +843,10 @@
     ["Slot Terpakai", "Slots Used"],
     ["Selalu Tampil (0s)", "Always Visible (0s)"],
     ["detik", "seconds"],
-    ["Pesan", "Messages"]
+    ["Pesan", "Messages"],
+    ["Foto: AKTIF", "Avatars: ON"],
+    ["Foto: NONAKTIF", "Avatars: OFF"],
+    ["20 (Ultra Ringan)", "20 (Ultra Light)"]
   ];
 
   const placeholderPairs = [
