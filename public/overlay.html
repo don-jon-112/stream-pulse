@@ -593,8 +593,10 @@
       // Cache ID pesan untuk mencegah tampilan duplikat di OBS overlay
       const processedOverlayMsgIds = new Set();
 
-      // Cache untuk mencegah duplikasi Channel Points Redeem antara new_event dan new_chat
+      // Cache untuk mencegah duplikasi alert (Bits, Superchat, Gift, Redeem) antara new_event dan new_chat
       const recentRedeemKeys = new Set();
+      const recentAlertKeys = new Set();
+
       function isDuplicateRedeem(author, text) {
         const cleanAuthor = String(author || '').trim().toLowerCase();
         const cleanText = String(text || '').trim().toLowerCase();
@@ -605,6 +607,25 @@
           recentRedeemKeys.delete(key);
         }, 15000);
         return false;
+      }
+
+      function recordRecentAlert(author, text) {
+        if (!text) return;
+        const cleanAuthor = String(author || '').trim().toLowerCase();
+        const cleanText = String(text || '').trim().toLowerCase();
+        const key = `${cleanAuthor}__${cleanText}`;
+        recentAlertKeys.add(key);
+        setTimeout(() => {
+          recentAlertKeys.delete(key);
+        }, 15000);
+      }
+
+      function isDuplicateAlertChat(author, text) {
+        if (config.showAlerts === false) return false;
+        const cleanAuthor = String(author || '').trim().toLowerCase();
+        const cleanText = String(text || '').trim().toLowerCase();
+        const key = `${cleanAuthor}__${cleanText}`;
+        return recentAlertKeys.has(key);
       }
 
       // Add Chat Item to Overlay
@@ -622,6 +643,16 @@
 
         const author = item.author || {};
         const authorName = author.name || 'Anonymous';
+
+        // Jika showAlerts aktif di OBS, abaikan bubble chat biasa yang bersumber dari alert (Bits, Superchat, Gifts, dll)
+        if (config.showAlerts !== false) {
+          if (item.isBits || author.isBits || item.superchat || item.isGift || item.isGiftMembership || item.isMembership) {
+            return;
+          }
+          if (isDuplicateAlertChat(authorName, item.text)) {
+            return;
+          }
+        }
 
         // Cegah duplikasi Channel Points Redeem yang sama dari new_event
         if (item.isRedeem && isDuplicateRedeem(authorName, item.text)) {
@@ -742,6 +773,10 @@
           return;
         }
 
+        // Catat teks alert untuk mencegah duplikasi jika pesan chat serupa masuk
+        if (evt.message) recordRecentAlert(authorName, evt.message);
+        if (evt.detail) recordRecentAlert(authorName, evt.detail);
+
         const el = document.createElement('div');
         el.className = `overlay-item overlay-event platform-${evt.platform || 'twitch'}`;
         el.dataset.platform = evt.platform || '';
@@ -783,13 +818,22 @@
             <div class="overlay-text is-redeem bubble-pink" style="font-style: italic;">${formattedText}</div>
           `;
         } else {
+          // Bersihkan token bits seperti "cheer300" jika pesan hanya berisi instruksi cheer tanpa komentar tambahan
+          let displayMsg = (evt.message || '').trim();
+          if (evt.eventType === 'cheer') {
+            displayMsg = displayMsg.replace(/\b[a-zA-Z]+\d+\b/gi, '').trim();
+          }
+          if (displayMsg.toLowerCase() === String(evt.detail || '').toLowerCase() || displayMsg.toLowerCase() === String(evt.title || '').toLowerCase()) {
+            displayMsg = '';
+          }
+
           bodyContent = `
             <div class="overlay-header">
               <span class="badge-icon" style="background:#f59e0b; color:#000;">🎉 ALERT</span>
               <span class="overlay-author-name" style="color:#67e8f9;">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
-            ${evt.message ? `<div class="overlay-text" style="font-style:italic;">"${escapeHtml(evt.message)}"</div>` : ''}
+            ${displayMsg ? `<div class="overlay-text" style="font-style:italic;">"${escapeHtml(displayMsg)}"</div>` : ''}
           `;
         }
 

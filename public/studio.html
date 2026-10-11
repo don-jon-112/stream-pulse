@@ -722,13 +722,22 @@
         <div style="font-size:0.9rem; font-weight:800; color:#cbd5e1;" data-i18n="live_preview_title">
           👁️ Live Preview (Transparan di OBS)
         </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_normal_chat">💬 Test Chat Biasa</button>
-          <button id="btnTestLinkChat" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_link_chat">🔗 Test Chat Link</button>
-          <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_twitch_vip">💎 Test VIP Twitch</button>
-          <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem;" data-i18n="btn_test_alert_sub">🎉 Test Alert Sub</button>
-          <button id="btnTestRedeem" class="btn-icon" style="font-size:0.75rem;">💠 Test Redeem (Teks)</button>
-          <button id="btnTestRedeemNoText" class="btn-icon" style="font-size:0.75rem;">💠 Test Redeem (Tanpa Teks)</button>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          <!-- Chat Tests -->
+          <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;" title="Test Chat Biasa">💬 Chat</button>
+          <button id="btnTestLinkChat" class="btn-icon" style="font-size:0.75rem;" title="Test Chat Link Masking">🔗 Link</button>
+          <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;" title="Test Chat Badge VIP">💎 VIP</button>
+
+          <!-- Alert & Event Tests -->
+          <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem; border-color:rgba(245,158,11,0.5);" title="Test Alert Sub Twitch">🎉 Alert Sub</button>
+          <button id="btnTestCheer" class="btn-icon" style="font-size:0.75rem; border-color:rgba(168,85,247,0.5);" title="Test Twitch Bits Cheer">💎 Bits Cheer (300)</button>
+          <button id="btnTestRaid" class="btn-icon" style="font-size:0.75rem; border-color:rgba(236,72,153,0.5);" title="Test Twitch Incoming Raid">🚀 Raid</button>
+          <button id="btnTestSuperchat" class="btn-icon" style="font-size:0.75rem; border-color:rgba(239,68,68,0.5);" title="Test YouTube Super Chat">💰 Super Chat</button>
+          <button id="btnTestYtMember" class="btn-icon" style="font-size:0.75rem; border-color:rgba(16,185,129,0.5);" title="Test YouTube Member Milestone">⭐ YT Member</button>
+          <button id="btnTestTikTokGift" class="btn-icon" style="font-size:0.75rem; border-color:rgba(254,44,85,0.5);" title="Test TikTok Gift">🎁 TikTok Gift</button>
+          <button id="btnTestTikTokLikes" class="btn-icon" style="font-size:0.75rem; border-color:rgba(254,44,85,0.5);" title="Test TikTok Likes Batch">❤️ TikTok Likes</button>
+          <button id="btnTestRedeem" class="btn-icon" style="font-size:0.75rem; border-color:rgba(14,165,233,0.5);" title="Test Channel Points Redeem dengan Pesan">💠 Redeem (Teks)</button>
+          <button id="btnTestRedeemNoText" class="btn-icon" style="font-size:0.75rem; border-color:rgba(14,165,233,0.5);" title="Test Channel Points Redeem Tanpa Pesan">💠 Redeem (No Teks)</button>
         </div>
       </div>
 
@@ -838,6 +847,12 @@
       const btnTestLinkChat = document.getElementById('btnTestLinkChat');
       const btnTestTwitchVip = document.getElementById('btnTestTwitchVip');
       const btnTestAlert = document.getElementById('btnTestAlert');
+      const btnTestCheer = document.getElementById('btnTestCheer');
+      const btnTestRaid = document.getElementById('btnTestRaid');
+      const btnTestSuperchat = document.getElementById('btnTestSuperchat');
+      const btnTestYtMember = document.getElementById('btnTestYtMember');
+      const btnTestTikTokGift = document.getElementById('btnTestTikTokGift');
+      const btnTestTikTokLikes = document.getElementById('btnTestTikTokLikes');
       const btnTestRedeem = document.getElementById('btnTestRedeem');
       const btnTestRedeemNoText = document.getElementById('btnTestRedeemNoText');
 
@@ -1637,6 +1652,148 @@
           iframeDoc.dispatchEvent(event);
         }
       });
+
+      if (btnTestCheer) {
+        btnTestCheer.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_cheer_${Date.now()}`,
+                  platform: 'twitch',
+                  eventType: 'cheer',
+                  title: 'Twitch Bits Cheer!',
+                  author: 'Budi_Gamer',
+                  detail: '300 Bits 💎',
+                  message: 'cheer300 GG WP streamer mantap!',
+                  badge: '💎 BITS'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestRaid) {
+        btnTestRaid.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_raid_${Date.now()}`,
+                  platform: 'twitch',
+                  eventType: 'raid',
+                  title: 'Twitch Incoming Raid!',
+                  author: 'RivalStreamer',
+                  detail: 'Raid bersama 150 penonton! 🔥',
+                  badge: '🚀 RAID'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestSuperchat) {
+        btnTestSuperchat.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_superchat_${Date.now()}`,
+                  platform: 'youtube',
+                  eventType: 'superchat',
+                  title: 'YouTube Super Chat!',
+                  author: 'IndoGamer99',
+                  detail: 'Rp 50.000',
+                  message: 'Terus semangat live-nya bang, kontennya seru!',
+                  color: '#e65100',
+                  badge: '💰 Rp 50.000'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestYtMember) {
+        btnTestYtMember.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_member_${Date.now()}`,
+                  platform: 'youtube',
+                  eventType: 'member',
+                  title: 'YouTube Member Milestone / Join!',
+                  author: 'CaptainPro',
+                  detail: 'Member for 6 months! ⭐',
+                  badge: '⭐ MEMBER'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestTikTokGift) {
+        btnTestTikTokGift.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_gift_${Date.now()}`,
+                  platform: 'tiktok',
+                  eventType: 'gift',
+                  title: 'TikTok Gift!',
+                  author: 'Siti_Cantik',
+                  detail: 'Rose x10 (10 💎)',
+                  badge: '🎁 Rose x10',
+                  diamonds: 10
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestTikTokLikes) {
+        btnTestTikTokLikes.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_likes_${Date.now()}`,
+                  platform: 'tiktok',
+                  eventType: 'like',
+                  title: 'TikTok Likes!',
+                  author: 'Rian_TikToker',
+                  detail: 'Mengirim 50 likes! ❤️',
+                  badge: '❤️ +50'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
 
       if (btnTestRedeem) {
         btnTestRedeem.addEventListener('click', () => {
