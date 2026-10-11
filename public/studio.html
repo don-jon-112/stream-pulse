@@ -89,13 +89,17 @@
     @media (max-width: 768px) {
       .studio-header {
         padding: 10px 14px;
-        flex-wrap: wrap;
-        gap: 8px 10px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
       }
 
       .studio-header-left {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 8px;
-        flex: 1 1 auto;
       }
 
       .studio-brand-title {
@@ -104,57 +108,47 @@
 
       .studio-brand-badge {
         font-size: 0.65rem !important;
-        padding: 2px 5px !important;
+        padding: 2px 6px !important;
       }
 
       .studio-back-btn {
-        padding: 5px 8px;
-        font-size: 0.72rem;
+        padding: 5px 10px;
+        font-size: 0.74rem;
       }
 
       .studio-header-right {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 6px;
+        flex-wrap: wrap;
       }
 
       .studio-header-right .btn-icon,
       .studio-header-right .btn-lang-toggle {
-        padding: 5px 10px;
-        font-size: 0.75rem;
+        padding: 6px 10px;
+        font-size: 0.74rem;
+        flex: 1 1 auto;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
       }
 
       .studio-header-right #btnSaveOverlay {
         padding: 6px 12px;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
       }
 
       .studio-layout {
+        grid-template-columns: 1fr;
         padding: 12px;
-        gap: 14px;
+        gap: 16px;
       }
 
       .controls-panel {
         padding: 14px;
         max-height: none;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .studio-header {
-        padding: 8px 10px;
-      }
-
-      .studio-header-left {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .studio-brand-badge {
-        display: none !important;
-      }
-
-      .studio-header-right {
-        width: 100%;
-        justify-content: flex-end;
       }
     }
 
@@ -301,14 +295,26 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 0;
+      padding: 8px 0;
+      gap: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .toggle-row > div,
+    .toggle-row > span:first-child {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
     }
 
     .toggle-switch {
       position: relative;
       display: inline-block;
       width: 44px;
+      min-width: 44px;
       height: 24px;
+      flex-shrink: 0;
     }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider {
@@ -325,6 +331,76 @@
     }
     input:checked + .toggle-slider { background-color: var(--accent-primary); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+    /* Custom Color Picker & Quick Palette */
+    .color-picker-dual {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .color-picker-input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-swatch-input {
+      width: 36px;
+      height: 32px;
+      padding: 2px;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xs);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .color-hex-field {
+      flex: 1;
+      min-width: 0;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 6px 8px;
+      text-transform: uppercase;
+      background: #090c15;
+    }
+
+    .preset-colors-row {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .btn-color-preset {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-color-preset:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    }
+
+    .alert-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 520px) {
+      .alert-card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
     /* Manager & Anti-Abuse Card */
     .overlay-manager-card {
@@ -508,6 +584,10 @@
         </button>
       </div>
 
+      <button id="btnResetDefaults" type="button" class="btn-icon" style="font-size:0.78rem; padding:8px 12px; border-color:rgba(239, 68, 68, 0.4); color:#fca5a5;" title="Kembalikan semua pengaturan visual overlay ke bawaan (default)">
+        <span data-i18n="studio_btn_reset">🔄 Reset Bawaan</span>
+      </button>
+
       <button id="btnSaveOverlay" class="btn-icon btn-primary">
         <span data-i18n="studio_save">💾 Simpan Pengaturan</span>
       </button>
@@ -608,7 +688,12 @@
 
       <!-- 2. Visual Style & Theme Card -->
       <div class="studio-card">
-        <div class="section-title" data-i18n="sec_visual">🎨 Gaya & Tampilan Chat</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.07); padding-bottom:8px;">
+          <div class="section-title" style="border-bottom:none; padding-bottom:0;" data-i18n="sec_visual">🎨 Gaya & Tampilan Chat</div>
+          <button type="button" id="btnResetVisualsSection" class="btn-icon" style="font-size:0.72rem; padding:4px 8px; border-color:rgba(239, 68, 68, 0.4); color:#fca5a5;" title="Kembalikan tampilan visual ke nilai bawaan">
+            <span data-i18n="studio_btn_reset">🔄 Reset</span>
+          </button>
+        </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="form-group">
@@ -802,9 +887,9 @@
           <!-- Gunakan Warna Tiap User Twitch -->
           <div class="toggle-row">
             <div>
-              <span style="font-size:0.85rem;">Gunakan Warna Asli Username Twitch (Warna Profil User)</span>
-              <div style="font-size:0.72rem; color:var(--text-tertiary);">
-                Jika aktif, nama pengirim Twitch menggunakan warna profil masing-masing user (!important). Jika nonaktif, menggunakan warna nama pengirim umum dari Gaya & Tampilan Chat.
+              <span style="font-size:0.84rem; font-weight:700;">Warna Profil Asli Username Twitch</span>
+              <div style="font-size:0.71rem; color:var(--text-tertiary); line-height:1.35; margin-top:2px;">
+                Aktif: Pakai warna profil user Twitch (!important). Nonaktif: Pakai warna nama pengirim umum dari Gaya Chat.
               </div>
             </div>
             <label class="toggle-switch">
@@ -825,14 +910,27 @@
             <!-- Subscription Alert Customizer -->
             <div style="background:rgba(145,70,255,0.06); border:1px solid rgba(145,70,255,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
               <div style="font-size:0.8rem; font-weight:800; color:#c084fc; margin-bottom:6px;">⭐ Subscription / Langganan</div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div class="alert-card-grid">
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
                   <input type="text" id="settingAlertSubBg" class="form-input" placeholder="linear-gradient(...) / #hex" style="font-size:0.75rem; padding:6px 8px;">
                 </div>
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                  <input type="color" id="settingAlertSubTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                  <div class="color-picker-dual">
+                    <div class="color-picker-input-row">
+                      <input type="color" id="settingAlertSubTextColor" value="#ffffff" class="color-swatch-input">
+                      <input type="text" id="settingAlertSubTextHex" value="#ffffff" class="form-input color-hex-field" maxlength="7" placeholder="#ffffff">
+                    </div>
+                    <div class="preset-colors-row">
+                      <button type="button" class="btn-color-preset" data-target="settingAlertSubTextColor" data-color="#ffffff" style="background:#ffffff;" title="Putih"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertSubTextColor" data-color="#fbbf24" style="background:#fbbf24;" title="Emas"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertSubTextColor" data-color="#c084fc" style="background:#c084fc;" title="Violet"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertSubTextColor" data-color="#38bdf8" style="background:#38bdf8;" title="Cyan"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertSubTextColor" data-color="#4ade80" style="background:#4ade80;" title="Mint"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertSubTextColor" data-color="#f43f5e" style="background:#f43f5e;" title="Rose"></button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
@@ -844,14 +942,27 @@
             <!-- Cheer / Bits Alert Customizer -->
             <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
               <div style="font-size:0.8rem; font-weight:800; color:#fbbf24; margin-bottom:6px;">💎 Bits / Cheer Alert</div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div class="alert-card-grid">
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
                   <input type="text" id="settingAlertCheerBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
                 </div>
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                  <input type="color" id="settingAlertCheerTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                  <div class="color-picker-dual">
+                    <div class="color-picker-input-row">
+                      <input type="color" id="settingAlertCheerTextColor" value="#ffffff" class="color-swatch-input">
+                      <input type="text" id="settingAlertCheerTextHex" value="#ffffff" class="form-input color-hex-field" maxlength="7" placeholder="#ffffff">
+                    </div>
+                    <div class="preset-colors-row">
+                      <button type="button" class="btn-color-preset" data-target="settingAlertCheerTextColor" data-color="#ffffff" style="background:#ffffff;" title="Putih"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertCheerTextColor" data-color="#fbbf24" style="background:#fbbf24;" title="Emas"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertCheerTextColor" data-color="#c084fc" style="background:#c084fc;" title="Violet"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertCheerTextColor" data-color="#38bdf8" style="background:#38bdf8;" title="Cyan"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertCheerTextColor" data-color="#4ade80" style="background:#4ade80;" title="Mint"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertCheerTextColor" data-color="#f43f5e" style="background:#f43f5e;" title="Rose"></button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
@@ -863,14 +974,27 @@
             <!-- Raid Alert Customizer -->
             <div style="background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
               <div style="font-size:0.8rem; font-weight:800; color:#fb7185; margin-bottom:6px;">🚀 Raid Alert</div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div class="alert-card-grid">
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
                   <input type="text" id="settingAlertRaidBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
                 </div>
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                  <input type="color" id="settingAlertRaidTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                  <div class="color-picker-dual">
+                    <div class="color-picker-input-row">
+                      <input type="color" id="settingAlertRaidTextColor" value="#ffffff" class="color-swatch-input">
+                      <input type="text" id="settingAlertRaidTextHex" value="#ffffff" class="form-input color-hex-field" maxlength="7" placeholder="#ffffff">
+                    </div>
+                    <div class="preset-colors-row">
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRaidTextColor" data-color="#ffffff" style="background:#ffffff;" title="Putih"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRaidTextColor" data-color="#fbbf24" style="background:#fbbf24;" title="Emas"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRaidTextColor" data-color="#c084fc" style="background:#c084fc;" title="Violet"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRaidTextColor" data-color="#38bdf8" style="background:#38bdf8;" title="Cyan"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRaidTextColor" data-color="#4ade80" style="background:#4ade80;" title="Mint"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRaidTextColor" data-color="#f43f5e" style="background:#f43f5e;" title="Rose"></button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
@@ -882,14 +1006,27 @@
             <!-- Channel Points Redeem Alert Customizer -->
             <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
               <div style="font-size:0.8rem; font-weight:800; color:#34d399; margin-bottom:6px;">💠 Channel Points Redeem</div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;">
+              <div class="alert-card-grid">
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
                   <input type="text" id="settingAlertRedeemBg" class="form-input" placeholder="#hex / rgba(...)" style="font-size:0.75rem; padding:6px 8px;">
                 </div>
                 <div>
                   <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
-                  <input type="color" id="settingAlertRedeemTextColor" value="#ffffff" style="width:100%; height:32px; background:transparent; border:1px solid var(--border-color); border-radius:4px; cursor:pointer;">
+                  <div class="color-picker-dual">
+                    <div class="color-picker-input-row">
+                      <input type="color" id="settingAlertRedeemTextColor" value="#ffffff" class="color-swatch-input">
+                      <input type="text" id="settingAlertRedeemTextHex" value="#ffffff" class="form-input color-hex-field" maxlength="7" placeholder="#ffffff">
+                    </div>
+                    <div class="preset-colors-row">
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRedeemTextColor" data-color="#ffffff" style="background:#ffffff;" title="Putih"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRedeemTextColor" data-color="#fbbf24" style="background:#fbbf24;" title="Emas"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRedeemTextColor" data-color="#c084fc" style="background:#c084fc;" title="Violet"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRedeemTextColor" data-color="#38bdf8" style="background:#38bdf8;" title="Cyan"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRedeemTextColor" data-color="#4ade80" style="background:#4ade80;" title="Mint"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingAlertRedeemTextColor" data-color="#f43f5e" style="background:#f43f5e;" title="Rose"></button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
@@ -1156,6 +1293,14 @@
       const settingAlertRedeemBg = document.getElementById('settingAlertRedeemBg');
       const settingAlertRedeemTextColor = document.getElementById('settingAlertRedeemTextColor');
       const settingAlertRedeemText = document.getElementById('settingAlertRedeemText');
+
+      const settingAlertSubTextHex = document.getElementById('settingAlertSubTextHex');
+      const settingAlertCheerTextHex = document.getElementById('settingAlertCheerTextHex');
+      const settingAlertRaidTextHex = document.getElementById('settingAlertRaidTextHex');
+      const settingAlertRedeemTextHex = document.getElementById('settingAlertRedeemTextHex');
+
+      const btnResetDefaults = document.getElementById('btnResetDefaults');
+      const btnResetVisualsSection = document.getElementById('btnResetVisualsSection');
 
       const obsFinalUrl = document.getElementById('obsFinalUrl');
       const btnCopyObsUrl = document.getElementById('btnCopyObsUrl');
@@ -1744,16 +1889,28 @@
 
             // Alert Customizer fields
             if (data.alertSubBg !== undefined) settingAlertSubBg.value = data.alertSubBg;
-            if (data.alertSubTextColor !== undefined) settingAlertSubTextColor.value = data.alertSubTextColor;
+            if (data.alertSubTextColor !== undefined) {
+              settingAlertSubTextColor.value = data.alertSubTextColor;
+              if (settingAlertSubTextHex) settingAlertSubTextHex.value = data.alertSubTextColor;
+            }
             if (data.alertSubText !== undefined) settingAlertSubText.value = data.alertSubText;
             if (data.alertCheerBg !== undefined) settingAlertCheerBg.value = data.alertCheerBg;
-            if (data.alertCheerTextColor !== undefined) settingAlertCheerTextColor.value = data.alertCheerTextColor;
+            if (data.alertCheerTextColor !== undefined) {
+              settingAlertCheerTextColor.value = data.alertCheerTextColor;
+              if (settingAlertCheerTextHex) settingAlertCheerTextHex.value = data.alertCheerTextColor;
+            }
             if (data.alertCheerText !== undefined) settingAlertCheerText.value = data.alertCheerText;
             if (data.alertRaidBg !== undefined) settingAlertRaidBg.value = data.alertRaidBg;
-            if (data.alertRaidTextColor !== undefined) settingAlertRaidTextColor.value = data.alertRaidTextColor;
+            if (data.alertRaidTextColor !== undefined) {
+              settingAlertRaidTextColor.value = data.alertRaidTextColor;
+              if (settingAlertRaidTextHex) settingAlertRaidTextHex.value = data.alertRaidTextColor;
+            }
             if (data.alertRaidText !== undefined) settingAlertRaidText.value = data.alertRaidText;
             if (data.alertRedeemBg !== undefined) settingAlertRedeemBg.value = data.alertRedeemBg;
-            if (data.alertRedeemTextColor !== undefined) settingAlertRedeemTextColor.value = data.alertRedeemTextColor;
+            if (data.alertRedeemTextColor !== undefined) {
+              settingAlertRedeemTextColor.value = data.alertRedeemTextColor;
+              if (settingAlertRedeemTextHex) settingAlertRedeemTextHex.value = data.alertRedeemTextColor;
+            }
             if (data.alertRedeemText !== undefined) settingAlertRedeemText.value = data.alertRedeemText;
 
             if (data.customCss !== undefined) settingCustomCss.value = data.customCss;
@@ -2045,12 +2202,146 @@
         });
       }
 
-      [settingAlertSubBg, settingAlertSubTextColor, settingAlertSubText, settingAlertCheerBg, settingAlertCheerTextColor, settingAlertCheerText, settingAlertRaidBg, settingAlertRaidTextColor, settingAlertRaidText, settingAlertRedeemBg, settingAlertRedeemTextColor, settingAlertRedeemText].forEach(el => {
-        if (el) {
-          el.addEventListener('input', () => refreshPreview());
-          el.addEventListener('change', () => refreshPreview());
+      // Alert Color Sync (swatch <-> hex <-> presets)
+      const alertColorPairs = [
+        { swatch: settingAlertSubTextColor, hex: settingAlertSubTextHex, type: 'subscription' },
+        { swatch: settingAlertCheerTextColor, hex: settingAlertCheerTextHex, type: 'cheer' },
+        { swatch: settingAlertRaidTextColor, hex: settingAlertRaidTextHex, type: 'raid' },
+        { swatch: settingAlertRedeemTextColor, hex: settingAlertRedeemTextHex, type: 'redeem' }
+      ];
+
+      alertColorPairs.forEach(({ swatch, hex, type }) => {
+        if (swatch && hex) {
+          swatch.addEventListener('input', () => {
+            hex.value = swatch.value;
+            debounceAlertSim(type);
+          });
+          hex.addEventListener('input', () => {
+            let val = hex.value.trim();
+            if (!val.startsWith('#') && val.length > 0) val = '#' + val;
+            if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+              swatch.value = val;
+              debounceAlertSim(type);
+            }
+          });
+          hex.addEventListener('change', () => {
+            let val = hex.value.trim();
+            if (!val.startsWith('#') && val.length > 0) val = '#' + val;
+            if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+              swatch.value = val;
+              debounceAlertSim(type);
+            } else {
+              hex.value = swatch.value;
+            }
+          });
         }
       });
+
+      // Quick palette preset click handler
+      document.querySelectorAll('.btn-color-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.dataset.target;
+          const targetColor = btn.dataset.color;
+          const swatch = document.getElementById(targetId);
+          if (swatch && targetColor) {
+            swatch.value = targetColor;
+            const pair = alertColorPairs.find(p => p.swatch === swatch);
+            if (pair && pair.hex) {
+              pair.hex.value = targetColor;
+            }
+            if (pair) debounceAlertSim(pair.type);
+            else refreshPreview();
+          }
+        });
+      });
+
+      // Debounced realtime alert simulation on user typing
+      const alertSimTimers = {};
+      function debounceAlertSim(type) {
+        clearTimeout(alertSimTimers[type]);
+        alertSimTimers[type] = setTimeout(() => {
+          refreshPreview();
+          if (type === 'subscription' && btnTestAlert) btnTestAlert.click();
+          if (type === 'cheer' && btnTestCheer) btnTestCheer.click();
+          if (type === 'raid' && btnTestRaid) btnTestRaid.click();
+          if (type === 'redeem' && btnTestRedeem) btnTestRedeem.click();
+        }, 400);
+      }
+
+      if (settingAlertSubText) settingAlertSubText.addEventListener('input', () => debounceAlertSim('subscription'));
+      if (settingAlertSubBg) settingAlertSubBg.addEventListener('input', () => debounceAlertSim('subscription'));
+      if (settingAlertCheerText) settingAlertCheerText.addEventListener('input', () => debounceAlertSim('cheer'));
+      if (settingAlertCheerBg) settingAlertCheerBg.addEventListener('input', () => debounceAlertSim('cheer'));
+      if (settingAlertRaidText) settingAlertRaidText.addEventListener('input', () => debounceAlertSim('raid'));
+      if (settingAlertRaidBg) settingAlertRaidBg.addEventListener('input', () => debounceAlertSim('raid'));
+      if (settingAlertRedeemText) settingAlertRedeemText.addEventListener('input', () => debounceAlertSim('redeem'));
+      if (settingAlertRedeemBg) settingAlertRedeemBg.addEventListener('input', () => debounceAlertSim('redeem'));
+
+      // Reset to Defaults function
+      async function resetAllToDefaults() {
+        const ok = await spConfirm(
+          window.getCurrentLang && window.getCurrentLang() === 'en'
+            ? 'Reset all overlay themes, colors, and alert settings to factory defaults?'
+            : 'Kembalikan seluruh pengaturan tema, warna, dan kustomisasi alert OBS ke nilai awal (bawaan)?',
+          window.t ? window.t('dialog_warning') : 'Konfirmasi Reset Pengaturan',
+          'warning'
+        );
+        if (!ok) return;
+
+        settingTheme.value = 'glass';
+        if (settingChatAlign) settingChatAlign.value = 'left';
+        if (settingBgColor) settingBgColor.value = '#0d111b';
+        if (labelBgColorHex) labelBgColorHex.textContent = '#0d111b';
+        if (settingBgOpacity) settingBgOpacity.value = 88;
+        if (labelBgOpacity) labelBgOpacity.textContent = '88%';
+        if (settingTextColor) settingTextColor.value = '#e2e8f0';
+        if (labelTextColorHex) labelTextColorHex.textContent = '#e2e8f0';
+        if (settingAuthorColor) settingAuthorColor.value = '#67e8f9';
+        if (labelAuthorColorHex) labelAuthorColorHex.textContent = '#67e8f9';
+        if (settingContainerBgColor) settingContainerBgColor.value = '#0a0e17';
+        if (labelContainerBgColorHex) labelContainerBgColorHex.textContent = '#0a0e17';
+        if (settingContainerBgOpacity) settingContainerBgOpacity.value = 0;
+        if (labelContainerBgOpacity) labelContainerBgOpacity.textContent = '0% (Transparan)';
+
+        settingFontSize.value = 15;
+        settingHideDelay.value = 0;
+        settingMaxMessages.value = 15;
+
+        if (settingMaskLinks) settingMaskLinks.checked = false;
+        if (settingShowTwitchBadges) settingShowTwitchBadges.checked = true;
+        if (settingShowYtBadges) settingShowYtBadges.checked = true;
+        if (settingShowAvatars) settingShowAvatars.checked = true;
+        if (settingShowEmotes) settingShowEmotes.checked = true;
+        if (settingShowAlerts) settingShowAlerts.checked = true;
+        if (settingShowTikTokLikes) settingShowTikTokLikes.checked = true;
+        if (settingShowTikTokGifts) settingShowTikTokGifts.checked = true;
+        if (settingUseTwitchColors) settingUseTwitchColors.checked = true;
+
+        if (settingAlertSubBg) settingAlertSubBg.value = '';
+        if (settingAlertSubTextColor) settingAlertSubTextColor.value = '#ffffff';
+        if (settingAlertSubText) settingAlertSubText.value = '';
+        if (settingAlertCheerBg) settingAlertCheerBg.value = '';
+        if (settingAlertCheerTextColor) settingAlertCheerTextColor.value = '#ffffff';
+        if (settingAlertCheerText) settingAlertCheerText.value = '';
+        if (settingAlertRaidBg) settingAlertRaidBg.value = '';
+        if (settingAlertRaidTextColor) settingAlertRaidTextColor.value = '#ffffff';
+        if (settingAlertRaidText) settingAlertRaidText.value = '';
+        if (settingAlertRedeemBg) settingAlertRedeemBg.value = '';
+        if (settingAlertRedeemTextColor) settingAlertRedeemTextColor.value = '#ffffff';
+        if (settingAlertRedeemText) settingAlertRedeemText.value = '';
+
+        document.querySelectorAll('.color-hex-field').forEach(input => {
+          input.value = '#ffffff';
+        });
+
+        updateLabels();
+        updateUrl();
+        refreshPreview();
+        spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? '✅ Settings reset to default!' : '✅ Pengaturan berhasil direset ke nilai bawaan!', 'success');
+      }
+
+      if (btnResetDefaults) btnResetDefaults.addEventListener('click', resetAllToDefaults);
+      if (btnResetVisualsSection) btnResetVisualsSection.addEventListener('click', resetAllToDefaults);
 
       settingCustomCss.addEventListener('input', () => {
         clearTimeout(window._cssTimer);

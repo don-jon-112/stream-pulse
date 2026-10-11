@@ -935,18 +935,21 @@
           if (config.alertSubTextColor) customAlertTextColor = config.alertSubTextColor;
           if (config.alertSubText) {
             customTitle = config.alertSubText.replace(/{author}|{user}/gi, authorName).replace(/{detail}/gi, customDetail);
+            customDetail = '';
           }
         } else if (evt.eventType === 'cheer') {
           if (config.alertCheerBg) customAlertBg = config.alertCheerBg;
           if (config.alertCheerTextColor) customAlertTextColor = config.alertCheerTextColor;
           if (config.alertCheerText) {
             customTitle = config.alertCheerText.replace(/{author}|{user}/gi, authorName).replace(/{detail}|{bits}/gi, customDetail);
+            customDetail = '';
           }
         } else if (evt.eventType === 'raid') {
           if (config.alertRaidBg) customAlertBg = config.alertRaidBg;
           if (config.alertRaidTextColor) customAlertTextColor = config.alertRaidTextColor;
           if (config.alertRaidText) {
             customTitle = config.alertRaidText.replace(/{author}|{user}/gi, authorName).replace(/{detail}|{viewers}/gi, customDetail);
+            customDetail = '';
           }
         } else if (isTwitchRedeem) {
           if (config.alertRedeemBg) customAlertBg = config.alertRedeemBg;

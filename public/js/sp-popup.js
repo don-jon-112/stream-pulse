@@ -202,6 +202,7 @@
       sec_show_tiktok_gifts: "Tampilkan Event TikTok Gift (🎁)",
       sec_alert_custom: "🔔 Kustomisasi Alert Streaming",
       studio_save_custom_code: "💾 Simpan Custom CSS & JS",
+      studio_btn_reset: "🔄 Reset Bawaan",
 
       // Studio OBS Link & Live Preview
       obs_link_title: "🔗 Link OBS Browser Source Anda",
@@ -558,6 +559,7 @@
       sec_show_tiktok_gifts: "Show TikTok Gifts Event (🎁)",
       sec_alert_custom: "🔔 Streaming Alert Customization",
       studio_save_custom_code: "💾 Save Custom CSS & JS",
+      studio_btn_reset: "🔄 Reset Defaults",
 
       // Studio OBS Link & Live Preview
       obs_link_title: "🔗 Your OBS Browser Source URL",
