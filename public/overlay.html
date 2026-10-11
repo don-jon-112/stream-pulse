@@ -75,17 +75,68 @@
       font-style: italic !important;
     }
 
-    /* Event Banner Item (Sub, Raid, Bits, Super Chat, Gifts) */
+    /* ============================================
+       FOLLOW / RAID / SUB / BITS / SUPERCHAT ALERTS
+       ============================================ */
     .overlay-item.overlay-event {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(13, 17, 27, 0.95) 100%);
-      border-left: 4px solid var(--accent-primary);
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: fit-content !important;
+      max-width: 100% !important;
     }
-    .overlay-item.overlay-event.youtube-superchat {
-      border-left-color: #00bfa5;
+
+    .alert-box {
+      background-color: var(--alert-bg, #ffffff);
+      border-radius: var(--alert-radius, 20px);
+      padding: var(--alert-padding, 8px 14px);
+      display: flex;
+      align-items: center;
+      gap: var(--alert-gap, 12px);
+      width: fit-content;
+      max-width: 100%;
+      border: var(--alert-border-width, 2px) solid;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      box-sizing: border-box;
     }
-    .overlay-item.overlay-event.twitch-raid {
-      border-left-color: #f43f5e;
-      background: linear-gradient(135deg, rgba(244, 63, 94, 0.3) 0%, rgba(13, 17, 27, 0.95) 100%);
+
+    .alert-avatar {
+      border-radius: var(--avatar-radius, 50%);
+      width: var(--alert-avatar-size, 35px);
+      height: var(--alert-avatar-size, 35px);
+      min-width: 35px;
+      min-height: 35px;
+      border: var(--alert-avatar-border-width, 2px) solid;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .alert-text {
+      font-size: var(--font-size, 14px);
+      font-family: var(--font-family, "Montserrat", sans-serif);
+      font-weight: var(--alert-text-weight, bold);
+      color: var(--alert-text-color, #333333);
+      word-wrap: break-word;
+      word-break: break-word;
+      line-height: var(--alert-line-height, 1.4);
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+
+    .alert-user-msg {
+      display: block;
+      width: 100%;
+      font-size: 13px;
+      font-weight: 500;
+      font-style: italic;
+      color: #555555;
+      margin-top: 2px;
     }
 
     .overlay-avatar {
@@ -780,67 +831,91 @@
         const el = document.createElement('div');
         el.className = `overlay-item overlay-event platform-${evt.platform || 'twitch'}`;
         el.dataset.platform = evt.platform || '';
-        if (isTwitchRedeem) el.classList.add('is-redeem', 'highlighted');
-        if (evt.eventType === 'superchat') el.classList.add('youtube-superchat');
-        if (evt.eventType === 'raid') el.classList.add('twitch-raid');
 
-        const initial = (authorName[0] || '★').toUpperCase();
-        const authorColor = evt.authorColor || (evt.author && evt.author.color) || getAuthorColor(evt.author, evt.platform);
+        let borderColor = '#9146FF';
+        let alertMessage = evt.detail || evt.title || 'Event Alert';
 
-        const avatarHtml = config.showAvatars
-          ? (evt.avatar 
-              ? `<img src="${escapeHtml(evt.avatar)}" class="overlay-avatar" alt="${escapeHtml(authorName)}" onerror="this.outerHTML='<div class=\\'overlay-avatar\\'>${initial}</div>'">`
-              : `<div class="overlay-avatar" style="background: linear-gradient(135deg,#6366f1,#ec4899);">${initial}</div>`)
-          : '';
-
-        let badgesHtml = '';
-        if (isTwitchRedeem) {
-          badgesHtml = renderBadges({
-            platform: 'twitch',
-            author: typeof evt.author === 'object' ? evt.author : { name: authorName, badges: evt.badges, badgesList: evt.badgesList }
-          });
+        if (evt.platform === 'twitch') {
+          if (evt.eventType === 'follow') {
+            borderColor = '#FFB700';
+            alertMessage = 'just followed';
+          } else if (evt.eventType === 'raid') {
+            borderColor = '#FF0000';
+            alertMessage = evt.detail || 'incoming raid!';
+          } else if (evt.eventType === 'sub') {
+            borderColor = '#9146FF';
+            alertMessage = evt.detail ? `subscribed at ${evt.detail}` : 'subscribed at Tier 1';
+          } else if (evt.eventType === 'resub') {
+            borderColor = '#9146FF';
+            alertMessage = evt.detail || 're-subscribed!';
+          } else if (evt.eventType === 'giftsub' || evt.eventType === 'subgift') {
+            borderColor = '#FF1493';
+            alertMessage = evt.detail || 'gifted a sub!';
+          } else if (evt.eventType === 'cheer') {
+            borderColor = '#9C3EE8';
+            alertMessage = `cheered with ${evt.detail || 'bits'} 🎉`;
+          } else if (evt.eventType === 'redeem') {
+            borderColor = '#00BFA5';
+            alertMessage = `redeemed ${evt.detail || 'Channel Points'} 💠`;
+          }
+        } else if (evt.platform === 'youtube') {
+          if (evt.eventType === 'superchat') {
+            borderColor = '#E6A01A';
+            alertMessage = `sent a Super Chat ${evt.detail || ''} 🎉`;
+          } else if (evt.eventType === 'member' || evt.eventType === 'youtubesub') {
+            borderColor = '#FF0000';
+            alertMessage = `became a member! ${evt.detail || '🎉'}`;
+          } else if (evt.eventType === 'supersticker') {
+            borderColor = '#E6A01A';
+            alertMessage = `sent a Super Sticker ${evt.detail || ''} ⭐`;
+          } else if (evt.eventType === 'gift_member') {
+            borderColor = '#FF1493';
+            alertMessage = evt.detail || 'gifted memberships!';
+          }
+        } else if (evt.platform === 'tiktok') {
+          if (evt.eventType === 'gift') {
+            borderColor = '#FE2C55';
+            alertMessage = `sent ${evt.detail || 'a Gift'} 🎁`;
+          } else if (evt.eventType === 'like') {
+            borderColor = '#FF4D6D';
+            alertMessage = `${evt.detail || 'sent likes!'} ❤️`;
+          } else if (evt.eventType === 'subscribe') {
+            borderColor = '#FE2C55';
+            alertMessage = 'subscribed to LIVE! ⭐';
+          } else if (evt.eventType === 'follow') {
+            borderColor = '#FFB700';
+            alertMessage = 'followed the stream!';
+          }
         }
 
-        let bodyContent = '';
-        if (isTwitchRedeem) {
-          const detail = evt.detail || evt.title || 'Channel Points';
-          const msg = (evt.message || '').trim();
-          const formattedText = msg.length > 0
-            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: <i class="redeem-msg">${escapeHtml(msg)}</i>`
-            : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
-          bodyContent = `
-            <div class="overlay-header">
-              ${badgesHtml}
-              <span class="badge-icon redeem-tag">💠 Redeem</span>
-              <span class="overlay-author-name" style="color:${escapeHtml(authorColor)};">${escapeHtml(authorName)}</span>
-            </div>
-            <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
-            <div class="overlay-text is-redeem bubble-pink" style="font-style: italic;">${formattedText}</div>
-          `;
-        } else {
-          // Bersihkan token bits seperti "cheer300" jika pesan hanya berisi instruksi cheer tanpa komentar tambahan
-          let displayMsg = (evt.message || '').trim();
-          if (evt.eventType === 'cheer') {
-            displayMsg = displayMsg.replace(/\b[a-zA-Z]+\d+\b/gi, '').trim();
-          }
-          if (displayMsg.toLowerCase() === String(evt.detail || '').toLowerCase() || displayMsg.toLowerCase() === String(evt.title || '').toLowerCase()) {
-            displayMsg = '';
-          }
-
-          bodyContent = `
-            <div class="overlay-header">
-              <span class="badge-icon" style="background:#f59e0b; color:#000;">🎉 ALERT</span>
-              <span class="overlay-author-name" style="color:#67e8f9;">${escapeHtml(authorName)}</span>
-            </div>
-            <div class="overlay-event-title">${escapeHtml(evt.title)} • ${escapeHtml(evt.detail || '')}</div>
-            ${displayMsg ? `<div class="overlay-text" style="font-style:italic;">"${escapeHtml(displayMsg)}"</div>` : ''}
-          `;
+        // Platform icon persis sesuai HTML referensi
+        let platformIcon = '';
+        if (evt.platform === 'youtube') {
+          platformIcon = '<img src="https://i.imgur.com/cbl1elx.png" style="height: 1.2em; width: auto; vertical-align: middle; margin: 0 4px;" alt="YouTube">';
+        } else if (evt.platform === 'twitch') {
+          platformIcon = '<img src="https://i.imgur.com/vLsqr6V.png" style="height: 1.2em; width: auto; vertical-align: middle; margin: 0 4px;" alt="Twitch">';
+        } else if (evt.platform === 'tiktok') {
+          platformIcon = '<span style="display:inline-block; margin:0 4px; font-weight:800; font-size:0.9em; color:#fe2c55;">♪</span>';
         }
+
+        // Bersihkan token bits seperti "cheer300" jika pesan hanya berisi instruksi cheer tanpa komentar tambahan
+        let displayMsg = (evt.message || '').trim();
+        if (evt.eventType === 'cheer') {
+          displayMsg = displayMsg.replace(/\b[a-zA-Z]+\d+\b/gi, '').trim();
+        }
+        if (displayMsg.toLowerCase() === String(evt.detail || '').toLowerCase() || displayMsg.toLowerCase() === String(evt.title || '').toLowerCase()) {
+          displayMsg = '';
+        }
+
+        const avatarUrl = evt.avatar || 'https://static-cdn.jtvnw.net/jtv_user_pictures/default-profile_image-300x300.png';
 
         el.innerHTML = `
-          ${avatarHtml}
-          <div class="overlay-body">
-            ${bodyContent}
+          <div class="alert-box" style="border-color: ${borderColor};">
+            <img src="${escapeHtml(avatarUrl)}" class="alert-avatar" style="border-color: ${borderColor};" onerror="this.src='https://static-cdn.jtvnw.net/jtv_user_pictures/default-profile_image-300x300.png'">
+            <div class="alert-text">
+              <span style="color: ${borderColor}; font-weight: 700;">${escapeHtml(authorName)}</span>${platformIcon}<span>${escapeHtml(alertMessage)}</span>
+              ${displayMsg ? `<span class="alert-user-msg">"${escapeHtml(displayMsg)}"</span>` : ''}
+            </div>
           </div>
         `;
 
