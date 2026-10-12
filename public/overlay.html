@@ -498,6 +498,207 @@
       flex-direction: row !important;
       justify-content: flex-start !important;
     }
+
+    /* Default hide cartoon role badges in standard themes */
+    .cartoon-role-badge {
+      display: none;
+    }
+
+    /* =========================================================================
+       THEME: CARTOON THOUGHT BUBBLE
+       ========================================================================= */
+    body.theme-cartoon #overlayChatContainer {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 26px !important;
+      padding: 24px 20px !important;
+      background: transparent !important;
+      font-family: 'Fredoka', 'Nunito', sans-serif !important;
+    }
+    body.theme-cartoon .overlay-avatar,
+    body.theme-cartoon .overlay-platform-tag {
+      display: none !important;
+    }
+
+    /* 12-Step Rotating Random Cartoon Color Palette */
+    body.theme-cartoon .overlay-item { --bubble-theme-color: #00bfa5; }
+    body.theme-cartoon .overlay-item:nth-child(12n+1) { --bubble-theme-color: #00bfa5; } /* Mint */
+    body.theme-cartoon .overlay-item:nth-child(12n+2) { --bubble-theme-color: #f43f5e; } /* Hot Pink */
+    body.theme-cartoon .overlay-item:nth-child(12n+3) { --bubble-theme-color: #6366f1; } /* Indigo */
+    body.theme-cartoon .overlay-item:nth-child(12n+4) { --bubble-theme-color: #0ea5e9; } /* Sky Blue */
+    body.theme-cartoon .overlay-item:nth-child(12n+5) { --bubble-theme-color: #f59e0b; } /* Amber */
+    body.theme-cartoon .overlay-item:nth-child(12n+6) { --bubble-theme-color: #8b5cf6; } /* Violet */
+    body.theme-cartoon .overlay-item:nth-child(12n+7) { --bubble-theme-color: #10b981; } /* Emerald */
+    body.theme-cartoon .overlay-item:nth-child(12n+8) { --bubble-theme-color: #ec4899; } /* Magenta */
+    body.theme-cartoon .overlay-item:nth-child(12n+9) { --bubble-theme-color: #ff5722; } /* Coral */
+    body.theme-cartoon .overlay-item:nth-child(12n+10) { --bubble-theme-color: #14b8a6; } /* Teal */
+    body.theme-cartoon .overlay-item:nth-child(12n+11) { --bubble-theme-color: #e11d48; } /* Rose */
+    body.theme-cartoon .overlay-item:nth-child(12n+12) { --bubble-theme-color: #84cc16; } /* Lime */
+
+    /* Twitch User Color Priority */
+    body.theme-cartoon .overlay-item.has-twitch-color,
+    body.theme-cartoon .overlay-item[data-has-custom-color="true"] {
+      --bubble-theme-color: var(--author-color, #00bfa5) !important;
+    }
+
+    body.theme-cartoon .overlay-item {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding: 0 !important;
+      margin: 22px 0 10px 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      width: fit-content !important;
+      min-width: 280px !important;
+      max-width: 92% !important;
+      position: relative !important;
+    }
+
+    /* Thought Bubble Body: White background, subtle 7% dots, 26px/6px shape */
+    body.theme-cartoon .overlay-body {
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 4px !important;
+      padding: 14px 22px 14px 22px !important;
+      border-radius: 26px 26px 26px 6px !important;
+      background-color: #ffffff !important;
+      background-image: radial-gradient(color-mix(in srgb, var(--bubble-theme-color, #00bfa5) 7%, transparent) 1.2px, transparent 1.2px) !important;
+      background-size: 10px 10px !important;
+      border: 3.5px solid var(--bubble-theme-color, #00bfa5) !important;
+      box-shadow: 0 4px 16px color-mix(in srgb, var(--bubble-theme-color, #00bfa5) 20%, transparent), 0 1px 3px rgba(0,0,0,0.06) !important;
+      width: fit-content !important;
+      min-width: 250px !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Thought Tail Circles */
+    body.theme-cartoon .overlay-body::before {
+      content: '' !important;
+      position: absolute !important;
+      bottom: -11px !important;
+      left: 8px !important;
+      width: 13px !important;
+      height: 13px !important;
+      border-radius: 50% !important;
+      background-color: #ffffff !important;
+      border: 3px solid var(--bubble-theme-color, #00bfa5) !important;
+      box-sizing: border-box !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
+      z-index: 3 !important;
+    }
+    body.theme-cartoon .overlay-body::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: -24px !important;
+      left: -1px !important;
+      width: 8px !important;
+      height: 8px !important;
+      border-radius: 50% !important;
+      background-color: #ffffff !important;
+      border: 2.5px solid var(--bubble-theme-color, #00bfa5) !important;
+      box-sizing: border-box !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+      z-index: 3 !important;
+    }
+
+    /* Header */
+    body.theme-cartoon .overlay-header {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 3px !important;
+      margin-top: -24px !important;
+      margin-bottom: 2px !important;
+      margin-left: 6px !important;
+      width: auto !important;
+      z-index: 5 !important;
+    }
+
+    /* Pure White Username Pill */
+    body.theme-cartoon .overlay-author-name {
+      order: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: var(--bubble-theme-color, #00bfa5) !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      font-family: 'Fredoka', 'Nunito', sans-serif !important;
+      font-weight: 700 !important;
+      font-size: 0.88rem !important;
+      line-height: 1.2 !important;
+      padding: 3px 15px 4px 15px !important;
+      border-radius: 999px !important;
+      border: 2.5px solid #ffffff !important;
+      box-shadow: 0 0 0 2px var(--bubble-theme-color, #00bfa5), 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+    }
+    body.theme-cartoon .overlay-author-name::after {
+      display: none !important;
+      content: '' !important;
+    }
+
+    /* Role Badges Row Below Username */
+    body.theme-cartoon .overlay-badges-container {
+      order: 2 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 5px !important;
+      margin-top: 1px !important;
+      margin-bottom: 2px !important;
+      margin-left: 4px !important;
+    }
+    body.theme-cartoon .cartoon-role-badge {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 3px !important;
+      padding: 2px 9px !important;
+      border-radius: 999px !important;
+      font-family: 'Fredoka', 'Nunito', sans-serif !important;
+      font-size: 0.72rem !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      border: 1.8px solid #ffffff !important;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16) !important;
+      line-height: 1.2 !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+    }
+    body.theme-cartoon .cartoon-role-badge.role-mod { background: #00a884 !important; }
+    body.theme-cartoon .cartoon-role-badge.role-sub { background: #8b5cf6 !important; }
+    body.theme-cartoon .cartoon-role-badge.role-member { background: #6366f1 !important; }
+    body.theme-cartoon .cartoon-role-badge.role-host { background: #ef4444 !important; }
+    body.theme-cartoon .cartoon-role-badge.role-vip { background: #ec4899 !important; }
+
+    /* Hide standard icons inside badges container */
+    body.theme-cartoon .overlay-badges-container .platform-official-badge,
+    body.theme-cartoon .overlay-badges-container .yt-official-badge,
+    body.theme-cartoon .overlay-badges-container .twitch-badge {
+      display: none !important;
+    }
+
+    /* Message Text: NOT BOLD (500), High Contrast Dark */
+    body.theme-cartoon .overlay-text,
+    body.theme-cartoon .overlay-message-content {
+      display: block !important;
+      color: #0f172a !important;
+      font-family: 'Fredoka', 'Nunito', sans-serif !important;
+      font-weight: 500 !important;
+      font-size: 1rem !important;
+      line-height: 1.45 !important;
+      text-shadow: none !important;
+      padding: 1px 0 0 0 !important;
+      margin: 0 !important;
+    }
   </style>
 
   <!-- Injected User Custom CSS -->
@@ -995,12 +1196,37 @@
           return;
         }
 
+        // Role detection for data attributes & styling
+        const authorColor = getAuthorColor(author, item.platform);
+        const badges = author.badges || {};
+        const isMod = !!(author.isMod || badges.moderator || (item.platform === 'youtube' && author.isMod));
+        const isSub = !!(author.isSub || badges.subscriber);
+        const isMember = !!((item.platform === 'youtube' && (author.memberBadge || author.isSub)) || badges.member);
+        const isVip = !!badges.vip;
+        const isBroadcaster = !!(author.isOwner || author.isBroadcaster || badges.broadcaster);
+        const hasCustomTwitchColor = !!(item.platform === 'twitch' && author.color && config.useTwitchColors !== false);
+
         const el = document.createElement('div');
         el.className = `overlay-item platform-${item.platform || 'twitch'}${config.showAvatars ? ' has-avatar' : ' no-avatar'}`;
-        el.dataset.platform = item.platform || '';
         if (item.isRedeem) el.classList.add('is-redeem', 'highlighted');
+        if (hasCustomTwitchColor) el.classList.add('has-twitch-color');
+        if (isMod) el.classList.add('is-mod');
+        if (isSub) el.classList.add('is-sub');
+        if (isMember) el.classList.add('is-member');
+        if (isVip) el.classList.add('is-vip');
+        if (isBroadcaster) el.classList.add('is-broadcaster');
 
-        const authorColor = getAuthorColor(author, item.platform);
+        el.dataset.platform = item.platform || '';
+        el.dataset.authorColor = authorColor;
+        el.dataset.hasCustomColor = hasCustomTwitchColor ? 'true' : 'false';
+        if (isMod) el.dataset.isMod = 'true';
+        if (isSub) el.dataset.isSub = 'true';
+        if (isMember) el.dataset.isMember = 'true';
+        if (isVip) el.dataset.isVip = 'true';
+        if (isBroadcaster) el.dataset.isBroadcaster = 'true';
+
+        el.style.setProperty('--author-color', authorColor);
+
         const initial = (authorName[0] || '?').toUpperCase();
 
         const avatarHtml = config.showAvatars
@@ -1052,14 +1278,21 @@
           `;
         }
 
+        let roleBadgesHtml = '';
+        if (isMod) roleBadgesHtml += `<span class="cartoon-role-badge role-mod">🛡️ Mod</span>`;
+        if (isSub) roleBadgesHtml += `<span class="cartoon-role-badge role-sub">★ Sub</span>`;
+        if (isMember) roleBadgesHtml += `<span class="cartoon-role-badge role-member">★ Member</span>`;
+        if (isVip) roleBadgesHtml += `<span class="cartoon-role-badge role-vip">💎 VIP</span>`;
+        if (isBroadcaster) roleBadgesHtml += `<span class="cartoon-role-badge role-host">👑 Host</span>`;
+
         el.innerHTML = `
           ${avatarHtml}
           <div class="overlay-body">
             <div class="overlay-header">
               ${platformTagHtml}
-              ${badgesHtml}
-              ${item.isRedeem ? '<span class="badge-icon redeem-tag">💠 Redeem</span>' : ''}
               <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)} ${item.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
+              ${(roleBadgesHtml || badgesHtml) ? `<div class="overlay-badges-container">${roleBadgesHtml}${badgesHtml}</div>` : ''}
+              ${item.isRedeem ? '<span class="badge-icon redeem-tag">💠 Redeem</span>' : ''}
             </div>
             <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
           </div>
@@ -1313,6 +1546,17 @@
           }
           if (newCfg.customCss !== undefined && customCssEl) {
             customCssEl.textContent = newCfg.customCss;
+          }
+          if (newCfg.customJs !== undefined) {
+            config.customJs = newCfg.customJs;
+            if (newCfg.customJs) {
+              try {
+                const fn = new Function('config', 'socket', newCfg.customJs);
+                fn(config, socket);
+              } catch (err) {
+                console.error('[Overlay Custom JS Live Error]:', err);
+              }
+            }
           }
           applyVisualConfig();
           // If channels were updated in Studio, immediately update Socket.io live subscription

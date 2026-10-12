@@ -700,6 +700,7 @@
             <label class="form-label" for="settingTheme" data-i18n="sec_theme">Tema Overlay</label>
             <select id="settingTheme" class="form-select">
               <option value="simple" data-i18n="opt_theme_simple" selected>⚡ Simple Single-Line (Default)</option>
+              <option value="cartoon" data-i18n="opt_theme_cartoon">💭 Cartoon Thought Bubble</option>
               <option value="glass" data-i18n="opt_theme_glass">💎 Glassmorphism Dark</option>
               <option value="minimal" data-i18n="opt_theme_minimal">⬛ Minimalist Semi-Transparent</option>
               <option value="cyberpunk" data-i18n="opt_theme_cyberpunk">⚡ Cyberpunk Neon Glow</option>
@@ -2351,6 +2352,15 @@
         }, 800);
       });
 
+      if (settingCustomJs) {
+        settingCustomJs.addEventListener('input', () => {
+          clearTimeout(window._jsTimer);
+          window._jsTimer = setTimeout(() => {
+            refreshPreview();
+          }, 800);
+        });
+      }
+
       if (btnSaveCustomCode) {
         btnSaveCustomCode.addEventListener('click', () => saveProfile(true));
       }
@@ -2374,14 +2384,60 @@
         }
       });
 
-      // Simulation Test Buttons with distinct Twitch user colors
+      // Simulation Test Users: Mencakup Twitch Custom Colors, Random Colors, Mod, Sub, Member, VIP, Host
       const testChatUsers = [
-        { name: 'SarahStreamer', color: '#B22222', text: 'Keren banget overlay-nya! GG gameplay OMEGALUL 🔥' },
-        { name: 'NinjaWarrior', color: '#00FF7F', text: 'Auto follow! Setup audio & overlay-nya bersih banget min 👍' },
-        { name: 'KopiTubruk', color: '#FF7F50', text: 'Halo bang! Nyimak sambil ngopi sore nih ☕' },
-        { name: 'GamerIndo', color: '#1E90FF', text: 'Lanjut game berikutnya seru parah PogChamp !' },
-        { name: 'AlexPro', color: '#DAA520', text: 'GGWP! Menang streak berapa ini bang?' },
-        { name: 'Valkyrie99', color: '#8A2BE2', text: 'Halo semua chatters! Semangat streamingnya ✨' }
+        {
+          name: 'Sarah_Mod',
+          platform: 'twitch',
+          color: '#E91E63', // Twitch Custom Hot Pink
+          badges: { moderator: '1' },
+          isMod: true,
+          text: 'Halo streamers! Chat berjalan tertib ya 🛡️ Semangat live-nya!'
+        },
+        {
+          name: 'Ninja_Sub',
+          platform: 'twitch',
+          color: '#00FF7F', // Twitch Custom Spring Green
+          badges: { subscriber: '1' },
+          isSub: true,
+          text: 'Tier 1 Sub hype! Setup audio & overlay bersih banget ⭐'
+        },
+        {
+          name: 'Duta_Member',
+          platform: 'youtube',
+          color: '', // YouTube (tanpa profil color -> WARNA RANDOM!)
+          isSub: true,
+          memberBadge: 'https://cdn-icons-png.flaticon.com/128/1828/1828884.png',
+          text: 'Hadir bang member setia YouTube! Konten gameplaynya mantap 👍'
+        },
+        {
+          name: 'KopiTubruk',
+          platform: 'tiktok',
+          color: '', // TikTok (tanpa profil color -> WARNA RANDOM!)
+          text: 'Halo bang! Nyimak sambil ngopi sore nih santai ☕'
+        },
+        {
+          name: 'ProGamerVIP',
+          platform: 'twitch',
+          color: '#00e5ff', // Twitch Custom Cyan
+          badges: { vip: '1' },
+          text: 'GGWP! Menang streak berapa ini bang? Seru parah 💎'
+        },
+        {
+          name: 'QueenHost',
+          platform: 'twitch',
+          color: '#9c27b0', // Twitch Custom Purple
+          badges: { broadcaster: '1' },
+          isBroadcaster: true,
+          isOwner: true,
+          text: 'Selamat datang semuanya yang baru join live stream! 👑'
+        },
+        {
+          name: 'ChatterPolos',
+          platform: 'twitch',
+          color: '', // Twitch chatter tanpa warna custom -> WARNA RANDOM!
+          text: 'Lanjut game berikutnya seru parah PogChamp !'
+        }
       ];
       let testChatIdx = 0;
 
@@ -2394,8 +2450,17 @@
             detail: {
               type: 'chat',
               data: {
-                platform: 'twitch',
-                author: { name: sample.name, color: sample.color },
+                platform: sample.platform || 'twitch',
+                author: {
+                  name: sample.name,
+                  color: sample.color || '',
+                  badges: sample.badges || {},
+                  isMod: !!sample.isMod,
+                  isSub: !!sample.isSub,
+                  isOwner: !!sample.isOwner,
+                  isBroadcaster: !!sample.isBroadcaster,
+                  memberBadge: sample.memberBadge || ''
+                },
                 text: sample.text,
                 timestamp: Date.now()
               }
