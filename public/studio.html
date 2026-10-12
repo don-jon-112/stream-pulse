@@ -699,11 +699,11 @@
           <div class="form-group">
             <label class="form-label" for="settingTheme" data-i18n="sec_theme">Tema Overlay</label>
             <select id="settingTheme" class="form-select">
-              <option value="glass" data-i18n="opt_theme_glass">💎 Glassmorphism Dark (Default)</option>
+              <option value="simple" data-i18n="opt_theme_simple" selected>⚡ Simple Single-Line (Default)</option>
+              <option value="glass" data-i18n="opt_theme_glass">💎 Glassmorphism Dark</option>
               <option value="minimal" data-i18n="opt_theme_minimal">⬛ Minimalist Semi-Transparent</option>
               <option value="cyberpunk" data-i18n="opt_theme_cyberpunk">⚡ Cyberpunk Neon Glow</option>
               <option value="light" data-i18n="opt_theme_light">⚪ Clean Light Paper</option>
-              <option value="simple" data-i18n="opt_theme_simple">⚡ Simple Single-Line (Baris Tunggal)</option>
             </select>
           </div>
 
@@ -2289,7 +2289,7 @@
         );
         if (!ok) return;
 
-        settingTheme.value = 'glass';
+        settingTheme.value = 'simple';
         if (settingChatAlign) settingChatAlign.value = 'left';
         if (settingBgColor) settingBgColor.value = '#0d111b';
         if (labelBgColorHex) labelBgColorHex.textContent = '#0d111b';

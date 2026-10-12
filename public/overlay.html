@@ -518,7 +518,7 @@
 
       const profileId = urlParams.get('id') || 'default';
       let config = {
-        theme: urlParams.get('theme') || 'glass',
+        theme: urlParams.get('theme') || 'simple',
         fontSize: parseInt(urlParams.get('fontSize') || '15', 10),
         hideDelay: parseInt(urlParams.get('hideDelay') || '0', 10),
         showBadges: urlParams.get('badges') !== '0',
@@ -579,8 +579,9 @@
       }
 
       // Apply Theme & Font Size
-      if (config.theme && config.theme !== 'glass') {
-        document.body.classList.add(`theme-${config.theme}`);
+      const activeTheme = config.theme || 'simple';
+      if (activeTheme !== 'glass') {
+        document.body.classList.add(`theme-${activeTheme}`);
       }
       if (config.fontSize) {
         document.documentElement.style.fontSize = `${config.fontSize}px`;
