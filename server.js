@@ -67,6 +67,43 @@ function writeJsonFile(filePath, data) {
   }
 }
 
+// Inisialisasi default database files jika belum ada
+function initDefaultDataFiles() {
+  const defaultOverlays = {
+    "default": {
+      "id": "default",
+      "name": "Default Simple Overlay",
+      "twitch": "",
+      "youtube": "",
+      "tiktok": "",
+      "theme": "simple",
+      "chatDirection": "bottom",
+      "chatFade": "none",
+      "fontSize": 15,
+      "hideDelay": 0,
+      "showBadges": true,
+      "showAvatars": true,
+      "showAlerts": true,
+      "showEmotes": true,
+      "customCss": "/* Kustomisasi CSS untuk OBS Overlay Anda */\n.overlay-chat-item {\n  /* margin-bottom: 8px; */\n}\n.overlay-chat-text {\n  /* font-weight: 500; */\n}",
+      "customJs": "// Skrip JS kustom (opsional)",
+      "createdAt": 1728560000000,
+      "updatedAt": 1728560000000
+    }
+  };
+
+  if (!fs.existsSync(OVERLAYS_FILE)) {
+    writeJsonFile(OVERLAYS_FILE, defaultOverlays);
+  }
+  if (!fs.existsSync(FEEDBACK_FILE)) {
+    writeJsonFile(FEEDBACK_FILE, []);
+  }
+  if (!fs.existsSync(USERS_FILE)) {
+    writeJsonFile(USERS_FILE, {});
+  }
+}
+initDefaultDataFiles();
+
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
