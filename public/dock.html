@@ -538,87 +538,6 @@
     .dock-status-msg.success { color: var(--success); }
     .dock-status-msg.error { color: var(--danger); }
     .dock-status-msg.info { color: var(--text-dim); }
-
-    /* Modal Setup Channels */
-    .dock-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 99;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .dock-modal-backdrop.open {
-      display: flex;
-    }
-
-    .dock-modal {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      width: 100%;
-      max-width: 380px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .dock-modal-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .dock-modal-close {
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .dock-modal-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .dock-modal-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-    .dock-modal-input {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 7px 9px;
-      color: #fff;
-      font-size: 12px;
-      outline: none;
-    }
-    .dock-modal-input:focus {
-      border-color: var(--primary);
-    }
-
-    .dock-modal-btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-      margin-top: 6px;
-    }
   </style>
 </head>
 <body>
@@ -634,10 +553,6 @@
         </div>
       </div>
       <div class="dock-header-actions">
-        <button class="dock-btn-icon" id="btn-open-settings" title="Pengaturan Channel">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Atur
-        </button>
         <button class="dock-btn-icon" id="btn-clear-chat" title="Bersihkan Tampilan Chat">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Clear
@@ -721,29 +636,6 @@
     </form>
     <div class="dock-status-msg info" id="dock-status-feedback">Siap mengirim pesan ke Twitch</div>
   </footer>
-
-  <!-- MODAL SETUP CHANNEL CEPAT -->
-  <div class="dock-modal-backdrop" id="dock-modal-setup">
-    <div class="dock-modal">
-      <div class="dock-modal-title">
-        <span>Pengaturan Channel Dock</span>
-        <button class="dock-modal-close" id="btn-close-setup">&times;</button>
-      </div>
-      <div class="dock-modal-group">
-        <label class="dock-modal-label">🟣 Twitch Channel (Username):</label>
-        <input type="text" class="dock-modal-input" id="input-modal-twitch" placeholder="contoh: joo_nathan">
-      </div>
-      <div class="dock-modal-group">
-        <label class="dock-modal-label">🔴 YouTube Video ID / Handle:</label>
-        <input type="text" class="dock-modal-input" id="input-modal-youtube" placeholder="contoh: live ID atau @handle">
-      </div>
-      <div class="dock-modal-group">
-        <label class="dock-modal-label">🎵 TikTok LIVE (Username tanpa @):</label>
-        <input type="text" class="dock-modal-input" id="input-modal-tiktok" placeholder="contoh: streamer_live">
-      </div>
-      <button class="dock-modal-btn" id="btn-save-setup">Simpan & Hubungkan</button>
-    </div>
-  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/dock.js"></script>

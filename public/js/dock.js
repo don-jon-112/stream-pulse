@@ -1,6 +1,7 @@
 /**
  * StreamPulse - OBS Custom Browser Dock
  * Client Controller: Live Chat, Twitch Sender, Viewer Counters, Persistent Storage (No Limit)
+ * Otomatis tersinkronisasi dengan konfigurasi channel di Homepage (Local Storage & Server State)
  */
 
 (function () {
@@ -11,7 +12,9 @@
   // ==========================================
   const STORAGE_KEY_HISTORY = 'streampulse_dock_history_v1';
   const STORAGE_KEY_USER_TOKEN = 'streampulse_user_token';
-  const STORAGE_KEY_SAVED_CHANNELS = 'streampulse_user_channels';
+  const STORAGE_KEY_USER_CHANNELS = 'streampulse_user_channels';
+  const STORAGE_KEY_GUEST_CHANNELS = 'streampulse_guest_channels';
+  const STORAGE_KEY_MY_CHANNELS = 'streampulse_my_channels';
 
   let currentChannels = {
     twitch: '',
@@ -50,15 +53,8 @@
   const activeTwitchBadge = document.getElementById('dock-active-channel-name');
   const statusFeedback = document.getElementById('dock-status-feedback');
 
-  // Buttons & Modal
+  // Buttons
   const btnClearChat = document.getElementById('btn-clear-chat');
-  const btnOpenSettings = document.getElementById('btn-open-settings');
-  const modalSetup = document.getElementById('dock-modal-setup');
-  const btnCloseSetup = document.getElementById('btn-close-setup');
-  const btnSaveSetup = document.getElementById('btn-save-setup');
-  const inputModalTwitch = document.getElementById('input-modal-twitch');
-  const inputModalYt = document.getElementById('input-modal-youtube');
-  const inputModalTikTok = document.getElementById('input-modal-tiktok');
 
   // Filter chips
   const filterChips = document.querySelectorAll('.filter-chip');
@@ -128,7 +124,7 @@
       let history = getStoredHistory();
       history.push(item);
 
-      // Simpan ke localStorage. Jika storage browser penuh (quota 5MB tercapai), pangkas 20% item terlama secara anggun
+      // Simpan ke localStorage. Jika storage browser penuh (quota 5MB tercapai), pangkas 20% item terlama secara aman
       try {
         localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
       } catch (quotaErr) {
@@ -159,29 +155,30 @@
   }
 
   // ==========================================
-  // CHANNELS RESOLUTION
+  // CHANNELS RESOLUTION (SINKRON DARI HOMEPAGE)
   // ==========================================
+  function readHomepageChannels() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_USER_CHANNELS) ||
+                  localStorage.getItem(STORAGE_KEY_MY_CHANNELS) ||
+                  localStorage.getItem(STORAGE_KEY_GUEST_CHANNELS);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
   function initChannels() {
     const params = new URLSearchParams(window.location.search);
     const qTwitch = params.get('twitch');
     const qYt = params.get('youtube');
     const qTikTok = params.get('tiktok');
 
-    let saved = null;
-    try {
-      saved = JSON.parse(
-        localStorage.getItem(STORAGE_KEY_SAVED_CHANNELS) ||
-        localStorage.getItem('streampulse_my_channels') ||
-        localStorage.getItem('streampulse_guest_channels') ||
-        '{}'
-      );
-    } catch (e) {
-      saved = {};
-    }
+    const homepageChannels = readHomepageChannels();
 
-    currentChannels.twitch = (qTwitch || saved.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
-    currentChannels.youtube = (qYt || saved.youtube || '').trim();
-    currentChannels.tiktok = (qTikTok || saved.tiktok || '').trim().replace(/^@/, '');
+    currentChannels.twitch = (qTwitch || homepageChannels.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
+    currentChannels.youtube = (qYt || homepageChannels.youtube || '').trim();
+    currentChannels.tiktok = (qTikTok || homepageChannels.tiktok || '').trim().replace(/^@/, '');
 
     updateChannelUI();
   }
@@ -192,16 +189,34 @@
         ? `Twitch: #${currentChannels.twitch}`
         : 'Twitch: Belum Diset';
     }
-    if (inputModalTwitch) inputModalTwitch.value = currentChannels.twitch;
-    if (inputModalYt) inputModalYt.value = currentChannels.youtube;
-    if (inputModalTikTok) inputModalTikTok.value = currentChannels.tiktok;
 
     if (!currentChannels.twitch) {
-      showFeedback('Atur username Twitch Anda di tombol "Atur" untuk mulai kirim chat.', 'info', 0);
+      showFeedback('Channel Twitch belum diatur. Silakan atur di menu "Atur Channel" Homepage.', 'info', 0);
     } else {
-      showFeedback(`Target aktif: #${currentChannels.twitch}`, 'info', 0);
+      showFeedback(`Target aktif: #${currentChannels.twitch} (Tersinkron)`, 'info', 0);
     }
   }
+
+  // Sinkronisasi otomatis jika user mengubah channel di Homepage (Storage Event)
+  window.addEventListener('storage', (e) => {
+    if (
+      e.key === STORAGE_KEY_USER_CHANNELS ||
+      e.key === STORAGE_KEY_MY_CHANNELS ||
+      e.key === STORAGE_KEY_GUEST_CHANNELS
+    ) {
+      console.log('[Dock] Konfigurasi channel diperbarui dari Homepage');
+      initChannels();
+      if (socket && socket.connected) {
+        socket.emit('set_channels', {
+          twitch: currentChannels.twitch,
+          youtube: currentChannels.youtube,
+          tiktok: currentChannels.tiktok,
+          userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || ''
+        });
+      }
+      showFeedback(`Channel otomatis diperbarui dari Homepage!`, 'success', 4000);
+    }
+  });
 
   // ==========================================
   // VIEWER COUNT MANAGER
@@ -483,7 +498,7 @@
       if (!message) return;
 
       if (!currentChannels.twitch) {
-        showFeedback('Harap masukkan nama channel Twitch Anda terlebih dahulu di tombol "Atur".', 'error');
+        showFeedback('Channel Twitch belum diatur. Silakan atur di menu "Atur Channel" Homepage.', 'error');
         return;
       }
 
@@ -514,58 +529,6 @@
           showFeedback(`Gagal: ${err}`, 'error', 6000);
         }
       });
-    });
-  }
-
-  // ==========================================
-  // QUICK SETTINGS MODAL
-  // ==========================================
-  if (btnOpenSettings) {
-    btnOpenSettings.addEventListener('click', () => {
-      updateChannelUI();
-      modalSetup.classList.add('open');
-    });
-  }
-  if (btnCloseSetup) {
-    btnCloseSetup.addEventListener('click', () => {
-      modalSetup.classList.remove('open');
-    });
-  }
-  if (modalSetup) {
-    modalSetup.addEventListener('click', (e) => {
-      if (e.target === modalSetup) modalSetup.classList.remove('open');
-    });
-  }
-
-  if (btnSaveSetup) {
-    btnSaveSetup.addEventListener('click', () => {
-      const newTwitch = (inputModalTwitch.value || '').trim().toLowerCase().replace(/^[#@]/, '');
-      const newYt = (inputModalYt.value || '').trim();
-      const newTt = (inputModalTikTok.value || '').trim().replace(/^@/, '');
-
-      currentChannels.twitch = newTwitch;
-      currentChannels.youtube = newYt;
-      currentChannels.tiktok = newTt;
-
-      try {
-        localStorage.setItem(STORAGE_KEY_SAVED_CHANNELS, JSON.stringify(currentChannels));
-        localStorage.setItem('streampulse_guest_channels', JSON.stringify(currentChannels));
-      } catch (e) {}
-
-      updateChannelUI();
-      modalSetup.classList.remove('open');
-
-      // Join room socket baru
-      if (socket && socket.connected) {
-        socket.emit('set_channels', {
-          twitch: newTwitch,
-          youtube: newYt,
-          tiktok: newTt,
-          userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || ''
-        });
-      }
-
-      showFeedback('Pengaturan channel disimpan. Menghubungkan ke stream...', 'success');
     });
   }
 
@@ -628,6 +591,23 @@
 
     // Inisialisasi awal saat terkoneksi
     socket.on('initial_state', (data) => {
+      if (data && data.channels) {
+        let changed = false;
+        if (!currentChannels.twitch && data.channels.twitch) {
+          currentChannels.twitch = data.channels.twitch;
+          changed = true;
+        }
+        if (!currentChannels.youtube && data.channels.youtube) {
+          currentChannels.youtube = data.channels.youtube;
+          changed = true;
+        }
+        if (!currentChannels.tiktok && data.channels.tiktok) {
+          currentChannels.tiktok = data.channels.tiktok;
+          changed = true;
+        }
+        if (changed) updateChannelUI();
+      }
+
       if (data && data.viewerCounts) {
         viewerCounts.twitch = data.viewerCounts.twitch || 0;
         viewerCounts.youtube = data.viewerCounts.youtube || 0;
