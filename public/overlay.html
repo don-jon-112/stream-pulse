@@ -427,6 +427,13 @@
     }
 
     /* Badges */
+    body.theme-simple .overlay-badges-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      vertical-align: middle;
+      margin-right: 3px;
+    }
     body.theme-simple .badge-icon {
       padding: 1px 4px;
       font-size: 0.6rem;
@@ -1178,8 +1185,8 @@
           <div class="overlay-body">
             <div class="overlay-header">
               ${platformTagHtml}
+              ${badgesHtml ? `<span class="overlay-badges-container">${badgesHtml}</span>` : ''}
               <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)} ${item.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
-              ${badgesHtml ? `<div class="overlay-badges-container">${badgesHtml}</div>` : ''}
               ${item.isRedeem ? '<span class="badge-icon redeem-tag">💠 Redeem</span>' : ''}
             </div>
             <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
