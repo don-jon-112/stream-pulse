@@ -1024,7 +1024,11 @@
             return parse7tvTokens(part.text || '');
           }).join('');
         } else {
-          textHtml = parse7tvTokens(item.text);
+          let rawText = item.text || '';
+          if (item.platform === 'tiktok') {
+            rawText = rawText.replace(/\s*\([^)]*(?:diamond|💎)[^)]*\)/gi, '').trim();
+          }
+          textHtml = parse7tvTokens(rawText);
         }
 
         const isTwitchRedeem = (item.platform === 'twitch') && item.isRedeem;
@@ -1144,6 +1148,16 @@
         let customAlertBg = null;
         let customAlertTextColor = null;
 
+        // Bersihkan teks dalam kurung diamond untuk gift TikTok (misal: "Rosa x10 (0 diamond)" atau "Rose x10 (10 💎)")
+        if (evt.platform === 'tiktok') {
+          if (customDetail) {
+            customDetail = customDetail.replace(/\s*\([^)]*(?:diamond|💎)[^)]*\)/gi, '').trim();
+          }
+          if (customTitle) {
+            customTitle = customTitle.replace(/\s*\([^)]*(?:diamond|💎)[^)]*\)/gi, '').trim();
+          }
+        }
+
         // Custom alert styling & templates per-event type
         if (evt.eventType === 'subscription' || evt.eventType === 'resub' || evt.eventType === 'subgift') {
           if (config.alertSubBg) customAlertBg = config.alertSubBg;
@@ -1204,6 +1218,9 @@
           if (evt.eventType === 'cheer') {
             displayMsg = displayMsg.replace(/\b[a-zA-Z]+\d+\b/gi, '').trim();
           }
+          if (evt.platform === 'tiktok' && displayMsg) {
+            displayMsg = displayMsg.replace(/\s*\([^)]*(?:diamond|💎)[^)]*\)/gi, '').trim();
+          }
           if (displayMsg.toLowerCase() === String(evt.detail || '').toLowerCase() || displayMsg.toLowerCase() === String(evt.title || '').toLowerCase()) {
             displayMsg = '';
           }
@@ -1211,7 +1228,6 @@
           bodyContent = `
             <div class="overlay-header">
               ${platformTagHtml}
-              <span class="badge-icon" style="background:#f59e0b; color:#000;">🎉 ALERT</span>
               <span class="overlay-author-name" style="color:${escapeHtml(authorColor)} ${evt.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-event-title" ${customAlertTextColor ? `style="color:${escapeHtml(customAlertTextColor)};"` : ''}>${escapeHtml(customTitle)}${customDetail ? ` • ${escapeHtml(customDetail)}` : ''}</div>
