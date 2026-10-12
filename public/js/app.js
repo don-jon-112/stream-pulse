@@ -123,42 +123,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setYouTubeAuthState(isConnected, info = {}) {
-    if (isConnected && (info.target || info.title || info.channelId)) {
-      const displayVal = info.customUrl || info.target || info.channelId;
-      inputYouTube.value = displayVal;
-      inputYouTube.readOnly = true;
-      inputYouTube.style.opacity = '0.88';
-      inputYouTube.style.cursor = 'not-allowed';
-
-      if (youtubeConnected) youtubeConnected.style.display = 'flex';
-      if (youtubeNotConnected) youtubeNotConnected.style.display = 'none';
-      if (youtubeConnectedUser) youtubeConnectedUser.textContent = info.title || displayVal;
-      if (youtubeUserAvatar) {
-        if (info.avatar) {
-          youtubeUserAvatar.src = info.avatar;
-          youtubeUserAvatar.style.display = 'inline-block';
-        } else {
-          youtubeUserAvatar.style.display = 'none';
-        }
-      }
-      if (youtubeStatusTip) {
-        youtubeStatusTip.textContent = '✓ Terhubung via YouTube OAuth (Input dikunci)';
-        youtubeStatusTip.style.color = '#10b981';
-      }
-    } else {
-      inputYouTube.readOnly = false;
-      inputYouTube.style.opacity = '1';
-      inputYouTube.style.cursor = 'text';
-
-      if (youtubeConnected) youtubeConnected.style.display = 'none';
-      if (youtubeNotConnected) youtubeNotConnected.style.display = 'flex';
-      if (youtubeConnectedUser) youtubeConnectedUser.textContent = '';
-      if (youtubeUserAvatar) youtubeUserAvatar.style.display = 'none';
-      if (youtubeStatusTip) {
-        youtubeStatusTip.textContent = 'Handle (@channel) atau URL Live';
-        youtubeStatusTip.style.color = '';
-      }
+    // Dinonaktifkan sementara menunggu proses verifikasi Google selesai
+    inputYouTube.readOnly = false;
+    inputYouTube.style.opacity = '1';
+    inputYouTube.style.cursor = 'text';
+    if (youtubeStatusTip) {
+      youtubeStatusTip.textContent = 'Handle (@channel) atau URL Live';
+      youtubeStatusTip.style.color = '';
     }
+    if (youtubeConnected) youtubeConnected.style.display = 'none';
+    if (youtubeNotConnected) youtubeNotConnected.style.display = 'none';
+    if (youtubeConnectedUser) youtubeConnectedUser.textContent = '';
+    if (youtubeUserAvatar) youtubeUserAvatar.style.display = 'none';
   }
 
   // Handle postMessage dari popup Twitch & YouTube OAuth callback
