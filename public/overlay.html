@@ -730,6 +730,16 @@
         showEmotes: urlParams.get('emotes') !== '0',
         showTikTokLikes: urlParams.get('ttLikes') !== '0' && urlParams.get('tiktokLikes') !== '0',
         showTikTokGifts: urlParams.get('ttGifts') !== '0' && urlParams.get('tiktokGifts') !== '0',
+        showTikTokFollow: urlParams.get('ttFollow') !== '0' && urlParams.get('tiktokFollow') !== '0',
+        alertTikTokLikeBg: '',
+        alertTikTokLikeTextColor: '#ffffff',
+        alertTikTokLikeText: '',
+        alertTikTokGiftBg: '',
+        alertTikTokGiftTextColor: '#ffffff',
+        alertTikTokGiftText: '',
+        alertTikTokFollowBg: '',
+        alertTikTokFollowTextColor: '#ffffff',
+        alertTikTokFollowText: '',
         authorColor: urlParams.get('authorColor') || '',
         useTwitchColors: urlParams.get('useTwitchColors') !== '0',
         containerBgColor: urlParams.get('containerBg') || '#0a0e17',
@@ -755,6 +765,9 @@
             showTikTokGifts: urlParams.get('ttGifts') !== null 
               ? (urlParams.get('ttGifts') !== '0') 
               : (profile.showTikTokGifts !== undefined ? profile.showTikTokGifts : true),
+            showTikTokFollow: urlParams.get('ttFollow') !== null 
+              ? (urlParams.get('ttFollow') !== '0') 
+              : (profile.showTikTokFollow !== undefined ? profile.showTikTokFollow : true),
             showTwitchBadges: urlParams.get('twitchBadges') !== null
               ? (urlParams.get('twitchBadges') !== '0')
               : (profile.showTwitchBadges !== undefined ? profile.showTwitchBadges : (profile.showBadges !== undefined ? profile.showBadges : true)),
@@ -1328,6 +1341,7 @@
         if (evt.platform === 'tiktok') {
           if (evt.eventType === 'like' && config.showTikTokLikes === false) return;
           if (evt.eventType === 'gift' && config.showTikTokGifts === false) return;
+          if (evt.eventType === 'follow' && config.showTikTokFollow === false) return;
         }
 
         const isTwitchRedeem = (evt.platform === 'twitch') && evt.eventType === 'redeem';
@@ -1417,6 +1431,37 @@
         } else if (isTwitchRedeem) {
           if (config.alertRedeemBg) customAlertBg = config.alertRedeemBg;
           if (config.alertRedeemTextColor) customAlertTextColor = config.alertRedeemTextColor;
+        } else if (evt.platform === 'tiktok') {
+          if (evt.eventType === 'like') {
+            if (config.alertTikTokLikeBg) customAlertBg = config.alertTikTokLikeBg;
+            if (config.alertTikTokLikeTextColor) customAlertTextColor = config.alertTikTokLikeTextColor;
+            if (config.alertTikTokLikeText) {
+              const cleanLikes = (customDetail || '').replace(/\D+/g, '') || '50';
+              customTitle = config.alertTikTokLikeText
+                .replace(/{author}|{user}/gi, authorName)
+                .replace(/{likes}/gi, cleanLikes)
+                .replace(/{detail}/gi, customDetail);
+              customDetail = '';
+            }
+          } else if (evt.eventType === 'gift') {
+            if (config.alertTikTokGiftBg) customAlertBg = config.alertTikTokGiftBg;
+            if (config.alertTikTokGiftTextColor) customAlertTextColor = config.alertTikTokGiftTextColor;
+            if (config.alertTikTokGiftText) {
+              customTitle = config.alertTikTokGiftText
+                .replace(/{author}|{user}/gi, authorName)
+                .replace(/{gift}|{detail}/gi, customDetail);
+              customDetail = '';
+            }
+          } else if (evt.eventType === 'follow') {
+            if (config.alertTikTokFollowBg) customAlertBg = config.alertTikTokFollowBg;
+            if (config.alertTikTokFollowTextColor) customAlertTextColor = config.alertTikTokFollowTextColor;
+            if (config.alertTikTokFollowText) {
+              customTitle = config.alertTikTokFollowText
+                .replace(/{author}|{user}/gi, authorName)
+                .replace(/{detail}/gi, customDetail);
+              customDetail = '';
+            }
+          }
         }
 
         if (customAlertBg) {
@@ -1538,6 +1583,7 @@
           if (newCfg.showYtBadges !== undefined) config.showYtBadges = newCfg.showYtBadges;
           if (newCfg.showTikTokLikes !== undefined) config.showTikTokLikes = newCfg.showTikTokLikes;
           if (newCfg.showTikTokGifts !== undefined) config.showTikTokGifts = newCfg.showTikTokGifts;
+          if (newCfg.showTikTokFollow !== undefined) config.showTikTokFollow = newCfg.showTikTokFollow;
           if (newCfg.theme) {
             document.body.className = newCfg.theme === 'glass' ? '' : `theme-${newCfg.theme}`;
           }

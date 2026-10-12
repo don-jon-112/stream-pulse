@@ -1069,7 +1069,7 @@
         <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
           <div style="font-size:0.75rem; font-weight:800; color:#22d3ee; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="#06b6d4"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
-            <span data-i18n="sec_tiktok_settings">Pengaturan TikTok LIVE</span>
+            <span data-i18n="sec_tiktok_settings">Integrasi TikTok LIVE</span>
           </div>
 
           <div class="toggle-row">
@@ -1092,6 +1092,123 @@
               <input type="checkbox" id="settingShowTikTokGifts" checked>
               <span class="toggle-slider"></span>
             </label>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem;" data-i18n="sec_show_tiktok_follow">Tampilkan Event TikTok Follow (➕)</span>
+              <div style="font-size:0.72rem; color:var(--text-tertiary);">Munculkan alert saat penonton mem-follow akun TikTok Anda</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowTikTokFollow" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Kustomisasi Warna & Alert Event TikTok -->
+          <div style="margin-top:6px; padding-top:8px; border-top:1px dashed rgba(6, 182, 212, 0.3);">
+            <div style="font-size:0.75rem; font-weight:800; color:#22d3ee; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;" data-i18n="sec_tiktok_alert_colors">
+              🎨 Kustomisasi Warna Event TikTok (Likes, Gift, Follow)
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-tertiary); margin-bottom:8px; line-height:1.4;">
+              Sesuaikan warna teks, background, dan template format pesan untuk setiap event TikTok di overlay Anda:
+            </div>
+
+            <!-- 1. Likes Event Customizer -->
+            <div style="background:rgba(244,63,94,0.06); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+              <div style="font-size:0.8rem; font-weight:800; color:#fb7185; margin-bottom:6px;">❤️ TikTok Likes Event</div>
+              <div class="alert-card-grid">
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                  <input type="text" id="settingTikTokLikeBg" class="form-input" placeholder="#hex / linear-gradient(...)" style="font-size:0.75rem; padding:6px 8px;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                  <div class="color-picker-dual">
+                    <div class="color-picker-input-row">
+                      <input type="color" id="settingTikTokLikeTextColor" value="#ffffff" class="color-swatch-input">
+                      <input type="text" id="settingTikTokLikeTextHex" value="#ffffff" class="form-input color-hex-field" maxlength="7" placeholder="#ffffff">
+                    </div>
+                    <div class="preset-colors-row">
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokLikeTextColor" data-color="#ffffff" style="background:#ffffff;" title="Putih"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokLikeTextColor" data-color="#f43f5e" style="background:#f43f5e;" title="Rose Red"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokLikeTextColor" data-color="#fbbf24" style="background:#fbbf24;" title="Gold"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokLikeTextColor" data-color="#22d3ee" style="background:#22d3ee;" title="Cyan"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokLikeTextColor" data-color="#c084fc" style="background:#c084fc;" title="Violet"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokLikeTextColor" data-color="#4ade80" style="background:#4ade80;" title="Mint"></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:6px;">
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {likes})</label>
+                <input type="text" id="settingTikTokLikeText" class="form-input" placeholder="Misal: {author} mengirim {likes} likes! ❤️" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+            </div>
+
+            <!-- 2. Gift Event Customizer -->
+            <div style="background:rgba(236,72,153,0.06); border:1px solid rgba(236,72,153,0.25); border-radius:var(--radius-sm); padding:10px; margin-bottom:8px;">
+              <div style="font-size:0.8rem; font-weight:800; color:#f472b6; margin-bottom:6px;">🎁 TikTok Gift Event</div>
+              <div class="alert-card-grid">
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                  <input type="text" id="settingTikTokGiftBg" class="form-input" placeholder="#hex / linear-gradient(...)" style="font-size:0.75rem; padding:6px 8px;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                  <div class="color-picker-dual">
+                    <div class="color-picker-input-row">
+                      <input type="color" id="settingTikTokGiftTextColor" value="#ffffff" class="color-swatch-input">
+                      <input type="text" id="settingTikTokGiftTextHex" value="#ffffff" class="form-input color-hex-field" maxlength="7" placeholder="#ffffff">
+                    </div>
+                    <div class="preset-colors-row">
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokGiftTextColor" data-color="#ffffff" style="background:#ffffff;" title="Putih"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokGiftTextColor" data-color="#fbbf24" style="background:#fbbf24;" title="Gold"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokGiftTextColor" data-color="#ec4899" style="background:#ec4899;" title="Pink"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokGiftTextColor" data-color="#06b6d4" style="background:#06b6d4;" title="Cyan"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokGiftTextColor" data-color="#a855f7" style="background:#a855f7;" title="Purple"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokGiftTextColor" data-color="#10b981" style="background:#10b981;" title="Emerald"></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:6px;">
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author}, {gift})</label>
+                <input type="text" id="settingTikTokGiftText" class="form-input" placeholder="Misal: {author} mengirim {gift}! 🎁" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+            </div>
+
+            <!-- 3. Follow Event Customizer -->
+            <div style="background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.25); border-radius:var(--radius-sm); padding:10px;">
+              <div style="font-size:0.8rem; font-weight:800; color:#22d3ee; margin-bottom:6px;">➕ TikTok Follow Event</div>
+              <div class="alert-card-grid">
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Background</label>
+                  <input type="text" id="settingTikTokFollowBg" class="form-input" placeholder="#hex / linear-gradient(...)" style="font-size:0.75rem; padding:6px 8px;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Warna Teks</label>
+                  <div class="color-picker-dual">
+                    <div class="color-picker-input-row">
+                      <input type="color" id="settingTikTokFollowTextColor" value="#ffffff" class="color-swatch-input">
+                      <input type="text" id="settingTikTokFollowTextHex" value="#ffffff" class="form-input color-hex-field" maxlength="7" placeholder="#ffffff">
+                    </div>
+                    <div class="preset-colors-row">
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokFollowTextColor" data-color="#ffffff" style="background:#ffffff;" title="Putih"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokFollowTextColor" data-color="#22d3ee" style="background:#22d3ee;" title="Cyan"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokFollowTextColor" data-color="#4ade80" style="background:#4ade80;" title="Mint"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokFollowTextColor" data-color="#fbbf24" style="background:#fbbf24;" title="Gold"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokFollowTextColor" data-color="#c084fc" style="background:#c084fc;" title="Violet"></button>
+                      <button type="button" class="btn-color-preset" data-target="settingTikTokFollowTextColor" data-color="#f43f5e" style="background:#f43f5e;" title="Rose"></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:6px;">
+                <label style="font-size:0.72rem; color:var(--text-secondary); display:block; margin-bottom:3px;">Format Pesan (Variabel: {author})</label>
+                <input type="text" id="settingTikTokFollowText" class="form-input" placeholder="Misal: {author} mulai mengikuti! 🌟" style="font-size:0.75rem; padding:6px 8px;">
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1162,6 +1279,7 @@
           <button id="btnTestYtMember" class="btn-icon" style="font-size:0.75rem; border-color:rgba(16,185,129,0.5);" title="Test YouTube Member Milestone">⭐ YT Member</button>
           <button id="btnTestTikTokGift" class="btn-icon" style="font-size:0.75rem; border-color:rgba(254,44,85,0.5);" title="Test TikTok Gift">🎁 TikTok Gift</button>
           <button id="btnTestTikTokLikes" class="btn-icon" style="font-size:0.75rem; border-color:rgba(254,44,85,0.5);" title="Test TikTok Likes Batch">❤️ TikTok Likes</button>
+          <button id="btnTestTikTokFollow" class="btn-icon" style="font-size:0.75rem; border-color:rgba(6,182,212,0.5);" title="Test TikTok Follow">➕ TikTok Follow</button>
           <button id="btnTestRedeem" class="btn-icon" style="font-size:0.75rem; border-color:rgba(14,165,233,0.5);" title="Test Channel Points Redeem dengan Pesan">💠 Redeem (Teks)</button>
           <button id="btnTestRedeemNoText" class="btn-icon" style="font-size:0.75rem; border-color:rgba(14,165,233,0.5);" title="Test Channel Points Redeem Tanpa Pesan">💠 Redeem (No Teks)</button>
         </div>
@@ -1260,6 +1378,7 @@
       const settingShowAlerts = document.getElementById('settingShowAlerts');
       const settingShowTikTokLikes = document.getElementById('settingShowTikTokLikes');
       const settingShowTikTokGifts = document.getElementById('settingShowTikTokGifts');
+      const settingShowTikTokFollow = document.getElementById('settingShowTikTokFollow');
       const settingCustomCss = document.getElementById('settingCustomCss');
       const settingCustomJs = document.getElementById('settingCustomJs');
       const btnSaveCustomCode = document.getElementById('btnSaveCustomCode');
@@ -1301,6 +1420,20 @@
       const settingAlertRaidTextHex = document.getElementById('settingAlertRaidTextHex');
       const settingAlertRedeemTextHex = document.getElementById('settingAlertRedeemTextHex');
 
+      // TikTok Alert Customizers
+      const settingTikTokLikeBg = document.getElementById('settingTikTokLikeBg');
+      const settingTikTokLikeTextColor = document.getElementById('settingTikTokLikeTextColor');
+      const settingTikTokLikeTextHex = document.getElementById('settingTikTokLikeTextHex');
+      const settingTikTokLikeText = document.getElementById('settingTikTokLikeText');
+      const settingTikTokGiftBg = document.getElementById('settingTikTokGiftBg');
+      const settingTikTokGiftTextColor = document.getElementById('settingTikTokGiftTextColor');
+      const settingTikTokGiftTextHex = document.getElementById('settingTikTokGiftTextHex');
+      const settingTikTokGiftText = document.getElementById('settingTikTokGiftText');
+      const settingTikTokFollowBg = document.getElementById('settingTikTokFollowBg');
+      const settingTikTokFollowTextColor = document.getElementById('settingTikTokFollowTextColor');
+      const settingTikTokFollowTextHex = document.getElementById('settingTikTokFollowTextHex');
+      const settingTikTokFollowText = document.getElementById('settingTikTokFollowText');
+
       const btnResetDefaults = document.getElementById('btnResetDefaults');
       const btnResetVisualsSection = document.getElementById('btnResetVisualsSection');
 
@@ -1319,6 +1452,7 @@
       const btnTestYtMember = document.getElementById('btnTestYtMember');
       const btnTestTikTokGift = document.getElementById('btnTestTikTokGift');
       const btnTestTikTokLikes = document.getElementById('btnTestTikTokLikes');
+      const btnTestTikTokFollow = document.getElementById('btnTestTikTokFollow');
       const btnTestRedeem = document.getElementById('btnTestRedeem');
       const btnTestRedeemNoText = document.getElementById('btnTestRedeemNoText');
 
@@ -1888,6 +2022,7 @@
             if (data.showAlerts !== undefined) settingShowAlerts.checked = data.showAlerts;
             if (data.showTikTokLikes !== undefined) settingShowTikTokLikes.checked = data.showTikTokLikes;
             if (data.showTikTokGifts !== undefined) settingShowTikTokGifts.checked = data.showTikTokGifts;
+            if (data.showTikTokFollow !== undefined) settingShowTikTokFollow.checked = data.showTikTokFollow;
 
             // Alert Customizer fields
             if (data.alertSubBg !== undefined) settingAlertSubBg.value = data.alertSubBg;
@@ -1914,6 +2049,28 @@
               if (settingAlertRedeemTextHex) settingAlertRedeemTextHex.value = data.alertRedeemTextColor;
             }
             if (data.alertRedeemText !== undefined) settingAlertRedeemText.value = data.alertRedeemText;
+
+            // TikTok Alert Customizer fields
+            if (data.alertTikTokLikeBg !== undefined) settingTikTokLikeBg.value = data.alertTikTokLikeBg;
+            if (data.alertTikTokLikeTextColor !== undefined) {
+              settingTikTokLikeTextColor.value = data.alertTikTokLikeTextColor;
+              if (settingTikTokLikeTextHex) settingTikTokLikeTextHex.value = data.alertTikTokLikeTextColor;
+            }
+            if (data.alertTikTokLikeText !== undefined) settingTikTokLikeText.value = data.alertTikTokLikeText;
+
+            if (data.alertTikTokGiftBg !== undefined) settingTikTokGiftBg.value = data.alertTikTokGiftBg;
+            if (data.alertTikTokGiftTextColor !== undefined) {
+              settingTikTokGiftTextColor.value = data.alertTikTokGiftTextColor;
+              if (settingTikTokGiftTextHex) settingTikTokGiftTextHex.value = data.alertTikTokGiftTextColor;
+            }
+            if (data.alertTikTokGiftText !== undefined) settingTikTokGiftText.value = data.alertTikTokGiftText;
+
+            if (data.alertTikTokFollowBg !== undefined) settingTikTokFollowBg.value = data.alertTikTokFollowBg;
+            if (data.alertTikTokFollowTextColor !== undefined) {
+              settingTikTokFollowTextColor.value = data.alertTikTokFollowTextColor;
+              if (settingTikTokFollowTextHex) settingTikTokFollowTextHex.value = data.alertTikTokFollowTextColor;
+            }
+            if (data.alertTikTokFollowText !== undefined) settingTikTokFollowText.value = data.alertTikTokFollowText;
 
             if (data.customCss !== undefined) settingCustomCss.value = data.customCss;
             if (data.customJs !== undefined) settingCustomJs.value = data.customJs;
@@ -1961,6 +2118,7 @@
           showAlerts: settingShowAlerts.checked,
           showTikTokLikes: settingShowTikTokLikes.checked,
           showTikTokGifts: settingShowTikTokGifts.checked,
+          showTikTokFollow: settingShowTikTokFollow ? settingShowTikTokFollow.checked : true,
           alertSubBg: settingAlertSubBg ? settingAlertSubBg.value.trim() : '',
           alertSubTextColor: settingAlertSubTextColor ? settingAlertSubTextColor.value : '#ffffff',
           alertSubText: settingAlertSubText ? settingAlertSubText.value.trim() : '',
@@ -1973,6 +2131,15 @@
           alertRedeemBg: settingAlertRedeemBg ? settingAlertRedeemBg.value.trim() : '',
           alertRedeemTextColor: settingAlertRedeemTextColor ? settingAlertRedeemTextColor.value : '#ffffff',
           alertRedeemText: settingAlertRedeemText ? settingAlertRedeemText.value.trim() : '',
+          alertTikTokLikeBg: settingTikTokLikeBg ? settingTikTokLikeBg.value.trim() : '',
+          alertTikTokLikeTextColor: settingTikTokLikeTextColor ? settingTikTokLikeTextColor.value : '#ffffff',
+          alertTikTokLikeText: settingTikTokLikeText ? settingTikTokLikeText.value.trim() : '',
+          alertTikTokGiftBg: settingTikTokGiftBg ? settingTikTokGiftBg.value.trim() : '',
+          alertTikTokGiftTextColor: settingTikTokGiftTextColor ? settingTikTokGiftTextColor.value : '#ffffff',
+          alertTikTokGiftText: settingTikTokGiftText ? settingTikTokGiftText.value.trim() : '',
+          alertTikTokFollowBg: settingTikTokFollowBg ? settingTikTokFollowBg.value.trim() : '',
+          alertTikTokFollowTextColor: settingTikTokFollowTextColor ? settingTikTokFollowTextColor.value : '#ffffff',
+          alertTikTokFollowText: settingTikTokFollowText ? settingTikTokFollowText.value.trim() : '',
           customCss: settingCustomCss.value,
           customJs: settingCustomJs.value
         };
@@ -1995,6 +2162,7 @@
         }
         if (!settingShowTikTokLikes.checked) fullUrl += '&ttLikes=0';
         if (!settingShowTikTokGifts.checked) fullUrl += '&ttGifts=0';
+        if (settingShowTikTokFollow && !settingShowTikTokFollow.checked) fullUrl += '&ttFollow=0';
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
         if (!settingShowYtBadges.checked) fullUrl += '&ytBadges=0';
         obsFinalUrl.value = fullUrl;
@@ -2144,7 +2312,7 @@
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts].forEach(el => {
+      [settingTheme, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
         if (el) {
           el.addEventListener('change', () => {
             updateLabels();
@@ -2209,7 +2377,10 @@
         { swatch: settingAlertSubTextColor, hex: settingAlertSubTextHex, type: 'subscription' },
         { swatch: settingAlertCheerTextColor, hex: settingAlertCheerTextHex, type: 'cheer' },
         { swatch: settingAlertRaidTextColor, hex: settingAlertRaidTextHex, type: 'raid' },
-        { swatch: settingAlertRedeemTextColor, hex: settingAlertRedeemTextHex, type: 'redeem' }
+        { swatch: settingAlertRedeemTextColor, hex: settingAlertRedeemTextHex, type: 'redeem' },
+        { swatch: settingTikTokLikeTextColor, hex: settingTikTokLikeTextHex, type: 'tiktok_like' },
+        { swatch: settingTikTokGiftTextColor, hex: settingTikTokGiftTextHex, type: 'tiktok_gift' },
+        { swatch: settingTikTokFollowTextColor, hex: settingTikTokFollowTextHex, type: 'tiktok_follow' }
       ];
 
       alertColorPairs.forEach(({ swatch, hex, type }) => {
@@ -2267,6 +2438,9 @@
           if (type === 'cheer' && btnTestCheer) btnTestCheer.click();
           if (type === 'raid' && btnTestRaid) btnTestRaid.click();
           if (type === 'redeem' && btnTestRedeem) btnTestRedeem.click();
+          if (type === 'tiktok_like' && btnTestTikTokLikes) btnTestTikTokLikes.click();
+          if (type === 'tiktok_gift' && btnTestTikTokGift) btnTestTikTokGift.click();
+          if (type === 'tiktok_follow' && btnTestTikTokFollow) btnTestTikTokFollow.click();
         }, 400);
       }
 
@@ -2278,6 +2452,14 @@
       if (settingAlertRaidBg) settingAlertRaidBg.addEventListener('input', () => debounceAlertSim('raid'));
       if (settingAlertRedeemText) settingAlertRedeemText.addEventListener('input', () => debounceAlertSim('redeem'));
       if (settingAlertRedeemBg) settingAlertRedeemBg.addEventListener('input', () => debounceAlertSim('redeem'));
+
+      // TikTok Alert Customizer event listeners
+      if (settingTikTokLikeText) settingTikTokLikeText.addEventListener('input', () => debounceAlertSim('tiktok_like'));
+      if (settingTikTokLikeBg) settingTikTokLikeBg.addEventListener('input', () => debounceAlertSim('tiktok_like'));
+      if (settingTikTokGiftText) settingTikTokGiftText.addEventListener('input', () => debounceAlertSim('tiktok_gift'));
+      if (settingTikTokGiftBg) settingTikTokGiftBg.addEventListener('input', () => debounceAlertSim('tiktok_gift'));
+      if (settingTikTokFollowText) settingTikTokFollowText.addEventListener('input', () => debounceAlertSim('tiktok_follow'));
+      if (settingTikTokFollowBg) settingTikTokFollowBg.addEventListener('input', () => debounceAlertSim('tiktok_follow'));
 
       // Reset to Defaults function
       async function resetAllToDefaults() {
@@ -2317,6 +2499,7 @@
         if (settingShowAlerts) settingShowAlerts.checked = true;
         if (settingShowTikTokLikes) settingShowTikTokLikes.checked = true;
         if (settingShowTikTokGifts) settingShowTikTokGifts.checked = true;
+        if (settingShowTikTokFollow) settingShowTikTokFollow.checked = true;
         if (settingUseTwitchColors) settingUseTwitchColors.checked = true;
 
         if (settingAlertSubBg) settingAlertSubBg.value = '';
@@ -2331,6 +2514,16 @@
         if (settingAlertRedeemBg) settingAlertRedeemBg.value = '';
         if (settingAlertRedeemTextColor) settingAlertRedeemTextColor.value = '#ffffff';
         if (settingAlertRedeemText) settingAlertRedeemText.value = '';
+
+        if (settingTikTokLikeBg) settingTikTokLikeBg.value = '';
+        if (settingTikTokLikeTextColor) settingTikTokLikeTextColor.value = '#ffffff';
+        if (settingTikTokLikeText) settingTikTokLikeText.value = '';
+        if (settingTikTokGiftBg) settingTikTokGiftBg.value = '';
+        if (settingTikTokGiftTextColor) settingTikTokGiftTextColor.value = '#ffffff';
+        if (settingTikTokGiftText) settingTikTokGiftText.value = '';
+        if (settingTikTokFollowBg) settingTikTokFollowBg.value = '';
+        if (settingTikTokFollowTextColor) settingTikTokFollowTextColor.value = '#ffffff';
+        if (settingTikTokFollowText) settingTikTokFollowText.value = '';
 
         document.querySelectorAll('.color-hex-field').forEach(input => {
           input.value = '#ffffff';
@@ -2664,6 +2857,29 @@
                   author: 'Rian_TikToker',
                   detail: 'Mengirim 50 likes! ❤️',
                   badge: '❤️ +50'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestTikTokFollow) {
+        btnTestTikTokFollow.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_follow_${Date.now()}`,
+                  platform: 'tiktok',
+                  eventType: 'follow',
+                  title: 'TikTok Follow!',
+                  author: 'Siti_Nurhaliza',
+                  detail: 'Mulai mengikuti streamer! 🌟',
+                  badge: '➕ Follow'
                 }
               }
             });
