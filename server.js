@@ -186,6 +186,39 @@ io.on('connection', (socket) => {
     streamManager.sendTestEvent(platform, type, socket);
   });
 
+  // Kirim chat dari OBS Dock atau UI (saat ini Twitch saja yang aktif)
+  socket.on('send_chat_message', async ({ platform, channel, message, userToken }, callback) => {
+    try {
+      if (platform !== 'twitch') {
+        const msg = platform === 'youtube'
+          ? 'Pengiriman chat YouTube dinonaktifkan sementara menunggu verifikasi OAuth Google.'
+          : `Pengiriman chat ke ${platform || 'platform ini'} belum didukung saat ini.`;
+        if (typeof callback === 'function') callback({ success: false, error: msg });
+        return;
+      }
+
+      let token = '';
+      if (userToken) {
+        const users = readJsonFile(USERS_FILE, {});
+        const u = Object.values(users).find(x => x.token === userToken);
+        if (u?.channels?.twitchTokenEncrypted) {
+          token = decryptToken(u.channels.twitchTokenEncrypted);
+        }
+      }
+
+      const cleanCh = (channel || '').trim().toLowerCase().replace(/^[#@]/, '');
+      const result = await streamManager.sendTwitchChatMessage(cleanCh, message, token);
+      if (typeof callback === 'function') {
+        callback(result);
+      }
+    } catch (err) {
+      console.error('[send_chat_message] Error:', err);
+      if (typeof callback === 'function') {
+        callback({ success: false, error: err.message || 'Gagal mengirim pesan chat' });
+      }
+    }
+  });
+
   // Bersihkan history event di client ini
   socket.on('clear_events', () => {
     socket.emit('events_cleared');
@@ -205,6 +238,10 @@ io.on('connection', (socket) => {
 });
 
 // HTML Pages
+app.get(['/dock', '/obs-dock', '/browser-dock'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dock.html'));
+});
+
 app.get('/donate', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'donate.html'));
 });

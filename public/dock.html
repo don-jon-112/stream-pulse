@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamPulse - OBS Custom Browser Dock</title>
+  <meta name="description" content="OBS Custom Browser Dock untuk live chat interaktif dan viewer count real-time Twitch, YouTube, & TikTok">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0a0d14;
+      --bg-panel: #111622;
+      --bg-card: #161c2d;
+      --bg-hover: #1c2438;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: #6366f1;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --twitch: #9146ff;
+      --twitch-light: #a970ff;
+      --youtube: #ff0000;
+      --youtube-light: #ff4e45;
+      --tiktok: #00f2fe;
+      --tiktok-pink: #fe2c55;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      font-size: 13px;
+      line-height: 1.45;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: text;
+    }
+
+    /* Scrollbars OBS Dock */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Top Dock Header */
+    .dock-header {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .dock-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .dock-branding {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dock-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .dock-badge-pro {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff;
+      padding: 1px 5px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .dock-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 8px var(--danger);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .dock-status-dot.connected {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .dock-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dock-btn-icon {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 4px 7px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .dock-btn-icon:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Viewer Count Bar */
+    .dock-viewers-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .viewer-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: border-color 0.2s;
+    }
+
+    .viewer-pill.twitch {
+      border-color: rgba(145, 70, 255, 0.3);
+    }
+    .viewer-pill.twitch svg { fill: var(--twitch-light); }
+    .viewer-pill.twitch .v-num { color: #d8b4fe; }
+
+    .viewer-pill.youtube {
+      border-color: rgba(255, 0, 0, 0.3);
+    }
+    .viewer-pill.youtube svg { fill: var(--youtube-light); }
+    .viewer-pill.youtube .v-num { color: #fca5a5; }
+
+    .viewer-pill.tiktok {
+      border-color: rgba(0, 242, 254, 0.3);
+    }
+    .viewer-pill.tiktok svg { fill: var(--tiktok); }
+    .viewer-pill.tiktok .v-num { color: #67e8f9; }
+
+    .viewer-pill.total {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.4);
+      margin-left: auto;
+    }
+    .viewer-pill.total .v-num { color: #a5b4fc; font-weight: 700; }
+
+    .v-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    /* Filter Bar */
+    .dock-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .dock-filters {
+      display: flex;
+      gap: 4px;
+    }
+
+    .filter-chip {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 2px 7px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .filter-chip:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .filter-chip.active {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+    }
+
+    .dock-stats-label {
+      color: var(--text-dim);
+      font-size: 10px;
+      font-family: var(--font-mono);
+    }
+
+    /* Chat Messages Stream */
+    .dock-stream-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .empty-state {
+      margin: auto;
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      max-width: 320px;
+    }
+    .empty-state-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+    }
+    .empty-state-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+    }
+    .empty-state-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Chat Item Card */
+    .dock-chat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 7px 10px;
+      border-radius: 8px;
+      word-break: break-word;
+      animation: fadeIn 0.15s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dock-chat-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--bg-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .dock-chat-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dock-chat-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 2px;
+    }
+
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .platform-badge.twitch { background: rgba(145, 70, 255, 0.2); color: var(--twitch-light); }
+    .platform-badge.youtube { background: rgba(255, 0, 0, 0.2); color: var(--youtube-light); }
+    .platform-badge.tiktok { background: rgba(0, 242, 254, 0.2); color: var(--tiktok); }
+
+    .dock-author-name {
+      font-weight: 700;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .dock-time-label {
+      color: var(--text-dim);
+      font-size: 10px;
+      margin-left: auto;
+      font-family: var(--font-mono);
+    }
+
+    .dock-chat-text {
+      color: var(--text-main);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+
+    /* Badges & Emotes */
+    .dock-badge-img {
+      height: 14px;
+      width: 14px;
+      vertical-align: -2px;
+      border-radius: 2px;
+    }
+
+    .dock-emote {
+      height: 24px;
+      vertical-align: -5px;
+      margin: 0 1px;
+      object-fit: contain;
+    }
+
+    /* Event Alert Cards (Gift, Sub, Bits) */
+    .dock-event-item {
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.12), var(--bg-card));
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-left: 3px solid var(--primary);
+      border-radius: 8px;
+      padding: 8px 10px;
+      animation: fadeIn 0.2s ease;
+    }
+    .dock-event-item.gift {
+      background: linear-gradient(90deg, rgba(254, 44, 85, 0.15), var(--bg-card));
+      border-color: rgba(254, 44, 85, 0.4);
+      border-left-color: var(--tiktok-pink);
+    }
+    .dock-event-item.bits {
+      background: linear-gradient(90deg, rgba(145, 70, 255, 0.15), var(--bg-card));
+      border-color: rgba(145, 70, 255, 0.4);
+      border-left-color: var(--twitch);
+    }
+
+    .dock-event-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .dock-event-detail {
+      font-size: 12px;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Floating Scroll to Bottom button */
+    .dock-scroll-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      gap: 5px;
+      z-index: 10;
+      transition: transform 0.15s ease;
+    }
+    .dock-scroll-btn:hover {
+      transform: translateY(-2px);
+      background: var(--primary-hover);
+    }
+
+    /* Dock Footer Send Chat (Twitch Only) */
+    .dock-footer {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-subtle);
+      padding: 8px 12px;
+      flex-shrink: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dock-target-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .dock-target-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(145, 70, 255, 0.15);
+      color: var(--twitch-light);
+      border: 1px solid rgba(145, 70, 255, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .dock-target-note {
+      color: var(--text-dim);
+      font-size: 10px;
+    }
+
+    .dock-input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dock-chat-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 12.5px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .dock-chat-input:focus {
+      border-color: var(--twitch);
+    }
+    .dock-chat-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .dock-send-btn {
+      background: var(--twitch);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0 14px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease;
+    }
+    .dock-send-btn:hover {
+      background: #772ce8;
+    }
+    .dock-send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .dock-status-msg {
+      font-size: 10px;
+      min-height: 14px;
+      transition: color 0.2s;
+    }
+    .dock-status-msg.success { color: var(--success); }
+    .dock-status-msg.error { color: var(--danger); }
+    .dock-status-msg.info { color: var(--text-dim); }
+
+    /* Modal Setup Channels */
+    .dock-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .dock-modal-backdrop.open {
+      display: flex;
+    }
+
+    .dock-modal {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 380px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .dock-modal-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dock-modal-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .dock-modal-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .dock-modal-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .dock-modal-input {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 7px 9px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+    }
+    .dock-modal-input:focus {
+      border-color: var(--primary);
+    }
+
+    .dock-modal-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- DOCK TOP HEADER -->
+  <header class="dock-header">
+    <div class="dock-top-row">
+      <div class="dock-branding">
+        <span class="dock-status-dot" id="dock-conn-dot" title="Status Server: Terputus"></span>
+        <div class="dock-logo">
+          StreamPulse
+          <span class="dock-badge-pro">OBS DOCK</span>
+        </div>
+      </div>
+      <div class="dock-header-actions">
+        <button class="dock-btn-icon" id="btn-open-settings" title="Pengaturan Channel">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Atur
+        </button>
+        <button class="dock-btn-icon" id="btn-clear-chat" title="Bersihkan Tampilan Chat">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEWER COUNT BAR -->
+    <div class="dock-viewers-bar">
+      <!-- Twitch Viewer Count -->
+      <div class="viewer-pill twitch" id="pill-viewer-twitch" title="Twitch Live Viewers">
+        <svg width="12" height="12" viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+        <span>Twitch:</span>
+        <span class="v-num" id="count-twitch">0</span>
+      </div>
+
+      <!-- YouTube Viewer Count -->
+      <div class="viewer-pill youtube" id="pill-viewer-yt" title="YouTube Live Viewers">
+        <svg width="12" height="12" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        <span>YT:</span>
+        <span class="v-num" id="count-yt">0</span>
+      </div>
+
+      <!-- TikTok Viewer Count -->
+      <div class="viewer-pill tiktok" id="pill-viewer-tiktok" title="TikTok Live Viewers">
+        <svg width="12" height="12" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
+        <span>TikTok:</span>
+        <span class="v-num" id="count-tiktok">0</span>
+      </div>
+
+      <!-- Total Viewer Count -->
+      <div class="viewer-pill total" id="pill-viewer-total" title="Total Seluruh Penonton Aktif">
+        <span>Total:</span>
+        <span class="v-num" id="count-total">0</span>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="dock-filter-bar">
+      <div class="dock-filters">
+        <button class="filter-chip active" data-filter="all">Semua</button>
+        <button class="filter-chip" data-filter="chat">Chat Saja</button>
+        <button class="filter-chip" data-filter="event">Event/Donasi</button>
+      </div>
+      <div class="dock-stats-label" id="dock-counter-label">0 tersimpan (No Limit)</div>
+    </div>
+  </header>
+
+  <!-- STREAM CHAT CONTAINER -->
+  <main class="dock-stream-container" id="dock-chat-container">
+    <div class="empty-state" id="dock-empty-state">
+      <div class="empty-state-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="empty-state-title">Menunggu Pesan Chat...</div>
+      <div class="empty-state-desc">Pesan dan donasi dari Twitch, YouTube, & TikTok akan muncul di sini. Semua riwayat tersimpan permanen di memori browser ini.</div>
+    </div>
+  </main>
+
+  <button class="dock-scroll-btn" id="btn-scroll-bottom">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    Chat Terbaru
+  </button>
+
+  <!-- DOCK FOOTER SEND CHAT (TWITCH ONLY) -->
+  <footer class="dock-footer">
+    <div class="dock-target-row">
+      <div class="dock-target-tag" id="dock-target-badge">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+        <span id="dock-active-channel-name">Twitch: -</span>
+      </div>
+      <span class="dock-target-note">YouTube kirim dinonaktifkan (OAuth pending)</span>
+    </div>
+
+    <form class="dock-input-row" id="dock-chat-form">
+      <input type="text" class="dock-chat-input" id="dock-chat-input" placeholder="Kirim chat ke Twitch (Enter)..." autocomplete="off" maxlength="500">
+      <button type="submit" class="dock-send-btn" id="btn-send-dock">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Kirim
+      </button>
+    </form>
+    <div class="dock-status-msg info" id="dock-status-feedback">Siap mengirim pesan ke Twitch</div>
+  </footer>
+
+  <!-- MODAL SETUP CHANNEL CEPAT -->
+  <div class="dock-modal-backdrop" id="dock-modal-setup">
+    <div class="dock-modal">
+      <div class="dock-modal-title">
+        <span>Pengaturan Channel Dock</span>
+        <button class="dock-modal-close" id="btn-close-setup">&times;</button>
+      </div>
+      <div class="dock-modal-group">
+        <label class="dock-modal-label">🟣 Twitch Channel (Username):</label>
+        <input type="text" class="dock-modal-input" id="input-modal-twitch" placeholder="contoh: joo_nathan">
+      </div>
+      <div class="dock-modal-group">
+        <label class="dock-modal-label">🔴 YouTube Video ID / Handle:</label>
+        <input type="text" class="dock-modal-input" id="input-modal-youtube" placeholder="contoh: live ID atau @handle">
+      </div>
+      <div class="dock-modal-group">
+        <label class="dock-modal-label">🎵 TikTok LIVE (Username tanpa @):</label>
+        <input type="text" class="dock-modal-input" id="input-modal-tiktok" placeholder="contoh: streamer_live">
+      </div>
+      <button class="dock-modal-btn" id="btn-save-setup">Simpan & Hubungkan</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/dock.js"></script>
+</body>
+</html>
