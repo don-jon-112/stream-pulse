@@ -746,8 +746,12 @@ app.post('/api/auth/login', async (req, res) => {
         twitchAvatar: user.channels?.twitchAvatar || '',
         twitchUserId: user.channels?.twitchUserId || '',
         youtube: user.channels?.youtube || '',
+        youtubeTitle: user.channels?.youtubeTitle || '',
+        youtubeAvatar: user.channels?.youtubeAvatar || '',
+        youtubeChannelId: user.channels?.youtubeChannelId || '',
         tiktok: user.channels?.tiktok || '',
-        hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted)
+        hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
+        hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
       }
     }
   });
@@ -774,8 +778,12 @@ app.get('/api/user/me', (req, res) => {
       twitchAvatar: user.channels?.twitchAvatar || '',
       twitchUserId: user.channels?.twitchUserId || '',
       youtube: user.channels?.youtube || '',
+      youtubeTitle: user.channels?.youtubeTitle || '',
+      youtubeAvatar: user.channels?.youtubeAvatar || '',
+      youtubeChannelId: user.channels?.youtubeChannelId || '',
       tiktok: user.channels?.tiktok || '',
-      hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted)
+      hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
+      hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
     },
     maxLimit: 3
   });
@@ -1105,6 +1113,287 @@ app.post('/api/user/twitch/disconnect', (req, res) => {
     writeJsonFile(USERS_FILE, users);
   }
   res.json({ success: true, message: 'Twitch berhasil diputuskan.' });
+});
+
+// ==========================================
+// YOUTUBE (GOOGLE) OAUTH 2.0 AUTHORIZATION CODE FLOW
+// ==========================================
+const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID || '';
+const YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET || '';
+const youtubeOauthStates = new Map(); // state -> { userToken, redirectUri, createdAt }
+
+function getYouTubeRedirectUri(req) {
+  if (process.env.YOUTUBE_REDIRECT_URI) {
+    return process.env.YOUTUBE_REDIRECT_URI;
+  }
+  if (req.query?.redirect_origin) {
+    try {
+      const parsed = new URL(req.query.redirect_origin);
+      return `${parsed.origin}/auth/youtube/callback`;
+    } catch (e) {}
+  }
+  if (req.headers.referer) {
+    try {
+      const parsed = new URL(req.headers.referer);
+      return `${parsed.origin}/auth/youtube/callback`;
+    } catch (e) {}
+  }
+  const fwdHost = req.headers['x-forwarded-host'];
+  if (fwdHost) {
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    return `${proto}://${fwdHost}/auth/youtube/callback`;
+  }
+  const host = req.headers.host || 'localhost:3000';
+  let proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
+    proto = 'https';
+  }
+  return `${proto}://${host}/auth/youtube/callback`;
+}
+
+// 1. Inisiasi OAuth Login YouTube
+app.get('/auth/youtube', (req, res) => {
+  if (!YOUTUBE_CLIENT_ID || !YOUTUBE_CLIENT_SECRET) {
+    return res.status(500).send('YouTube Client ID / Secret belum dikonfigurasi di server.');
+  }
+
+  const redirectUri = getYouTubeRedirectUri(req);
+  const userToken = req.query.userToken || '';
+  const state = crypto.randomBytes(16).toString('hex');
+
+  // Bersihkan state usang (>15 menit)
+  const now = Date.now();
+  for (const [st, val] of youtubeOauthStates.entries()) {
+    if (now - val.createdAt > 15 * 60 * 1000) {
+      youtubeOauthStates.delete(st);
+    }
+  }
+
+  youtubeOauthStates.set(state, { userToken, redirectUri, createdAt: now });
+
+  const scopes = [
+    'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'openid'
+  ];
+
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(YOUTUBE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes.join(' '))}&access_type=offline&prompt=consent&state=${state}`;
+
+  res.redirect(authUrl);
+});
+
+// 2. Callback OAuth YouTube
+app.get('/auth/youtube/callback', async (req, res) => {
+  const { code, state, error, error_description } = req.query;
+
+  if (error) {
+    console.warn('[YouTube OAuth] Auth error dari Google:', error, error_description);
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>YouTube Auth Gagal</title></head>
+      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
+        <h3>Gagal Menghubungkan Akun YouTube</h3>
+        <p>${error_description || error}</p>
+        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
+        <script>
+          if (window.opener) {
+            window.opener.postMessage({ type: 'YOUTUBE_AUTH_ERROR', error: '${error}' }, '*');
+          }
+        </script>
+      </body>
+      </html>
+    `);
+  }
+
+  const stateData = youtubeOauthStates.get(state);
+  if (!stateData) {
+    return res.status(400).send('State token tidak valid atau telah kedaluwarsa. Silakan coba login kembali.');
+  }
+  youtubeOauthStates.delete(state);
+
+  try {
+    // Tukar code dengan token Google
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: YOUTUBE_CLIENT_ID,
+        client_secret: YOUTUBE_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: stateData.redirectUri
+      }).toString()
+    });
+
+    if (!tokenRes.ok) {
+      const errText = await tokenRes.text();
+      throw new Error(`Token exchange failed (${tokenRes.status}): ${errText}`);
+    }
+
+    const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
+    const refreshToken = tokenData.refresh_token;
+
+    // Ambil data channel YouTube milik pengguna
+    const ytRes = await fetch('https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&mine=true', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!ytRes.ok) {
+      const errText = await ytRes.text();
+      throw new Error(`Gagal mengambil profil YouTube (${ytRes.status}): ${errText}`);
+    }
+
+    const ytData = await ytRes.json();
+    const channel = ytData.items?.[0];
+
+    if (!channel) {
+      throw new Error('Akun Google ini belum memiliki Channel YouTube. Pastikan Anda sudah membuat channel YouTube di akun ini.');
+    }
+
+    const channelId = channel.id;
+    const channelTitle = channel.snippet.title;
+    const customUrl = channel.snippet.customUrl || '';
+    const avatar = channel.snippet.thumbnails?.default?.url || channel.snippet.thumbnails?.medium?.url || '';
+    const youtubeTarget = customUrl || channelId || channelTitle;
+
+    // Simpan ke akun user jika login
+    if (stateData.userToken) {
+      const users = readJsonFile(USERS_FILE, {});
+      const linkedUser = Object.values(users).find(u => u.token === stateData.userToken);
+      if (linkedUser) {
+        if (!linkedUser.channels) linkedUser.channels = {};
+        linkedUser.channels.youtube = youtubeTarget;
+        linkedUser.channels.youtubeChannelId = channelId;
+        linkedUser.channels.youtubeTitle = channelTitle;
+        linkedUser.channels.youtubeAvatar = avatar;
+        linkedUser.channels.youtubeTokenEncrypted = encryptToken(accessToken);
+        if (refreshToken) {
+          linkedUser.channels.youtubeRefreshTokenEncrypted = encryptToken(refreshToken);
+        }
+        users[linkedUser.username] = linkedUser;
+        writeJsonFile(USERS_FILE, users);
+      }
+    }
+
+    // Return HTML popup success
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="id">
+      <head>
+        <meta charset="UTF-8">
+        <title>YouTube Berhasil Terhubung</title>
+        <style>
+          body {
+            background: #0b0e17;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+          }
+          .card {
+            background: rgba(30, 27, 75, 0.7);
+            border: 1px solid #ef4444;
+            padding: 28px 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 380px;
+          }
+          .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid #ef4444;
+            margin-bottom: 12px;
+            object-fit: cover;
+          }
+          h2 { margin: 0 0 6px 0; color: #f87171; font-size: 1.3rem; }
+          p { margin: 4px 0 16px 0; color: #94a3b8; font-size: 0.85rem; }
+          .badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <img class="avatar" src="${avatar}" alt="${channelTitle}">
+          <h2>${channelTitle}</h2>
+          <span class="badge">✓ YouTube Terhubung</span>
+          <p>Live stream channel siap dipantau.<br>Jendela ini akan menutup otomatis...</p>
+        </div>
+        <script>
+          const authPayload = {
+            type: 'YOUTUBE_AUTH_SUCCESS',
+            channelId: '${channelId}',
+            title: '${channelTitle.replace(/'/g, "\\'")}',
+            customUrl: '${customUrl}',
+            target: '${youtubeTarget}',
+            avatar: '${avatar}',
+            token: '${accessToken}'
+          };
+          if (window.opener) {
+            window.opener.postMessage(authPayload, '*');
+            setTimeout(() => {
+              window.close();
+            }, 700);
+          } else {
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1200);
+          }
+        </script>
+      </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error('[YouTube OAuth] Callback exception:', err);
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>YouTube Auth Error</title></head>
+      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
+        <h3>Terjadi Kesalahan Saat Otentikasi YouTube</h3>
+        <p>${err.message}</p>
+        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
+      </body>
+      </html>
+    `);
+  }
+});
+
+// 3. Putuskan / Disconnect YouTube dari Akun
+app.post('/api/user/youtube/disconnect', (req, res) => {
+  const user = getUserFromReq(req);
+  if (user) {
+    const users = readJsonFile(USERS_FILE, {});
+    const currentUser = users[user.username] || user;
+    if (currentUser.channels) {
+      currentUser.channels.youtube = '';
+      currentUser.channels.youtubeTitle = '';
+      currentUser.channels.youtubeAvatar = '';
+      currentUser.channels.youtubeChannelId = '';
+      currentUser.channels.youtubeTokenEncrypted = '';
+      currentUser.channels.youtubeRefreshTokenEncrypted = '';
+    }
+    users[currentUser.username] = currentUser;
+    writeJsonFile(USERS_FILE, users);
+  }
+  res.json({ success: true, message: 'YouTube berhasil diputuskan.' });
 });
 
 // 6. Generate New Overlay (Max 3 Slots)

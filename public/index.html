@@ -470,13 +470,51 @@
         <!-- YouTube Channel / Live URL -->
         <div class="channel-field">
           <label class="channel-label" for="inputYouTube">
-            <span style="color: var(--youtube);" data-i18n="label_youtube">🔴 YouTube Live Stream</span>
-            <span class="field-tip" data-i18n="tip_youtube">Handle (@channel) atau URL Live</span>
+            <span style="color: var(--youtube); display: inline-flex; align-items: center; gap: 5px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <span>YouTube Live Stream</span>
+            </span>
+            <span class="field-tip" id="youtubeStatusTip">Handle (@channel) atau URL Live</span>
           </label>
           <div class="input-with-icon">
             <span class="input-icon" style="color: var(--youtube);">▶</span>
             <input type="text" id="inputYouTube" placeholder="@NamaChannel atau URL live..."
               data-i18n-ph="ph_youtube_input" autocomplete="off">
+          </div>
+
+          <!-- YouTube OAuth Connection Action Box -->
+          <div id="youtubeAuthBox" style="margin-top: 8px;">
+            <!-- State: Belum Terhubung Resmi -->
+            <div id="youtubeNotConnected"
+              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-sm); padding: 9px 12px;">
+              <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.4;">
+                <div style="font-weight: 700; color: #f87171; margin-bottom: 1px;">🔴 Deteksi Otomatis Live Stream:</div>
+                Login YouTube agar channel & siaran langsung Anda otomatis tersambung tanpa ketik link.
+              </div>
+              <button type="button" id="btnConnectYouTube" class="btn-youtube-auth"
+                style="display: inline-flex; align-items: center; gap: 6px; background: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 7px 12px; border-radius: var(--radius-sm); border: none; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 8px rgba(239,68,68,0.35);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span>Login YouTube</span>
+              </button>
+            </div>
+
+            <!-- State: Terhubung Resmi via OAuth -->
+            <div id="youtubeConnected"
+              style="display: none; align-items: center; justify-content: space-between; gap: 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 8px 12px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img id="youtubeUserAvatar" src="" alt="YouTube Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #10b981; object-fit: cover; display: none;">
+                <div style="font-size: 0.72rem; line-height: 1.35;">
+                  <div style="font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 4px;">
+                    ✓ Terhubung ke YouTube: <span id="youtubeConnectedUser" style="color: #fff;"></span>
+                  </div>
+                  <span style="color: #94a3b8; font-size: 0.68rem;">Siaran Live Chat Otomatis Dipantau • Input dikunci</span>
+                </div>
+              </div>
+              <button type="button" id="btnDisconnectYouTube"
+                style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
+                Putuskan
+              </button>
+            </div>
           </div>
         </div>
 
