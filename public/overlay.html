@@ -1017,9 +1017,9 @@
         const authorColor = getAuthorColor(author, item.platform);
         const badges = author.badges || {};
         const isMod = !!(author.isMod || badges.moderator || (item.platform === 'youtube' && author.isMod));
-        const isSub = !!(author.isSub || badges.subscriber);
-        const isMember = !!((item.platform === 'youtube' && (author.memberBadge || author.isSub)) || badges.member);
-        const isVip = !!badges.vip;
+        const isSub = (item.platform === 'twitch') && !!(author.isSub || badges.subscriber);
+        const isMember = (item.platform === 'youtube' || item.platform === 'yt') && !!(author.memberBadge || author.isSub || badges.member);
+        const isVip = (item.platform === 'twitch') && !!badges.vip;
         const isBroadcaster = !!(author.isOwner || author.isBroadcaster || badges.broadcaster);
         const hasCustomTwitchColor = !!(item.platform === 'twitch' && author.color && config.useTwitchColors !== false);
 
@@ -1095,20 +1095,13 @@
           `;
         }
 
-        let roleBadgesHtml = '';
-        if (isMod) roleBadgesHtml += `<span class="cartoon-role-badge role-mod">🛡️ Mod</span>`;
-        if (isSub) roleBadgesHtml += `<span class="cartoon-role-badge role-sub">★ Sub</span>`;
-        if (isMember) roleBadgesHtml += `<span class="cartoon-role-badge role-member">★ Member</span>`;
-        if (isVip) roleBadgesHtml += `<span class="cartoon-role-badge role-vip">💎 VIP</span>`;
-        if (isBroadcaster) roleBadgesHtml += `<span class="cartoon-role-badge role-host">👑 Host</span>`;
-
         el.innerHTML = `
           ${avatarHtml}
           <div class="overlay-body">
             <div class="overlay-header">
               ${platformTagHtml}
               <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)} ${item.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
-              ${(roleBadgesHtml || badgesHtml) ? `<div class="overlay-badges-container">${roleBadgesHtml}${badgesHtml}</div>` : ''}
+              ${badgesHtml ? `<div class="overlay-badges-container">${badgesHtml}</div>` : ''}
               ${item.isRedeem ? '<span class="badge-icon redeem-tag">💠 Redeem</span>' : ''}
             </div>
             <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
