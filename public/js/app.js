@@ -68,6 +68,86 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputTikTok = document.getElementById('inputTikTok');
   const headerUserWidget = document.getElementById('headerUserWidget');
   const channelAuthNotice = document.getElementById('channelAuthNotice');
+  const btnConnectTwitch = document.getElementById('btnConnectTwitch');
+  const btnDisconnectTwitch = document.getElementById('btnDisconnectTwitch');
+  const twitchNotConnected = document.getElementById('twitchNotConnected');
+  const twitchConnected = document.getElementById('twitchConnected');
+  const twitchUserAvatar = document.getElementById('twitchUserAvatar');
+  const twitchConnectedUser = document.getElementById('twitchConnectedUser');
+  const twitchStatusTip = document.getElementById('twitchStatusTip');
+
+  function setTwitchAuthState(isConnected, info = {}) {
+    if (isConnected && info.login) {
+      inputTwitch.value = info.login;
+      inputTwitch.readOnly = true;
+      inputTwitch.style.opacity = '0.88';
+      inputTwitch.style.cursor = 'not-allowed';
+
+      if (twitchConnected) twitchConnected.style.display = 'flex';
+      if (twitchNotConnected) twitchNotConnected.style.display = 'none';
+      if (twitchConnectedUser) twitchConnectedUser.textContent = `@${info.displayName || info.login}`;
+      if (twitchUserAvatar) {
+        if (info.avatar) {
+          twitchUserAvatar.src = info.avatar;
+          twitchUserAvatar.style.display = 'inline-block';
+        } else {
+          twitchUserAvatar.style.display = 'none';
+        }
+      }
+      if (twitchStatusTip) {
+        twitchStatusTip.textContent = '✓ Terhubung via Twitch OAuth (Input dikunci)';
+        twitchStatusTip.style.color = '#10b981';
+      }
+    } else {
+      inputTwitch.readOnly = false;
+      inputTwitch.style.opacity = '1';
+      inputTwitch.style.cursor = 'text';
+
+      if (twitchConnected) twitchConnected.style.display = 'none';
+      if (twitchNotConnected) twitchNotConnected.style.display = 'flex';
+      if (twitchConnectedUser) twitchConnectedUser.textContent = '';
+      if (twitchUserAvatar) twitchUserAvatar.style.display = 'none';
+      if (twitchStatusTip) {
+        twitchStatusTip.textContent = 'Username channel streamer';
+        twitchStatusTip.style.color = '';
+      }
+    }
+  }
+
+  // Handle postMessage dari popup Twitch OAuth callback
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'TWITCH_AUTH_SUCCESS') {
+      const { twitch, displayName, avatar, token } = event.data;
+      console.log(`[Twitch OAuth] Berhasil terhubung: ${twitch} (${displayName})`);
+
+      const authData = { login: twitch, displayName, avatar, token };
+      sessionStorage.setItem('streampulse_twitch_oauth', JSON.stringify(authData));
+
+      if (inputTwitchToken) inputTwitchToken.value = token || '';
+      setTwitchAuthState(true, authData);
+
+      const saved = getStoredUserChannels() || {};
+      saved.twitch = twitch;
+      saveStoredUserChannels(saved);
+
+      if (currentUser && currentUser.channels) {
+        currentUser.channels.twitch = twitch;
+        currentUser.channels.twitchDisplayName = displayName;
+        currentUser.channels.twitchAvatar = avatar;
+        currentUser.channels.hasTwitchToken = true;
+      }
+
+      socket.emit('update_channels', {
+        twitch: twitch,
+        twitchToken: token,
+        youtube: inputYouTube.value.trim(),
+        tiktok: inputTikTok.value.trim(),
+        userToken: userToken || undefined
+      });
+    } else if (event.data && event.data.type === 'TWITCH_AUTH_ERROR') {
+      alert(`Gagal menghubungkan akun Twitch: ${event.data.error || 'Otentikasi dibatalkan'}`);
+    }
+  });
 
   // Mobile navigation
   const mobNavChat = document.getElementById('mobNavChat');
@@ -535,22 +615,38 @@ document.addEventListener('DOMContentLoaded', () => {
       currentUser = null;
       // Muat saluran sesi tamu yang disimpan lokal jika ada
       const saved = getStoredUserChannels();
-      const guestToken = sessionStorage.getItem('streampulse_guest_twitch_token') || '';
-      if (saved && (saved.twitch || saved.youtube || saved.tiktok)) {
+      const guestOauth = sessionStorage.getItem('streampulse_twitch_oauth');
+      let oauthData = null;
+      if (guestOauth) {
+        try { oauthData = JSON.parse(guestOauth); } catch (e) {}
+      }
+
+      if (oauthData && oauthData.login) {
+        setTwitchAuthState(true, oauthData);
+        if (inputTwitchToken && oauthData.token) {
+          inputTwitchToken.value = oauthData.token;
+        }
+        inputYouTube.value = saved?.youtube || '';
+        inputTikTok.value = saved?.tiktok || '';
+        socket.emit('update_channels', {
+          twitch: oauthData.login,
+          twitchToken: oauthData.token,
+          youtube: saved?.youtube || '',
+          tiktok: saved?.tiktok || ''
+        });
+      } else if (saved && (saved.twitch || saved.youtube || saved.tiktok)) {
         inputTwitch.value = saved.twitch || '';
+        setTwitchAuthState(false);
         inputYouTube.value = saved.youtube || '';
         inputTikTok.value = saved.tiktok || '';
-        if (inputTwitchToken && guestToken) {
-          inputTwitchToken.value = guestToken;
-        }
         socket.emit('update_channels', {
           twitch: saved.twitch || '',
-          twitchToken: guestToken,
           youtube: saved.youtube || '',
           tiktok: saved.tiktok || ''
         });
       } else {
         inputTwitch.value = '';
+        setTwitchAuthState(false);
         if (inputTwitchToken) inputTwitchToken.value = '';
         inputYouTube.value = '';
         inputTikTok.value = '';
@@ -566,12 +662,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         currentUser = await res.json();
         if (currentUser.channels) {
-          inputTwitch.value = currentUser.channels.twitch || '';
           inputYouTube.value = currentUser.channels.youtube || '';
           inputTikTok.value = currentUser.channels.tiktok || '';
           saveStoredUserChannels(currentUser.channels);
-          if (currentUser.channels.hasTwitchToken && inputTwitchToken) {
-            inputTwitchToken.value = '•••••••• (Token Twitch Tersimpan Aman & Terenkripsi AES-256)';
+
+          if (currentUser.channels.hasTwitchToken && currentUser.channels.twitch) {
+            setTwitchAuthState(true, {
+              login: currentUser.channels.twitch,
+              displayName: currentUser.channels.twitchDisplayName || currentUser.channels.twitch,
+              avatar: currentUser.channels.twitchAvatar || ''
+            });
+            if (inputTwitchToken) {
+              inputTwitchToken.value = '•••••••• (Token Twitch Tersimpan Aman & Terenkripsi AES-256)';
+            }
+          } else {
+            inputTwitch.value = currentUser.channels.twitch || '';
+            setTwitchAuthState(false);
+            if (inputTwitchToken) inputTwitchToken.value = '';
           }
 
           socket.emit('update_channels', {
@@ -586,6 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUser = null;
         localStorage.removeItem('streampulse_user_token');
         inputTwitch.value = '';
+        setTwitchAuthState(false);
         if (inputTwitchToken) inputTwitchToken.value = '';
         inputYouTube.value = '';
         inputTikTok.value = '';
@@ -1303,6 +1411,58 @@ document.addEventListener('DOMContentLoaded', () => {
   btnSetupModal.addEventListener('click', () => openModal(setupModal));
   closeSetupModal.addEventListener('click', () => closeModal(setupModal));
   btnCancelSetup.addEventListener('click', () => closeModal(setupModal));
+
+  if (btnConnectTwitch) {
+    btnConnectTwitch.addEventListener('click', () => {
+      const width = 540;
+      const height = 750;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      const authUrl = `/auth/twitch${userToken ? `?userToken=${encodeURIComponent(userToken)}` : ''}`;
+      window.open(authUrl, 'twitch_auth_popup', `width=${width},height=${height},left=${left},top=${top},status=0,toolbar=0,menubar=0,location=1`);
+    });
+  }
+
+  if (btnDisconnectTwitch) {
+    btnDisconnectTwitch.addEventListener('click', async () => {
+      sessionStorage.removeItem('streampulse_twitch_oauth');
+      sessionStorage.removeItem('streampulse_guest_twitch_token');
+      if (inputTwitchToken) inputTwitchToken.value = '';
+
+      if (currentUser && userToken) {
+        try {
+          await fetch('/api/user/twitch/disconnect', {
+            method: 'POST',
+            headers: { 'x-user-token': userToken }
+          });
+          if (currentUser.channels) {
+            currentUser.channels.twitch = '';
+            currentUser.channels.twitchDisplayName = '';
+            currentUser.channels.twitchAvatar = '';
+            currentUser.channels.hasTwitchToken = false;
+          }
+        } catch (e) {
+          console.warn('Gagal disconnect Twitch di backend:', e);
+        }
+      }
+
+      inputTwitch.value = '';
+      setTwitchAuthState(false);
+
+      const saved = getStoredUserChannels() || {};
+      saved.twitch = '';
+      saveStoredUserChannels(saved);
+
+      socket.emit('update_channels', {
+        twitch: '',
+        twitchToken: '',
+        youtube: inputYouTube.value.trim(),
+        tiktok: inputTikTok.value.trim(),
+        userToken: userToken || undefined
+      });
+      socket.emit('disconnect_platform', { platform: 'twitch' });
+    });
+  }
 
   btnSaveChannels.addEventListener('click', async () => {
     const twitch = inputTwitch.value.trim();

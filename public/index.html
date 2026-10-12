@@ -416,55 +416,55 @@
         <!-- Twitch Channel -->
         <div class="channel-field">
           <label class="channel-label" for="inputTwitch">
-            <span style="color: var(--twitch);" data-i18n="label_twitch">🟣 Twitch Channel</span>
-            <span class="field-tip" data-i18n="tip_twitch">Contoh: shroud atau windah_basudara</span>
+            <span style="color: var(--twitch); display: inline-flex; align-items: center; gap: 5px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+              <span>Twitch Channel</span>
+            </span>
+            <span class="field-tip" id="twitchStatusTip">Username channel streamer</span>
           </label>
           <div class="input-with-icon">
             <span class="input-icon" style="color: var(--twitch);">#</span>
             <input type="text" id="inputTwitch" placeholder="Masukkan username Twitch..." data-i18n-ph="ph_twitch_input"
               autocomplete="off">
           </div>
-          <div
-            style="margin-top: 6px; font-size: 0.72rem; color: #cbd5e1; line-height: 1.4; background: rgba(145, 70, 255, 0.08); border: 1px solid rgba(145, 70, 255, 0.2); border-radius: var(--radius-sm); padding: 8px 10px;"
-            data-i18n-html="tip_redeem_desc">
-            <div style="font-weight: 700; color: #c084fc; margin-bottom: 2px;">💠 Tips Deteksi Channel Points Redeem:
+
+          <!-- Twitch OAuth Connection Action Box -->
+          <div id="twitchAuthBox" style="margin-top: 8px;">
+            <!-- State: Belum Terhubung Resmi -->
+            <div id="twitchNotConnected"
+              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(145, 70, 255, 0.08); border: 1px solid rgba(145, 70, 255, 0.25); border-radius: var(--radius-sm); padding: 9px 12px;">
+              <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.4;">
+                <div style="font-weight: 700; color: #c084fc; margin-bottom: 1px;">💠 Deteksi Channel Points Redeem:</div>
+                Login dengan Twitch agar poin redeem terdeteksi otomatis tanpa setup manual.
+              </div>
+              <button type="button" id="btnConnectTwitch" class="btn-twitch-auth"
+                style="display: inline-flex; align-items: center; gap: 6px; background: #9146ff; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 7px 12px; border-radius: var(--radius-sm); border: none; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 8px rgba(145,70,255,0.35);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+                <span>Login Twitch</span>
+              </button>
             </div>
-            Secara bawaan Twitch IRC hanya menyiarkan redeem yang disertai pesan. Agar reward Anda (seperti <em>Minum
-              Air, Sound Alert, dll.</em>) terdeteksi otomatis, aktifkan opsi <strong>"Require viewer to enter text"
-              (Wajibkan penonton memasukkan teks)</strong> di Twitch Dashboard saat membuat reward.
+
+            <!-- State: Terhubung Resmi via OAuth -->
+            <div id="twitchConnected"
+              style="display: none; align-items: center; justify-content: space-between; gap: 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 8px 12px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img id="twitchUserAvatar" src="" alt="Twitch Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #10b981; object-fit: cover; display: none;">
+                <div style="font-size: 0.72rem; line-height: 1.35;">
+                  <div style="font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 4px;">
+                    ✓ Terhubung ke Twitch: <span id="twitchConnectedUser" style="color: #fff;"></span>
+                  </div>
+                  <span style="color: #94a3b8; font-size: 0.68rem;">Channel Points EventSub Aktif 💠 • Input dikunci</span>
+                </div>
+              </div>
+              <button type="button" id="btnDisconnectTwitch"
+                style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
+                Putuskan
+              </button>
+            </div>
           </div>
 
-          <!-- Opsional: Twitch OAuth Token untuk EventSub (deteksi semua reward termasuk tanpa teks) -->
-          <details
-            style="margin-top: 6px; font-size: 0.72rem; color: #94a3b8; background: rgba(0,0,0,0.25); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: var(--radius-sm); padding: 8px 10px;">
-            <summary style="cursor: pointer; color: #c084fc; font-weight: 700; padding: 2px 0;"
-              data-i18n="oauth_summary">⚙️ Opsi Lanjutan: Twitch OAuth Token (Deteksi Redeem Tanpa Teks)</summary>
-            <div style="margin-top: 8px; line-height: 1.5; color: #cbd5e1;">
-              <p style="margin-bottom: 6px;">
-                Token ini dipakai untuk menyambungkan <strong>Twitch EventSub WebSocket resmi</strong> agar StreamPulse
-                bisa mendeteksi 100% redeem (termasuk reward instan seperti <em>Minum Air / Sound Alert</em> tanpa ketik
-                teks).
-              </p>
-              <div
-                style="background: rgba(145, 70, 255, 0.12); padding: 8px 10px; border-radius: var(--radius-sm); margin-bottom: 8px; border-left: 3px solid #a855f7;">
-                <strong>Cara Mudah Mendapatkan Token (Gratis & 1 Menit):</strong><br>
-                1. Buka situs terpercaya: <a href="https://twitchtokengenerator.com" target="_blank"
-                  rel="noopener noreferrer"
-                  style="color: #67e8f9; text-decoration: underline; font-weight: 600;">twitchtokengenerator.com</a><br>
-                2. Pilih <strong>Custom Scope Token</strong>.<br>
-                3. Centang permission: <code
-                  style="background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; color: #fde047;">channel:read:redemptions</code><br>
-                4. Klik tombol <strong>Generate Token!</strong> & login dengan akun Twitch streamer Anda.<br>
-                5. Salin teks <strong>ACCESS TOKEN</strong> yang muncul (contoh: <code>u8xk3m9...</code> atau
-                <code>oauth:u8xk...</code>) lalu tempel di bawah:
-              </div>
-              <input type="password" id="inputTwitchToken" placeholder="oauth:xxxx atau token Twitch..."
-                autocomplete="off"
-                style="width: 100%; padding: 8px 12px; font-size: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font-mono);">
-              <span style="font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 4px;">🔒 <em>Aman: Token
-                  hanya disimpan lokal di browser Anda dan langsung dikirim ke WebSocket resmi Twitch.</em></span>
-            </div>
-          </details>
+          <!-- Hidden input for backward compatibility -->
+          <input type="hidden" id="inputTwitchToken" value="">
         </div>
 
         <!-- YouTube Channel / Live URL -->

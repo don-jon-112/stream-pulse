@@ -742,6 +742,9 @@ app.post('/api/auth/login', async (req, res) => {
       overlayIds: user.overlayIds || [],
       channels: {
         twitch: user.channels?.twitch || '',
+        twitchDisplayName: user.channels?.twitchDisplayName || '',
+        twitchAvatar: user.channels?.twitchAvatar || '',
+        twitchUserId: user.channels?.twitchUserId || '',
         youtube: user.channels?.youtube || '',
         tiktok: user.channels?.tiktok || '',
         hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted)
@@ -767,6 +770,9 @@ app.get('/api/user/me', (req, res) => {
     overlays: userOverlays,
     channels: {
       twitch: user.channels?.twitch || '',
+      twitchDisplayName: user.channels?.twitchDisplayName || '',
+      twitchAvatar: user.channels?.twitchAvatar || '',
+      twitchUserId: user.channels?.twitchUserId || '',
       youtube: user.channels?.youtube || '',
       tiktok: user.channels?.tiktok || '',
       hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted)
@@ -810,6 +816,270 @@ app.post('/api/user/channels', (req, res) => {
       hasTwitchToken: Boolean(currentUser.channels.twitchTokenEncrypted)
     }
   });
+});
+
+// ==========================================
+// TWITCH OAUTH 2.0 AUTHORIZATION CODE FLOW
+// ==========================================
+const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'sea3yunko17ptmjkwf98imtypufch4';
+const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET || 'q341sygmjw843bik91y6p79cr91pz2';
+const twitchOauthStates = new Map(); // state -> { userToken, redirectUri, createdAt }
+
+function getTwitchRedirectUri(req) {
+  if (process.env.TWITCH_REDIRECT_URI) {
+    return process.env.TWITCH_REDIRECT_URI;
+  }
+  const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
+  let proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
+  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
+    proto = 'https';
+  }
+  return `${proto}://${host}/auth/twitch/callback`;
+}
+
+// 1. Inisiasi OAuth Login Twitch
+app.get('/auth/twitch', (req, res) => {
+  if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) {
+    return res.status(500).send('Twitch Client ID / Secret belum dikonfigurasi di server.');
+  }
+
+  const redirectUri = getTwitchRedirectUri(req);
+  const userToken = req.query.userToken || '';
+  const state = crypto.randomBytes(16).toString('hex');
+
+  // Bersihkan state usang (>15 menit)
+  const now = Date.now();
+  for (const [st, val] of twitchOauthStates.entries()) {
+    if (now - val.createdAt > 15 * 60 * 1000) {
+      twitchOauthStates.delete(st);
+    }
+  }
+
+  twitchOauthStates.set(state, { userToken, redirectUri, createdAt: now });
+
+  const scopes = [
+    'channel:read:redemptions',
+    'chat:read',
+    'chat:edit',
+    'user:read:chat',
+    'user:write:chat'
+  ];
+
+  const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes.join(' '))}&state=${state}&force_verify=true`;
+
+  res.redirect(authUrl);
+});
+
+// 2. Callback OAuth Twitch
+app.get('/auth/twitch/callback', async (req, res) => {
+  const { code, state, error, error_description } = req.query;
+
+  if (error) {
+    console.warn('[Twitch OAuth] Auth error dari Twitch:', error, error_description);
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Twitch Auth Gagal</title></head>
+      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
+        <h3>Gagal Menghubungkan Twitch</h3>
+        <p>${error_description || error}</p>
+        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
+        <script>
+          if (window.opener) {
+            window.opener.postMessage({ type: 'TWITCH_AUTH_ERROR', error: '${error}' }, '*');
+          }
+        </script>
+      </body>
+      </html>
+    `);
+  }
+
+  const stateData = twitchOauthStates.get(state);
+  if (!stateData) {
+    return res.status(400).send('State token tidak valid atau telah kedaluwarsa. Silakan coba login kembali.');
+  }
+  twitchOauthStates.delete(state);
+
+  try {
+    // Tukar code dengan token
+    const tokenRes = await fetch('https://id.twitch.tv/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: TWITCH_CLIENT_ID,
+        client_secret: TWITCH_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: stateData.redirectUri
+      }).toString()
+    });
+
+    if (!tokenRes.ok) {
+      const errText = await tokenRes.text();
+      throw new Error(`Token exchange failed (${tokenRes.status}): ${errText}`);
+    }
+
+    const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
+    const refreshToken = tokenData.refresh_token;
+
+    // Ambil profil user broadcaster dari Twitch Helix
+    const userRes = await fetch('https://api.twitch.tv/helix/users', {
+      headers: {
+        'Client-Id': TWITCH_CLIENT_ID,
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!userRes.ok) {
+      const errText = await userRes.text();
+      throw new Error(`Failed to fetch Twitch user profile (${userRes.status}): ${errText}`);
+    }
+
+    const userData = await userRes.json();
+    const broadcaster = userData.data?.[0];
+    if (!broadcaster) {
+      throw new Error('Data profil streamer Twitch tidak ditemukan.');
+    }
+
+    const twitchLogin = broadcaster.login.toLowerCase();
+    const twitchDisplayName = broadcaster.display_name;
+    const twitchUserId = broadcaster.id;
+    const twitchAvatar = broadcaster.profile_image_url;
+
+    // Simpan ke akun user jika user terdaftar
+    if (stateData.userToken) {
+      const users = readJsonFile(USERS_FILE, {});
+      const linkedUser = Object.values(users).find(u => u.token === stateData.userToken);
+      if (linkedUser) {
+        if (!linkedUser.channels) linkedUser.channels = {};
+        linkedUser.channels.twitch = twitchLogin;
+        linkedUser.channels.twitchDisplayName = twitchDisplayName;
+        linkedUser.channels.twitchUserId = twitchUserId;
+        linkedUser.channels.twitchAvatar = twitchAvatar;
+        linkedUser.channels.twitchTokenEncrypted = encryptToken(accessToken);
+        if (refreshToken) {
+          linkedUser.channels.twitchRefreshTokenEncrypted = encryptToken(refreshToken);
+        }
+        users[linkedUser.username] = linkedUser;
+        writeJsonFile(USERS_FILE, users);
+      }
+    }
+
+    // Berikan respons HTML yang mengirim auth data ke jendela utama dan menutup popup
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="id">
+      <head>
+        <meta charset="UTF-8">
+        <title>Twitch Berhasil Terhubung</title>
+        <style>
+          body {
+            background: #0b0e17;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+          }
+          .card {
+            background: rgba(30, 27, 75, 0.7);
+            border: 1px solid #6366f1;
+            padding: 28px 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 380px;
+          }
+          .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid #10b981;
+            margin-bottom: 12px;
+            object-fit: cover;
+          }
+          h2 { margin: 0 0 6px 0; color: #a855f7; font-size: 1.3rem; }
+          p { margin: 4px 0 16px 0; color: #94a3b8; font-size: 0.85rem; }
+          .badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <img class="avatar" src="${twitchAvatar}" alt="${twitchDisplayName}">
+          <h2>${twitchDisplayName}</h2>
+          <span class="badge">✓ Twitch Terhubung</span>
+          <p>Channel Points EventSub siap aktif.<br>Jendela ini akan menutup otomatis...</p>
+        </div>
+        <script>
+          const authPayload = {
+            type: 'TWITCH_AUTH_SUCCESS',
+            twitch: '${twitchLogin}',
+            displayName: '${twitchDisplayName}',
+            userId: '${twitchUserId}',
+            avatar: '${twitchAvatar}',
+            token: '${accessToken}'
+          };
+          if (window.opener) {
+            window.opener.postMessage(authPayload, '*');
+            setTimeout(() => {
+              window.close();
+            }, 700);
+          } else {
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1200);
+          }
+        </script>
+      </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error('[Twitch OAuth] Callback exception:', err);
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Twitch Auth Error</title></head>
+      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
+        <h3>Terjadi Kesalahan Saat Otentikasi Twitch</h3>
+        <p>${err.message}</p>
+        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
+      </body>
+      </html>
+    `);
+  }
+});
+
+// 3. Putuskan / Disconnect Twitch dari Akun
+app.post('/api/user/twitch/disconnect', (req, res) => {
+  const user = getUserFromReq(req);
+  if (user) {
+    const users = readJsonFile(USERS_FILE, {});
+    const currentUser = users[user.username] || user;
+    if (currentUser.channels) {
+      currentUser.channels.twitch = '';
+      currentUser.channels.twitchDisplayName = '';
+      currentUser.channels.twitchUserId = '';
+      currentUser.channels.twitchAvatar = '';
+      currentUser.channels.twitchTokenEncrypted = '';
+      currentUser.channels.twitchRefreshTokenEncrypted = '';
+    }
+    users[currentUser.username] = currentUser;
+    writeJsonFile(USERS_FILE, users);
+  }
+  res.json({ success: true, message: 'Twitch berhasil diputuskan.' });
 });
 
 // 6. Generate New Overlay (Max 3 Slots)
