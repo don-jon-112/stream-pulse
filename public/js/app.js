@@ -1418,7 +1418,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const height = 750;
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
-      const authUrl = `/auth/twitch${userToken ? `?userToken=${encodeURIComponent(userToken)}` : ''}`;
+      const origin = window.location.origin;
+      const authUrl = `/auth/twitch?redirect_origin=${encodeURIComponent(origin)}${userToken ? `&userToken=${encodeURIComponent(userToken)}` : ''}`;
       window.open(authUrl, 'twitch_auth_popup', `width=${width},height=${height},left=${left},top=${top},status=0,toolbar=0,menubar=0,location=1`);
     });
   }

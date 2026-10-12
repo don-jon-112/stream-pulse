@@ -829,7 +829,32 @@ function getTwitchRedirectUri(req) {
   if (process.env.TWITCH_REDIRECT_URI) {
     return process.env.TWITCH_REDIRECT_URI;
   }
-  const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
+
+  // 1. Cek dari parameter query browser (paling akurat karena berasal langsung dari window.location.origin)
+  if (req.query?.redirect_origin) {
+    try {
+      const parsed = new URL(req.query.redirect_origin);
+      return `${parsed.origin}/auth/twitch/callback`;
+    } catch (e) {}
+  }
+
+  // 2. Cek dari Referer header jika user mengakses lewat browser
+  if (req.headers.referer) {
+    try {
+      const parsed = new URL(req.headers.referer);
+      return `${parsed.origin}/auth/twitch/callback`;
+    } catch (e) {}
+  }
+
+  // 3. Cek dari Forwarded Host & Proto (Cloudflare / Nginx reverse proxy)
+  const fwdHost = req.headers['x-forwarded-host'];
+  if (fwdHost) {
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    return `${proto}://${fwdHost}/auth/twitch/callback`;
+  }
+
+  // 4. Fallback ke req.headers.host
+  const host = req.headers.host || 'localhost:3000';
   let proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
   if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
     proto = 'https';
