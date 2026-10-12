@@ -380,6 +380,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnObsMode.addEventListener('click', toggleObsMode);
   exitObsBtn.addEventListener('click', toggleObsMode);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.obsMode) {
+      toggleObsMode();
+    }
+  });
 
   // ==========================================
   // DENSITY SWITCHER

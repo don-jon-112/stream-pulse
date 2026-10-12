@@ -33,9 +33,9 @@
   <!-- Particle / Confetti Canvas for High-Tier Events -->
   <canvas id="fxCanvas"></canvas>
 
-  <!-- Floating Exit Button for OBS Overlay Mode -->
-  <button id="exitObsBtn" title="Keluar dari OBS Overlay Mode">
-    ✕ Keluar OBS Mode
+  <!-- Floating Exit Button for Fullscreen Chat Mode -->
+  <button id="exitObsBtn" title="Keluar dari Layar Penuh Chat">
+    ✕ Keluar Layar Penuh (ESC)
   </button>
 
   <!-- App Header & Stream HUD -->
@@ -96,16 +96,6 @@
               d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
           </svg>
           <span data-i18n="nav_setup_channels">Atur Channel</span>
-        </button>
-
-        <!-- OBS Overlay Mode Toggle -->
-        <button id="btnObsMode" class="btn-icon" title="Mode Transparan untuk OBS Browser Source / Stream Overlay"
-          data-i18n-title="nav_obs_mode">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM8 15c0-1.66 1.34-3 3-3 .35 0 .69.07 1 .18V6h5v3h-3v6c0 1.66-1.34 3-3 3s-3-1.34-3-3z" />
-          </svg>
-          <span data-i18n="nav_obs_mode">OBS Mode</span>
         </button>
 
         <!-- OBS Custom Browser Dock -->
@@ -278,6 +268,15 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z" />
             </svg>
+          </button>
+
+          <!-- Fullscreen Chat Toggle (Layar Penuh Chat) -->
+          <button id="btnObsMode" class="btn-icon" style="padding: 4px 10px; font-size: 0.72rem; min-height: 32px;"
+            title="Layar Penuh Chat (Fullscreen Mode)" data-i18n-title="tip_fullscreen_chat">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            </svg>
+            <span data-i18n="btn_fullscreen_chat">Fullscreen</span>
           </button>
 
           <!-- Search Box -->

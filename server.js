@@ -141,7 +141,7 @@ io.on('connection', (socket) => {
   socket.emit('initial_state', streamManager.getClientInitialState(socket));
 
   // Update channels yang dipantau oleh client ini
-  socket.on('update_channels', async (data) => {
+  const handleUpdateChannels = async (data, callback) => {
     let token = data?.twitchToken;
     const cleanTwitch = (data?.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
 
@@ -174,7 +174,19 @@ io.on('connection', (socket) => {
     }
 
     await streamManager.updateClientChannels(socket, { ...data, twitchToken: token });
-  });
+
+    const authStatus = {
+      hasTwitchAuth: !!token,
+      twitchChannel: cleanTwitch
+    };
+    socket.emit('auth_status', authStatus);
+    if (typeof callback === 'function') {
+      callback(authStatus);
+    }
+  };
+
+  socket.on('update_channels', handleUpdateChannels);
+  socket.on('set_channels', handleUpdateChannels);
 
   // Putuskan platform tertentu untuk client ini
   socket.on('disconnect_platform', async ({ platform }) => {

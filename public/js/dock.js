@@ -2,6 +2,7 @@
  * StreamPulse - OBS Custom Browser Dock
  * Client Controller: Live Chat, Twitch Sender, Viewer Counters, Persistent Storage (No Limit)
  * Otomatis tersinkronisasi dengan konfigurasi channel di Homepage (Local Storage & Server State)
+ * Hanya mengizinkan kirim chat jika terhubung/login via Twitch di Channel Setup
  */
 
 (function () {
@@ -32,6 +33,7 @@
   let currentFilter = 'all';
   let isUserScrolledUp = false;
   let socket = null;
+  let isTwitchAuthenticated = false;
 
   // DOM Elements
   const chatContainer = document.getElementById('dock-chat-container');
@@ -97,12 +99,85 @@
     if (timeoutMs > 0) {
       setTimeout(() => {
         if (statusFeedback.textContent === text) {
-          statusFeedback.textContent = currentChannels.twitch
-            ? `Target aktif: #${currentChannels.twitch}`
-            : 'Siap mengirim pesan ke Twitch';
-          statusFeedback.className = 'dock-status-msg info';
+          refreshDefaultFeedback();
         }
       }, timeoutMs);
+    }
+  }
+
+  function refreshDefaultFeedback() {
+    if (!statusFeedback) return;
+    if (!isTwitchAuthenticated) {
+      statusFeedback.textContent = '🔒 Kirim chat dinonaktifkan: Silakan Login Twitch di menu Atur Channel Homepage';
+      statusFeedback.className = 'dock-status-msg error';
+    } else if (currentChannels.twitch) {
+      statusFeedback.textContent = `✓ Terhubung via Twitch (#${currentChannels.twitch}). Siap mengirim chat!`;
+      statusFeedback.className = 'dock-status-msg success';
+    } else {
+      statusFeedback.textContent = 'Siap mengirim pesan ke Twitch';
+      statusFeedback.className = 'dock-status-msg info';
+    }
+  }
+
+  // ==========================================
+  // TWITCH AUTHENTICATION PERMISSION ENFORCEMENT
+  // ==========================================
+  function setChatSendPermission(allowed, reason = '') {
+    isTwitchAuthenticated = !!allowed;
+    if (allowed) {
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      chatInput.placeholder = `Ketik pesan chat ke #${currentChannels.twitch || 'Twitch'} (Enter)...`;
+      sendBtn.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Kirim
+      `;
+      refreshDefaultFeedback();
+    } else {
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+      chatInput.value = '';
+      chatInput.placeholder = 'Login Twitch di Channel Setup Homepage untuk aktifkan chat...';
+      sendBtn.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Terkunci
+      `;
+      showFeedback(
+        reason || '🔒 Kirim chat di Dock hanya bisa jika akun Twitch login di Channel Setup Homepage.',
+        'error',
+        0
+      );
+    }
+  }
+
+  async function verifyTwitchAuthWithServer() {
+    const userToken = localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '';
+    if (!userToken) {
+      setChatSendPermission(false, '🔒 Anda belum login. Silakan buka Homepage & hubungkan Twitch Anda.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/user/me', {
+        headers: { 'x-user-token': userToken }
+      });
+      if (res.ok) {
+        const u = await res.json();
+        const hasToken = !!(u?.channels?.hasTwitchToken && u?.channels?.twitch);
+        if (hasToken) {
+          if (!currentChannels.twitch && u.channels.twitch) {
+            currentChannels.twitch = u.channels.twitch.toLowerCase();
+            updateChannelUI();
+          }
+          setChatSendPermission(true);
+        } else {
+          setChatSendPermission(false, '🔒 Akun Twitch belum terhubung (Buka Homepage > Atur Channel > Login Twitch)');
+        }
+      } else {
+        setChatSendPermission(false, '🔒 Sesi login tidak valid. Buka Homepage untuk memperbarui sesi.');
+      }
+    } catch (e) {
+      console.warn('[Dock] Gagal verifikasi sesi user:', e);
     }
   }
 
@@ -124,7 +199,6 @@
       let history = getStoredHistory();
       history.push(item);
 
-      // Simpan ke localStorage. Jika storage browser penuh (quota 5MB tercapai), pangkas 20% item terlama secara aman
       try {
         localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
       } catch (quotaErr) {
@@ -155,7 +229,7 @@
   }
 
   // ==========================================
-  // CHANNELS RESOLUTION (SINKRON DARI HOMEPAGE)
+  // CHANNELS RESOLUTION (SINKRON HOMEPAGE)
   // ==========================================
   function readHomepageChannels() {
     try {
@@ -189,32 +263,22 @@
         ? `Twitch: #${currentChannels.twitch}`
         : 'Twitch: Belum Diset';
     }
-
-    if (!currentChannels.twitch) {
-      showFeedback('Channel Twitch belum diatur. Silakan atur di menu "Atur Channel" Homepage.', 'info', 0);
-    } else {
-      showFeedback(`Target aktif: #${currentChannels.twitch} (Tersinkron)`, 'info', 0);
-    }
+    refreshDefaultFeedback();
   }
 
-  // Sinkronisasi otomatis jika user mengubah channel di Homepage (Storage Event)
+  // Sinkronisasi otomatis jika user mengubah channel di Homepage
   window.addEventListener('storage', (e) => {
     if (
       e.key === STORAGE_KEY_USER_CHANNELS ||
       e.key === STORAGE_KEY_MY_CHANNELS ||
-      e.key === STORAGE_KEY_GUEST_CHANNELS
+      e.key === STORAGE_KEY_GUEST_CHANNELS ||
+      e.key === STORAGE_KEY_USER_TOKEN
     ) {
-      console.log('[Dock] Konfigurasi channel diperbarui dari Homepage');
+      console.log('[Dock] Konfigurasi channel / token diperbarui dari Homepage');
       initChannels();
-      if (socket && socket.connected) {
-        socket.emit('set_channels', {
-          twitch: currentChannels.twitch,
-          youtube: currentChannels.youtube,
-          tiktok: currentChannels.tiktok,
-          userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || ''
-        });
-      }
-      showFeedback(`Channel otomatis diperbarui dari Homepage!`, 'success', 4000);
+      verifyTwitchAuthWithServer();
+      syncChannelsWithSocket();
+      showFeedback(`Pengaturan diperbarui otomatis dari Homepage!`, 'success', 3000);
     }
   });
 
@@ -489,16 +553,22 @@
   }
 
   // ==========================================
-  // SEND CHAT (TWITCH ONLY)
+  // SEND CHAT (TWITCH ONLY - ENFORCE AUTH)
   // ==========================================
   if (chatForm) {
     chatForm.addEventListener('submit', (e) => {
       e.preventDefault();
+
+      if (!isTwitchAuthenticated) {
+        showFeedback('Kirim chat dikunci: Anda harus Login via Twitch di Channel Setup Homepage.', 'error', 5000);
+        return;
+      }
+
       const message = (chatInput.value || '').trim();
       if (!message) return;
 
       if (!currentChannels.twitch) {
-        showFeedback('Channel Twitch belum diatur. Silakan atur di menu "Atur Channel" Homepage.', 'error');
+        showFeedback('Channel Twitch belum diatur di Homepage.', 'error');
         return;
       }
 
@@ -509,7 +579,6 @@
 
       const userToken = localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '';
 
-      // Tampilkan feedback loading
       sendBtn.disabled = true;
       showFeedback('Mengirim pesan ke Twitch...', 'info', 0);
 
@@ -562,8 +631,20 @@
     }
   }
 
+  function syncChannelsWithSocket() {
+    if (!socket || !socket.connected) return;
+    const payload = {
+      twitch: currentChannels.twitch,
+      youtube: currentChannels.youtube,
+      tiktok: currentChannels.tiktok,
+      userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || ''
+    };
+    // Kirim event update_channels dan set_channels untuk kompatibilitas penuh
+    socket.emit('update_channels', payload);
+  }
+
   function initSocket() {
-    socket = io();
+    socket = io({ transports: ['websocket', 'polling'] });
 
     socket.on('connect', () => {
       console.log('[Dock] Connected to StreamPulse Socket');
@@ -572,13 +653,7 @@
         connDot.title = 'Terhubung ke Server StreamPulse';
       }
 
-      // Daftarkan channel
-      socket.emit('set_channels', {
-        twitch: currentChannels.twitch,
-        youtube: currentChannels.youtube,
-        tiktok: currentChannels.tiktok,
-        userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || ''
-      });
+      syncChannelsWithSocket();
     });
 
     socket.on('disconnect', () => {
@@ -586,6 +661,17 @@
       if (connDot) {
         connDot.className = 'dock-status-dot';
         connDot.title = 'Terputus dari Server';
+      }
+    });
+
+    // Menerima konfirmasi status otorisasi dari server
+    socket.on('auth_status', (data) => {
+      if (data && typeof data.hasTwitchAuth === 'boolean') {
+        if (data.hasTwitchAuth) {
+          setChatSendPermission(true);
+        } else {
+          setChatSendPermission(false, '🔒 Akun Twitch belum login di Homepage (Atur Channel > Login Twitch)');
+        }
       }
     });
 
@@ -654,6 +740,7 @@
   initChannels();
   restorePersistedHistory();
   loadGlobalEmotes();
+  verifyTwitchAuthWithServer();
   initSocket();
 
 })();
