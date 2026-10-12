@@ -6,6 +6,8 @@
     "youtube": "",
     "tiktok": "",
     "theme": "simple",
+    "chatDirection": "bottom",
+    "chatFade": "none",
     "fontSize": 15,
     "hideDelay": 0,
     "showBadges": true,

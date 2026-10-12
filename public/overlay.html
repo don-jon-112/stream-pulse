@@ -39,6 +39,35 @@
       justify-content: flex-end;
       gap: 10px;
       pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    /* Direction: Top (Pesan Baru di Atas / Mengalir ke Bawah) */
+    #overlayChatContainer.direction-top {
+      top: 16px !important;
+      bottom: auto !important;
+      justify-content: flex-end !important;
+      flex-direction: column-reverse !important;
+    }
+
+    #overlayChatContainer.direction-top .overlay-item {
+      animation: overlaySlideInTop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes overlaySlideInTop {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.96);
+      }
+      to {
+        opacity: var(--chat-fade-opacity, 1);
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    #overlayChatContainer.direction-top .overlay-item.fade-out {
+      opacity: 0 !important;
+      transform: translateY(-10px) !important;
     }
 
     #overlayChatContainer.align-right {
@@ -78,11 +107,12 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(12px);
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
-      animation: overlaySlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: overlaySlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
       max-width: 650px;
       width: fit-content;
       word-break: break-word;
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      opacity: var(--chat-fade-opacity, 1);
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s ease;
     }
 
     @keyframes overlaySlideIn {
@@ -91,7 +121,7 @@
         transform: translateY(20px) scale(0.96);
       }
       to {
-        opacity: 1;
+        opacity: var(--chat-fade-opacity, 1);
         transform: translateY(0) scale(1);
       }
     }
@@ -524,6 +554,9 @@
       const profileId = urlParams.get('id') || 'default';
       let config = {
         theme: urlParams.get('theme') || 'simple',
+        chatAlign: urlParams.get('align') || 'left',
+        chatDirection: urlParams.get('direction') || 'bottom',
+        chatFade: urlParams.get('fade') || 'none',
         fontSize: parseInt(urlParams.get('fontSize') || '15', 10),
         hideDelay: parseInt(urlParams.get('hideDelay') || '0', 10),
         showBadges: urlParams.get('badges') !== '0',
@@ -563,6 +596,8 @@
           config = {
             ...config,
             ...profile,
+            chatDirection: urlParams.get('direction') || profile.chatDirection || config.chatDirection || 'bottom',
+            chatFade: urlParams.get('fade') || profile.chatFade || config.chatFade || 'none',
             showTikTokLikes: urlParams.get('ttLikes') !== null 
               ? (urlParams.get('ttLikes') !== '0') 
               : (profile.showTikTokLikes !== undefined ? profile.showTikTokLikes : true),
@@ -614,12 +649,55 @@
         return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
       }
 
+      // Efek Gradasi Transparansi Chat Lama (Makin lama makin transparan)
+      function updateChatFade() {
+        const fadeMode = config.chatFade || 'none';
+        const items = Array.from(container.children).filter(el => !el.classList.contains('fade-out'));
+        const total = items.length;
+
+        if (fadeMode === 'none' || total <= 1) {
+          items.forEach(el => {
+            if (!el.classList.contains('fade-out')) {
+              el.style.setProperty('opacity', '1', 'important');
+              el.style.setProperty('--chat-fade-opacity', '1');
+            }
+          });
+          return;
+        }
+
+        // Halus (Medium): min 0.18 -> 1.0 (gradasi terlihat jelas dan elegan)
+        // Ekstrem (Kuat): min 0.05 -> 1.0 (chat lama benar-benar pudar / hampir lenyap)
+        const minOpacity = fadeMode === 'steep' ? 0.05 : 0.18;
+
+        items.forEach((el, index) => {
+          if (el.classList.contains('fade-out')) return;
+          const progress = index / (total - 1); // 0 (terlama) -> 1 (terbaru)
+          let op;
+          if (fadeMode === 'steep') {
+            op = minOpacity + (1.0 - minOpacity) * Math.pow(progress, 2.5);
+          } else {
+            op = minOpacity + (1.0 - minOpacity) * Math.pow(progress, 1.25);
+          }
+          const formattedOp = Math.max(0.04, Math.min(1.0, op)).toFixed(2);
+          el.style.setProperty('opacity', formattedOp, 'important');
+          el.style.setProperty('--chat-fade-opacity', formattedOp);
+        });
+      }
+
       function applyVisualConfig() {
         if (config.chatAlign === 'right') {
           container.classList.add('align-right');
         } else {
           container.classList.remove('align-right');
         }
+
+        if (config.chatDirection === 'top') {
+          container.classList.add('direction-top');
+        } else {
+          container.classList.remove('direction-top');
+        }
+
+        updateChatFade();
 
         if (config.bgColor) {
           const alpha = config.bgOpacity !== undefined ? (parseInt(config.bgOpacity, 10) / 100) : 0.88;
@@ -1116,12 +1194,26 @@
           container.removeChild(container.firstChild);
         }
 
+        // Lepaskan lock animation keyframe setelah animasi masuk selesai
+        el.addEventListener('animationend', () => {
+          el.style.setProperty('animation', 'none', 'important');
+        }, { once: true });
+        setTimeout(() => {
+          el.style.setProperty('animation', 'none', 'important');
+        }, 400);
+
+        updateChatFade();
+
         // Auto-Hide Message after N seconds
         if (config.hideDelay && config.hideDelay > 0) {
           setTimeout(() => {
             el.classList.add('fade-out');
+            updateChatFade();
             setTimeout(() => {
-              if (el.parentNode) el.parentNode.removeChild(el);
+              if (el.parentNode) {
+                el.parentNode.removeChild(el);
+                updateChatFade();
+              }
             }, 500);
           }, config.hideDelay * 1000);
         }
@@ -1325,11 +1417,25 @@
           container.removeChild(container.firstChild);
         }
 
+        // Lepaskan lock animation keyframe setelah animasi masuk selesai
+        el.addEventListener('animationend', () => {
+          el.style.setProperty('animation', 'none', 'important');
+        }, { once: true });
+        setTimeout(() => {
+          el.style.setProperty('animation', 'none', 'important');
+        }, 400);
+
+        updateChatFade();
+
         if (config.hideDelay && config.hideDelay > 0) {
           setTimeout(() => {
             el.classList.add('fade-out');
+            updateChatFade();
             setTimeout(() => {
-              if (el.parentNode) el.parentNode.removeChild(el);
+              if (el.parentNode) {
+                el.parentNode.removeChild(el);
+                updateChatFade();
+              }
             }, 500);
           }, config.hideDelay * 1000);
         }
@@ -1381,6 +1487,8 @@
           if (newCfg.showTikTokLikes !== undefined) config.showTikTokLikes = newCfg.showTikTokLikes;
           if (newCfg.showTikTokGifts !== undefined) config.showTikTokGifts = newCfg.showTikTokGifts;
           if (newCfg.showTikTokFollow !== undefined) config.showTikTokFollow = newCfg.showTikTokFollow;
+          if (newCfg.chatDirection !== undefined) config.chatDirection = newCfg.chatDirection;
+          if (newCfg.chatFade !== undefined) config.chatFade = newCfg.chatFade;
           if (newCfg.theme) {
             document.body.className = newCfg.theme === 'glass' ? '' : `theme-${newCfg.theme}`;
           }

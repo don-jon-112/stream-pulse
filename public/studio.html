@@ -529,6 +529,37 @@
       color: #94a3b8;
     }
 
+    .radio-option-card {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .radio-option-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .radio-option-card input[type="radio"] {
+      accent-color: #6366f1;
+      cursor: pointer;
+      margin: 0;
+      width: 14px;
+      height: 14px;
+    }
+    .radio-option-card:has(input[type="radio"]:checked) {
+      background: rgba(99, 102, 241, 0.18);
+      border-color: #6366f1;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+    }
+
     .obs-link-card {
       background: rgba(13, 17, 27, 0.95);
       border: 1px solid rgba(99, 102, 241, 0.4);
@@ -830,6 +861,52 @@
         <!-- General / Moderation -->
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
           <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">🌐 Tampilan Umum & Sensor</div>
+          
+          <!-- ARAH ALIRAN CHAT (RADIO BUTTON) -->
+          <div style="padding: 6px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_chat_direction">↕️ Arah Aliran Chat (Posisi Pesan Baru)</span>
+              <span id="labelChatDirection" style="font-size:0.75rem; color:#67e8f9; font-family:var(--font-mono);">Bawah (Default)</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <label class="radio-option-card">
+                <input type="radio" name="chatDirection" value="bottom" checked>
+                <span data-i18n="opt_dir_bottom">⬇️ Dari Bawah ke Atas (Default)</span>
+              </label>
+              <label class="radio-option-card">
+                <input type="radio" name="chatDirection" value="top">
+                <span data-i18n="opt_dir_top">⬆️ Dari Atas ke Bawah</span>
+              </label>
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:4px;" data-i18n-html="tip_chat_direction">
+              💡 <strong>Bawah</strong>: Pesan baru muncul di dasar layar. <strong>Atas</strong>: Pesan baru muncul di puncak layar.
+            </div>
+          </div>
+
+          <!-- GRADASI TRANSPARANSI CHAT LAMA (RADIO BUTTON) -->
+          <div style="padding: 6px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_chat_fade">🌫️ Efek Transparansi Chat Lama (Fade Out)</span>
+              <span id="labelChatFade" style="font-size:0.75rem; color:#67e8f9; font-family:var(--font-mono);">Mati (Solid)</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+              <label class="radio-option-card">
+                <input type="radio" name="chatFade" value="none" checked>
+                <span data-i18n="opt_fade_none">Mati (100% Solid)</span>
+              </label>
+              <label class="radio-option-card">
+                <input type="radio" name="chatFade" value="smooth">
+                <span data-i18n="opt_fade_smooth">Halus (Medium)</span>
+              </label>
+              <label class="radio-option-card">
+                <input type="radio" name="chatFade" value="steep">
+                <span data-i18n="opt_fade_steep">Ekstrem (Kuat)</span>
+              </label>
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:4px;" data-i18n="tip_chat_fade">
+              💡 Chat lama akan otomatis semakin transparan / memudar sehingga penonton lebih fokus ke chat terbaru.
+            </div>
+          </div>
           
           <!-- SENSOR / HIDE LINK -->
           <div class="toggle-row">
@@ -1399,6 +1476,34 @@
       const labelContainerBgColorHex = document.getElementById('labelContainerBgColorHex');
       const settingContainerBgOpacity = document.getElementById('settingContainerBgOpacity');
       const labelContainerBgOpacity = document.getElementById('labelContainerBgOpacity');
+      const labelChatDirection = document.getElementById('labelChatDirection');
+      const labelChatFade = document.getElementById('labelChatFade');
+
+      function getSelectedChatDirection() {
+        const checked = document.querySelector('input[name="chatDirection"]:checked');
+        return checked ? checked.value : 'bottom';
+      }
+      function setSelectedChatDirection(val) {
+        const target = val === 'top' ? 'top' : 'bottom';
+        const radio = document.querySelector(`input[name="chatDirection"][value="${target}"]`);
+        if (radio) radio.checked = true;
+        if (labelChatDirection) {
+          labelChatDirection.textContent = target === 'top' ? 'Atas (Top-Down)' : 'Bawah (Default)';
+        }
+      }
+
+      function getSelectedChatFade() {
+        const checked = document.querySelector('input[name="chatFade"]:checked');
+        return checked ? checked.value : 'none';
+      }
+      function setSelectedChatFade(val) {
+        const target = ['smooth', 'steep'].includes(val) ? val : 'none';
+        const radio = document.querySelector(`input[name="chatFade"][value="${target}"]`);
+        if (radio) radio.checked = true;
+        if (labelChatFade) {
+          labelChatFade.textContent = target === 'smooth' ? 'Halus (Medium)' : (target === 'steep' ? 'Ekstrem (Kuat)' : 'Mati (Solid)');
+        }
+      }
 
       // Alert Customizers
       const settingAlertSubBg = document.getElementById('settingAlertSubBg');
@@ -1973,6 +2078,8 @@
 
             if (data.theme !== undefined) settingTheme.value = data.theme;
             if (data.chatAlign !== undefined) settingChatAlign.value = data.chatAlign;
+            if (data.chatDirection !== undefined) setSelectedChatDirection(data.chatDirection);
+            if (data.chatFade !== undefined) setSelectedChatFade(data.chatFade);
             if (data.bgColor !== undefined) {
               settingBgColor.value = data.bgColor;
               if (labelBgColorHex) labelBgColorHex.textContent = data.bgColor;
@@ -2098,6 +2205,8 @@
           tiktok: settingTikTok.value.trim(),
           theme: settingTheme.value,
           chatAlign: settingChatAlign ? settingChatAlign.value : 'left',
+          chatDirection: getSelectedChatDirection(),
+          chatFade: getSelectedChatFade(),
           bgColor: settingBgColor ? settingBgColor.value : '#0d111b',
           bgOpacity: settingBgOpacity ? parseInt(settingBgOpacity.value, 10) : 88,
           textColor: settingTextColor ? settingTextColor.value : '#e2e8f0',
@@ -2151,6 +2260,8 @@
         }
         let fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
         if (settingChatAlign && settingChatAlign.value === 'right') fullUrl += '&align=right';
+        if (getSelectedChatDirection() === 'top') fullUrl += '&direction=top';
+        if (getSelectedChatFade() !== 'none') fullUrl += `&fade=${getSelectedChatFade()}`;
         if (settingBgColor && settingBgColor.value !== '#0d111b') fullUrl += `&bgColor=${encodeURIComponent(settingBgColor.value)}`;
         if (settingBgOpacity && settingBgOpacity.value !== '88') fullUrl += `&bgOpacity=${settingBgOpacity.value}`;
         if (settingTextColor && settingTextColor.value !== '#e2e8f0') fullUrl += `&textColor=${encodeURIComponent(settingTextColor.value)}`;
@@ -2321,6 +2432,22 @@
         }
       });
 
+      document.querySelectorAll('input[name="chatDirection"]').forEach(r => {
+        r.addEventListener('change', () => {
+          setSelectedChatDirection(r.value);
+          updateUrl();
+          refreshPreview();
+        });
+      });
+
+      document.querySelectorAll('input[name="chatFade"]').forEach(r => {
+        r.addEventListener('change', () => {
+          setSelectedChatFade(r.value);
+          updateUrl();
+          refreshPreview();
+        });
+      });
+
       if (settingBgColor) {
         settingBgColor.addEventListener('input', () => {
           if (labelBgColorHex) labelBgColorHex.textContent = settingBgColor.value;
@@ -2473,6 +2600,8 @@
 
         settingTheme.value = 'simple';
         if (settingChatAlign) settingChatAlign.value = 'left';
+        setSelectedChatDirection('bottom');
+        setSelectedChatFade('none');
         if (settingBgColor) settingBgColor.value = '#0d111b';
         if (labelBgColorHex) labelBgColorHex.textContent = '#0d111b';
         if (settingBgOpacity) settingBgOpacity.value = 88;

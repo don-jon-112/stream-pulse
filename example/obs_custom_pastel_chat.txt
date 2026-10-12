@@ -1,0 +1,491 @@
+/* ==========================================================================
+   STREAMPULSE OBS OVERLAY - CUSTOM PASTEL BUBBLE CHAT DESIGN
+   Border: 2px Dashed Black
+   Username: Standalone White Pill Badge with Dark Border
+   Chat Bubbles: 3 Pastel Colors (Yellow, Blue, Pink)
+   Works for: Twitch & YouTube (Live Stream & OBS Studio Browser Source)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   [BAGIAN 1: CUSTOM CSS]
+   Salin (Copy) kode di bawah ini lalu tempel (Paste) ke kolom "Custom CSS" 
+   di halaman StreamPulse Overlay Studio (http://.../studio) atau OBS Settings.
+   -------------------------------------------------------------------------- */
+
+/* 1. Global Container & Reset */
+#overlayChatContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 14px !important;
+  background: transparent !important;
+  font-family: 'Fredoka', 'Nunito', 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Sembunyikan avatar agar sesuai desain referensi */
+.overlay-avatar {
+  display: none !important;
+}
+
+/* 2. Chat Bubble Item Wrapper */
+.overlay-item {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  animation: popIn 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
+  opacity: var(--chat-fade-opacity, 1) !important;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s ease !important;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: var(--chat-fade-opacity, 1);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.overlay-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0px !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  position: relative !important;
+}
+
+/* 3. Header: Badges & Standalone White Username Box */
+.overlay-header {
+  display: inline-flex !important;
+  align-items: flex-end !important; /* Sejajarkan bagian bawah */
+  gap: 5px !important;
+  margin-bottom: 0px !important; /* Header tidak menarik badge ke bawah */
+  position: relative !important;
+  z-index: 5 !important;
+  padding-left: 2px !important;
+}
+
+/* Official Badges (Twitch VIP, Mod, Sub, YT Member) */
+.platform-official-badge,
+.twitch-badge,
+.yt-official-badge,
+.yt-member-badge {
+  display: inline-block !important;
+  height: 19px !important; /* Ukuran badge proporsional */
+  width: auto !important;
+  vertical-align: middle !important;
+  margin-bottom: 4px !important; /* BADGE TETAP BERADA DI ATAS MESSAGE */
+  position: relative !important;
+  z-index: 5 !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* Username Standalone White Pill Badge (Lancip Kiri Atas & Menembus Masuk ke Message) */
+.overlay-author-name {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  color: #000000; /* Default fallback warna hitam */
+  /* Sudut kiri atas LANCIP (0px), sudut lainnya membulat */
+  border-top-left-radius: 0px !important;
+  border-top-right-radius: 7px !important;
+  border-bottom-right-radius: 7px !important;
+  border-bottom-left-radius: 7px !important;
+  padding: 3px 10px !important; /* Ukuran container nama lebih besar dan tinggi daripada badge */
+  font-size: 0.92rem !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  box-shadow: 1px 2px 0px rgba(0, 0, 0, 0.15) !important;
+  line-height: 1.4 !important;
+  position: relative !important;
+  /* Box nama saja yang menjorok/menembus ke dalam border message */
+  margin-bottom: -9px !important;
+  top: 1px !important;
+  z-index: 10 !important;
+}
+
+/* Variasi Warna Acak untuk Nama YouTube di Setiap Chat (CSS Cycle) */
+.overlay-item.platform-youtube:nth-child(6n+1) .overlay-author-name { color: #e11d48 !important; } /* Crimson Red */
+.overlay-item.platform-youtube:nth-child(6n+2) .overlay-author-name { color: #2563eb !important; } /* Royal Blue */
+.overlay-item.platform-youtube:nth-child(6n+3) .overlay-author-name { color: #059669 !important; } /* Emerald Green */
+.overlay-item.platform-youtube:nth-child(6n+4) .overlay-author-name { color: #7c3aed !important; } /* Purple / Violet */
+.overlay-item.platform-youtube:nth-child(6n+5) .overlay-author-name { color: #ea580c !important; } /* Vibrant Orange */
+.overlay-item.platform-youtube:nth-child(6n+6) .overlay-author-name { color: #db2777 !important; } /* Magenta Pink */
+
+/* 4. Chat Bubble Body (Text) */
+.overlay-text {
+  display: block !important;
+  width: fit-content !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  border: 2px dashed #000000 !important;
+  border-radius: 8px !important;
+  padding: 8px 14px 7px 14px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  line-height: 1.45 !important;
+  text-shadow: none !important;
+  /* Memastikan teks tetap 1 baris penuh dan hanya turun baris jika mentok ujung layar */
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  box-shadow: 1px 2px 0px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+  z-index: 2 !important;
+  /* Default fallback color jika JS belum aktif */
+  background: #ffea79 !important; 
+}
+
+/* 5. 3 Pilihan Warna Pastel Chat Bubble (Yellow, Blue, Pink) */
+/* Warna 1: Pastel Yellow */
+.overlay-text.bubble-yellow,
+.overlay-item:nth-child(3n+1) .overlay-text {
+  background: #ffea79 !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
+/* Warna 2: Pastel Blue */
+.overlay-text.bubble-blue,
+.overlay-item:nth-child(3n+2) .overlay-text {
+  background: #c8edfc !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
+/* Warna 3: Pastel Pink */
+.overlay-text.bubble-pink,
+.overlay-item:nth-child(3n+3) .overlay-text {
+  background: #ffd6e0 !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
+/* 6. Channel Points Redeem Bubble Styling (Khusus Twitch Channel Points) */
+.overlay-item.is-redeem .overlay-text,
+.overlay-item.platform-twitch.highlighted .overlay-text,
+.overlay-text.is-redeem {
+  border: 2px dashed #e11d48 !important;
+  background: #fff1f2 !important;
+  color: #881337 !important;
+  font-weight: 800 !important;
+  font-style: italic !important;
+}
+
+.overlay-item.is-redeem .overlay-text i,
+.overlay-item.is-redeem .overlay-text .redeem-msg {
+  font-style: italic !important;
+  font-weight: 600 !important;
+}
+
+.overlay-item.overlay-event .overlay-event-title {
+  display: none !important;
+}
+
+.redeem-tag,
+.badge-icon {
+  display: none !important;
+}
+
+/* 7. Emotes Twitch & YouTube */
+.chat-emote {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  height: 1.6em !important;
+  max-height: 28px !important;
+  width: auto !important;
+  margin: -3px 2px !important;
+}
+
+/* 8. Reply Chat Styling (Pesan yang Dibalas: Font Lebih Kecil & Miring / Italic) */
+.overlay-reply-quote {
+  display: block !important;
+  font-size: 0.78rem !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+  opacity: 0.82 !important;
+  color: #1e293b !important;
+  margin-bottom: 5px !important;
+  padding-bottom: 3px !important;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.25) !important;
+  line-height: 1.3 !important;
+  word-break: break-word !important;
+}
+
+.overlay-reply-icon {
+  font-style: normal !important;
+  font-weight: 800 !important;
+  margin-right: 3px !important;
+}
+
+.overlay-reply-author {
+  font-weight: 800 !important;
+  font-style: normal !important;
+  margin-right: 3px !important;
+}
+
+.overlay-reply-text {
+  font-style: italic !important;
+}
+
+
+
+/* --------------------------------------------------------------------------
+   [BAGIAN 2: CUSTOM JS]
+   Salin (Copy) kode di bawah ini lalu tempel (Paste) ke kolom "Custom JS"
+   di halaman StreamPulse Overlay Studio (http://.../studio).
+   -------------------------------------------------------------------------- */
+
+(function initPastelChatBubble(config, socket) {
+  // Palet 3 Warna Pastel
+  const COLOR_CLASSES = ['bubble-yellow', 'bubble-blue', 'bubble-pink'];
+  let colorIndex = 0;
+
+  // Cache user -> warna pastel agar 1 user tetap konsisten warnanya
+  const userColorMap = new Map();
+
+  function getPastelColorClass(username) {
+    if (!username) {
+      const cls = COLOR_CLASSES[colorIndex % COLOR_CLASSES.length];
+      colorIndex++;
+      return cls;
+    }
+    const clean = username.toLowerCase();
+    if (!userColorMap.has(clean)) {
+      const cls = COLOR_CLASSES[colorIndex % COLOR_CLASSES.length];
+      colorIndex++;
+      userColorMap.set(clean, cls);
+    }
+    return userColorMap.get(clean);
+  }
+
+  // Format pesan Channel Points Redeem
+  function formatRedeemText(authorName, rewardTitle, points, messageText) {
+    const pts = points ? `${points} Points` : '';
+    const rTitle = rewardTitle || 'Channel Points';
+    
+    if (messageText && messageText.trim().length > 0) {
+      // Format dengan teks: "xxx redeemed (redeem event) (xx Points): {text}" dengan style miring/italic
+      const ptsPart = pts ? ` (${pts})` : '';
+      return `💠 ${authorName} redeemed ${rTitle}${ptsPart}: <i>${messageText.trim()}</i>`;
+    } else {
+      // Format tanpa teks: "xxx redeemed yyy (xxx Points)"
+      const ptsPart = pts ? ` (${pts})` : '';
+      return `💠 ${authorName} redeemed ${rTitle}${ptsPart}`;
+    }
+  }
+
+  // Bersihkan teks redeem Twitch untuk mengekstrak judul & Points
+  function parseRedeemDetail(detailText) {
+    let reward = 'Channel Points';
+    let points = '';
+    if (!detailText) return { reward, points };
+
+    const match = detailText.match(/^(.*?)(?:\s*\(([\d.,]+)\s*(?:Points|points|Poin|poin)\))?$/i);
+    if (match) {
+      if (match[1] && match[1].trim()) reward = match[1].trim();
+      if (match[2]) points = match[2].trim();
+    } else {
+      reward = detailText;
+    }
+    return { reward, points };
+  }
+
+  // Palet warna acak untuk nama YouTube di setiap chat (kontras tinggi & terbaca jelas di atas putih)
+  const YT_NAME_COLORS = [
+    '#e11d48', // Crimson Red
+    '#2563eb', // Royal Blue
+    '#059669', // Emerald Green
+    '#7c3aed', // Purple / Violet
+    '#ea580c', // Warm Orange
+    '#db2777', // Magenta Pink
+    '#0891b2', // Teal / Cyan Gelap
+    '#4f46e5'  // Deep Indigo
+  ];
+
+  // Cache untuk mendeteksi & menghapus duplikasi Channel Points Redeem (15 detik)
+  const recentRedeems = new Map();
+
+  // Terapkan styling dan manipulasi ke elemen chat item
+  function enhanceItem(itemEl) {
+    if (!itemEl || itemEl._pastelEnhanced) return;
+    itemEl._pastelEnhanced = true;
+
+    const authorEl = itemEl.querySelector('.overlay-author-name');
+    let textEl = itemEl.querySelector('.overlay-text');
+    const authorName = authorEl ? authorEl.textContent.trim() : '';
+
+    const titleEl = itemEl.querySelector('.overlay-event-title');
+    const titleText = titleEl ? titleEl.textContent : '';
+
+    // Deteksi platform secara ketat
+    const isTikTok = itemEl.classList.contains('platform-tiktok') || 
+                     itemEl.dataset.platform === 'tiktok' ||
+                     titleText.includes('TikTok');
+
+    const isYouTube = itemEl.classList.contains('platform-youtube') || 
+                      itemEl.dataset.platform === 'youtube' ||
+                      titleText.includes('YouTube') ||
+                      !!itemEl.querySelector('.yt-official-badge, .yt-member-badge, .yt-mod-badge');
+
+    const isTwitch = !isTikTok && !isYouTube;
+
+    if (authorEl && isYouTube) {
+      const randomYtColor = YT_NAME_COLORS[Math.floor(Math.random() * YT_NAME_COLORS.length)];
+      authorEl.style.setProperty('color', randomYtColor, 'important');
+    }
+
+    // Cek apakah item ini adalah Twitch Channel Points Redeem (HANYA UNTUK TWITCH)
+    const isRedeem = isTwitch && (
+      itemEl.classList.contains('highlighted') || 
+      itemEl.classList.contains('is-redeem') ||
+      !!itemEl.querySelector('.redeem-tag')
+    );
+
+    // Jika ini adalah event dan overlay belum membuat .overlay-text
+    if (!textEl && itemEl.classList.contains('overlay-event')) {
+      const rawDetail = titleText;
+      const body = itemEl.querySelector('.overlay-body');
+
+      if (isRedeem) {
+        // KHUSUS TWITCH REDEEM TANPA TEKS: format "xxx redeemed yyy (xxx Points)"
+        let { reward, points } = parseRedeemDetail(rawDetail);
+        if (reward.includes('•')) {
+          reward = reward.split('•')[1] || reward;
+          reward = reward.trim();
+        }
+        const formatted = formatRedeemText(authorName, reward, points, '');
+        if (body) {
+          textEl = document.createElement('div');
+          textEl.className = 'overlay-text is-redeem bubble-pink';
+          textEl.style.fontStyle = 'italic';
+          textEl.innerHTML = formatted;
+          body.appendChild(textEl);
+          itemEl.classList.add('is-redeem');
+        }
+      } else {
+        // UNTUK TIKTOK ATAU YOUTUBE ALERT:
+        // SANGAT DILARANG ADA KATA "redeemed"!
+        if (body && rawDetail) {
+          textEl = document.createElement('div');
+          const colorCls = getPastelColorClass(authorName);
+          textEl.className = `overlay-text ${colorCls}`;
+          textEl.textContent = rawDetail;
+          body.appendChild(textEl);
+        }
+      }
+    }
+
+    if (textEl) {
+      if (isTikTok) {
+        // JAMINAN 100%: TikTok event TIDAK BOLEH mengandung kata "redeemed"
+        let currentHtml = textEl.innerHTML || textEl.textContent || '';
+        if (currentHtml.includes('redeemed')) {
+          currentHtml = currentHtml.replace(/💠\s*/g, '').replace(/\b[\w.-]+\s+redeemed\s+/gi, '').trim();
+          textEl.innerHTML = currentHtml;
+        }
+        textEl.classList.remove('is-redeem');
+        itemEl.classList.remove('is-redeem');
+        const colorCls = getPastelColorClass(authorName);
+        textEl.classList.add(colorCls);
+      } else if (isRedeem) {
+        itemEl.classList.add('is-redeem');
+        textEl.classList.add('bubble-pink');
+        textEl.style.fontStyle = 'italic';
+
+        let rawDetail = titleText;
+        let cleanText = textEl.textContent.replace(/^"|"$/g, '').trim();
+
+        // Ekstrak pesan bersih untuk mencegah duplikasi (antara event & chat)
+        let pureMessage = cleanText;
+        if (cleanText.startsWith('💠')) {
+          const colonIdx = cleanText.indexOf(': ');
+          pureMessage = colonIdx !== -1 ? cleanText.substring(colonIdx + 2).trim() : '';
+        }
+
+        // Deduplikasi: Jika redeem untuk author dan pesan ini sudah muncul, hapus bubble duplikat
+        const dedupeKey = `${authorName.toLowerCase()}__${pureMessage.toLowerCase()}`;
+        if (recentRedeems.has(dedupeKey)) {
+          const existingEl = recentRedeems.get(dedupeKey);
+          if (existingEl && existingEl.parentNode && existingEl !== itemEl) {
+            itemEl.remove();
+            return;
+          }
+        }
+        recentRedeems.set(dedupeKey, itemEl);
+        setTimeout(() => {
+          if (recentRedeems.get(dedupeKey) === itemEl) {
+            recentRedeems.delete(dedupeKey);
+          }
+        }, 15000);
+
+        // Jika teks belum diformat dengan prefix 💠, format sesuai permintaan
+        if (!cleanText.startsWith('💠')) {
+          let { reward, points } = parseRedeemDetail(rawDetail);
+          if (reward.includes('•')) {
+            reward = reward.split('•')[1] || reward;
+            reward = reward.trim();
+          }
+          const formatted = formatRedeemText(authorName, reward, points, cleanText);
+          textEl.innerHTML = formatted;
+        }
+      } else {
+        // Berikan warna pastel (Yellow, Blue, Pink) untuk chat biasa
+        const colorCls = getPastelColorClass(authorName);
+        textEl.classList.add(colorCls);
+
+        if (!textEl.querySelector('.overlay-reply-quote')) {
+          // Cek format pesan reply (@username ...) jika belum memiliki elemen quote
+          const textContent = textEl.textContent.trim();
+          const replyMatch = textContent.match(/^@([a-zA-Z0-9_]+)\s*,\s*(.*)$/);
+          if (replyMatch) {
+            const repliedUser = replyMatch[1];
+            const mainMessage = replyMatch[2];
+            textEl.innerHTML = `
+              <div class="overlay-reply-quote">
+                <span class="overlay-reply-icon">↩</span>
+                <span class="overlay-reply-author">@${repliedUser}</span>
+              </div>
+              <span class="overlay-message-content">${mainMessage}</span>
+            `;
+          }
+        }
+      }
+    }
+  }
+
+  // MutationObserver untuk mendeteksi setiap pesan baru yang masuk ke OBS Canvas
+  const container = document.getElementById('overlayChatContainer');
+  if (container) {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === 1 && node.classList && node.classList.contains('overlay-item')) {
+            enhanceItem(node);
+          }
+        }
+      }
+    });
+
+    observer.observe(container, { childList: true });
+
+    // Format item yang mungkin sudah ada saat reload
+    Array.from(container.querySelectorAll('.overlay-item')).forEach(enhanceItem);
+  }
+})(config, socket);

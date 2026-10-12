@@ -799,6 +799,8 @@ app.post('/api/user/overlays/generate', (req, res) => {
     name: newId,
     owner: currentUser.username,
     theme: 'glass',
+    chatDirection: 'bottom',
+    chatFade: 'none',
     fontSize: 15,
     hideDelay: 0,
     showBadges: true,

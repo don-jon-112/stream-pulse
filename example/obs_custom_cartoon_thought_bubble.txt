@@ -1,0 +1,613 @@
+/* ==========================================================================
+   STREAMPULSE OBS OVERLAY - CUSTOM CARTOON THOUGHT BUBBLE DESIGN
+   (Eksklusif Custom CSS & Custom JavaScript)
+   
+   Fitur Desain:
+   - Thought bubble kartun berlatar PUTIH BERSIH dengan pola TITIK-TITIK (Dot Pattern).
+   - Warna border dan aksen dinamis mengikuti warna asli Twitch (atau warna acak kartun).
+   - Teks nama pengirim dipaksa PUTIH MURNI (#ffffff) dengan pill outline putih ganda.
+   - SEMUA BADGE BAWAAN PLATFORM & BADGE ALERT DIHAPUS (Badge alert kuning, tag redeem, Twitch verified, YouTube verified, dll.).
+   - HANYA menampilkan badge role kartun (🛡️ Mod, ★ Sub [Twitch], ★ Member [YouTube], 👑 Host, 💎 VIP).
+   - Teks pesan normal (TIDAK BOLD, 500) dengan warna gelap pekat kontras (#0f172a).
+   - Teks alert & event otomatis berwarna gelap kontras pekat (#0f172a / #334155) agar sangat jelas terbaca di atas latar belakang putih.
+   
+   Panduan Penggunaan:
+   1. Buka StreamPulse Overlay Studio (http://localhost:3000/studio).
+   2. Pilih Tema Bawaan: "⚡ Simple Single-Line (Default)" atau tema favorit Anda.
+   3. Scroll ke bagian "💻 Custom CSS & JS Editor".
+   4. Salin seluruh isi [BAGIAN 1: CUSTOM CSS] ke kolom "Custom CSS".
+   5. Salin seluruh isi [BAGIAN 2: CUSTOM JAVASCRIPT] ke kolom "Custom JavaScript (Opsional)".
+   6. Klik tombol "💾 Simpan Kustom CSS & JS".
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   [BAGIAN 1: CUSTOM CSS]
+   Salin seluruh kode CSS di bawah ini lalu tempel ke kolom "Custom CSS":
+   -------------------------------------------------------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700&display=swap');
+
+/* 1. Reset & Global Container Chat */
+#overlayChatContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 26px !important;
+  padding: 24px 20px !important;
+  background: transparent !important;
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+}
+
+/* Dukungan Arah Chat dari Atas (Top-down) */
+#overlayChatContainer.direction-top {
+  top: 16px !important;
+  bottom: auto !important;
+  justify-content: flex-end !important;
+  flex-direction: column-reverse !important;
+}
+
+/* HAPUS SEMUA ELEMEN & BADGE BAWAAN PLATFORM SERTA BADGE ALERT (Avatar, Tag Platform, Badge Verified, Badge Alert Kuning, Tag Redeem/Points, Ikon Twitch & YouTube) */
+.overlay-avatar,
+.overlay-platform-tag,
+.overlay-badges-container,
+.platform-official-badge,
+.twitch-badge,
+.yt-official-badge,
+.yt-owner-badge,
+.yt-mod-badge,
+.yt-member-badge,
+.yt-member-badge-pill,
+.yt-verified-badge,
+[class*="verified"],
+.badge-icon,
+.redeem-tag,
+.alert-tag,
+.alert-badge,
+.overlay-event-badge,
+span[style*="#f59e0b"],
+span[style*="f59e0b"],
+span[style*="245, 158, 11"] {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 2. Palet Warna Acak Otomatis (12 Variasi Warna Cerah Kartun) */
+.overlay-item { --bubble-theme-color: #00bfa5; --bubble-dot-color: rgba(0, 191, 165, 0.16); --bubble-shadow: rgba(0, 191, 165, 0.22); }
+.overlay-item:nth-child(12n+1) { --bubble-theme-color: #00bfa5; --bubble-dot-color: rgba(0, 191, 165, 0.16); --bubble-shadow: rgba(0, 191, 165, 0.22); } /* Mint */
+.overlay-item:nth-child(12n+2) { --bubble-theme-color: #f43f5e; --bubble-dot-color: rgba(244, 63, 94, 0.16); --bubble-shadow: rgba(244, 63, 94, 0.22); } /* Hot Pink */
+.overlay-item:nth-child(12n+3) { --bubble-theme-color: #6366f1; --bubble-dot-color: rgba(99, 102, 241, 0.16); --bubble-shadow: rgba(99, 102, 241, 0.22); } /* Indigo */
+.overlay-item:nth-child(12n+4) { --bubble-theme-color: #0ea5e9; --bubble-dot-color: rgba(14, 165, 233, 0.16); --bubble-shadow: rgba(14, 165, 233, 0.22); } /* Sky Blue */
+.overlay-item:nth-child(12n+5) { --bubble-theme-color: #f59e0b; --bubble-dot-color: rgba(245, 158, 11, 0.16); --bubble-shadow: rgba(245, 158, 11, 0.22); } /* Amber */
+.overlay-item:nth-child(12n+6) { --bubble-theme-color: #8b5cf6; --bubble-dot-color: rgba(139, 92, 246, 0.16); --bubble-shadow: rgba(139, 92, 246, 0.22); } /* Violet */
+.overlay-item:nth-child(12n+7) { --bubble-theme-color: #10b981; --bubble-dot-color: rgba(16, 185, 129, 0.16); --bubble-shadow: rgba(16, 185, 129, 0.22); } /* Emerald */
+.overlay-item:nth-child(12n+8) { --bubble-theme-color: #ec4899; --bubble-dot-color: rgba(236, 72, 153, 0.16); --bubble-shadow: rgba(236, 72, 153, 0.22); } /* Magenta */
+.overlay-item:nth-child(12n+9) { --bubble-theme-color: #ff5722; --bubble-dot-color: rgba(255, 87, 34, 0.16); --bubble-shadow: rgba(255, 87, 34, 0.22); } /* Coral */
+.overlay-item:nth-child(12n+10) { --bubble-theme-color: #14b8a6; --bubble-dot-color: rgba(20, 184, 166, 0.16); --bubble-shadow: rgba(20, 184, 166, 0.22); } /* Teal */
+.overlay-item:nth-child(12n+11) { --bubble-theme-color: #e11d48; --bubble-dot-color: rgba(225, 29, 72, 0.16); --bubble-shadow: rgba(225, 29, 72, 0.22); } /* Rose */
+.overlay-item:nth-child(12n+12) { --bubble-theme-color: #84cc16; --bubble-dot-color: rgba(132, 204, 22, 0.16); --bubble-shadow: rgba(132, 204, 22, 0.22); } /* Lime */
+
+/* Jika user dari Twitch memiliki warna profil custom, gunakan warna Twitch asli */
+.overlay-item.has-twitch-color,
+.overlay-item[data-has-custom-color="true"] {
+  --bubble-theme-color: var(--author-color, #00bfa5) !important;
+}
+
+/* 3. Pembungkus Item Pesan */
+.overlay-item {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  margin: 22px 0 10px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  width: fit-content !important;
+  min-width: 280px !important;
+  max-width: 92% !important;
+  position: relative !important;
+  animation: cartoonPopIn 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
+  opacity: var(--chat-fade-opacity, 1) !important;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s ease !important;
+}
+
+@keyframes cartoonPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.93);
+  }
+  100% {
+    opacity: var(--chat-fade-opacity, 1);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.overlay-item.fade-out {
+  opacity: 0 !important;
+  transform: translateY(-8px) scale(0.95) !important;
+  transition: opacity 0.4s ease, transform 0.4s ease !important;
+}
+
+/* 4. Thought Bubble Body:
+   - Background PUTIH bersih murni (#ffffff)
+   - Pola DOT PATTERN (titik-titik halus senada dengan warna tema bubble)
+   - 3 sudut membulat halus (26px), sudut kiri bawah agak runcing (6px)
+   - Border tebal & shadow berwarna tegas sesuai tema kartun
+*/
+.overlay-body {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  padding: 14px 22px 14px 22px !important;
+  border-radius: 26px 26px 26px 6px !important;
+  background-color: #ffffff !important;
+  /* Pola titik-titik (Dot Pattern) di atas latar putih bersih */
+  background-image: radial-gradient(var(--bubble-dot-color, rgba(0, 191, 165, 0.16)) 1.5px, transparent 1.5px) !important;
+  background-size: 10px 10px !important;
+  background-position: 0 0 !important;
+  border: 3.5px solid var(--bubble-theme-color, #00bfa5) !important;
+  box-shadow: 0 4px 16px var(--bubble-shadow, rgba(0, 191, 165, 0.22)), 0 2px 6px rgba(0,0,0,0.06) !important;
+  width: fit-content !important;
+  min-width: 250px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 5. Bulatan Jejak Pikiran Kartun (Thought Trail o  °) di Pojok Kiri Bawah */
+.overlay-body::before {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -11px !important;
+  left: 8px !important;
+  width: 13px !important;
+  height: 13px !important;
+  border-radius: 50% !important;
+  background-color: #ffffff !important;
+  border: 3px solid var(--bubble-theme-color, #00bfa5) !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
+  z-index: 3 !important;
+}
+
+.overlay-body::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -24px !important; /* Jarak pemisah jelas dari bulatan pertama */
+  left: -1px !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background-color: #ffffff !important;
+  border: 2.5px solid var(--bubble-theme-color, #00bfa5) !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  z-index: 3 !important;
+}
+
+/* 6. Header: Username Pill & Baris Badge Role Tepat di Bawah Nama */
+.overlay-header {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 3px !important;
+  margin-top: -24px !important; /* Menembus naik melewati border bubble */
+  margin-bottom: 2px !important;
+  margin-left: 6px !important;
+  width: auto !important;
+  z-index: 5 !important;
+}
+
+/* Username Pill Badge (Teks PUTIH MURNI, latar tema kartun, outline putih ganda) */
+#overlayChatContainer .overlay-author-name,
+.overlay-item .overlay-author-name,
+.overlay-author-name {
+  order: 1 !important; /* Nama selalu berada di atas */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--bubble-theme-color, #00bfa5) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.2 !important;
+  padding: 3px 15px 4px 15px !important;
+  border-radius: 999px !important;
+  border: 2.5px solid #ffffff !important;
+  box-shadow: 0 0 0 2px var(--bubble-theme-color, #00bfa5), 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  letter-spacing: 0.02em !important;
+}
+
+.overlay-author-name::after {
+  display: none !important;
+  content: '' !important;
+}
+
+/* 7. Baris Tunggal Badge Role Kartun (Hanya Role Pill, Tidak Ada Badge Bawaan) */
+.cartoon-badges-row {
+  order: 2 !important; /* TEPAT 1 BARIS DI BAWAH NAMA */
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+  margin-left: 4px !important;
+}
+
+/* Desain Badge Role: Pill Membulat, Outline Putih, Teks Putih */
+.cartoon-role-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  padding: 2px 9px !important;
+  border-radius: 999px !important;
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1.8px solid #ffffff !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16) !important;
+  line-height: 1.2 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Moderator: Hijau Emerald / Mint */
+.cartoon-role-badge.role-mod { background: #00a884 !important; }
+
+/* Subscriber: Ungu Twitch (Hanya tampil untuk penonton Twitch!) */
+.cartoon-role-badge.role-sub { background: #8b5cf6 !important; }
+
+/* Member: Indigo YouTube (Hanya tampil untuk penonton YouTube!) */
+.cartoon-role-badge.role-member { background: #6366f1 !important; }
+
+/* Host / Broadcaster: Merah Crimson */
+.cartoon-role-badge.role-host { background: #ef4444 !important; }
+
+/* VIP: Magenta Pink (Hanya tampil untuk Twitch!) */
+.cartoon-role-badge.role-vip { background: #ec4899 !important; }
+
+/* 8. Teks Pesan: TIDAK BOLD (500), Sangat Kontras Pekat (#0f172a) di Latar Putih */
+.overlay-text,
+.overlay-message-content {
+  display: block !important;
+  color: #0f172a !important;
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-weight: 500 !important; /* TIDAK BOLD */
+  font-size: 1rem !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0.01em !important;
+  text-shadow: none !important;
+  word-break: break-word !important;
+  padding: 1px 0 0 0 !important;
+  margin: 0 !important;
+}
+
+/* Emotes */
+.chat-emote {
+  height: 1.6em !important;
+  max-height: 28px !important;
+  vertical-align: middle !important;
+  margin: -2px 3px !important;
+}
+
+/* Reply Quote */
+.overlay-reply-quote {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-left: 3px solid var(--bubble-theme-color, #00bfa5) !important;
+  border-radius: 6px !important;
+  padding: 3px 8px !important;
+  margin-bottom: 4px !important;
+  color: #475569 !important;
+  font-size: 0.8rem !important;
+}
+
+/* 9. Alert & Event: Teks Kontras Pekat (#0f172a / #334155) di Latar Belakang Putih */
+.overlay-item.overlay-event,
+.overlay-item.overlay-event .overlay-body,
+.overlay-item.is-redeem .overlay-body {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.overlay-event-title {
+  display: block !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  font-family: 'Fredoka', 'Nunito', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.35 !important;
+  margin-top: 2px !important;
+  margin-bottom: 3px !important;
+  text-shadow: none !important;
+}
+
+.overlay-item.overlay-event .overlay-text,
+.overlay-item.is-redeem .overlay-text,
+.overlay-text.is-redeem,
+.overlay-text.bubble-pink {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  font-weight: 500 !important;
+  text-shadow: none !important;
+  background: none !important;
+}
+
+.overlay-item.overlay-event .redeem-msg {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+
+
+/* --------------------------------------------------------------------------
+   [BAGIAN 2: CUSTOM JAVASCRIPT]
+   Salin seluruh kode JS di bawah ini lalu tempel ke kolom:
+   "Custom JavaScript (Opsional)" di StreamPulse Overlay Studio
+   -------------------------------------------------------------------------- */
+
+(function initCartoonThoughtBubble(config, socket) {
+  // Palet 11 warna cerah kartun
+  const CARTOON_PALETTE = [
+    '#00bfa5', // Mint
+    '#f43f5e', // Hot Pink
+    '#6366f1', // Indigo Purple
+    '#0ea5e9', // Sky Blue
+    '#f59e0b', // Amber / Orange
+    '#8b5cf6', // Violet
+    '#10b981', // Emerald
+    '#ec4899', // Magenta Pink
+    '#ff5722', // Coral Orange
+    '#14b8a6', // Deep Teal
+    '#84cc16'  // Lime Green
+  ];
+
+  let randomPaletteIdx = 0;
+  const userColorCache = new Map();
+
+  function toRgba(color, alpha = 0.16) {
+    if (!color) return `rgba(0, 191, 165, ${alpha})`;
+    if (color.startsWith('rgb(')) {
+      return color.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+    }
+    if (color.startsWith('rgba(')) return color;
+    let c = String(color).replace('#', '').trim();
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    if (c.length === 6) {
+      const num = parseInt(c, 16);
+      return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+    }
+    return `rgba(0, 191, 165, ${alpha})`;
+  }
+
+  // Pilih warna:
+  // 1. Jika Twitch punya warna profil asli, gunakan warna Twitch tersebut!
+  // 2. Jika tidak ada (atau YouTube/TikTok), gunakan warna acak dari palet
+  function getBubbleThemeColor(itemEl, authorName, authorEl) {
+    const isTwitch = itemEl.classList.contains('platform-twitch') ||
+                     itemEl.dataset.platform === 'twitch';
+
+    if (isTwitch) {
+      if (itemEl.dataset.authorColor && itemEl.dataset.hasCustomColor === 'true') {
+        return itemEl.dataset.authorColor;
+      }
+      if (authorEl) {
+        const savedColor = authorEl.dataset.origColor;
+        if (savedColor && savedColor !== '#ffffff' && savedColor !== 'rgb(255, 255, 255)' &&
+            savedColor !== '#67e8f9' && savedColor !== 'rgb(103, 232, 249)') {
+          return savedColor;
+        }
+        const styleAttr = authorEl.getAttribute('style') || '';
+        const match = styleAttr.match(/color\s*:\s*([^;!]+)/i);
+        if (match && match[1]) {
+          const raw = match[1].trim();
+          const lower = raw.toLowerCase();
+          if (lower !== '#67e8f9' && lower !== 'rgb(103, 232, 249)' &&
+              lower !== '#ffffff' && lower !== 'rgb(255, 255, 255)') {
+            return raw;
+          }
+        }
+      }
+    }
+
+    const cleanName = String(authorName || '').toLowerCase().trim();
+    if (cleanName && userColorCache.has(cleanName)) {
+      return userColorCache.get(cleanName);
+    }
+
+    const chosenColor = CARTOON_PALETTE[randomPaletteIdx % CARTOON_PALETTE.length];
+    randomPaletteIdx++;
+    if (cleanName) {
+      userColorCache.set(cleanName, chosenColor);
+    }
+    return chosenColor;
+  }
+
+  function applyThoughtBubble(itemEl) {
+    if (!itemEl || itemEl._thoughtReady) return;
+    itemEl._thoughtReady = true;
+
+    const authorEl = itemEl.querySelector('.overlay-author-name');
+    const authorName = authorEl ? authorEl.textContent.trim() : '';
+    const headerEl = itemEl.querySelector('.overlay-header');
+
+    // 1. Tentukan platform spesifik (Twitch vs YouTube vs TikTok)
+    const isTwitch = itemEl.classList.contains('platform-twitch') || itemEl.dataset.platform === 'twitch';
+    const isYouTube = itemEl.classList.contains('platform-youtube') || itemEl.dataset.platform === 'youtube';
+
+    // 2. Warna tema (Twitch custom color jika ada, atau random color)
+    const themeColor = getBubbleThemeColor(itemEl, authorName, authorEl);
+    const shadowRgba = toRgba(themeColor, 0.22);
+    const dotRgba = toRgba(themeColor, 0.16);
+
+    itemEl.style.setProperty('--bubble-theme-color', themeColor);
+    itemEl.style.setProperty('--bubble-border', themeColor);
+    itemEl.style.setProperty('--pill-bg', themeColor);
+    itemEl.style.setProperty('--bubble-shadow', shadowRgba);
+    itemEl.style.setProperty('--bubble-dot-color', dotRgba);
+
+    // 3. PAKSA WARNA NAMA PENGIRIM PUTIH MURNI (#ffffff)
+    if (authorEl) {
+      if (!authorEl.dataset.origColor) {
+        authorEl.dataset.origColor = authorEl.style.color || '';
+      }
+      authorEl.style.setProperty('color', '#ffffff', 'important');
+      authorEl.style.setProperty('-webkit-text-fill-color', '#ffffff', 'important');
+    }
+
+    // 4. HAPUS SEMUA BADGE BAWAAN PLATFORM, BADGE ALERT KUNING & TAG REDEEM
+    if (headerEl) {
+      // Hapus baris badge kartun lama jika ada agar tidak duplikat
+      const oldBadgesRow = headerEl.querySelector('.cartoon-badges-row');
+      if (oldBadgesRow) oldBadgesRow.remove();
+
+      // HAPUS / HILANGKAN SELURUH BADGE BAWAAN PLATFORM (Verified YouTube, Twitch Badge, dll.)
+      const defaultBadgesContainer = headerEl.querySelector('.overlay-badges-container');
+      if (defaultBadgesContainer) {
+        defaultBadgesContainer.remove();
+      }
+
+      // Hapus tag platform icon jika ada di header
+      const platformTags = headerEl.querySelectorAll('.overlay-platform-tag');
+      platformTags.forEach(tag => tag.remove());
+
+      // Hapus elemen dengan class verified, badge bawaan platform, badge alert, dan tag redeem
+      itemEl.querySelectorAll('.platform-official-badge, .twitch-badge, .yt-official-badge, [class*="verified"], .badge-icon, .redeem-tag, .alert-tag, .alert-badge, .overlay-event-badge').forEach(b => {
+        try { b.remove(); } catch(e) { b.style.display = 'none'; }
+      });
+
+      // Bersihkan jika ada span badge alert kuning (#f59e0b) atau teks ALERT
+      itemEl.querySelectorAll('span').forEach(sp => {
+        const bg = (sp.style.backgroundColor || sp.style.background || '').toLowerCase();
+        const txt = (sp.textContent || '').trim().toUpperCase();
+        if (bg.includes('f59e0b') || bg.includes('245, 158, 11') || txt.includes('ALERT') || (sp.classList.contains('badge-icon') && !sp.classList.contains('cartoon-role-badge'))) {
+          try { sp.remove(); } catch(e) { sp.style.display = 'none'; }
+        }
+      });
+
+      const badgesRow = document.createElement('div');
+      badgesRow.className = 'cartoon-badges-row';
+      let hasBadge = false;
+
+      // Moderator (Twitch & YouTube)
+      const isMod = itemEl.dataset.isMod === 'true';
+      if (isMod) {
+        const b = document.createElement('span');
+        b.className = 'cartoon-role-badge role-mod';
+        b.innerHTML = '🛡️ Mod';
+        badgesRow.appendChild(b);
+        hasBadge = true;
+      }
+
+      // Subscriber: EKSKLUSIF TWITCH! (YouTube TIDAK PERNAH memunculkan Sub)
+      const isSub = isTwitch && itemEl.dataset.isSub === 'true';
+      if (isSub) {
+        const b = document.createElement('span');
+        b.className = 'cartoon-role-badge role-sub';
+        b.innerHTML = '★ Sub';
+        badgesRow.appendChild(b);
+        hasBadge = true;
+      }
+
+      // Member: EKSKLUSIF YOUTUBE! (Twitch TIDAK PERNAH memunculkan Member)
+      const isMember = isYouTube && itemEl.dataset.isMember === 'true';
+      if (isMember) {
+        const b = document.createElement('span');
+        b.className = 'cartoon-role-badge role-member';
+        b.innerHTML = '★ Member';
+        badgesRow.appendChild(b);
+        hasBadge = true;
+      }
+
+      // Broadcaster / Host (Pemilik channel)
+      const isHost = itemEl.dataset.isBroadcaster === 'true';
+      if (isHost) {
+        const b = document.createElement('span');
+        b.className = 'cartoon-role-badge role-host';
+        b.innerHTML = '👑 Host';
+        badgesRow.appendChild(b);
+        hasBadge = true;
+      }
+
+      // VIP: EKSKLUSIF TWITCH!
+      const isVip = isTwitch && itemEl.dataset.isVip === 'true';
+      if (isVip) {
+        const b = document.createElement('span');
+        b.className = 'cartoon-role-badge role-vip';
+        b.innerHTML = '💎 VIP';
+        badgesRow.appendChild(b);
+        hasBadge = true;
+      }
+
+      // Pasang HANYA 1 baris badge kartun di bawah nama jika user punya role
+      if (hasBadge) {
+        headerEl.appendChild(badgesRow);
+      }
+    }
+
+    // 5. Pastikan teks pesan biasa TIDAK BOLD (500) dan berwarna pekat kontras (#0f172a)
+    const textEl = itemEl.querySelector('.overlay-text');
+    if (textEl) {
+      textEl.style.setProperty('color', '#0f172a', 'important');
+      textEl.style.setProperty('font-weight', '500', 'important');
+    }
+    const msgContentEl = itemEl.querySelector('.overlay-message-content');
+    if (msgContentEl) {
+      msgContentEl.style.setProperty('color', '#0f172a', 'important');
+      msgContentEl.style.setProperty('font-weight', '500', 'important');
+    }
+
+    // 6. Alert & Event: Pastikan judul & detail event kontras pekat (#0f172a / #334155) di background putih
+    const eventTitleEl = itemEl.querySelector('.overlay-event-title');
+    if (eventTitleEl) {
+      eventTitleEl.style.setProperty('color', '#0f172a', 'important');
+      eventTitleEl.style.setProperty('-webkit-text-fill-color', '#0f172a', 'important');
+      eventTitleEl.style.setProperty('font-weight', '700', 'important');
+      eventTitleEl.style.setProperty('text-shadow', 'none', 'important');
+    }
+
+    if (itemEl.classList.contains('overlay-event') || itemEl.classList.contains('is-redeem') || eventTitleEl) {
+      itemEl.style.setProperty('background', 'transparent', 'important');
+      itemEl.style.setProperty('color', '#0f172a', 'important');
+      if (textEl) {
+        textEl.style.setProperty('color', '#334155', 'important');
+        textEl.style.setProperty('-webkit-text-fill-color', '#334155', 'important');
+        textEl.style.setProperty('font-weight', '500', 'important');
+        textEl.style.setProperty('text-shadow', 'none', 'important');
+      }
+    }
+  }
+
+  // Terapkan ke kontainer chat OBS overlay
+  const container = document.getElementById('overlayChatContainer');
+  if (container) {
+    container.querySelectorAll('.overlay-item').forEach(applyThoughtBubble);
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((m) => {
+        m.addedNodes.forEach((node) => {
+          if (node.nodeType === 1 && node.classList.contains('overlay-item')) {
+            applyThoughtBubble(node);
+          }
+        });
+      });
+    });
+    observer.observe(container, { childList: true });
+  }
+
+  console.log('[StreamPulse] Cartoon Thought Bubble initialized: Clean roles, no platform badges!');
+})(config, socket);
