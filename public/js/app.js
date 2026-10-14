@@ -317,21 +317,38 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // LATENCY & CONNECTION HEALTH PING
   // ==========================================
-  let pingInterval = setInterval(() => {
+  function runPingCheck() {
+    if (document.hidden) return; // Lewati jika tab sedang diminimize/background agar tidak kena timer throttling browser
     const start = Date.now();
     socket.emit('ping_check', () => {
       const latency = Date.now() - start;
-      latencyText.textContent = `${latency}ms • WSS Live`;
-      if (latency < 100) {
+      const transport = socket.io?.engine?.transport?.name || 'unknown';
+      const isWs = transport === 'websocket';
+      latencyText.textContent = `${latency}ms • ${isWs ? 'WSS' : 'HTTP Poll'}`;
+
+      if (latency < 120 && isWs) {
         latencyDot.style.background = 'var(--status-active)';
         latencyDot.style.boxShadow = '0 0 8px var(--status-active)';
-      } else if (latency < 250) {
+      } else if (latency < 300) {
         latencyDot.style.background = 'var(--status-warning)';
+        latencyDot.style.boxShadow = 'none';
       } else {
         latencyDot.style.background = 'var(--status-danger)';
+        latencyDot.style.boxShadow = 'none';
       }
     });
-  }, 10000);
+  }
+
+  // Jalankan ping pertama setelah connect, lalu setiap 8 detik
+  setTimeout(runPingCheck, 1500);
+  let pingInterval = setInterval(runPingCheck, 8000);
+
+  // Jika tab baru saja kembali aktif (foreground), jalankan ping ulang setelah 500ms
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      setTimeout(runPingCheck, 500);
+    }
+  });
 
   // ==========================================
   // WAKE LOCK INTEGRATION
