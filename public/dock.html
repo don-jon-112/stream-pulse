@@ -201,6 +201,7 @@
       border-color: rgba(99, 102, 241, 0.4);
       margin-left: auto;
     }
+    .viewer-pill.total svg { stroke: #a5b4fc; }
     .viewer-pill.total .v-num { color: #a5b4fc; font-weight: 700; }
 
     .v-num {
@@ -565,27 +566,24 @@
       <!-- Twitch Viewer Count -->
       <div class="viewer-pill twitch" id="pill-viewer-twitch" title="Twitch Live Viewers">
         <svg width="12" height="12" viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-        <span>Twitch:</span>
         <span class="v-num" id="count-twitch">0</span>
       </div>
 
       <!-- YouTube Viewer Count -->
       <div class="viewer-pill youtube" id="pill-viewer-yt" title="YouTube Live Viewers">
         <svg width="12" height="12" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        <span>YT:</span>
         <span class="v-num" id="count-yt">0</span>
       </div>
 
       <!-- TikTok Viewer Count -->
       <div class="viewer-pill tiktok" id="pill-viewer-tiktok" title="TikTok Live Viewers">
         <svg width="12" height="12" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
-        <span>TikTok:</span>
         <span class="v-num" id="count-tiktok">0</span>
       </div>
 
       <!-- Total Viewer Count -->
       <div class="viewer-pill total" id="pill-viewer-total" title="Total Seluruh Penonton Aktif">
-        <span>Total:</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span class="v-num" id="count-total">0</span>
       </div>
     </div>
