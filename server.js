@@ -254,9 +254,6 @@ app.get(['/dock', '/obs-dock', '/browser-dock'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dock.html'));
 });
 
-app.get('/donate', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'donate.html'));
-});
 
 app.get(['/features', '/roadmap'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'features.html'));

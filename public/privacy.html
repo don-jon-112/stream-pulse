@@ -33,6 +33,7 @@
         linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
       background-size: auto, auto, auto, 48px 48px, 48px 48px;
+      background-attachment: fixed;
       color: var(--text-primary);
       min-height: 100vh;
       display: flex;
@@ -48,19 +49,17 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 14px 20px 8px;
-      background: linear-gradient(180deg, rgba(6, 8, 15, 0.95) 0%, rgba(6, 8, 15, 0.6) 80%, transparent 100%);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      padding: 12px 20px 6px;
+      background: linear-gradient(180deg, rgba(6, 8, 15, 0.96) 0%, rgba(6, 8, 15, 0.7) 80%, transparent 100%);
     }
 
     .privacy-header {
       max-width: 960px;
       margin: 0 auto;
       padding: 10px 18px;
-      background: rgba(13, 17, 30, 0.78);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(14, 18, 34, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 999px;
       display: flex;
@@ -109,9 +108,7 @@
     }
 
     .privacy-card {
-      background: rgba(13, 17, 30, 0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(13, 17, 30, 0.94);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       padding: 32px 36px;
@@ -172,9 +169,7 @@
     }
 
     .danger-zone-card {
-      background: rgba(239, 68, 68, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(22, 16, 26, 0.94);
       border: 1px solid rgba(239, 68, 68, 0.35);
       border-radius: 20px;
       padding: 30px 36px;
@@ -252,7 +247,6 @@
         </button>
         <a href="/" class="nav-btn nav-btn-subtle">← Live Chat</a>
         <a href="/studio" class="nav-btn nav-btn-subtle">Overlay Studio 🖥️</a>
-        <a href="/donate" class="nav-btn" style="background:rgba(245, 158, 11, 0.12); border-color:rgba(245, 158, 11, 0.35); color:#fde68a;">Dukung ☕</a>
       </div>
     </header>
   </div>
