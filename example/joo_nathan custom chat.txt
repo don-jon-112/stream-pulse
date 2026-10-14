@@ -139,6 +139,12 @@ html, body {
   text-shadow: 0px 1px 0 #000000, -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000 !important;
 }
 
+/* Hilangkan tanda titik dua (:) setelah nama user dari tema bawaan */
+.overlay-author-name::after {
+  content: '' !important;
+  display: none !important;
+}
+
 /* Badges Animation (Bounce-In From Right) */
 .platform-official-badge,
 .twitch-badge,
@@ -345,7 +351,11 @@ html, body {
   const container = document.getElementById('overlayChatContainer');
   if (!container) return;
 
-  const TWITCH_FALLBACK_AVATAR = 'https://static-cdn.jtvnw.net/user-default-pictures-uv/cdd517eb-aca7-43a1-9ab3-55928d3ef778-profile_image-300x300.png';
+  // Helper membuat avatar inisial SVG bersih (100% aman, zero-network, anti-broken image / 404)
+  function getFallbackAvatar(name, bgColor = '#FE2C55') {
+    const char = (name ? name.trim().charAt(0) : '★').toUpperCase() || '★';
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='${encodeURIComponent(bgColor)}'/%3E%3Ctext x='50' y='64' font-family='Montserrat, sans-serif' font-size='44' font-weight='800' fill='%23ffffff' text-anchor='middle'%3E${encodeURIComponent(char)}%3C/text%3E%3C/svg%3E`;
+  }
 
   // MutationObserver untuk mendeteksi pesan chat baru dan menerapkan efek typing indicator
   const observer = new MutationObserver((mutations) => {
@@ -364,18 +374,17 @@ html, body {
           const msgEl = node.querySelector('.overlay-text');
           const avatarEl = node.querySelector('.overlay-avatar');
 
-          const authorName = authorEl ? authorEl.textContent.trim() : 'Viewer';
+          const authorName = (authorEl ? authorEl.textContent.trim() : 'Viewer').replace(/:\s*$/, '');
           const fullTitle = titleEl ? titleEl.textContent.trim() : 'Alert';
           const userMsg = msgEl ? msgEl.textContent.replace(/^"|"$/g, '').trim() : '';
-          let avatarSrc = (avatarEl && avatarEl.tagName === 'IMG' && avatarEl.src && !avatarEl.src.includes('default-profile_image')) 
-            ? avatarEl.src 
-            : TWITCH_FALLBACK_AVATAR;
 
           const isTwitch = node.classList.contains('platform-twitch') || node.dataset.platform === 'twitch';
           const isYouTube = node.classList.contains('platform-youtube') || node.dataset.platform === 'youtube';
           const isTikTok = node.classList.contains('platform-tiktok') || node.dataset.platform === 'tiktok';
 
           let borderColor = '#9146FF';
+          if (isTikTok) borderColor = '#FE2C55';
+          if (isYouTube) borderColor = '#FF0000';
           let alertText = fullTitle;
 
           const titleLower = fullTitle.toLowerCase();
@@ -412,6 +421,17 @@ html, body {
             alertText = `redeemed ${rDetail} 💠`;
           }
 
+          const fallbackAvatar = getFallbackAvatar(authorName, borderColor);
+          let avatarSrc = '';
+          if (avatarEl) {
+            if (avatarEl.tagName === 'IMG' && avatarEl.src && !avatarEl.src.includes('default-profile_image') && !avatarEl.src.endsWith('/undefined')) {
+              avatarSrc = avatarEl.src;
+            }
+          }
+          if (!avatarSrc) {
+            avatarSrc = fallbackAvatar;
+          }
+
           let platformIcon = '';
           if (isYouTube) {
             platformIcon = '<img src="https://i.imgur.com/cbl1elx.png" style="height: 1.2em; width: auto; vertical-align: middle; margin: 0 4px;" alt="YouTube">';
@@ -423,7 +443,7 @@ html, body {
 
           node.innerHTML = `
             <div class="alert-box" style="border-color: ${borderColor} !important;">
-              <img src="${avatarSrc}" class="alert-avatar" style="border-color: ${borderColor} !important;" onerror="this.onerror=null;this.src='${TWITCH_FALLBACK_AVATAR}';">
+              <img src="${avatarSrc}" class="alert-avatar" style="border-color: ${borderColor} !important;" onerror="this.onerror=null;this.src='${fallbackAvatar}';">
               <div class="alert-text">
                 <span style="color: ${borderColor} !important; font-weight: 700;">${authorName}</span>${platformIcon}<span>${alertText}</span>
                 ${userMsg ? `<span class="alert-user-msg">"${userMsg}"</span>` : ''}
@@ -450,9 +470,14 @@ html, body {
         const contentSpan = node.querySelector('.overlay-message-content') || textContainer;
         if (!textContainer || !contentSpan) return;
 
+        // Bersihkan tanda titik dua (:) setelah nama user jika ada
+        const authorEl = node.querySelector('.overlay-author-name');
+        if (authorEl && authorEl.textContent.endsWith(':')) {
+          authorEl.textContent = authorEl.textContent.replace(/:\s*$/, '');
+        }
+
         // Warna border avatar: gunakan warna profil/username jika pesan dari Twitch, tetap default putih jika dari platform lain (YouTube, TikTok, dll)
         const isTwitch = node.classList.contains('platform-twitch') || node.dataset.platform === 'twitch';
-        const authorEl = node.querySelector('.overlay-author-name');
         const avatarEl = node.querySelector('.overlay-avatar');
         if (avatarEl) {
           if (isTwitch && authorEl && authorEl.style.color) {
