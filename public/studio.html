@@ -884,11 +884,11 @@
               </label>
               <label class="radio-option-card">
                 <input type="radio" name="chatDirection" value="horizontal">
-                <span data-i18n="opt_dir_horizontal">➡️ Menyamping (Running Text)</span>
+                <span data-i18n="opt_dir_horizontal">➡️ Menyamping (Running Text / Ticker)</span>
               </label>
             </div>
             <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:4px;" data-i18n-html="tip_chat_direction">
-              💡 <strong>Bawah</strong>: Pesan baru di dasar layar. <strong>Atas</strong>: Pesan baru di puncak layar. <strong>Menyamping</strong>: Format pita running text horizontal (cocok ditaruh di bawah layar game).
+              💡 <strong>Bawah</strong>: Pesan baru di dasar layar. <strong>Atas</strong>: Pesan baru di puncak layar. <strong>Menyamping</strong>: Format pita running text horizontal mengalir dari kanan ke kiri (Rekomendasi OBS: Width 1920, Height 70-90 px).
             </div>
           </div>
 
@@ -2321,6 +2321,14 @@
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
         if (!settingShowYtBadges.checked) fullUrl += '&ytBadges=0';
         obsFinalUrl.value = fullUrl;
+
+        if (obsUrlHelpText && currentUser) {
+          if (getSelectedChatDirection() === 'horizontal') {
+            obsUrlHelpText.innerHTML = '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → <strong>Rekomendasi Running Text: Width: 1920 (atau 1280), Height: 70 - 90 px</strong> (posisikan di tepi bawah atau atas layar).</em>';
+          } else {
+            obsUrlHelpText.innerHTML = window.t ? window.t('obs_help_text') : '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>';
+          }
+        }
       }
 
       // Live Preview Realtime (Works immediately even for guests without saving to DB)
