@@ -1325,6 +1325,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else extraClass = 'tiktok-gift';
     } else if (evt.platform === 'twitch') {
       if (evt.eventType === 'redeem') extraClass = 'twitch-redeem';
+      else if (evt.eventType === 'watch_streak') extraClass = 'twitch-streak';
       else extraClass = 'twitch-sub';
     }
 

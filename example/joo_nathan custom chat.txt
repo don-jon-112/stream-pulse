@@ -412,6 +412,9 @@ html, body {
           } else if (titleLower.includes('like')) {
             borderColor = '#FF4D6D';
             alertText = fullTitle.includes('•') ? fullTitle.split('•')[1].trim() : 'sent likes! ❤️';
+          } else if (titleLower.includes('streak')) {
+            borderColor = '#FF5722';
+            alertText = fullTitle.includes('•') ? fullTitle.split('•')[1].trim() : 'is on a watch streak! 🔥';
           } else if (titleLower.includes('sub')) {
             borderColor = '#9146FF';
             alertText = fullTitle.includes('•') ? `subscribed at ${fullTitle.split('•')[1].trim()}` : 'subscribed at Tier 1';
@@ -438,7 +441,7 @@ html, body {
           } else if (isTwitch) {
             platformIcon = '<img src="https://i.imgur.com/vLsqr6V.png" style="height: 1.2em; width: auto; vertical-align: middle; margin: 0 4px;" alt="Twitch">';
           } else if (isTikTok) {
-            platformIcon = '<span style="display:inline-block; margin:0 4px; font-weight:800; font-size:0.9em; color:#fe2c55;">♪</span>';
+            platformIcon = '<svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align: middle; margin: 0 4px; display: inline-block;"><path fill="#25F4EE" d="M19.32 5.57a4.86 4.86 0 0 1-3.5-3.57H13.1v13.67a2.89 2.89 0 0 1-2.9 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .55.04.8.11V10.1a6.33 6.33 0 0 0-.8-.05A6.34 6.34 0 0 0 3.86 16.4a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V9.67a8.27 8.27 0 0 0 4.74 1.83V8.8a4.86 4.86 0 0 1-2-.99v-2.24z"/><path fill="#FE2C55" d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-2.5v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 4.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/><path fill="#FFFFFF" d="M19.45 6.13a4.85 4.85 0 0 1-3.63-3.91h-2.98v13.67a2.89 2.89 0 0 1-2.89 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .56.04.83.12V9.75a6.33 6.33 0 0 0-.83-.05A6.34 6.34 0 0 0 3.98 16.04a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V10.2a8.27 8.27 0 0 0 5.16 2.01V9.13a4.86 4.86 0 0 1-2.37-3z"/></svg>';
           }
 
           node.innerHTML = `

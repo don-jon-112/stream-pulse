@@ -154,6 +154,10 @@
       border-left-color: #f43f5e;
       background: linear-gradient(135deg, rgba(244, 63, 94, 0.3) 0%, rgba(13, 17, 27, 0.95) 100%);
     }
+    .overlay-item.overlay-event.twitch-watch-streak {
+      border-left-color: #ff5722;
+      background: linear-gradient(135deg, rgba(255, 87, 34, 0.3) 0%, rgba(13, 17, 27, 0.95) 100%);
+    }
 
     .overlay-avatar {
       width: 36px;
@@ -1268,6 +1272,7 @@
         if (isTwitchRedeem) el.classList.add('is-redeem', 'highlighted');
         if (evt.eventType === 'superchat') el.classList.add('youtube-superchat');
         if (evt.eventType === 'raid') el.classList.add('twitch-raid');
+        if (evt.eventType === 'watch_streak') el.classList.add('twitch-watch-streak');
 
         const initial = (authorName[0] || '★').toUpperCase();
         const authorColor = getAuthorColor(typeof evt.author === 'object' ? evt.author : { name: authorName, color: evt.authorColor }, evt.platform);
