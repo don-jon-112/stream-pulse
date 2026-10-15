@@ -1,4 +1,3 @@
-import './lib/zlibPolyfill.js';
 import express from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
