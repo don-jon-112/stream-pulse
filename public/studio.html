@@ -434,14 +434,24 @@
       justify-content: space-between;
       background: rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 8px 12px;
+      padding: 10px 12px;
       border-radius: var(--radius-xs);
       font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .slot-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.22);
+      transform: translateY(-1px);
     }
 
     .slot-item.active {
       border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.1);
+      background: rgba(245, 158, 11, 0.12);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
     }
 
     /* Modal Overlay (Centered) */
@@ -672,47 +682,43 @@
           <span id="activeOverlayIdBadge" style="font-family:var(--font-mono); font-size:0.85rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:4px;">default</span>
         </div>
 
-        <!-- Slot Name Editor -->
-        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-xs); padding:10px 12px;">
-          <label class="form-label" for="settingOverlayName" style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:4px;">🏷️ Nama Slot Overlay (Label / Custom Name)</label>
-          <div style="display:flex; gap:6px;">
-            <input type="text" id="settingOverlayName" class="form-input" placeholder="Beri nama slot (misal: Chat Utama, Chat Kanan)" style="font-size:0.82rem; padding:6px 10px; flex:1;">
-            <button type="button" id="btnRenameSlot" class="btn-icon" style="font-size:0.75rem; padding:6px 12px; white-space:nowrap; font-weight:700;">
-              <span>💾 Simpan Nama</span>
-            </button>
-          </div>
-          <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:4px;">
-            💡 URL Browser Source OBS tetap menggunakan ID unik slot ini agar pengaturan OBS Anda tidak rusak.
-          </div>
-        </div>
-
       </div>
 
       <!-- 1. Channel Linking Card -->
       <div class="studio-card">
-        <div class="section-title" data-i18n="sec_channels">📡 Saluran Live Stream</div>
-        <div style="font-size:0.73rem; color:var(--text-tertiary); line-height:1.4;" data-i18n="sec_channels_tip">
-          💡 Bebas mengisi salah satu platform saja (misal hanya Twitch) atau gabungan ketiganya. Perubahan username langsung terhubung otomatis ke live preview di sebelah kanan.
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.07); padding-bottom:8px; margin-bottom:8px;">
+          <div class="section-title" style="border-bottom:none; padding-bottom:0; margin-bottom:0;" data-i18n="sec_channels">📡 Saluran Live Stream</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.75rem; color:#cbd5e1; font-weight:700;">🧪 Mode Uji Coba Preview</span>
+            <label class="toggle-switch" title="Aktifkan untuk mencoba testing live chat dengan username lain di preview tanpa mengubah pengaturan OBS Anda">
+              <input type="checkbox" id="switchPreviewMode">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div id="channelModeNotice" style="font-size:0.73rem; color:var(--text-tertiary); line-height:1.4; margin-bottom:8px;">
+          🔒 <strong style="color:#67e8f9;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.
         </div>
 
         <div class="form-group">
           <label class="form-label" for="settingTwitch" data-i18n="label_twitch_channel">Twitch Channel</label>
-          <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch">
+          <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch" readonly style="background:rgba(0,0,0,0.3); opacity:0.85;">
         </div>
         <div class="form-group">
           <label class="form-label" for="settingYouTube" data-i18n="label_youtube_channel">YouTube Live Stream</label>
-          <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube">
+          <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube" readonly style="background:rgba(0,0,0,0.3); opacity:0.85;">
         </div>
         <div class="form-group">
           <label class="form-label" for="settingTikTok" data-i18n="label_tiktok_channel">TikTok LIVE Username</label>
-          <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok">
+          <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok" readonly style="background:rgba(0,0,0,0.3); opacity:0.85;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-top:2px;">
-          <button type="button" id="btnSaveChannelsStudio" class="btn-icon" style="font-size:0.78rem; padding:6px 14px;">
-            <span data-i18n="btn_save_channels">💾 Simpan Saluran</span>
-          </button>
-          <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700; display:none;" data-i18n="status_channel_synced">✓ Tersinkron</span>
+          <a href="/#sectionChannels" target="_blank" class="btn-icon" style="font-size:0.75rem; padding:6px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; border-color:rgba(99,102,241,0.4); color:#a5b4fc;">
+            <span>⚙️ Buka Atur Channel</span>
+          </a>
+          <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700;" data-i18n="status_channel_synced">✓ Terhubung ke Saluran Akun</span>
         </div>
       </div>
 
@@ -867,18 +873,22 @@
               <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_chat_direction">↕️ Arah Aliran Chat (Posisi Pesan Baru)</span>
               <span id="labelChatDirection" style="font-size:0.75rem; color:#67e8f9; font-family:var(--font-mono);">Bawah (Default)</span>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px;">
               <label class="radio-option-card">
                 <input type="radio" name="chatDirection" value="bottom" checked>
-                <span data-i18n="opt_dir_bottom">⬇️ Dari Bawah ke Atas (Default)</span>
+                <span data-i18n="opt_dir_bottom">⬇️ Bawah (Default)</span>
               </label>
               <label class="radio-option-card">
                 <input type="radio" name="chatDirection" value="top">
-                <span data-i18n="opt_dir_top">⬆️ Dari Atas ke Bawah</span>
+                <span data-i18n="opt_dir_top">⬆️ Atas (Top-Down)</span>
+              </label>
+              <label class="radio-option-card">
+                <input type="radio" name="chatDirection" value="horizontal">
+                <span data-i18n="opt_dir_horizontal">➡️ Menyamping (Running Text)</span>
               </label>
             </div>
             <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:4px;" data-i18n-html="tip_chat_direction">
-              💡 <strong>Bawah</strong>: Pesan baru muncul di dasar layar. <strong>Atas</strong>: Pesan baru muncul di puncak layar.
+              💡 <strong>Bawah</strong>: Pesan baru di dasar layar. <strong>Atas</strong>: Pesan baru di puncak layar. <strong>Menyamping</strong>: Format pita running text horizontal (cocok ditaruh di bawah layar game).
             </div>
           </div>
 
@@ -1458,9 +1468,7 @@
       const settingCustomJs = document.getElementById('settingCustomJs');
       const btnSaveCustomCode = document.getElementById('btnSaveCustomCode');
 
-      // Slot Name, Orientation, & Generic Visual Settings
-      const settingOverlayName = document.getElementById('settingOverlayName');
-      const btnRenameSlot = document.getElementById('btnRenameSlot');
+      // Orientation, & Generic Visual Settings
       const settingChatAlign = document.getElementById('settingChatAlign');
       const settingBgColor = document.getElementById('settingBgColor');
       const labelBgColorHex = document.getElementById('labelBgColorHex');
@@ -1483,11 +1491,11 @@
         return checked ? checked.value : 'bottom';
       }
       function setSelectedChatDirection(val) {
-        const target = val === 'top' ? 'top' : 'bottom';
+        const target = ['top', 'horizontal'].includes(val) ? val : 'bottom';
         const radio = document.querySelector(`input[name="chatDirection"][value="${target}"]`);
         if (radio) radio.checked = true;
         if (labelChatDirection) {
-          labelChatDirection.textContent = target === 'top' ? 'Atas (Top-Down)' : 'Bawah (Default)';
+          labelChatDirection.textContent = target === 'top' ? 'Atas (Top-Down)' : (target === 'horizontal' ? 'Menyamping / Running Text' : 'Bawah (Default)');
         }
       }
 
@@ -1615,11 +1623,73 @@
         localStorage.setItem('streampulse_guest_channels', JSON.stringify(chData));
       }
 
-      // Load channels from shared storage if new profile
+      // Saluran Live Stream: Mode Akun (Default) vs Mode Uji Coba Preview (Testing)
       const savedChannels = getStoredChannels();
-      if (savedChannels.twitch) settingTwitch.value = savedChannels.twitch;
-      if (savedChannels.youtube) settingYouTube.value = savedChannels.youtube;
-      if (savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
+      let officialChannels = {
+        twitch: savedChannels.twitch || '',
+        youtube: savedChannels.youtube || '',
+        tiktok: savedChannels.tiktok || ''
+      };
+      let isPreviewTestingMode = false;
+      let previewTestingChannels = { twitch: '', youtube: '', tiktok: '' };
+
+      const switchPreviewMode = document.getElementById('switchPreviewMode');
+      const channelModeNotice = document.getElementById('channelModeNotice');
+
+      function syncInputsWithOfficialChannels() {
+        if (!isPreviewTestingMode) {
+          settingTwitch.value = officialChannels.twitch || '';
+          settingYouTube.value = officialChannels.youtube || '';
+          settingTikTok.value = officialChannels.tiktok || '';
+        }
+      }
+      syncInputsWithOfficialChannels();
+
+      function updateChannelModeUI() {
+        isPreviewTestingMode = !!(switchPreviewMode && switchPreviewMode.checked);
+        if (isPreviewTestingMode) {
+          settingTwitch.readOnly = false;
+          settingYouTube.readOnly = false;
+          settingTikTok.readOnly = false;
+          [settingTwitch, settingYouTube, settingTikTok].forEach(el => {
+            el.style.background = 'var(--bg-input, rgba(0,0,0,0.5))';
+            el.style.opacity = '1';
+          });
+          if (channelModeNotice) {
+            channelModeNotice.innerHTML = `🧪 <strong style="color:#fbbf24;">Mode Uji Coba Preview Aktif:</strong> Anda dapat mengganti username di bawah untuk mencoba preview di sebelah kanan. Pengaturan ini <em>TIDAK akan disimpan ke OBS</em> sehingga link OBS Anda tetap aman.`;
+          }
+          if (channelSyncStatus) {
+            channelSyncStatus.style.display = 'inline';
+            channelSyncStatus.textContent = '🧪 Mode Uji Coba Preview';
+            channelSyncStatus.style.color = '#fbbf24';
+          }
+          settingTwitch.value = previewTestingChannels.twitch || settingTwitch.value;
+          settingYouTube.value = previewTestingChannels.youtube || settingYouTube.value;
+          settingTikTok.value = previewTestingChannels.tiktok || settingTikTok.value;
+        } else {
+          settingTwitch.readOnly = true;
+          settingYouTube.readOnly = true;
+          settingTikTok.readOnly = true;
+          [settingTwitch, settingYouTube, settingTikTok].forEach(el => {
+            el.style.background = 'rgba(0,0,0,0.3)';
+            el.style.opacity = '0.85';
+          });
+          if (channelModeNotice) {
+            channelModeNotice.innerHTML = `🔒 <strong style="color:#67e8f9;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.`;
+          }
+          if (channelSyncStatus) {
+            channelSyncStatus.style.display = 'inline';
+            channelSyncStatus.textContent = '✓ Terhubung ke Saluran Akun';
+            channelSyncStatus.style.color = '#10b981';
+          }
+          syncInputsWithOfficialChannels();
+        }
+        refreshPreview();
+      }
+
+      if (switchPreviewMode) {
+        switchPreviewMode.addEventListener('change', updateChannelModeUI);
+      }
 
       // Auth Handlers
       function renderUserStatus() {
@@ -1869,10 +1939,13 @@
             renderUserStatus();
             // Sync channels from account
             if (currentUser.channels) {
-              if (currentUser.channels.twitch !== undefined) settingTwitch.value = currentUser.channels.twitch;
-              if (currentUser.channels.youtube !== undefined) settingYouTube.value = currentUser.channels.youtube;
-              if (currentUser.channels.tiktok !== undefined) settingTikTok.value = currentUser.channels.tiktok;
+              if (currentUser.channels.twitch !== undefined) officialChannels.twitch = currentUser.channels.twitch;
+              if (currentUser.channels.youtube !== undefined) officialChannels.youtube = currentUser.channels.youtube;
+              if (currentUser.channels.tiktok !== undefined) officialChannels.tiktok = currentUser.channels.tiktok;
               saveStoredChannels(currentUser.channels);
+              if (!isPreviewTestingMode) {
+                syncInputsWithOfficialChannels();
+              }
               refreshPreview();
             }
           } else {
@@ -1908,30 +1981,32 @@
           const item = document.createElement('div');
           const isActive = (sId === profileId);
           item.className = `slot-item ${isActive ? 'active' : ''}`;
+          item.title = 'Klik untuk memilih/mengedit slot ini';
           item.innerHTML = `
-            <div style="overflow:hidden; text-overflow:ellipsis; max-width:180px;">
-              <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono); font-size:0.82rem;">${escapeHtml(sName)}</strong>
+            <div style="overflow:hidden; text-overflow:ellipsis; max-width:200px; pointer-events:none;">
+              <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono); font-size:0.84rem;">${escapeHtml(sName)}</strong>
               ${sName !== sId ? `<span style="font-size:0.68rem; color:var(--text-tertiary); display:block;">ID: ${sId}</span>` : ''}
-              ${isActive ? `<span style="font-size:0.65rem; color:#f59e0b; font-weight:700;">(${window.t ? window.t('active_badge_text') : 'Aktif'})</span>` : ''}
+              ${isActive ? `<span style="font-size:0.65rem; color:#f59e0b; font-weight:700;">(${window.t ? window.t('active_badge_text') : 'Aktif Digunakan'})</span>` : ''}
             </div>
             <div style="display:flex; gap:5px; align-items:center;">
               <button class="btn-action-sm btn-rename-slot" data-id="${sId}" data-name="${escapeHtml(sName)}" title="Ganti Nama Slot">✏️ Nama</button>
-              ${!isActive ? `<button class="btn-action-sm btn-switch-slot" data-id="${sId}" title="${window.t ? window.t('btn_edit_slot_tip') : 'Muat dan edit konfigurasi slot ini'}">⚙️ Edit</button>` : ''}
               <button class="btn-action-sm btn-overwrite-slot" data-id="${sId}" style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc;" title="${window.t ? window.t('btn_overwrite_slot_tip') : 'Timpa (overwrite) slot ini'}">💾</button>
               <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="${window.t ? window.t('btn_delete_slot_tip') : 'Hapus slot ini'}">🗑️</button>
             </div>
           `;
 
-          const switchBtn = item.querySelector('.btn-switch-slot');
-          if (switchBtn) {
-            switchBtn.addEventListener('click', () => {
+          // Klik pada kartu slot langsung otomatis men-select slot tersebut
+          item.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            if (profileId !== sId) {
               switchProfile(sId);
-            });
-          }
+            }
+          });
 
           const renameBtn = item.querySelector('.btn-rename-slot');
           if (renameBtn) {
-            renameBtn.addEventListener('click', async () => {
+            renameBtn.addEventListener('click', async (e) => {
+              e.stopPropagation();
               const currentName = renameBtn.dataset.name || sId;
               const newName = await spPrompt(`Masukkan nama baru untuk slot overlay (${sId}):`, 'Ubah Nama Slot Overlay', currentName);
               if (newName !== null && newName.trim()) {
@@ -1945,9 +2020,6 @@
                 });
                 if (patchRes.ok) {
                   spToast(`Nama slot berhasil diubah menjadi "${newName.trim()}"`, 'success');
-                  if (profileId === sId && settingOverlayName) {
-                    settingOverlayName.value = newName.trim();
-                  }
                   await checkUserSession();
                 } else {
                   spToast('Gagal mengubah nama slot', 'error');
@@ -1958,7 +2030,8 @@
 
           const overwriteBtn = item.querySelector('.btn-overwrite-slot');
           if (overwriteBtn) {
-            overwriteBtn.addEventListener('click', async () => {
+            overwriteBtn.addEventListener('click', async (e) => {
+              e.stopPropagation();
               const ok = await spConfirm(`Yakin ingin menimpa (overwrite) Slot ${idx + 1} ("${sName}") dengan konfigurasi yang sedang Anda ubah saat ini?`, 'Konfirmasi Overwrite Slot', 'warning');
               if (ok) {
                 profileId = sId;
@@ -1967,7 +2040,8 @@
             });
           }
 
-          item.querySelector('.btn-delete-slot').addEventListener('click', async () => {
+          item.querySelector('.btn-delete-slot').addEventListener('click', async (e) => {
+            e.stopPropagation();
             const ok = await spConfirm(`Yakin ingin menghapus slot overlay "${sName}" (${sId})?`, 'Hapus Slot Overlay', 'danger');
             if (ok) {
               const delRes = await fetch(`/api/user/overlays/${encodeURIComponent(sId)}`, {
@@ -1983,31 +2057,6 @@
           });
 
           slotsContainer.appendChild(item);
-        });
-      }
-
-      if (btnRenameSlot) {
-        btnRenameSlot.addEventListener('click', async () => {
-          if (!userToken || !currentUser) {
-            spToast('Silakan login untuk menyimpan nama slot', 'warning');
-            openAuthModal();
-            return;
-          }
-          const newName = settingOverlayName.value.trim() || profileId;
-          const patchRes = await fetch(`/api/user/overlays/${encodeURIComponent(profileId)}/rename`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-user-token': userToken
-            },
-            body: JSON.stringify({ name: newName })
-          });
-          if (patchRes.ok) {
-            spToast(`Nama slot berhasil disimpan: "${newName}"`, 'success');
-            await checkUserSession();
-          } else {
-            spToast('Gagal menyimpan nama slot', 'error');
-          }
         });
       }
 
@@ -2060,20 +2109,12 @@
           const res = await fetch(`/api/overlays/${profileId}`);
           if (res.ok) {
             const data = await res.json();
-            if (data.name !== undefined) {
-              settingOverlayName.value = data.name;
-            } else {
-              settingOverlayName.value = profileId;
+            if (!isPreviewTestingMode) {
+              if (data.twitch && !officialChannels.twitch) officialChannels.twitch = data.twitch;
+              if (data.youtube && !officialChannels.youtube) officialChannels.youtube = data.youtube;
+              if (data.tiktok && !officialChannels.tiktok) officialChannels.tiktok = data.tiktok;
+              syncInputsWithOfficialChannels();
             }
-
-            if (data.twitch !== undefined) settingTwitch.value = data.twitch;
-            if (data.youtube !== undefined) settingYouTube.value = data.youtube;
-            if (data.tiktok !== undefined) settingTikTok.value = data.tiktok;
-
-            // Fallback to savedChannels or user channels if profile channel is empty
-            if (!settingTwitch.value && savedChannels.twitch) settingTwitch.value = savedChannels.twitch;
-            if (!settingYouTube.value && savedChannels.youtube) settingYouTube.value = savedChannels.youtube;
-            if (!settingTikTok.value && savedChannels.tiktok) settingTikTok.value = savedChannels.tiktok;
 
             if (data.theme !== undefined) settingTheme.value = data.theme;
             if (data.chatAlign !== undefined) settingChatAlign.value = data.chatAlign;
@@ -2195,13 +2236,17 @@
         labelMaxMessages.textContent = `${settingMaxMessages.value} ${window.t ? window.t('slider_messages') : 'Pesan'}`;
       }
 
-      function getOverlayConfig() {
+      function getOverlayConfig(forSave = false) {
+        const tw = (forSave || !isPreviewTestingMode) ? (officialChannels.twitch || '') : settingTwitch.value.trim();
+        const yt = (forSave || !isPreviewTestingMode) ? (officialChannels.youtube || '') : settingYouTube.value.trim();
+        const tt = (forSave || !isPreviewTestingMode) ? (officialChannels.tiktok || '') : settingTikTok.value.trim();
+
         return {
           id: profileId,
-          name: settingOverlayName ? settingOverlayName.value.trim() : '',
-          twitch: settingTwitch.value.trim(),
-          youtube: settingYouTube.value.trim(),
-          tiktok: settingTikTok.value.trim(),
+          name: profileId,
+          twitch: tw,
+          youtube: yt,
+          tiktok: tt,
           theme: settingTheme.value,
           chatAlign: settingChatAlign ? settingChatAlign.value : 'left',
           chatDirection: getSelectedChatDirection(),
@@ -2260,6 +2305,7 @@
         let fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
         if (settingChatAlign && settingChatAlign.value === 'right') fullUrl += '&align=right';
         if (getSelectedChatDirection() === 'top') fullUrl += '&direction=top';
+        if (getSelectedChatDirection() === 'horizontal') fullUrl += '&direction=horizontal';
         if (getSelectedChatFade() !== 'none') fullUrl += `&fade=${getSelectedChatFade()}`;
         if (settingBgColor && settingBgColor.value !== '#0d111b') fullUrl += `&bgColor=${encodeURIComponent(settingBgColor.value)}`;
         if (settingBgOpacity && settingBgOpacity.value !== '88') fullUrl += `&bgOpacity=${settingBgOpacity.value}`;
@@ -2300,22 +2346,36 @@
       function onChannelInput() {
         if (channelSyncStatus) {
           channelSyncStatus.style.display = 'inline';
-          channelSyncStatus.textContent = 'Menghubungkan...';
+          channelSyncStatus.textContent = isPreviewTestingMode ? 'Menghubungkan Uji Coba Preview...' : 'Menghubungkan...';
           channelSyncStatus.style.color = '#f59e0b';
         }
         clearTimeout(channelSyncTimer);
         channelSyncTimer = setTimeout(() => {
-          const chData = {
-            twitch: settingTwitch.value.trim(),
-            youtube: settingYouTube.value.trim(),
-            tiktok: settingTikTok.value.trim()
-          };
-          saveStoredChannels(chData);
-          refreshPreview();
-          if (channelSyncStatus) {
-            channelSyncStatus.style.display = 'inline';
-            channelSyncStatus.textContent = '✓ Terhubung ke Preview';
-            channelSyncStatus.style.color = '#10b981';
+          if (isPreviewTestingMode) {
+            previewTestingChannels = {
+              twitch: settingTwitch.value.trim(),
+              youtube: settingYouTube.value.trim(),
+              tiktok: settingTikTok.value.trim()
+            };
+            refreshPreview();
+            if (channelSyncStatus) {
+              channelSyncStatus.style.display = 'inline';
+              channelSyncStatus.textContent = '🧪 Mode Uji Coba Preview';
+              channelSyncStatus.style.color = '#fbbf24';
+            }
+          } else {
+            officialChannels = {
+              twitch: settingTwitch.value.trim(),
+              youtube: settingYouTube.value.trim(),
+              tiktok: settingTikTok.value.trim()
+            };
+            saveStoredChannels(officialChannels);
+            refreshPreview();
+            if (channelSyncStatus) {
+              channelSyncStatus.style.display = 'inline';
+              channelSyncStatus.textContent = '✓ Terhubung ke Saluran Akun';
+              channelSyncStatus.style.color = '#10b981';
+            }
           }
         }, 400);
       }
@@ -2384,7 +2444,7 @@
           return;
         }
 
-        const cfg = getOverlayConfig();
+        const cfg = getOverlayConfig(true);
         try {
           const res = await fetch('/api/overlays', {
             method: 'POST',

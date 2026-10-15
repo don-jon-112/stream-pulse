@@ -1524,6 +1524,9 @@ app.post('/api/user/overlays/claim', (req, res) => {
   if (user) {
     const users = readJsonFile(USERS_FILE, {});
     const currentUser = users[user.username] || user;
+    if (overlays[targetId].owner && overlays[targetId].owner !== currentUser.username) {
+      return res.status(403).json({ error: 'Akses ditolak: Slot ID ini sudah terdaftar sebagai milik akun lain.' });
+    }
     if (!currentUser.overlayIds) currentUser.overlayIds = [];
     if (!currentUser.overlayIds.includes(targetId)) {
       if (currentUser.overlayIds.length >= 3) {
@@ -1661,14 +1664,24 @@ app.post('/api/overlays', (req, res) => {
   const currentUser = users[user.username] || user;
   if (!currentUser.overlayIds) currentUser.overlayIds = [];
 
-  // Overwrite or create new slot if slots < 3
-  if (!currentUser.overlayIds.includes(id)) {
-    if (currentUser.overlayIds.length >= 3) {
-      return res.status(400).json({ error: 'Batas kuota 3 slot overlay telah tercapai. Anda dapat memilih salah satu slot yang ada untuk di-overwrite atau hapus slot yang tidak digunakan.' });
+  // Keamanan Penjagaan Kepemilikan Slot:
+  if (overlays[id]) {
+    const isOwner = (overlays[id].owner === currentUser.username) || (currentUser.overlayIds.includes(id));
+    if (!isOwner) {
+      return res.status(403).json({
+        error: `Akses ditolak: Slot ID "${id}" bukan milik akun Anda dan tidak dapat Anda ubah/overwrite.`
+      });
     }
-    currentUser.overlayIds.push(id);
-    users[user.username] = currentUser;
-    writeJsonFile(USERS_FILE, users);
+  } else {
+    // ID baru yang belum ada di database, verifikasi kuota 3 slot per akun
+    if (!currentUser.overlayIds.includes(id)) {
+      if (currentUser.overlayIds.length >= 3) {
+        return res.status(400).json({ error: 'Batas kuota 3 slot overlay telah tercapai. Anda dapat memilih salah satu slot yang ada untuk di-overwrite atau hapus slot yang tidak digunakan.' });
+      }
+      currentUser.overlayIds.push(id);
+      users[user.username] = currentUser;
+      writeJsonFile(USERS_FILE, users);
+    }
   }
 
   overlays[id] = {
