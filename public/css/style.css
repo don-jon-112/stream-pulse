@@ -371,6 +371,11 @@ body {
   animation: pulse-ring 1s infinite alternate;
 }
 
+.platform-chip.warning .p-indicator {
+  background: var(--status-warning);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
 .platform-chip.error .p-indicator {
   background: var(--status-danger);
 }
