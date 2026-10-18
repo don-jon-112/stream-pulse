@@ -148,7 +148,9 @@
 
       .controls-panel {
         padding: 14px;
+        position: static;
         max-height: none;
+        overflow-y: visible;
       }
     }
 
@@ -162,15 +164,22 @@
       width: 100%;
       margin: 0 auto;
       box-sizing: border-box;
+      align-items: start;
     }
 
     @media (max-width: 1024px) {
       .studio-layout {
         grid-template-columns: 1fr;
       }
+      .controls-panel {
+        position: static !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+        top: auto !important;
+      }
     }
 
-    /* Left Control Panel */
+    /* Left Control Panel - Sticky on Web / Desktop view */
     .controls-panel {
       background: rgba(13, 17, 27, 0.96);
       border: 1px solid rgba(255, 255, 255, 0.09);
@@ -180,8 +189,12 @@
       flex-direction: column;
       gap: 16px;
       overflow-y: auto;
-      max-height: calc(100vh - 110px);
+      position: sticky;
+      top: 76px;
+      align-self: start;
+      max-height: calc(100vh - 96px);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      z-index: 20;
     }
 
     .controls-panel::-webkit-scrollbar {
