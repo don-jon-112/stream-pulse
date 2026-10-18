@@ -619,24 +619,23 @@
       font-weight: 700;
     }
 
-    /* Row item: Transparent background, no outer box, inline flow */
+    /* Row item: Transparent background, no outer box, natural inline wrapping flow */
     body.theme-glitch .overlay-item {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: flex-start !important;
-      gap: 8px !important;
-      padding: 2px 0 !important;
-      margin: 3px 0 !important;
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      padding: 3px 0 !important;
+      margin: 4px 0 !important;
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
       clip-path: none !important;
-      max-width: 100% !important;
-      width: fit-content !important;
-      box-sizing: border-box !important;
+      line-height: 1.5 !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
       animation: glitchFlicker 0.12s linear forwards !important;
-      line-height: 1.4 !important;
     }
 
     /* Hide avatar in this theme to match reference image */
@@ -649,31 +648,26 @@
       30%, 90%, 100% { opacity: 1; }
     }
 
-    /* Body: flex container with min-width: 0 so long text wraps proportionally without overflowing */
+    /* Body: inline container so header tag and text flow seamlessly with natural line wrapping */
     body.theme-glitch .overlay-body {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: flex-start !important;
-      flex-wrap: nowrap !important;
-      gap: 8px !important;
-      max-width: 100% !important;
-      width: fit-content !important;
-      box-sizing: border-box !important;
-      line-height: 1.4 !important;
+      display: inline !important;
+      width: auto !important;
+      line-height: 1.5 !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
     }
 
-    /* Header: Pure White Angled Tag anchored at top-left of message block */
+    /* Header: Pure White Angled Tag */
     body.theme-glitch .overlay-header {
       position: relative !important;
       display: inline-flex !important;
       align-items: center !important;
       gap: 5px !important;
       padding: 3px 18px 3px 8px !important;
-      margin: 0 !important;
+      margin: 0 8px 3px 0 !important;
       vertical-align: middle !important;
       z-index: 2 !important;
       flex-shrink: 0 !important;
-      align-self: flex-start !important;
       background: #ffffff !important;
       clip-path: polygon(0% 0%, calc(100% - 10px) 0%, 100% 10px, 100% 100%, 0% 100%) !important;
       filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4)) !important;
@@ -753,9 +747,8 @@
 
     /* Message Text: Crisp White Text with Dark Text-Shadow on Transparent Canvas */
     body.theme-glitch .overlay-text {
-      display: block !important;
-      flex: 1 1 auto !important;
-      min-width: 0 !important;
+      display: inline !important;
+      vertical-align: middle !important;
       font-size: 0.95em !important;
       font-weight: 700 !important;
       color: var(--text-custom, #ffffff) !important;
@@ -764,7 +757,7 @@
       word-break: break-word !important;
       white-space: normal !important;
       position: relative !important;
-      line-height: 1.4 !important;
+      line-height: 1.5 !important;
     }
 
     body.theme-glitch .overlay-message-content {
@@ -772,12 +765,6 @@
       overflow-wrap: break-word !important;
       word-break: break-word !important;
       white-space: normal !important;
-      clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
-      animation: glitchSlideIn 0.15s linear forwards !important;
-    }
-
-    @keyframes glitchSlideIn {
-      to { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); }
     }
 
     /* Emotes */
@@ -1036,21 +1023,13 @@
     /* Right Align Support for Glitch Theme */
     #overlayChatContainer.align-right body.theme-glitch .overlay-item,
     body.theme-glitch #overlayChatContainer.align-right .overlay-item {
+      text-align: right !important;
       margin-left: auto !important;
       margin-right: 0 !important;
-      flex-direction: row-reverse !important;
-    }
-    #overlayChatContainer.align-right body.theme-glitch .overlay-body,
-    body.theme-glitch #overlayChatContainer.align-right .overlay-body {
-      flex-direction: row-reverse !important;
-    }
-    #overlayChatContainer.align-right body.theme-glitch .overlay-text,
-    body.theme-glitch #overlayChatContainer.align-right .overlay-text {
-      text-align: right !important;
     }
     body.theme-glitch #overlayChatContainer.align-right .overlay-header {
       padding: 3px 8px 3px 18px !important;
-      margin: 0 !important;
+      margin: 0 0 3px 8px !important;
       clip-path: polygon(10px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 10px) !important;
       flex-direction: row-reverse !important;
     }

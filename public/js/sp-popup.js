@@ -152,6 +152,7 @@
       studio_guest_lock_title: "🔒 OBS Overlay Cloud Manager Terkunci",
       studio_guest_lock_desc: "Anda saat ini berada dalam mode <strong>Tamu (Guest)</strong>. Anda dapat mencoba kustomisasi visual & live preview, namun untuk <strong>menyimpan konfigurasi</strong>, <strong>mengelola 3 slot cloud</strong>, dan <strong>menyalin URL OBS</strong>, silakan masuk ke akun Anda.",
       studio_guest_lock_btn: "🔐 Login / Daftar Akun Sekarang",
+      preview_size_label: "Ukuran Canvas Preview:",
 
       // Studio Slots & Channels
       studio_slots_title: "✨ Slot OBS Overlay Cloud",
@@ -526,6 +527,7 @@
       studio_guest_lock_title: "🔒 OBS Overlay Cloud Manager Locked",
       studio_guest_lock_desc: "You are currently in <strong>Guest Mode</strong>. Feel free to tweak visual styles and view the live canvas preview, but saving configurations, managing 3 cloud slots, and copying the OBS Browser Source URL require an account.",
       studio_guest_lock_btn: "🔐 Login / Create Account Now",
+      preview_size_label: "Preview Canvas Size:",
 
       // Studio Slots & Channels
       studio_slots_title: "✨ OBS Overlay Cloud Slots",

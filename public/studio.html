@@ -496,8 +496,7 @@
     }
 
     .preview-window {
-      flex: 1;
-      min-height: 520px;
+      min-height: 320px;
       background:
         linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
         linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
@@ -513,8 +512,10 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 24px;
+      padding: 0;
       box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.85);
+      box-sizing: border-box;
+      margin: 0 auto;
     }
 
     .preview-window iframe#previewIframe {
@@ -1382,10 +1383,42 @@
         </div>
       </div>
 
-      <!-- Preview Window (Simulating OBS Canvas) -->
-      <div class="preview-window" id="previewWindow">
-        <div class="preview-badge-overlay" data-i18n="preview_canvas_badge">Preview OBS Canvas</div>
-        <iframe id="previewIframe" src="/overlay?id=default" allowtransparency="true" style="width:100%; height:100%; border:none; background:transparent !important; background-color:transparent !important; color-scheme:normal !important;"></iframe>
+      <!-- Canvas Dimensions Simulation Toolbar (Preview Only) -->
+      <div class="preview-dimension-toolbar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:rgba(13, 20, 36, 0.7); border:1px solid rgba(255, 255, 255, 0.08); border-radius:var(--radius-sm); padding:8px 12px; margin-top:4px;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span style="font-size:0.75rem; font-weight:700; color:#cbd5e1; display:flex; align-items:center; gap:4px;">
+            📐 <span data-i18n="preview_size_label">Ukuran Preview Canvas:</span>
+          </span>
+          <div style="display:inline-flex; align-items:center; gap:4px;">
+            <label for="previewCustomWidth" style="font-size:0.72rem; color:var(--text-tertiary);">W:</label>
+            <input type="number" id="previewCustomWidth" value="500" min="200" max="1920" step="10" class="form-input" style="width:68px; padding:3px 6px; font-size:0.75rem; text-align:center; height:26px;" title="Lebar simulasi preview dalam pixel">
+            <span style="font-size:0.72rem; color:var(--text-tertiary);">px</span>
+          </div>
+          <span style="color:rgba(255,255,255,0.25);">×</span>
+          <div style="display:inline-flex; align-items:center; gap:4px;">
+            <label for="previewCustomHeight" style="font-size:0.72rem; color:var(--text-tertiary);">H:</label>
+            <input type="number" id="previewCustomHeight" value="650" min="200" max="1440" step="10" class="form-input" style="width:68px; padding:3px 6px; font-size:0.75rem; text-align:center; height:26px;" title="Tinggi simulasi preview dalam pixel">
+            <span style="font-size:0.72rem; color:var(--text-tertiary);">px</span>
+          </div>
+          <button type="button" id="btnApplyPreviewSize" class="btn-icon btn-primary" style="padding:3px 10px; font-size:0.72rem; font-weight:800; height:26px;">Terapkan</button>
+        </div>
+
+        <!-- Quick Presets -->
+        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+          <span style="font-size:0.7rem; color:var(--text-tertiary);">Preset:</span>
+          <button type="button" class="btn-icon btn-preview-preset" data-w="350" data-h="600" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 350 x 600 px (Ultra Sempit)">350×600</button>
+          <button type="button" class="btn-icon btn-preview-preset" data-w="500" data-h="700" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 500 x 700 px">500×700</button>
+          <button type="button" class="btn-icon btn-preview-preset" data-w="600" data-h="800" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 600 x 800 px (OBS Standar)">600×800</button>
+          <button type="button" class="btn-icon btn-preview-preset" data-w="100%" data-h="650" style="padding:2px 7px; font-size:0.7rem; color:#67e8f9; border-color:rgba(6,182,212,0.4);" title="Lebar Penuh Otomatis">Fit 100%</button>
+        </div>
+      </div>
+
+      <!-- Preview Viewport Wrapper (Centered) -->
+      <div id="previewCanvasOuterWrap" style="width:100%; display:flex; justify-content:center; align-items:flex-start; overflow:auto; padding:4px 0;">
+        <div class="preview-window" id="previewWindow" style="width:500px; height:650px; max-width:100%; transition: width 0.2s ease, height 0.2s ease;">
+          <div class="preview-badge-overlay" id="previewCanvasBadge" data-i18n="preview_canvas_badge">Preview OBS Canvas: 500 × 650 px</div>
+          <iframe id="previewIframe" src="/overlay?id=default" allowtransparency="true" style="width:100%; height:100%; border:none; background:transparent !important; background-color:transparent !important; color-scheme:normal !important;"></iframe>
+        </div>
       </div>
 
     </div>
@@ -3146,6 +3179,69 @@
         });
       }
 
+      // Preview Canvas Dimension Toolbar (Width & Height Simulation Only)
+      const previewCustomWidth = document.getElementById('previewCustomWidth');
+      const previewCustomHeight = document.getElementById('previewCustomHeight');
+      const btnApplyPreviewSize = document.getElementById('btnApplyPreviewSize');
+      const previewWindow = document.getElementById('previewWindow');
+      const previewCanvasBadge = document.getElementById('previewCanvasBadge');
+      const presetButtons = document.querySelectorAll('.btn-preview-preset');
+
+      function updatePreviewDimensions(w, h) {
+        if (!previewWindow) return;
+        const widthVal = String(w).trim();
+        const heightVal = parseInt(h, 10) || 650;
+
+        if (widthVal.endsWith('%') || widthVal.toLowerCase() === 'fit') {
+          previewWindow.style.width = '100%';
+          if (previewCustomWidth) previewCustomWidth.value = Math.round(previewWindow.offsetWidth) || 600;
+        } else {
+          const numW = Math.max(200, Math.min(1920, parseInt(widthVal, 10) || 500));
+          previewWindow.style.width = `${numW}px`;
+          if (previewCustomWidth) previewCustomWidth.value = numW;
+        }
+
+        const numH = Math.max(200, Math.min(1440, heightVal));
+        previewWindow.style.height = `${numH}px`;
+        previewWindow.style.minHeight = `${numH}px`;
+        if (previewCustomHeight) previewCustomHeight.value = numH;
+
+        if (previewCanvasBadge) {
+          const displayW = previewWindow.style.width === '100%' ? `${Math.round(previewWindow.offsetWidth)}px (Fit 100%)` : previewWindow.style.width;
+          previewCanvasBadge.textContent = `Preview OBS Canvas: ${displayW} × ${numH}px`;
+        }
+      }
+
+      if (btnApplyPreviewSize) {
+        btnApplyPreviewSize.addEventListener('click', () => {
+          updatePreviewDimensions(previewCustomWidth.value, previewCustomHeight.value);
+        });
+      }
+
+      [previewCustomWidth, previewCustomHeight].forEach(inp => {
+        if (inp) {
+          inp.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              updatePreviewDimensions(previewCustomWidth.value, previewCustomHeight.value);
+            }
+          });
+          inp.addEventListener('change', () => {
+            updatePreviewDimensions(previewCustomWidth.value, previewCustomHeight.value);
+          });
+        }
+      });
+
+      presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          presetButtons.forEach(b => b.classList.remove('btn-primary'));
+          btn.classList.add('btn-primary');
+          const w = btn.dataset.w;
+          const h = btn.dataset.h;
+          updatePreviewDimensions(w, h);
+        });
+      });
+
       // Listen for language toggles
       window.addEventListener('language_changed', () => {
         renderUserStatus();
@@ -3155,6 +3251,7 @@
       // Initial boot
       checkUserSession();
       loadProfile();
+      updatePreviewDimensions(500, 600);
     });
   </script>
 </body>
