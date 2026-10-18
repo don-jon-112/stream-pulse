@@ -418,6 +418,9 @@
       vertical-align: middle;
       flex-shrink: 0;
     }
+    body.hide-platform-icons .overlay-platform-tag {
+      display: none !important;
+    }
     .overlay-platform-tag svg {
       width: 12px;
       height: 12px;
@@ -880,6 +883,7 @@
         showBadges: urlParams.get('badges') !== '0',
         showTwitchBadges: urlParams.get('twitchBadges') !== '0',
         showYtBadges: urlParams.get('ytBadges') !== '0',
+        showPlatformIcons: urlParams.get('platformIcons') !== null ? (urlParams.get('platformIcons') !== '0') : (urlParams.get('icons') !== '0'),
         showAvatars: urlParams.get('avatars') !== '0',
         showAlerts: urlParams.get('alerts') !== '0',
         showEmotes: urlParams.get('emotes') !== '0',
@@ -931,6 +935,9 @@
             showYtBadges: urlParams.get('ytBadges') !== null
               ? (urlParams.get('ytBadges') !== '0')
               : (profile.showYtBadges !== undefined ? profile.showYtBadges : (profile.showBadges !== undefined ? profile.showBadges : true)),
+            showPlatformIcons: urlParams.get('platformIcons') !== null
+              ? (urlParams.get('platformIcons') !== '0')
+              : (profile.showPlatformIcons !== undefined ? profile.showPlatformIcons : true),
             authorColor: urlParams.get('authorColor') || profile.authorColor || config.authorColor,
             useTwitchColors: urlParams.get('useTwitchColors') !== null
               ? (urlParams.get('useTwitchColors') !== '0')
@@ -953,6 +960,9 @@
       const activeTheme = config.theme || 'simple';
       if (activeTheme !== 'glass') {
         document.body.classList.add(`theme-${activeTheme}`);
+      }
+      if (config.showPlatformIcons === false) {
+        document.body.classList.add('hide-platform-icons');
       }
       if (config.fontSize) {
         document.documentElement.style.fontSize = `${config.fontSize}px`;
@@ -1258,6 +1268,7 @@
 
       // Platform Icon / Tag Renderer (Twitch, YouTube, TikTok)
       function renderPlatformTag(platform) {
+        if (config.showPlatformIcons === false) return '';
         const p = String(platform || '').toLowerCase();
         if (p === 'twitch') {
           return `<span class="overlay-platform-tag platform-twitch" title="Twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.429h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></span>`;
@@ -1804,6 +1815,14 @@
           config = { ...config, ...newCfg };
           if (newCfg.showTwitchBadges !== undefined) config.showTwitchBadges = newCfg.showTwitchBadges;
           if (newCfg.showYtBadges !== undefined) config.showYtBadges = newCfg.showYtBadges;
+          if (newCfg.showPlatformIcons !== undefined) {
+            config.showPlatformIcons = newCfg.showPlatformIcons;
+            if (config.showPlatformIcons === false) {
+              document.body.classList.add('hide-platform-icons');
+            } else {
+              document.body.classList.remove('hide-platform-icons');
+            }
+          }
           if (newCfg.showTikTokLikes !== undefined) config.showTikTokLikes = newCfg.showTikTokLikes;
           if (newCfg.showTikTokGifts !== undefined) config.showTikTokGifts = newCfg.showTikTokGifts;
           if (newCfg.showTikTokFollow !== undefined) config.showTikTokFollow = newCfg.showTikTokFollow;

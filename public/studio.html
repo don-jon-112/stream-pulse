@@ -931,6 +931,17 @@
           </div>
 
           <div class="toggle-row">
+            <div>
+              <span style="font-size:0.85rem;" data-i18n="sec_show_platform_icons">Tampilkan Ikon / Logo Platform (Twitch, YouTube, TikTok)</span>
+              <div style="font-size:0.72rem; color:var(--text-tertiary);" data-i18n="sec_show_platform_icons_sub">Tampilkan logo kecil platform streaming di samping nama atau badge</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingShowPlatformIcons" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
             <span style="font-size:0.85rem;" data-i18n="sec_show_avatars">Tampilkan Foto Profil / Avatar Viewer</span>
             <label class="toggle-switch">
               <input type="checkbox" id="settingShowAvatars" checked>
@@ -1459,6 +1470,7 @@
       const settingShowTwitchBadges = document.getElementById('settingShowTwitchBadges');
       const settingShowYtBadges = document.getElementById('settingShowYtBadges');
       const settingShowBadges = settingShowTwitchBadges;
+      const settingShowPlatformIcons = document.getElementById('settingShowPlatformIcons');
       const settingShowAvatars = document.getElementById('settingShowAvatars');
       const settingShowEmotes = document.getElementById('settingShowEmotes');
       const settingShowAlerts = document.getElementById('settingShowAlerts');
@@ -2164,6 +2176,7 @@
             } else if (data.showBadges !== undefined) {
               settingShowYtBadges.checked = data.showBadges;
             }
+            if (data.showPlatformIcons !== undefined) settingShowPlatformIcons.checked = data.showPlatformIcons;
             if (data.showAvatars !== undefined) settingShowAvatars.checked = data.showAvatars;
             if (data.showEmotes !== undefined) settingShowEmotes.checked = data.showEmotes;
             if (data.showAlerts !== undefined) settingShowAlerts.checked = data.showAlerts;
@@ -2266,6 +2279,7 @@
           showBadges: settingShowTwitchBadges.checked || settingShowYtBadges.checked,
           showTwitchBadges: settingShowTwitchBadges.checked,
           showYtBadges: settingShowYtBadges.checked,
+          showPlatformIcons: settingShowPlatformIcons ? settingShowPlatformIcons.checked : true,
           showAvatars: settingShowAvatars.checked,
           showEmotes: settingShowEmotes.checked,
           showAlerts: settingShowAlerts.checked,
@@ -2321,6 +2335,7 @@
         if (settingShowTikTokFollow && !settingShowTikTokFollow.checked) fullUrl += '&ttFollow=0';
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
         if (!settingShowYtBadges.checked) fullUrl += '&ytBadges=0';
+        if (settingShowPlatformIcons && !settingShowPlatformIcons.checked) fullUrl += '&platformIcons=0';
         obsFinalUrl.value = fullUrl;
 
         if (obsUrlHelpText && currentUser) {
@@ -2490,7 +2505,7 @@
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
+      [settingTheme, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowPlatformIcons, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
         if (el) {
           el.addEventListener('change', () => {
             updateLabels();
@@ -2688,6 +2703,7 @@
         settingMaxMessages.value = 15;
 
         if (settingMaskLinks) settingMaskLinks.checked = false;
+        if (settingShowPlatformIcons) settingShowPlatformIcons.checked = true;
         if (settingShowTwitchBadges) settingShowTwitchBadges.checked = true;
         if (settingShowYtBadges) settingShowYtBadges.checked = true;
         if (settingShowAvatars) settingShowAvatars.checked = true;
