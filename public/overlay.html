@@ -795,34 +795,234 @@
       vertical-align: middle !important;
     }
 
-    /* Event & Alerts: Consistent White Tag and Bold White Text */
+    /* Concept 1: Cyber Tactical HUD Card (Dual-Cut Chamfer) for Glitch Theme Alerts */
     body.theme-glitch .overlay-item.overlay-event {
-      display: inline-flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      gap: 8px !important;
-      padding: 2px 0 !important;
-      margin: 3px 0 !important;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-      clip-path: none !important;
-      animation: glitchFlicker 0.15s linear forwards !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 6px !important;
+      padding: 10px 14px !important;
+      margin: 6px 0 !important;
+      background: rgba(10, 15, 26, 0.94) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-left: 4px solid var(--alert-neon, #6366f1) !important;
+      clip-path: polygon(14px 0%, 100% 0%, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0% 100%, 0% 14px) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 16px var(--alert-glow, rgba(99, 102, 241, 0.35)) !important;
+      width: fit-content !important;
+      max-width: 520px !important;
+      min-width: 260px !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      animation: alertGlitchIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+    }
+
+    body.theme-glitch .overlay-item.overlay-event::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      width: 16px;
+      height: 2px;
+      background: var(--alert-neon, #6366f1);
+      opacity: 0.85;
+      box-shadow: 0 0 6px var(--alert-neon, #6366f1);
+      pointer-events: none;
+    }
+
+    @keyframes alertGlitchIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-8px) skewX(-4deg);
+        filter: brightness(1.8) contrast(1.3);
+      }
+      60% {
+        opacity: 1;
+        transform: translateY(2px) skewX(2deg);
+        filter: brightness(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) skewX(0deg);
+        filter: brightness(1);
+      }
+    }
+
+    /* Glitch Alert Internal Structure */
+    body.theme-glitch .overlay-item.overlay-event .overlay-body {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 3px !important;
+      width: 100% !important;
+      flex-wrap: wrap !important;
     }
 
     body.theme-glitch .overlay-item.overlay-event .overlay-header {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
       background: #ffffff !important;
+      color: #000000 !important;
+      padding: 2px 14px 2px 6px !important;
+      margin: 0 0 4px 0 !important;
+      clip-path: polygon(0% 0%, calc(100% - 8px) 0%, 100% 8px, 100% 100%, 0% 100%) !important;
+      width: fit-content !important;
     }
 
-    body.theme-glitch .overlay-event-title {
-      display: inline !important;
-      vertical-align: middle !important;
+    body.theme-glitch .overlay-item.overlay-event .overlay-header .overlay-author-name {
+      color: #000000 !important;
+      -webkit-text-fill-color: #000000 !important;
+      font-weight: 800 !important;
+    }
+
+    body.theme-glitch .overlay-item.overlay-event .overlay-event-title {
+      display: block !important;
       font-size: 0.95em !important;
-      font-weight: 700 !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.03em !important;
+      text-transform: uppercase !important;
+      color: var(--alert-title, #ffffff) !important;
+      text-shadow: 0 0 10px var(--alert-glow, rgba(99, 102, 241, 0.5)), 1px 1px 2px #000000 !important;
+      margin: 2px 0 !important;
+      line-height: 1.3 !important;
+    }
+
+    body.theme-glitch .overlay-item.overlay-event .overlay-text {
+      display: block !important;
+      margin-top: 4px !important;
+      padding: 6px 10px !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      border-left: 2px solid var(--alert-neon, rgba(255, 255, 255, 0.4)) !important;
+      border-radius: 0 4px 4px 0 !important;
+      font-style: italic !important;
+      font-size: 0.9em !important;
+      color: #e2e8f0 !important;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      word-break: break-word !important;
+      line-height: 1.4 !important;
+    }
+
+    body.theme-glitch .badge-icon.redeem-tag {
+      background: #06b6d4 !important;
       color: #ffffff !important;
-      text-shadow: 1px 1px 2px #000000, 2px 2px 3px rgba(0, 0, 0, 0.8), 0 0 6px rgba(0, 0, 0, 0.6) !important;
-      margin-right: 6px !important;
+      border-radius: 3px !important;
+      padding: 1px 5px !important;
+      font-size: 0.7em !important;
+      font-weight: 700 !important;
+    }
+
+    /* Glitch Alert Colors per Platform & Event */
+    body.theme-glitch .overlay-item.overlay-event.platform-twitch {
+      --alert-neon: #a855f7;
+      --alert-glow: rgba(168, 85, 247, 0.45);
+      --alert-title: #d8b4fe;
+    }
+    body.theme-glitch .overlay-item.overlay-event.event-subscription,
+    body.theme-glitch .overlay-item.overlay-event.event-resub,
+    body.theme-glitch .overlay-item.overlay-event.event-subgift {
+      --alert-neon: #a855f7;
+      --alert-glow: rgba(168, 85, 247, 0.55);
+      --alert-title: #f3e8ff;
+    }
+    body.theme-glitch .overlay-item.overlay-event.event-cheer {
+      --alert-neon: #00f2fe;
+      --alert-glow: rgba(0, 242, 254, 0.55);
+      --alert-title: #38bdf8;
+    }
+    body.theme-glitch .overlay-item.overlay-event.event-raid,
+    body.theme-glitch .overlay-item.overlay-event.twitch-raid {
+      --alert-neon: #f43f5e;
+      --alert-glow: rgba(244, 63, 94, 0.55);
+      --alert-title: #fb7185;
+    }
+    body.theme-glitch .overlay-item.overlay-event.event-watch_streak,
+    body.theme-glitch .overlay-item.overlay-event.twitch-watch-streak {
+      --alert-neon: #fb923c;
+      --alert-glow: rgba(251, 146, 60, 0.55);
+      --alert-title: #fdba74;
+    }
+    body.theme-glitch .overlay-item.overlay-event.is-redeem,
+    body.theme-glitch .overlay-item.overlay-event.event-redeem {
+      --alert-neon: #06b6d4;
+      --alert-glow: rgba(6, 182, 212, 0.55);
+      --alert-title: #67e8f9;
+    }
+    body.theme-glitch .overlay-item.overlay-event.platform-youtube {
+      --alert-neon: #ff0033;
+      --alert-glow: rgba(255, 0, 51, 0.45);
+      --alert-title: #ff6b81;
+    }
+    body.theme-glitch .overlay-item.overlay-event.youtube-superchat,
+    body.theme-glitch .overlay-item.overlay-event.event-superchat {
+      --alert-neon: #ffd700;
+      --alert-glow: rgba(255, 215, 0, 0.55);
+      --alert-title: #facc15;
+    }
+    body.theme-glitch .overlay-item.overlay-event.event-member {
+      --alert-neon: #10b981;
+      --alert-glow: rgba(16, 185, 129, 0.55);
+      --alert-title: #34d399;
+    }
+    body.theme-glitch .overlay-item.overlay-event.platform-tiktok,
+    body.theme-glitch .overlay-item.overlay-event.event-gift {
+      --alert-neon: #ff007f;
+      --alert-glow: rgba(255, 0, 127, 0.55);
+      --alert-title: #ff70a6;
+    }
+    body.theme-glitch .overlay-item.overlay-event.event-like {
+      --alert-neon: #00f2fe;
+      --alert-glow: rgba(0, 242, 254, 0.5);
+      --alert-title: #38bdf8;
+    }
+    body.theme-glitch .overlay-item.overlay-event.event-follow {
+      --alert-neon: #3b82f6;
+      --alert-glow: rgba(59, 130, 246, 0.5);
+      --alert-title: #60a5fa;
+    }
+
+    /* Right Align Support for Glitch Theme Alerts */
+    #overlayChatContainer.align-right body.theme-glitch .overlay-item.overlay-event,
+    body.theme-glitch #overlayChatContainer.align-right .overlay-item.overlay-event {
+      margin-left: auto !important;
+      margin-right: 0 !important;
+      border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-right: 4px solid var(--alert-neon, #6366f1) !important;
+      clip-path: polygon(0% 0%, calc(100% - 14px) 0%, 100% 14px, 100% 100%, 14px 100%, 0% calc(100% - 14px)) !important;
+      align-items: stretch !important;
+    }
+    #overlayChatContainer.align-right body.theme-glitch .overlay-item.overlay-event::after,
+    body.theme-glitch #overlayChatContainer.align-right .overlay-item.overlay-event::after {
+      right: auto !important;
+      left: 10px !important;
+    }
+    #overlayChatContainer.align-right body.theme-glitch .overlay-item.overlay-event .overlay-body,
+    body.theme-glitch #overlayChatContainer.align-right .overlay-item.overlay-event .overlay-body {
+      align-items: flex-end !important;
+    }
+    #overlayChatContainer.align-right body.theme-glitch .overlay-item.overlay-event .overlay-header,
+    body.theme-glitch #overlayChatContainer.align-right .overlay-item.overlay-event .overlay-header {
+      margin: 0 0 4px auto !important;
+    }
+    #overlayChatContainer.align-right body.theme-glitch .overlay-item.overlay-event .overlay-text,
+    body.theme-glitch #overlayChatContainer.align-right .overlay-item.overlay-event .overlay-text {
+      border-left: none !important;
+      border-right: 2px solid var(--alert-neon, rgba(255, 255, 255, 0.4)) !important;
+      border-radius: 4px 0 0 4px !important;
+      text-align: right !important;
+    }
+
+    /* Horizontal Direction Support for Glitch Theme Alerts */
+    body.theme-glitch #overlayChatContainer.direction-horizontal .overlay-item.overlay-event {
+      display: inline-flex !important;
+      flex-shrink: 0 !important;
+      white-space: normal !important;
+      min-width: 260px !important;
+      max-width: 420px !important;
+      margin: 0 10px !important;
     }
 
     /* Right Align Support for Glitch Theme */
@@ -1592,6 +1792,7 @@
         if (evt.eventType === 'superchat') el.classList.add('youtube-superchat');
         if (evt.eventType === 'raid') el.classList.add('twitch-raid');
         if (evt.eventType === 'watch_streak') el.classList.add('twitch-watch-streak');
+        if (evt.eventType) el.classList.add(`event-${evt.eventType}`);
 
         const initial = (authorName[0] || '★').toUpperCase();
         const authorColor = getAuthorColor(typeof evt.author === 'object' ? evt.author : { name: authorName, color: evt.authorColor }, evt.platform);
