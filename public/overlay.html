@@ -621,9 +621,9 @@
 
     /* Row item: Transparent background, no outer box, inline flow */
     body.theme-glitch .overlay-item {
-      display: inline-flex !important;
+      display: flex !important;
       flex-direction: row !important;
-      align-items: center !important;
+      align-items: flex-start !important;
       gap: 8px !important;
       padding: 2px 0 !important;
       margin: 3px 0 !important;
@@ -634,6 +634,7 @@
       clip-path: none !important;
       max-width: 100% !important;
       width: fit-content !important;
+      box-sizing: border-box !important;
       animation: glitchFlicker 0.12s linear forwards !important;
       line-height: 1.4 !important;
     }
@@ -648,28 +649,31 @@
       30%, 90%, 100% { opacity: 1; }
     }
 
-    /* Body: strictly single-line row so tag and message are side-by-side */
+    /* Body: flex container with min-width: 0 so long text wraps proportionally without overflowing */
     body.theme-glitch .overlay-body {
-      display: inline-flex !important;
+      display: flex !important;
       flex-direction: row !important;
-      align-items: center !important;
+      align-items: flex-start !important;
       flex-wrap: nowrap !important;
       gap: 8px !important;
-      vertical-align: middle !important;
+      max-width: 100% !important;
+      width: fit-content !important;
+      box-sizing: border-box !important;
       line-height: 1.4 !important;
     }
 
-    /* Header: Pure White Angled Tag with Top-Right Cut Corner */
+    /* Header: Pure White Angled Tag anchored at top-left of message block */
     body.theme-glitch .overlay-header {
       position: relative !important;
       display: inline-flex !important;
       align-items: center !important;
       gap: 5px !important;
       padding: 3px 18px 3px 8px !important;
-      margin: 0 8px 0 0 !important;
+      margin: 0 !important;
       vertical-align: middle !important;
       z-index: 2 !important;
       flex-shrink: 0 !important;
+      align-self: flex-start !important;
       background: #ffffff !important;
       clip-path: polygon(0% 0%, calc(100% - 10px) 0%, 100% 10px, 100% 100%, 0% 100%) !important;
       filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4)) !important;
@@ -749,21 +753,25 @@
 
     /* Message Text: Crisp White Text with Dark Text-Shadow on Transparent Canvas */
     body.theme-glitch .overlay-text {
-      display: inline !important;
-      vertical-align: middle !important;
+      display: block !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
       font-size: 0.95em !important;
       font-weight: 700 !important;
       color: var(--text-custom, #ffffff) !important;
       text-shadow: 1px 1px 2px #000000, 2px 2px 3px rgba(0, 0, 0, 0.8), 0 0 6px rgba(0, 0, 0, 0.6) !important;
-      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      word-break: break-word !important;
+      white-space: normal !important;
       position: relative !important;
       line-height: 1.4 !important;
     }
 
     body.theme-glitch .overlay-message-content {
       display: inline !important;
-      vertical-align: middle !important;
+      overflow-wrap: break-word !important;
       word-break: break-word !important;
+      white-space: normal !important;
       clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
       animation: glitchSlideIn 0.15s linear forwards !important;
     }
@@ -1032,9 +1040,17 @@
       margin-right: 0 !important;
       flex-direction: row-reverse !important;
     }
+    #overlayChatContainer.align-right body.theme-glitch .overlay-body,
+    body.theme-glitch #overlayChatContainer.align-right .overlay-body {
+      flex-direction: row-reverse !important;
+    }
+    #overlayChatContainer.align-right body.theme-glitch .overlay-text,
+    body.theme-glitch #overlayChatContainer.align-right .overlay-text {
+      text-align: right !important;
+    }
     body.theme-glitch #overlayChatContainer.align-right .overlay-header {
       padding: 3px 8px 3px 18px !important;
-      margin: 0 0 0 8px !important;
+      margin: 0 !important;
       clip-path: polygon(10px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 10px) !important;
       flex-direction: row-reverse !important;
     }
