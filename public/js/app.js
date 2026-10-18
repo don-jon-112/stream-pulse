@@ -531,20 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (btnClearChatScreen) {
-    btnClearChatScreen.addEventListener('click', () => {
-      chatMessages.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">
-            <svg viewBox="0 0 24 24"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
-          </div>
-          <h3>Layar Chat Dibersihkan</h3>
-          <p>Semua chat lama telah dihapus dari layar agar performa HP/Browser tetap super ringan & hemat RAM. Pesan baru akan otomatis masuk ke sini.</p>
-        </div>
-      `;
-      scrollPausePill.style.display = 'none';
-    });
-  }
+
 
   // Fullscreen button
   if (btnFullscreen) {
@@ -1792,6 +1779,8 @@ document.addEventListener('DOMContentLoaded', () => {
         processedChatMessageIds.clear();
         state.totalChats = 0;
         if (statTotalChats) statTotalChats.textContent = '0';
+        if (scrollPausePill) scrollPausePill.style.display = 'none';
+        state.autoScroll = true;
         spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Chat screen cleared' : 'Layar chat berhasil dibersihkan', 'success');
       }
     });
