@@ -1655,6 +1655,35 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal(setupModal);
   });
 
+  const btnRefreshChannels = document.getElementById('btnRefreshChannels');
+  if (btnRefreshChannels) {
+    btnRefreshChannels.addEventListener('click', async () => {
+      const twitch = inputTwitch.value.trim();
+      let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
+      const youtube = inputYouTube.value.trim();
+      const tiktok = inputTikTok.value.trim();
+
+      const origHtml = btnRefreshChannels.innerHTML;
+      btnRefreshChannels.disabled = true;
+      btnRefreshChannels.innerHTML = `<span>⏳ Menyambungkan Ulang...</span>`;
+
+      // Simpan lokal terlebih dahulu
+      saveStoredUserChannels({ twitch, youtube, tiktok });
+
+      if (currentUser && userToken) {
+        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken, force: true });
+      } else {
+        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, force: true });
+      }
+
+      setTimeout(() => {
+        btnRefreshChannels.disabled = false;
+        btnRefreshChannels.innerHTML = origHtml;
+        spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Channels refreshed!' : 'Koneksi saluran disegarkan & dicoba ulang!', 'info');
+      }, 1000);
+    });
+  }
+
   [chipTwitch, chipYouTube, chipTikTok].forEach(chip => {
     chip.addEventListener('click', () => openModal(setupModal));
   });
@@ -1755,7 +1784,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   if (btnClearChatScreen) {
-    btnClearChatScreen.addEventListener('click', async () => {
+    btnClearChatScreen.addEventListener('click', async (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       const ok = await spConfirm(
         window.getCurrentLang && window.getCurrentLang() === 'en'
           ? 'Clear all chat messages from screen and storage?'

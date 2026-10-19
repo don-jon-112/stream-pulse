@@ -547,13 +547,18 @@
 
       </div>
 
-      <div class="modal-footer">
-        <button id="btnCancelSetup" class="btn-icon">
-          <span data-i18n="btn_cancel">Batal</span>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <button type="button" id="btnRefreshChannels" class="btn-icon" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; font-weight: 700; padding: 7px 12px;" title="Segarkan dan paksa hubungkan ulang semua saluran">
+          <span>🔄 Segarkan Koneksi</span>
         </button>
-        <button id="btnSaveChannels" class="btn-icon btn-primary">
-          <span data-i18n="btn_save_connect">Simpan & Hubungkan</span>
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btnCancelSetup" class="btn-icon">
+            <span data-i18n="btn_cancel">Batal</span>
+          </button>
+          <button id="btnSaveChannels" class="btn-icon btn-primary">
+            <span data-i18n="btn_save_connect">Simpan & Hubungkan</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -771,10 +776,10 @@
 
   <!-- Socket.io & App Scripts -->
   <script src="/js/socket.io.min.js"></script>
-  <script src="/js/sp-popup.js?v=fresh_6"></script>
+  <script src="/js/sp-popup.js?v=fresh_8"></script>
   <script src="/js/nosleep.min.js"></script>
-  <script src="/js/wakelock.js?v=fresh_5"></script>
-  <script src="/js/app.js?v=fresh_5"></script>
+  <script src="/js/wakelock.js?v=fresh_8"></script>
+  <script src="/js/app.js?v=fresh_8"></script>
 </body>
 
 </html>

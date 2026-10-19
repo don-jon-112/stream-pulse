@@ -907,28 +907,29 @@
             </div>
           </div>
 
-          <!-- GRADASI TRANSPARANSI CHAT LAMA (RADIO BUTTON) -->
+          <!-- GRADASI TRANSPARANSI CHAT LAMA (MANUAL SLIDER & PRESETS) -->
           <div style="padding: 6px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_chat_fade">🌫️ Efek Transparansi Chat Lama (Fade Out)</span>
-              <span id="labelChatFade" style="font-size:0.75rem; color:#67e8f9; font-family:var(--font-mono);">Mati (Solid)</span>
+              <span id="labelChatFade" style="font-size:0.75rem; color:#67e8f9; font-family:var(--font-mono); font-weight:700;">Mati (Solid)</span>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-              <label class="radio-option-card">
-                <input type="radio" name="chatFade" value="none" checked>
-                <span data-i18n="opt_fade_none">Mati (100% Solid)</span>
-              </label>
-              <label class="radio-option-card">
-                <input type="radio" name="chatFade" value="smooth">
-                <span data-i18n="opt_fade_smooth">Halus (Medium)</span>
-              </label>
-              <label class="radio-option-card">
-                <input type="radio" name="chatFade" value="steep">
-                <span data-i18n="opt_fade_steep">Ekstrem (Kuat)</span>
-              </label>
+
+            <!-- Manual Intensity Slider -->
+            <div style="display:flex; align-items:center; gap:10px; margin: 8px 0 6px 0;">
+              <input type="range" id="settingChatFadeRange" min="0" max="95" step="5" value="0" class="form-range" style="flex:1;">
+              <span id="labelChatFadePercent" style="font-size:0.85rem; font-family:var(--font-mono); font-weight:800; color:#67e8f9; min-width:44px; text-align:right;">0%</span>
             </div>
-            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:4px;" data-i18n="tip_chat_fade">
-              💡 Chat lama akan otomatis semakin transparan / memudar sehingga penonton lebih fokus ke chat terbaru.
+
+            <!-- Quick Presets -->
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:5px; margin-top:6px;">
+              <button type="button" class="btn-action-sm btn-fade-preset" data-val="0" style="padding:4px 6px; font-size:0.72rem; text-align:center;">Mati (0%)</button>
+              <button type="button" class="btn-action-sm btn-fade-preset" data-val="50" style="padding:4px 6px; font-size:0.72rem; text-align:center;">Halus (50%)</button>
+              <button type="button" class="btn-action-sm btn-fade-preset" data-val="75" style="padding:4px 6px; font-size:0.72rem; text-align:center;">Kuat (75%)</button>
+              <button type="button" class="btn-action-sm btn-fade-preset" data-val="90" style="padding:4px 6px; font-size:0.72rem; text-align:center;">Ekstrem (90%)</button>
+            </div>
+
+            <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:6px;" data-i18n="tip_chat_fade">
+              💡 Geser slider bebas (0-95%) atau klik preset untuk mengatur seberapa transparan chat lama memudar.
             </div>
           </div>
           
@@ -1335,10 +1336,11 @@
         <div style="font-size:0.8rem; font-weight:700; color:#fff; margin-top:4px;" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
         <textarea id="settingCustomJs" class="form-textarea" rows="6" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
 
-        <!-- Save Button for Custom CSS & JS -->
-        <button type="button" id="btnSaveCustomCode" class="btn-icon btn-primary" style="margin-top:6px; width:100%; justify-content:center; padding:10px; font-weight:800;">
-          <span data-i18n="studio_save_custom_code">💾 Simpan Kustom CSS & JS</span>
-        </button>
+        <!-- Single Save Reminder for Custom CSS & JS -->
+        <div style="margin-top:10px; padding:9px 12px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); border-radius:8px; font-size:0.75rem; color:#c7d2fe; display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1rem;">💾</span>
+          <span>Perubahan CSS &amp; JS otomatis teruji di preview. Klik tombol <strong>"Simpan Pengaturan"</strong> di kanan atas untuk menyimpan ke cloud.</span>
+        </div>
       </div>
 
       <!-- Discord Button -->
@@ -1544,6 +1546,8 @@
       const labelContainerBgOpacity = document.getElementById('labelContainerBgOpacity');
       const labelChatDirection = document.getElementById('labelChatDirection');
       const labelChatFade = document.getElementById('labelChatFade');
+      const settingChatFadeRange = document.getElementById('settingChatFadeRange');
+      const labelChatFadePercent = document.getElementById('labelChatFadePercent');
 
       function getSelectedChatDirection() {
         const checked = document.querySelector('input[name="chatDirection"]:checked');
@@ -1558,17 +1562,35 @@
         }
       }
 
-      function getSelectedChatFade() {
-        const checked = document.querySelector('input[name="chatFade"]:checked');
-        return checked ? checked.value : 'none';
-      }
-      function setSelectedChatFade(val) {
-        const target = ['smooth', 'steep'].includes(val) ? val : 'none';
-        const radio = document.querySelector(`input[name="chatFade"][value="${target}"]`);
-        if (radio) radio.checked = true;
+      function updateChatFadeLabels(num) {
+        if (labelChatFadePercent) labelChatFadePercent.textContent = `${num}%`;
         if (labelChatFade) {
-          labelChatFade.textContent = target === 'smooth' ? 'Halus (Medium)' : (target === 'steep' ? 'Ekstrem (Kuat)' : 'Mati (Solid)');
+          if (num === 0) labelChatFade.textContent = 'Mati (Solid)';
+          else if (num === 50) labelChatFade.textContent = 'Halus (50%)';
+          else if (num === 75) labelChatFade.textContent = 'Kuat (75%)';
+          else if (num === 90) labelChatFade.textContent = 'Ekstrem (90%)';
+          else labelChatFade.textContent = `Kustom (${num}%)`;
         }
+      }
+
+      function getSelectedChatFade() {
+        if (settingChatFadeRange) {
+          const val = parseInt(settingChatFadeRange.value, 10);
+          return (isNaN(val) || val === 0) ? 'none' : String(val);
+        }
+        return 'none';
+      }
+
+      function setSelectedChatFade(val) {
+        let num = 0;
+        if (val === 'smooth') num = 50;
+        else if (val === 'steep') num = 90;
+        else if (val === 'none' || val === false || val === undefined || val === null) num = 0;
+        else if (!isNaN(parseInt(val, 10))) num = parseInt(val, 10);
+        num = Math.max(0, Math.min(95, num));
+
+        if (settingChatFadeRange) settingChatFadeRange.value = num;
+        updateChatFadeLabels(num);
       }
 
       // Alert Customizers
@@ -2007,11 +2029,28 @@
               }
               refreshPreview();
             }
+            // Auto-load user overlay into editor and preview iframe
+            const paramId = urlParams.get('id');
+            const rawSlots = currentUser.overlays || currentUser.overlayIds || [];
+            const userSlotIds = rawSlots.map(s => (typeof s === 'object' && s && s.id) ? s.id : s).filter(Boolean);
+
+            if (paramId && (userSlotIds.includes(paramId) || paramId === 'default')) {
+              switchProfile(paramId);
+            } else if (userSlotIds.length > 0) {
+              if (profileId === 'default' || !userSlotIds.includes(profileId)) {
+                switchProfile(userSlotIds[0]);
+              } else {
+                switchProfile(profileId);
+              }
+            } else {
+              switchProfile('default');
+            }
           } else {
             userToken = '';
             currentUser = null;
             localStorage.removeItem('streampulse_user_token');
             renderUserStatus();
+            switchProfile('default');
           }
         } catch (e) {
           renderUserStatus();
@@ -2049,7 +2088,7 @@
             </div>
             <div style="display:flex; gap:5px; align-items:center;">
               <button class="btn-action-sm btn-rename-slot" data-id="${sId}" data-name="${escapeHtml(sName)}" title="Ganti Nama Slot">✏️ Nama</button>
-              <button class="btn-action-sm btn-overwrite-slot" data-id="${sId}" style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc;" title="${window.t ? window.t('btn_overwrite_slot_tip') : 'Timpa (overwrite) slot ini'}">💾</button>
+              <button class="btn-action-sm btn-duplicate-slot" data-id="${sId}" data-name="${escapeHtml(sName)}" style="background:rgba(14,165,233,0.18); border:1px solid rgba(14,165,233,0.35); color:#7dd3fc;" title="Duplikat slot overlay ini">📋 Copy</button>
               <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="${window.t ? window.t('btn_delete_slot_tip') : 'Hapus slot ini'}">🗑️</button>
             </div>
           `;
@@ -2087,14 +2126,32 @@
             });
           }
 
-          const overwriteBtn = item.querySelector('.btn-overwrite-slot');
-          if (overwriteBtn) {
-            overwriteBtn.addEventListener('click', async (e) => {
+          const duplicateBtn = item.querySelector('.btn-duplicate-slot');
+          if (duplicateBtn) {
+            duplicateBtn.addEventListener('click', async (e) => {
               e.stopPropagation();
-              const ok = await spConfirm(`Yakin ingin menimpa (overwrite) Slot ${idx + 1} ("${sName}") dengan konfigurasi yang sedang Anda ubah saat ini?`, 'Konfirmasi Overwrite Slot', 'warning');
+              const ok = await spConfirm(`Duplikat overlay "${sName}" (${sId}) beserta seluruh konfigurasinya menjadi slot baru?`, 'Duplikat Overlay', 'info');
               if (ok) {
-                profileId = sId;
-                await saveProfile(true);
+                try {
+                  const dupRes = await fetch('/api/user/overlays/duplicate', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-user-token': userToken
+                    },
+                    body: JSON.stringify({ sourceId: sId })
+                  });
+                  const dupData = await dupRes.json();
+                  if (dupRes.ok && dupData.success) {
+                    await checkUserSession();
+                    if (dupData.id) switchProfile(dupData.id);
+                    spToast(`Berhasil menduplikasi overlay: "${dupData.overlay ? dupData.overlay.name : dupData.id}"`, 'success');
+                  } else {
+                    spAlert(dupData.error || 'Gagal menduplikasi slot', 'Duplikasi Gagal', 'danger');
+                  }
+                } catch (err) {
+                  spAlert('Terjadi kesalahan saat menduplikasi: ' + err.message, 'Error', 'danger');
+                }
               }
             });
           }
@@ -2569,9 +2626,19 @@
         });
       });
 
-      document.querySelectorAll('input[name="chatFade"]').forEach(r => {
-        r.addEventListener('change', () => {
-          setSelectedChatFade(r.value);
+      if (settingChatFadeRange) {
+        settingChatFadeRange.addEventListener('input', () => {
+          const num = parseInt(settingChatFadeRange.value, 10) || 0;
+          updateChatFadeLabels(num);
+          updateUrl();
+          refreshPreview();
+        });
+      }
+
+      document.querySelectorAll('.btn-fade-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-val') || '0';
+          setSelectedChatFade(val);
           updateUrl();
           refreshPreview();
         });

@@ -1136,15 +1136,25 @@
 
       const btnCancel = document.getElementById('spPopupBtnCancel');
       const btnConfirm = document.getElementById('spPopupBtnConfirm');
-      btnConfirm.focus();
+      if (btnCancel) btnCancel.focus();
 
       function finish(res) {
         popupOverlay.classList.remove('show');
-        resolve(res);
+        popupOverlay.onclick = null;
+        document.removeEventListener('keydown', onKeyDown);
+        resolve(Boolean(res));
+      }
+
+      function onKeyDown(e) {
+        if (e.key === 'Escape') finish(false);
       }
 
       btnCancel.onclick = () => finish(false);
       btnConfirm.onclick = () => finish(true);
+      popupOverlay.onclick = (e) => {
+        if (e.target === popupOverlay) finish(false);
+      };
+      document.addEventListener('keydown', onKeyDown);
     });
   }
 

@@ -1174,11 +1174,20 @@
 
       // Efek Gradasi Transparansi Chat Lama (Makin lama makin transparan)
       function updateChatFade() {
-        const fadeMode = config.chatFade || 'none';
+        const rawFade = config.chatFade !== undefined ? config.chatFade : 'none';
         const items = Array.from(container.children).filter(el => !el.classList.contains('fade-out'));
         const total = items.length;
 
-        if (fadeMode === 'none' || total <= 1) {
+        // Interpretasi setting: 'none' -> 0, 'smooth' -> 50, 'steep' -> 90, atau angka manual 0..95
+        let fadeIntensity = 0;
+        if (rawFade === 'smooth') fadeIntensity = 50;
+        else if (rawFade === 'steep') fadeIntensity = 90;
+        else if (rawFade === 'none' || rawFade === false) fadeIntensity = 0;
+        else if (!isNaN(parseInt(rawFade, 10))) fadeIntensity = parseInt(rawFade, 10);
+
+        fadeIntensity = Math.max(0, Math.min(95, fadeIntensity));
+
+        if (fadeIntensity === 0 || total <= 1) {
           items.forEach(el => {
             if (!el.classList.contains('fade-out')) {
               el.style.setProperty('opacity', '1', 'important');
@@ -1188,19 +1197,15 @@
           return;
         }
 
-        // Halus (Medium): min 0.18 -> 1.0 (gradasi terlihat jelas dan elegan)
-        // Ekstrem (Kuat): min 0.05 -> 1.0 (chat lama benar-benar pudar / hampir lenyap)
-        const minOpacity = fadeMode === 'steep' ? 0.05 : 0.18;
+        // Semakin tinggi intensity, semakin pudar chat terlama (minOpacity turun dari 1.0 ke 0.05)
+        const ratio = fadeIntensity / 100;
+        const minOpacity = Math.max(0.04, 1.0 - (ratio * 1.01));
+        const power = 1.0 + (ratio * 1.6);
 
         items.forEach((el, index) => {
           if (el.classList.contains('fade-out')) return;
           const progress = index / (total - 1); // 0 (terlama) -> 1 (terbaru)
-          let op;
-          if (fadeMode === 'steep') {
-            op = minOpacity + (1.0 - minOpacity) * Math.pow(progress, 2.5);
-          } else {
-            op = minOpacity + (1.0 - minOpacity) * Math.pow(progress, 1.25);
-          }
+          const op = minOpacity + (1.0 - minOpacity) * Math.pow(progress, power);
           const formattedOp = Math.max(0.04, Math.min(1.0, op)).toFixed(2);
           el.style.setProperty('opacity', formattedOp, 'important');
           el.style.setProperty('--chat-fade-opacity', formattedOp);

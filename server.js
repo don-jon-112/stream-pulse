@@ -1584,6 +1584,54 @@ app.patch('/api/user/overlays/:id/rename', (req, res) => {
   res.json({ success: true, id, name: overlays[id].name, overlay: overlays[id] });
 });
 
+// Duplicate Existing Overlay Slot (Max 3 Slots per Account)
+app.post('/api/user/overlays/duplicate', (req, res) => {
+  const user = getUserFromReq(req);
+  if (!user) return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk menduplikat overlay.' });
+
+  const { sourceId } = req.body || {};
+  if (!sourceId) return res.status(400).json({ error: 'Source ID overlay wajib disertakan.' });
+
+  const users = readJsonFile(USERS_FILE, {});
+  const currentUser = users[user.username] || user;
+  if (!currentUser.overlayIds) currentUser.overlayIds = [];
+
+  if (currentUser.overlayIds.length >= 3) {
+    return res.status(400).json({
+      error: 'Batas kuota 3 Overlay per akun telah tercapai! Hapus salah satu slot terlebih dahulu untuk menduplikat.'
+    });
+  }
+
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+  const sourceOverlay = overlays[sourceId] || overlays['default'] || {};
+
+  const newId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+  const sourceName = sourceOverlay.name || sourceId;
+  const newName = `${sourceName} (Copy)`;
+
+  overlays[newId] = {
+    ...sourceOverlay,
+    id: newId,
+    name: newName,
+    owner: currentUser.username,
+    updatedAt: Date.now()
+  };
+
+  currentUser.overlayIds.push(newId);
+  users[currentUser.username] = currentUser;
+
+  writeJsonFile(OVERLAYS_FILE, overlays);
+  writeJsonFile(USERS_FILE, users);
+
+  res.json({
+    success: true,
+    id: newId,
+    overlay: overlays[newId],
+    count: currentUser.overlayIds.length,
+    maxLimit: 3
+  });
+});
+
 // Twitch Avatar Resolver
 app.get('/api/twitch/avatar/:username', async (req, res) => {
   const { username } = req.params;
