@@ -7,6 +7,7 @@
 
 (function () {
   'use strict';
+  console.log('[StreamPulse Dock v2.2] Emote engine active');
 
   // ==========================================
   // CONFIG & STATE
@@ -187,7 +188,24 @@
   function getStoredHistory() {
     try {
       const data = localStorage.getItem(STORAGE_KEY_HISTORY);
-      return data ? JSON.parse(data) : [];
+      if (!data) return [];
+      const list = JSON.parse(data);
+      if (!Array.isArray(list)) return [];
+      return list.map(item => {
+        if (item && item.text && typeof item.text === 'string') {
+          // Bersihkan jika riwayat lokal lama menyimpan fragmen HTML rusak
+          if (item.text.includes('<img') || item.text.includes('loading="lazy"') || item.text.includes('title="')) {
+            item.text = item.text
+              .replace(/<img[^>]*alt="([^"]*)"[^>]*>/gi, '$1')
+              .replace(/<img[^>]*>/gi, '')
+              .replace(/title="[^"]*"/gi, '')
+              .replace(/loading="lazy"/gi, '')
+              .replace(/[">]/g, ' ')
+              .trim();
+          }
+        }
+        return item;
+      });
     } catch (e) {
       console.warn('[Dock] Gagal parse localStorage history:', e);
       return [];
@@ -363,6 +381,18 @@
   function parseMessageText(text, platform, emotesMap = {}) {
     if (!text) return '';
 
+    // Sanitize jika input teks mengandung sisa fragmen HTML rusak dari riwayat lokal lama
+    let cleanText = String(text);
+    if (cleanText.includes('<img') || cleanText.includes('loading="lazy"') || cleanText.includes('title="')) {
+      cleanText = cleanText
+        .replace(/<img[^>]*alt="([^"]*)"[^>]*>/gi, '$1')
+        .replace(/<img[^>]*>/gi, '')
+        .replace(/title="[^"]*"/gi, '')
+        .replace(/loading="lazy"/gi, '')
+        .replace(/[">]/g, ' ')
+        .trim();
+    }
+
     // 1. Twitch Official Emotes
     if (platform === 'twitch' && emotesMap && typeof emotesMap === 'object' && Object.keys(emotesMap).length > 0) {
       const ranges = [];
@@ -373,7 +403,7 @@
           if (parts.length === 2) {
             const start = parseInt(parts[0], 10);
             const end = parseInt(parts[1], 10);
-            if (!isNaN(start) && !isNaN(end) && end >= start) {
+            if (!isNaN(start) && !isNaN(end) && end >= start && end < cleanText.length) {
               ranges.push({
                 start,
                 end: end + 1, // End is inclusive in Twitch IRC format, slice is exclusive
@@ -396,10 +426,10 @@
 
           // Non-emote text before this emote -> check for 7TV & HTML escape
           if (r.start > lastIndex) {
-            html += parse7tvTokens(text.substring(lastIndex, r.start));
+            html += parse7tvTokens(cleanText.substring(lastIndex, r.start));
           }
 
-          const emoteName = text.substring(r.start, r.end);
+          const emoteName = cleanText.substring(r.start, r.end);
           const escCode = escapeHtml(emoteName);
           const emoteUrl = `https://static-cdn.jtvnw.net/emoticons/v2/${r.id}/default/dark/1.0`;
           html += `<img src="${emoteUrl}" class="dock-emote" alt="${escCode}" title="${escCode}" loading="lazy">`;
@@ -408,8 +438,8 @@
         }
 
         // Remaining text after last emote
-        if (lastIndex < text.length) {
-          html += parse7tvTokens(text.substring(lastIndex));
+        if (lastIndex < cleanText.length) {
+          html += parse7tvTokens(cleanText.substring(lastIndex));
         }
 
         return html;
@@ -417,7 +447,7 @@
     }
 
     // 2. Default: 7TV & Plain text escaping
-    return parse7tvTokens(text);
+    return parse7tvTokens(cleanText);
   }
 
   function formatYouTubeMessage(chat) {
