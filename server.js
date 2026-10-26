@@ -545,6 +545,74 @@ export function decryptToken(encryptedString) {
   }
 }
 
+// ==========================================
+// TWITCH CLIENT CREDENTIALS & AUTO-REFRESH
+// ==========================================
+const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'sea3yunko17ptmjkwf98imtypufch4';
+const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET || 'q341sygmjw843bik91y6p79cr91pz2';
+
+export async function refreshTwitchToken(usernameOrChannel) {
+  if (!usernameOrChannel) return null;
+  const cleanTarget = String(usernameOrChannel).trim().toLowerCase().replace(/^[#@]/, '');
+  const users = readJsonFile(USERS_FILE, {});
+
+  // Cari user berdasarkan username akun atau channel Twitch yang tersimpan
+  const user = Object.values(users).find(u => {
+    const twitchCh = (u.channels?.twitch || '').toLowerCase().replace(/^[#@]/, '');
+    const uname = (u.username || '').toLowerCase();
+    return twitchCh === cleanTarget || uname === cleanTarget;
+  });
+
+  if (!user || !user.channels?.twitchRefreshTokenEncrypted) {
+    return null;
+  }
+
+  const refreshToken = decryptToken(user.channels.twitchRefreshTokenEncrypted);
+  if (!refreshToken) {
+    return null;
+  }
+
+  try {
+    console.log(`[Twitch Token Refresh] 🔄 Memperbarui access token Twitch untuk "${user.username}" (#${user.channels.twitch || cleanTarget})...`);
+    const res = await fetch('https://id.twitch.tv/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: TWITCH_CLIENT_ID,
+        client_secret: TWITCH_CLIENT_SECRET,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken
+      }).toString()
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[Twitch Token Refresh] ❌ Refresh gagal (${res.status}):`, errText);
+      return null;
+    }
+
+    const data = await res.json();
+    const newAccessToken = data.access_token;
+    const newRefreshToken = data.refresh_token;
+
+    user.channels.twitchTokenEncrypted = encryptToken(newAccessToken);
+    if (newRefreshToken) {
+      user.channels.twitchRefreshTokenEncrypted = encryptToken(newRefreshToken);
+    }
+    users[user.username] = user;
+    writeJsonFile(USERS_FILE, users);
+
+    console.log(`[Twitch Token Refresh] ✅ Token Twitch berhasil diperbarui otomatis tanpa relogin! (#${user.channels.twitch})`);
+    return newAccessToken;
+  } catch (err) {
+    console.error(`[Twitch Token Refresh] Exception:`, err.message);
+    return null;
+  }
+}
+
+// Hubungkan StreamManager dengan Twitch Token Auto-Refresh
+streamManager.setTokenRefreshHandler(refreshTwitchToken);
+
 // In-Memory Rate Limiting & Verification Code Store
 const verificationStore = new Map(); // email -> { code, expiresAt }
 const rateLimitStore = new Map(); // key -> { count, resetAt }
@@ -875,8 +943,6 @@ app.post('/api/user/channels', (req, res) => {
 // ==========================================
 // TWITCH OAUTH 2.0 AUTHORIZATION CODE FLOW
 // ==========================================
-const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'sea3yunko17ptmjkwf98imtypufch4';
-const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET || 'q341sygmjw843bik91y6p79cr91pz2';
 const twitchOauthStates = new Map(); // state -> { userToken, redirectUri, createdAt }
 
 function getTwitchRedirectUri(req) {
@@ -941,10 +1007,11 @@ app.get('/auth/twitch', (req, res) => {
     'chat:read',
     'chat:edit',
     'user:read:chat',
-    'user:write:chat'
+    'user:write:chat',
+    'moderator:read:followers'
   ];
 
-  const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes.join(' '))}&state=${state}&force_verify=true`;
+  const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes.join(' '))}&state=${state}`;
 
   res.redirect(authUrl);
 });
