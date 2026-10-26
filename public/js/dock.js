@@ -337,13 +337,35 @@
     return html;
   }
 
+  function parse7tvTokens(rawText) {
+    if (!rawText) return '';
+    if (!globalEmotes || typeof globalEmotes !== 'object' || Object.keys(globalEmotes).length === 0) {
+      return escapeHtml(rawText);
+    }
+    const tokens = rawText.split(/(\s+)/);
+    return tokens.map(token => {
+      if (!token) return '';
+      if (/^\s+$/.test(token)) return token;
+
+      const clean = token.trim();
+      const e = globalEmotes[clean];
+      if (e) {
+        const url = typeof e === 'string' ? e : (e.url || e.images?.['1x'] || e.urls?.[0]);
+        if (url) {
+          const esc = escapeHtml(clean);
+          return `<img src="${escapeHtml(url)}" class="dock-emote" alt="${esc}" title="${esc}" loading="lazy">`;
+        }
+      }
+      return escapeHtml(token);
+    }).join('');
+  }
+
   function parseMessageText(text, platform, emotesMap = {}) {
     if (!text) return '';
-    let parsed = escapeHtml(text);
 
     // 1. Twitch Official Emotes
-    if (platform === 'twitch' && emotesMap && typeof emotesMap === 'object') {
-      const replacements = [];
+    if (platform === 'twitch' && emotesMap && typeof emotesMap === 'object' && Object.keys(emotesMap).length > 0) {
+      const ranges = [];
       for (const [emoteId, positions] of Object.entries(emotesMap)) {
         if (!Array.isArray(positions)) continue;
         for (const pos of positions) {
@@ -352,45 +374,67 @@
             const start = parseInt(parts[0], 10);
             const end = parseInt(parts[1], 10);
             if (!isNaN(start) && !isNaN(end) && end >= start) {
-              const emoteCode = text.slice(start, end + 1);
-              replacements.push({
+              ranges.push({
                 start,
-                end,
-                code: emoteCode,
-                url: `https://static-cdn.jtvnw.net/emoticons/v2/${emoteId}/default/dark/1.0`
+                end: end + 1, // End is inclusive in Twitch IRC format, slice is exclusive
+                id: emoteId
               });
             }
           }
         }
       }
 
-      if (replacements.length > 0) {
-        replacements.sort((a, b) => b.start - a.start);
-        for (const r of replacements) {
-          const escCode = escapeHtml(r.code);
-          const imgTag = `<img src="${r.url}" class="dock-emote" alt="${escCode}" title="${escCode}" loading="lazy">`;
-          parsed = parsed.split(escCode).join(imgTag);
+      if (ranges.length > 0) {
+        // Sort ascending by character index
+        ranges.sort((a, b) => a.start - b.start);
+
+        let html = '';
+        let lastIndex = 0;
+
+        for (const r of ranges) {
+          if (r.start < lastIndex) continue; // Skip corrupt or overlapping ranges
+
+          // Non-emote text before this emote -> check for 7TV & HTML escape
+          if (r.start > lastIndex) {
+            html += parse7tvTokens(text.substring(lastIndex, r.start));
+          }
+
+          const emoteName = text.substring(r.start, r.end);
+          const escCode = escapeHtml(emoteName);
+          const emoteUrl = `https://static-cdn.jtvnw.net/emoticons/v2/${r.id}/default/dark/1.0`;
+          html += `<img src="${emoteUrl}" class="dock-emote" alt="${escCode}" title="${escCode}" loading="lazy">`;
+
+          lastIndex = r.end;
         }
+
+        // Remaining text after last emote
+        if (lastIndex < text.length) {
+          html += parse7tvTokens(text.substring(lastIndex));
+        }
+
+        return html;
       }
     }
 
-    // 2. 7TV / Third-party global emotes
-    if (globalEmotes && Object.keys(globalEmotes).length > 0) {
-      const tokens = parsed.split(/(\s+)/);
-      for (let i = 0; i < tokens.length; i++) {
-        const token = tokens[i];
-        if (globalEmotes[token]) {
-          const e = globalEmotes[token];
-          const url = e.url || e.images?.['1x'] || e.urls?.[0];
-          if (url) {
-            tokens[i] = `<img src="${url}" class="dock-emote" alt="${token}" title="${token}" loading="lazy">`;
+    // 2. Default: 7TV & Plain text escaping
+    return parse7tvTokens(text);
+  }
+
+  function formatYouTubeMessage(chat) {
+    if (Array.isArray(chat.messageParts) && chat.messageParts.length > 0) {
+      return chat.messageParts.map(part => {
+        if (!part) return '';
+        if (part.type === 'emoji' || part.isCustomEmoji) {
+          const emoteUrl = escapeHtml(part.url || part.emojiUrl || '');
+          const emoteAlt = escapeHtml(part.alt || part.text || part.emojiText || 'emoji');
+          if (emoteUrl) {
+            return `<img class="dock-emote yt-custom-emote" src="${emoteUrl}" alt="${emoteAlt}" title="${emoteAlt}" loading="lazy">`;
           }
         }
-      }
-      parsed = tokens.join('');
+        return parse7tvTokens(part.text || '');
+      }).join('');
     }
-
-    return parsed;
+    return parseMessageText(chat.text, 'youtube');
   }
 
   // ==========================================
@@ -417,7 +461,12 @@
 
     const platformBadgeHtml = `<span class="platform-badge ${chat.platform}">${chat.platform}</span>`;
     const badgesHtml = getBadgesHtml(chat);
-    const formattedText = parseMessageText(chat.text, chat.platform, chat.emotes);
+    let formattedText = '';
+    if (chat.platform === 'youtube' && Array.isArray(chat.messageParts) && chat.messageParts.length > 0) {
+      formattedText = formatYouTubeMessage(chat);
+    } else {
+      formattedText = parseMessageText(chat.text, chat.platform, chat.emotes);
+    }
 
     item.innerHTML = `
       ${avatarHtml}
