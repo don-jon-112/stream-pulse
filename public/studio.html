@@ -1713,9 +1713,35 @@
       };
       let isPreviewTestingMode = false;
       let previewTestingChannels = { twitch: '', youtube: '', tiktok: '' };
+      try {
+        const storedPreviewTesting = localStorage.getItem('streampulse_preview_testing_channels');
+        if (storedPreviewTesting) {
+          previewTestingChannels = { ...previewTestingChannels, ...JSON.parse(storedPreviewTesting) };
+        }
+      } catch (e) {}
 
       const switchPreviewMode = document.getElementById('switchPreviewMode');
       const channelModeNotice = document.getElementById('channelModeNotice');
+
+      function getPreviewIframeUrl(pId = profileId) {
+        let url = `/overlay?id=${encodeURIComponent(pId || 'default')}&preview=1&t=${Date.now()}`;
+        if (isPreviewTestingMode) {
+          const tw = settingTwitch ? settingTwitch.value.trim() : (previewTestingChannels.twitch || '');
+          const yt = settingYouTube ? settingYouTube.value.trim() : (previewTestingChannels.youtube || '');
+          const tt = settingTikTok ? settingTikTok.value.trim() : (previewTestingChannels.tiktok || '');
+          if (tw) url += `&twitch=${encodeURIComponent(tw)}`;
+          if (yt) url += `&youtube=${encodeURIComponent(yt)}`;
+          if (tt) url += `&tiktok=${encodeURIComponent(tt)}`;
+        } else {
+          const tw = officialChannels.twitch || (settingTwitch ? settingTwitch.value.trim() : '');
+          const yt = officialChannels.youtube || (settingYouTube ? settingYouTube.value.trim() : '');
+          const tt = officialChannels.tiktok || (settingTikTok ? settingTikTok.value.trim() : '');
+          if (tw) url += `&twitch=${encodeURIComponent(tw)}`;
+          if (yt) url += `&youtube=${encodeURIComponent(yt)}`;
+          if (tt) url += `&tiktok=${encodeURIComponent(tt)}`;
+        }
+        return url;
+      }
 
       function syncInputsWithOfficialChannels() {
         if (!isPreviewTestingMode) {
@@ -1744,9 +1770,9 @@
             channelSyncStatus.textContent = '🧪 Mode Uji Coba Preview';
             channelSyncStatus.style.color = '#fbbf24';
           }
-          settingTwitch.value = previewTestingChannels.twitch || settingTwitch.value;
-          settingYouTube.value = previewTestingChannels.youtube || settingYouTube.value;
-          settingTikTok.value = previewTestingChannels.tiktok || settingTikTok.value;
+          settingTwitch.value = previewTestingChannels.twitch !== undefined && previewTestingChannels.twitch !== '' ? previewTestingChannels.twitch : settingTwitch.value;
+          settingYouTube.value = previewTestingChannels.youtube !== undefined && previewTestingChannels.youtube !== '' ? previewTestingChannels.youtube : settingYouTube.value;
+          settingTikTok.value = previewTestingChannels.tiktok !== undefined && previewTestingChannels.tiktok !== '' ? previewTestingChannels.tiktok : settingTikTok.value;
         } else {
           settingTwitch.readOnly = true;
           settingYouTube.readOnly = true;
@@ -1765,7 +1791,10 @@
           }
           syncInputsWithOfficialChannels();
         }
-        refreshPreview();
+        refreshPreview(true);
+        if (previewIframe) {
+          previewIframe.src = getPreviewIframeUrl(profileId);
+        }
       }
 
       if (switchPreviewMode) {
@@ -1959,14 +1988,13 @@
             });
             const data = await res.json();
             if (res.ok && data.success) {
-              currentUser = data.user;
               userToken = data.user.token;
               localStorage.setItem('streampulse_user_token', userToken);
-              renderUserStatus();
               closeAuth();
+              await checkUserSession(true);
               spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
-                ? `🎉 Registration successful! Welcome, ${currentUser.username}!`
-                : `🎉 Pendaftaran berhasil! Selamat datang, ${currentUser.username}!`,
+                ? `🎉 Registration successful! Welcome, ${currentUser ? currentUser.username : data.user.username}!`
+                : `🎉 Pendaftaran berhasil! Selamat datang, ${currentUser ? currentUser.username : data.user.username}!`,
                 window.t ? window.t('dialog_success') : 'Berhasil', 'success');
             } else {
               authErrorMsg.textContent = data.error || (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Failed to create account' : 'Gagal mendaftar akun');
@@ -1986,14 +2014,13 @@
             });
             const data = await res.json();
             if (res.ok && data.success) {
-              currentUser = data.user;
               userToken = data.user.token;
               localStorage.setItem('streampulse_user_token', userToken);
-              renderUserStatus();
               closeAuth();
+              await checkUserSession(true);
               spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
-                ? `✅ Successfully signed in as ${currentUser.username}!`
-                : `✅ Berhasil masuk sebagai ${currentUser.username}!`,
+                ? `✅ Successfully signed in as ${currentUser ? currentUser.username : data.user.username}!`
+                : `✅ Berhasil masuk sebagai ${currentUser ? currentUser.username : data.user.username}!`,
                 window.t ? window.t('dialog_success') : 'Berhasil', 'success');
             } else {
               authErrorMsg.textContent = data.error || (window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Login failed' : 'Login gagal');
@@ -2006,7 +2033,7 @@
         }
       });
 
-      async function checkUserSession() {
+      async function checkUserSession(forceReload = false) {
         if (!userToken) {
           renderUserStatus();
           return;
@@ -2027,7 +2054,7 @@
               if (!isPreviewTestingMode) {
                 syncInputsWithOfficialChannels();
               }
-              refreshPreview();
+              refreshPreview(true);
             }
             // Auto-load user overlay into editor and preview iframe
             const paramId = urlParams.get('id');
@@ -2037,7 +2064,7 @@
             if (paramId && (userSlotIds.includes(paramId) || paramId === 'default')) {
               switchProfile(paramId);
             } else if (userSlotIds.length > 0) {
-              if (profileId === 'default' || !userSlotIds.includes(profileId)) {
+              if (forceReload || profileId === 'default' || !userSlotIds.includes(profileId)) {
                 switchProfile(userSlotIds[0]);
               } else {
                 switchProfile(profileId);
@@ -2215,7 +2242,7 @@
         activeOverlayIdBadge.textContent = profileId;
         loadProfile();
         updateUrl();
-        previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
+        previewIframe.src = getPreviewIframeUrl(profileId);
         if (currentUser) renderSlotsList(currentUser.overlays || currentUser.overlayIds || []);
       }
 
@@ -2451,18 +2478,22 @@
       }
 
       // Live Preview Realtime (Works immediately even for guests without saving to DB)
-      function refreshPreview() {
+      function refreshPreview(forceSocketReconnect = false) {
         const cfg = getOverlayConfig();
         if (previewIframe && previewIframe.contentWindow) {
           previewIframe.contentWindow.postMessage({
             type: 'update_preview_config',
-            config: cfg
+            config: cfg,
+            forceChannelSync: Boolean(forceSocketReconnect || isPreviewTestingMode)
           }, '*');
         }
       }
 
       previewIframe.addEventListener('load', () => {
-        refreshPreview();
+        refreshPreview(true);
+        setTimeout(() => {
+          refreshPreview(true);
+        }, 350);
       });
 
       // Channels Input Listeners & Auto-Sync
@@ -2484,7 +2515,10 @@
               youtube: settingYouTube.value.trim(),
               tiktok: settingTikTok.value.trim()
             };
-            refreshPreview();
+            try {
+              localStorage.setItem('streampulse_preview_testing_channels', JSON.stringify(previewTestingChannels));
+            } catch (e) {}
+            refreshPreview(true);
             if (channelSyncStatus) {
               channelSyncStatus.style.display = 'inline';
               channelSyncStatus.textContent = '🧪 Mode Uji Coba Preview';
@@ -2497,7 +2531,7 @@
               tiktok: settingTikTok.value.trim()
             };
             saveStoredChannels(officialChannels);
-            refreshPreview();
+            refreshPreview(true);
             if (channelSyncStatus) {
               channelSyncStatus.style.display = 'inline';
               channelSyncStatus.textContent = '✓ Terhubung ke Saluran Akun';
@@ -2586,7 +2620,7 @@
             profileId = data.id;
             localStorage.setItem('streampulse_overlay_profile_id', profileId);
             updateUrl();
-            previewIframe.src = `/overlay?id=${profileId}&t=${Date.now()}`;
+            previewIframe.src = getPreviewIframeUrl(profileId);
             await checkUserSession();
             if (showAlert) {
               spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
@@ -3328,10 +3362,30 @@
         updateLabels();
       });
 
+      // Listen for multi-tab auth updates
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'streampulse_user_token') {
+          const newToken = localStorage.getItem('streampulse_user_token') || '';
+          if (newToken !== userToken) {
+            userToken = newToken;
+            checkUserSession(true);
+          }
+        }
+      });
+
       // Initial boot
-      checkUserSession();
-      loadProfile();
-      updatePreviewDimensions(500, 600);
+      async function bootStudio() {
+        updatePreviewDimensions(500, 600);
+        if (userToken) {
+          await checkUserSession();
+        } else {
+          await loadProfile();
+          if (previewIframe) {
+            previewIframe.src = getPreviewIframeUrl(profileId);
+          }
+        }
+      }
+      bootStudio();
     });
   </script>
 </body>

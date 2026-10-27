@@ -1105,6 +1105,8 @@
         customJs: ''
       };
 
+      let _previewChannelsOverridden = Boolean(urlParams.get('twitch') || urlParams.get('youtube') || urlParams.get('tiktok') || urlParams.get('preview'));
+
       // Load profile from backend if id is provided
       try {
         const res = await fetch(`/api/overlays/${profileId}`);
@@ -1142,9 +1144,9 @@
               ? parseInt(urlParams.get('containerOpacity'), 10) 
               : (profile.containerBgOpacity !== undefined ? profile.containerBgOpacity : 0),
             // Override with URL query params if explicitly present
-            twitch: urlParams.get('twitch') || profile.twitch || config.twitch,
-            youtube: urlParams.get('youtube') || profile.youtube || config.youtube,
-            tiktok: urlParams.get('tiktok') || profile.tiktok || config.tiktok
+            twitch: _previewChannelsOverridden ? (urlParams.get('twitch') || config.twitch || profile.twitch) : (urlParams.get('twitch') || profile.twitch || config.twitch),
+            youtube: _previewChannelsOverridden ? (urlParams.get('youtube') || config.youtube || profile.youtube) : (urlParams.get('youtube') || profile.youtube || config.youtube),
+            tiktok: _previewChannelsOverridden ? (urlParams.get('tiktok') || config.tiktok || profile.tiktok) : (urlParams.get('tiktok') || profile.tiktok || config.tiktok)
           };
         }
       } catch (e) {
@@ -1978,12 +1980,15 @@
 
       socket.on('connect', () => {
         // Subscribe to configured channels
-        socket.emit('update_channels', {
+        const payload = socket._pendingChannelUpdate || {
           overlayId: profileId,
           twitch: config.twitch || '',
           youtube: config.youtube || '',
-          tiktok: config.tiktok || ''
-        });
+          tiktok: config.tiktok || '',
+          force: true
+        };
+        socket._pendingChannelUpdate = null;
+        socket.emit('update_channels', payload);
       });
 
       socket.on('twitch_emotes', ({ emotes }) => {
@@ -2014,6 +2019,7 @@
           const oldYoutube = config.youtube;
           const oldTiktok = config.tiktok;
           config = { ...config, ...newCfg };
+          _previewChannelsOverridden = true;
           if (newCfg.showTwitchBadges !== undefined) config.showTwitchBadges = newCfg.showTwitchBadges;
           if (newCfg.showYtBadges !== undefined) config.showYtBadges = newCfg.showYtBadges;
           if (newCfg.showPlatformIcons !== undefined) {
@@ -2052,12 +2058,19 @@
           applyVisualConfig();
           // If channels were updated in Studio, immediately update Socket.io live subscription
           if (newCfg.twitch !== undefined || newCfg.youtube !== undefined || newCfg.tiktok !== undefined) {
-            if (config.twitch !== oldTwitch || config.youtube !== oldYoutube || config.tiktok !== oldTiktok) {
-              socket.emit('update_channels', {
+            const hasChanged = config.twitch !== oldTwitch || config.youtube !== oldYoutube || config.tiktok !== oldTiktok;
+            if (hasChanged || e.data.forceChannelSync) {
+              const channelPayload = {
                 twitch: config.twitch || '',
                 youtube: config.youtube || '',
-                tiktok: config.tiktok || ''
-              });
+                tiktok: config.tiktok || '',
+                force: true
+              };
+              if (socket && socket.connected) {
+                socket.emit('update_channels', channelPayload);
+              } else if (socket) {
+                socket._pendingChannelUpdate = channelPayload;
+              }
             }
           }
         }
