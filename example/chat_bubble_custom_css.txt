@@ -1,0 +1,594 @@
+/* ==========================================================================
+   STREAMPULSE OBS OVERLAY - CUSTOM CHAT BUBBLE (STITCHED KAWAII STYLE)
+   [KODE CSS MURNI - TINGGAL COPY & PASTE KE KOLOM "CUSTOM CSS"]
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap');
+
+/* 1. Global Container */
+#overlayChatContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 22px !important;
+  padding: 24px 20px !important;
+  background: transparent !important;
+  font-family: 'Fredoka', 'Quicksand', sans-serif !important;
+}
+
+#overlayChatContainer.direction-top {
+  top: 16px !important;
+  bottom: auto !important;
+  justify-content: flex-end !important;
+  flex-direction: column-reverse !important;
+}
+
+/* Sembunyikan avatar, tag platform, dan badge redeem bawaan */
+.overlay-avatar,
+.overlay-platform-tag,
+.badge-icon.redeem-tag,
+.redeem-tag,
+.badge-icon {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  visibility: hidden !important;
+}
+
+/* ==========================================================================
+   2. HILANGKAN TITIK DUA (:) SETELAH USERNAME DI SEMUA TEMA
+   ========================================================================== */
+#overlayChatContainer .overlay-author-name::after,
+.overlay-item .overlay-author-name::after,
+.overlay-author-name::after {
+  content: '' !important;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  visibility: hidden !important;
+}
+
+/* ==========================================================================
+   3. BADGE RESMI: HANYA TAMPILKAN 1 BADGE PERTAMA DI DALAM BOX USERNAME
+   ========================================================================== */
+.overlay-badges-container {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Badge resmi ketika berada di dalam box username (.overlay-author-name) */
+.overlay-author-name .overlay-badges-container {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Tampilkan HANYA badge PERTAMA */
+.overlay-badges-container > *:first-child,
+.overlay-badges-container > .platform-official-badge:first-child,
+.overlay-badges-container > .twitch-badge:first-child,
+.overlay-badges-container > .yt-official-badge:first-child {
+  display: inline-flex !important;
+  vertical-align: middle !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  object-fit: contain !important;
+  border-radius: 3px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Sembunyikan badge ke-2, ke-3, dst agar rapi */
+.overlay-badges-container > *:not(:first-child) {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* ==========================================================================
+   4. PERBEDAAN VISUAL EKSKLUSIF UNTUK ROLE: MOD, VIP, SUB TWITCH, MEMBER YT, HOST
+   (Jauh Lebih Mencolok & Keren dari Chat Orang Biasa!)
+   ========================================================================== */
+
+/* A. BROADCASTER / HOST (Pemilik Channel) */
+.overlay-item.is-broadcaster,
+.overlay-item[data-is-broadcaster="true"] {
+  --cb-bg: #1e3a8a !important; /* Royal Deep Sapphire */
+  --cb-pill-bg: #0f172a !important;
+  --cb-sparkle: #fde047 !important;
+  --cb-role-tag-bg: #eab308 !important;
+  --cb-role-tag-color: #000000 !important;
+  --cb-stitch-color: #fde047 !important; /* Jahitan Kuning Emas */
+  --cb-icon: '👑' !important;
+}
+
+/* B. MODERATOR (Twitch & YouTube Mod) */
+.overlay-item.is-mod,
+.overlay-item[data-is-mod="true"] {
+  --cb-bg: #047857 !important; /* Emerald Shield Green */
+  --cb-pill-bg: #064e3b !important;
+  --cb-sparkle: #a7f3d0 !important;
+  --cb-role-tag-bg: #10b981 !important;
+  --cb-role-tag-color: #ffffff !important;
+  --cb-stitch-color: #6ee7b7 !important; /* Jahitan Mint Neon */
+  --cb-icon: '🛡️' !important;
+}
+
+/* C. VIP (Twitch VIP) */
+.overlay-item.is-vip,
+.overlay-item[data-is-vip="true"] {
+  --cb-bg: #7e22ce !important; /* Amethyst Royal Violet */
+  --cb-pill-bg: #4c1d95 !important;
+  --cb-sparkle: #f0abfc !important;
+  --cb-role-tag-bg: #ec4899 !important;
+  --cb-role-tag-color: #ffffff !important;
+  --cb-stitch-color: #f472b6 !important; /* Jahitan Pink Diamond */
+  --cb-icon: '💎' !important;
+}
+
+/* D. SUBSCRIBER (Khusus Twitch Sub) */
+.overlay-item.is-sub:not(.is-mod):not(.is-broadcaster),
+.overlay-item[data-is-sub="true"]:not([data-is-mod="true"]):not([data-is-broadcaster="true"]) {
+  --cb-bg: #c2410c !important; /* Warm Amber Sunset */
+  --cb-pill-bg: #7c2d12 !important;
+  --cb-sparkle: #fef08a !important;
+  --cb-role-tag-bg: #f59e0b !important;
+  --cb-role-tag-color: #ffffff !important;
+  --cb-stitch-color: #fde047 !important; /* Jahitan Emas Bintang */
+  --cb-icon: '⭐' !important;
+}
+
+/* E. MEMBER (Khusus YouTube Member) */
+.overlay-item.is-member:not(.is-mod):not(.is-broadcaster),
+.overlay-item[data-is-member="true"]:not([data-is-mod="true"]):not([data-is-broadcaster="true"]) {
+  --cb-bg: #0369a1 !important; /* Electric Cyan Teal */
+  --cb-pill-bg: #0c4a6e !important;
+  --cb-sparkle: #67e8f9 !important;
+  --cb-role-tag-bg: #06b6d4 !important;
+  --cb-role-tag-color: #ffffff !important;
+  --cb-stitch-color: #22d3ee !important; /* Jahitan Cyan Neon */
+  --cb-icon: '★' !important;
+}
+
+/* Warna Garis Jahitan Mewah Sesuai Role */
+.overlay-item.is-broadcaster .overlay-body::before,
+.overlay-item.is-mod .overlay-body::before,
+.overlay-item.is-vip .overlay-body::before,
+.overlay-item.is-sub .overlay-body::before,
+.overlay-item.is-member .overlay-body::before {
+  border-color: var(--cb-stitch-color, rgba(255, 255, 255, 0.95)) !important;
+  border-width: 2.2px !important;
+}
+
+/* Badge Pill Role Khusus di Samping Nama (👑 HOST, 🛡️ MOD, 💎 VIP, ★ SUB, ★ MEMBER) */
+.cb-role-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 2px 8px 2px 8px !important;
+  margin-left: 6px !important;
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  border-radius: 999px !important;
+  background: var(--cb-role-tag-bg, #ffffff) !important;
+  color: var(--cb-role-tag-color, #000000) !important;
+  -webkit-text-fill-color: var(--cb-role-tag-color, #000000) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+  vertical-align: middle !important;
+  text-transform: uppercase !important;
+}
+
+/* ==========================================================================
+   5. 6 PALET WARNA OTOMATIS UNTUK CHAT ORANG BIASA (NON-ROLE)
+   ========================================================================== */
+.overlay-item {
+  --cb-bg: #22b07d;
+  --cb-pill-bg: #158059;
+  --cb-sparkle: #fef08a;
+  --cb-icon: '👑';
+}
+
+/* 1. Mint Green (Crown) */
+.overlay-item:nth-child(6n+1):not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member),
+.overlay-item.cb-mint:not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member) {
+  --cb-bg: #22b07d !important;
+  --cb-pill-bg: #158059 !important;
+  --cb-sparkle: #fef08a !important;
+  --cb-icon: '👑' !important;
+}
+
+/* 2. Sunshine / Mustard Yellow (Star) */
+.overlay-item:nth-child(6n+2):not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member),
+.overlay-item.cb-yellow:not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member) {
+  --cb-bg: #f5a623 !important;
+  --cb-pill-bg: #b86207 !important;
+  --cb-sparkle: #ffffff !important;
+  --cb-icon: '⭐' !important;
+}
+
+/* 3. Coral / Strawberry Pink (Heart) */
+.overlay-item:nth-child(6n+3):not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member),
+.overlay-item.cb-pink:not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member) {
+  --cb-bg: #f05469 !important;
+  --cb-pill-bg: #ab1f33 !important;
+  --cb-sparkle: #fed7aa !important;
+  --cb-icon: '💖' !important;
+}
+
+/* 4. Lavender / Grape Purple (Diamond) */
+.overlay-item:nth-child(6n+4):not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member),
+.overlay-item.cb-purple:not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member) {
+  --cb-bg: #975af4 !important;
+  --cb-pill-bg: #6323cf !important;
+  --cb-sparkle: #e9d5ff !important;
+  --cb-icon: '💎' !important;
+}
+
+/* 5. Caramel / Warm Mocha Brown (Star) */
+.overlay-item:nth-child(6n+5):not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member),
+.overlay-item.cb-brown:not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member) {
+  --cb-bg: #c17539 !important;
+  --cb-pill-bg: #804012 !important;
+  --cb-sparkle: #fef08a !important;
+  --cb-icon: '⭐' !important;
+}
+
+/* 6. Ocean / Sky Blue (Crown) */
+.overlay-item:nth-child(6n+6):not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member),
+.overlay-item.cb-blue:not(.is-broadcaster):not(.is-mod):not(.is-vip):not(.is-sub):not(.is-member) {
+  --cb-bg: #1eaef4 !important;
+  --cb-pill-bg: #0972a9 !important;
+  --cb-sparkle: #bae6fd !important;
+  --cb-icon: '👑' !important;
+}
+
+/* 6. Wrapper Item Chat Biasa */
+.overlay-item {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  margin: 16px 0 8px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  width: fit-content !important;
+  min-width: 250px !important;
+  max-width: 90% !important;
+  position: relative !important;
+  animation: cbPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
+  opacity: var(--chat-fade-opacity, 1) !important;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s ease !important;
+}
+
+@keyframes cbPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+  }
+  100% {
+    opacity: var(--chat-fade-opacity, 1);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.overlay-item.fade-out {
+  opacity: 0 !important;
+  transform: translateY(-8px) scale(0.96) !important;
+}
+
+/* 7. Bubble Body Chat Biasa: Balon dengan Jahitan Putih & Ekor Segitiga */
+.overlay-body {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  padding: 14px 24px 13px 20px !important;
+  border-radius: 20px !important;
+  background-color: var(--cb-bg, #22b07d) !important;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.22), inset 0 2px 4px rgba(255, 255, 255, 0.25) !important;
+  width: fit-content !important;
+  min-width: 230px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Garis Jahitan Putih (Stitched Dashed Line) */
+.overlay-body::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 5px !important;
+  border: 2px dashed rgba(255, 255, 255, 0.88) !important;
+  border-radius: 15px !important;
+  pointer-events: none !important;
+  box-sizing: border-box !important;
+  z-index: 1 !important;
+}
+
+/* Ekor Balon Chat di Kiri Bawah (Speech Bubble Tail) */
+.overlay-body::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -11px !important;
+  left: 14px !important;
+  width: 16px !important;
+  height: 14px !important;
+  background-color: var(--cb-bg, #22b07d) !important;
+  clip-path: polygon(0% 0%, 100% 0%, 25% 100%) !important;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15)) !important;
+  z-index: 2 !important;
+}
+
+/* Lipatan Garis Putih Estetik di Ekor Balon Chat Biasa */
+.cb-tail-highlight {
+  position: absolute !important;
+  bottom: -8px !important;
+  left: 17px !important;
+  width: 2px !important;
+  height: 8px !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  transform: rotate(-24deg) !important;
+  border-radius: 2px !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+}
+
+/* 8. Header: Username Pill & Kilauan Sparkles */
+.overlay-header {
+  position: relative !important;
+  z-index: 4 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin-top: -24px !important;
+  margin-left: 6px !important;
+  margin-bottom: 3px !important;
+}
+
+/* Pill Username Berwarna Lebih Pekat/Gelap */
+#overlayChatContainer .overlay-author-name,
+.overlay-author-name {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: var(--cb-pill-bg, #158059) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-family: 'Fredoka', 'Quicksand', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.2 !important;
+  padding: 4px 15px 5px 12px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Ikon Badge Mini di dalam Pill Username */
+.cb-pill-icon {
+  font-size: 0.88rem !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)) !important;
+}
+
+/* 3 Garis Kilauan / Sparkle Ray di Sebelah Kanan Pill Nama */
+.overlay-header::after {
+  content: '' !important;
+  display: inline-block !important;
+  width: 15px !important;
+  height: 15px !important;
+  margin-left: 2px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fef08a'%3E%3Cpath d='M4.5 10.5c-.3-.3-.3-.8 0-1.1l4-4c.3-.3.8-.3 1.1 0s.3.8 0 1.1l-4 4c-.3.3-.8.3-1.1 0zM12 2c.4 0 .8.3.8.8v6c0 .4-.4.8-.8.8s-.8-.4-.8-.8v-6c0-.5.4-.8.8-.8zM19.5 10.5c-.3.3-.8.3-1.1 0l-4-4c-.3-.3-.3-.8 0-1.1s.8-.3 1.1 0l4 4c.3.3.3.8 0 1.1z'/%3E%3C/svg%3E") !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3)) !important;
+  animation: cbSparklePulse 2.5s infinite ease-in-out !important;
+}
+
+@keyframes cbSparklePulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+  50% { transform: scale(1.15) rotate(5deg); opacity: 1; }
+}
+
+/* 9. Isi Pesan Chat */
+.overlay-text,
+.overlay-message-content {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-family: 'Fredoka', 'Quicksand', 'Nunito', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.02rem !important;
+  line-height: 1.45 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.28) !important;
+  letter-spacing: 0.015em !important;
+  z-index: 2 !important;
+  position: relative !important;
+}
+
+/* Emote & Emoji */
+.chat-emote {
+  height: 1.7em !important;
+  max-height: 32px !important;
+  vertical-align: middle !important;
+  margin: 0 2px !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)) !important;
+}
+
+/* ==========================================================================
+   10. STYLING SPESIAL ALERT CHAT (SANGAT BERBEDA DARI CHAT BIASA!)
+   - Dibuat bergaya "Festive Celebration Banner Card" (Tanpa Ekor Balon)
+   - Melebar simetris dengan Ribbon Pita Mahkota di Bagian Atas
+   - Efek Shimmer Glow berkilau beranimasi mewah
+   - Pesan / Detail donasi di dalam wadah transparan bergaris jahitan ganda
+   ========================================================================== */
+
+.overlay-item.overlay-event,
+.overlay-item.is-redeem {
+  min-width: 320px !important;
+  max-width: 95% !important;
+  margin: 26px 0 16px 0 !important;
+  animation: cbAlertPopBounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.35) both !important;
+}
+
+@keyframes cbAlertPopBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.85);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* HILANGKAN EKOR BALON CHAT BIASA & HIGHLIGHT-NYA DARI SEMUA ALERT */
+.overlay-item.overlay-event .overlay-body::after,
+.overlay-item.is-redeem .overlay-body::after,
+.overlay-item.overlay-event .cb-tail-highlight,
+.overlay-item.is-redeem .cb-tail-highlight {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* KARTU SELEBRASI ALERT: Bentuk Rounded Mewah dengan Gradasi Semarak & Glow */
+.overlay-item.overlay-event .overlay-body,
+.overlay-item.is-redeem .overlay-body {
+  border-radius: 24px !important;
+  padding: 22px 24px 18px 24px !important;
+  background: var(--cb-alert-bg, linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)) !important;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35), 0 0 24px var(--cb-alert-glow, rgba(236, 72, 153, 0.5)), inset 0 2px 6px rgba(255, 255, 255, 0.4) !important;
+  border: 3px solid rgba(255, 255, 255, 0.45) !important;
+  position: relative !important;
+  overflow: visible !important;
+  animation: cbAlertPulseGlow 3s infinite alternate ease-in-out !important;
+}
+
+@keyframes cbAlertPulseGlow {
+  0% {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 16px var(--cb-alert-glow, rgba(236, 72, 153, 0.4)), inset 0 2px 6px rgba(255, 255, 255, 0.35);
+  }
+  100% {
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45), 0 0 36px var(--cb-alert-glow, rgba(236, 72, 153, 0.8)), inset 0 3px 8px rgba(255, 255, 255, 0.65);
+  }
+}
+
+/* Garis Jahitan Ganda Putih Elegan pada Alert */
+.overlay-item.overlay-event .overlay-body::before,
+.overlay-item.is-redeem .overlay-body::before {
+  inset: 6px !important;
+  border: 2px dashed rgba(255, 255, 255, 0.95) !important;
+  border-radius: 18px !important;
+}
+
+/* HEADER PITA SELEBRASI ALERT DI BAGIAN ATAS */
+.overlay-item.overlay-event .overlay-header,
+.overlay-item.is-redeem .overlay-header {
+  margin-top: -36px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+/* Hapus sparkle kecil chat biasa pada alert, ganti dengan efek ribbon selebrasi */
+.overlay-item.overlay-event .overlay-header::after,
+.overlay-item.is-redeem .overlay-header::after {
+  display: none !important;
+}
+
+/* Pill Ribbon Selebrasi untuk Nama Donatur / Streamer */
+.overlay-item.overlay-event .overlay-author-name,
+.overlay-item.is-redeem .overlay-author-name {
+  background: var(--cb-alert-ribbon, #4c1d95) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-family: 'Fredoka', 'Quicksand', sans-serif !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  padding: 6px 22px !important;
+  border-radius: 999px !important;
+  border: 2.5px solid #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 14px var(--cb-alert-glow, rgba(255, 255, 255, 0.5)) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  letter-spacing: 0.03em !important;
+  transform: translateY(-2px) !important;
+  animation: cbRibbonBounce 2s infinite ease-in-out alternate !important;
+}
+
+@keyframes cbRibbonBounce {
+  0% { transform: translateY(-2px) scale(1); }
+  100% { transform: translateY(-4px) scale(1.03); }
+}
+
+/* JUDUL EVENT SELEBRASI (Misal: "★ NEW SUBSCRIBER! ★") */
+.overlay-item.overlay-event .overlay-event-title,
+.overlay-item.is-redeem .overlay-event-title {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  font-family: 'Fredoka', 'Quicksand', sans-serif !important;
+  font-size: 1.16rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
+  letter-spacing: 0.04em !important;
+  margin: 4px 0 6px 0 !important;
+  text-transform: uppercase !important;
+}
+
+/* KOTAK DETAIL / PESAN DONATUR DI DALAM ALERT (Wadah Frosted Candy Transparan) */
+.overlay-item.overlay-event .overlay-text,
+.overlay-item.is-redeem .overlay-text {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  background: rgba(0, 0, 0, 0.22) !important;
+  border: 1.5px dashed rgba(255, 255, 255, 0.75) !important;
+  border-radius: 14px !important;
+  padding: 9px 18px !important;
+  margin-top: 6px !important;
+  box-sizing: border-box !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.98rem !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}

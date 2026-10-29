@@ -1,0 +1,151 @@
+/* ==========================================================================
+   STREAMPULSE OBS OVERLAY - CUSTOM CHAT BUBBLE (STITCHED KAWAII STYLE)
+   [KODE JAVASCRIPT MURNI - TINGGAL COPY & PASTE KE KOLOM "CUSTOM JAVASCRIPT"]
+   ========================================================================== */
+
+(function(cfg, sock) {
+  'use strict';
+
+  // 1. Load Font Google 'Fredoka' & 'Quicksand' secara dinamis
+  if (!document.getElementById('font-chat-bubble-stitched')) {
+    const fontLink = document.createElement('link');
+    fontLink.id = 'font-chat-bubble-stitched';
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap';
+    document.head.appendChild(fontLink);
+  }
+
+  // 2. Fungsi Utama Styling Tiap Item Balon Chat & Alert
+  function applyChatBubble(itemEl) {
+    if (!itemEl || itemEl._cbInitialized) return;
+    itemEl._cbInitialized = true;
+
+    const bodyEl = itemEl.querySelector('.overlay-body');
+    const authorEl = itemEl.querySelector('.overlay-author-name');
+
+    // ========================================================================
+    // A. HAPUS TANDA TITIK DUA (:) SETELAH USERNAME JIKA ADA
+    // ========================================================================
+    if (authorEl) {
+      const childNodes = Array.from(authorEl.childNodes);
+      childNodes.forEach(node => {
+        if (node.nodeType === 3 /* Node.TEXT_NODE */) {
+          node.textContent = node.textContent.replace(/:\s*$/, '').trim();
+        }
+      });
+    }
+
+    // ========================================================================
+    // B. FILTER BADGE RESMI: HANYA 1 BADGE & PINDAHKAN KE DALAM BOX USERNAME
+    // ========================================================================
+    const badgesContainer = itemEl.querySelector('.overlay-badges-container');
+    if (badgesContainer && authorEl) {
+      const badges = Array.from(badgesContainer.children);
+      badges.forEach((b, idx) => {
+        if (idx === 0) {
+          b.style.display = 'inline-flex';
+          b.style.verticalAlign = 'middle';
+        } else {
+          b.remove(); // Hapus badge kedua dan seterusnya agar rapi
+        }
+      });
+
+      // Pindahkan wadah badge langsung ke DALAM box username (.overlay-author-name)
+      if (badgesContainer.children.length > 0 && !authorEl.contains(badgesContainer)) {
+        authorEl.prepend(badgesContainer);
+      }
+    }
+
+    const isEvent = itemEl.classList.contains('overlay-event') || itemEl.classList.contains('is-redeem');
+
+    // ========================================================================
+    // C. JIKA INI ADALAH ALERT (NOTIFIKASI SELEBRASI): TAMPILAN MEWAH SIMETRIS
+    // ========================================================================
+    if (isEvent) {
+      const oldTail = itemEl.querySelector('.cb-tail-highlight');
+      if (oldTail) oldTail.remove();
+
+      let alertIcon = '';
+      let defaultTitle = '★ SPECIAL EVENT ★';
+
+      if (itemEl.classList.contains('event-follow')) {
+        alertIcon = '';
+        defaultTitle = '💖 NEW FOLLOWER! 💖';
+      } else if (itemEl.classList.contains('event-subscription') || itemEl.classList.contains('event-resub') || itemEl.classList.contains('event-subgift')) {
+        alertIcon = '';
+        defaultTitle = '👑 NEW SUBSCRIBER! 👑';
+      } else if (itemEl.classList.contains('event-cheer')) {
+        alertIcon = '';
+        defaultTitle = '💎 BITS CHEER! 💎';
+      } else if (itemEl.classList.contains('event-raid')) {
+        alertIcon = '';
+        defaultTitle = '⚔️ INCOMING RAID! ⚔️';
+      } else if (itemEl.classList.contains('youtube-superchat')) {
+        alertIcon = '';
+        defaultTitle = '💵 SUPER CHAT! 💵';
+      } else if (itemEl.classList.contains('event-gift')) {
+        alertIcon = '';
+        defaultTitle = '🎁 TIKTOK GIFT! 🎁';
+      } else if (itemEl.classList.contains('event-like')) {
+        alertIcon = '';
+        defaultTitle = '❤️ TIKTOK LIKES! ❤️';
+      } else if (itemEl.classList.contains('is-redeem')) {
+        alertIcon = '';
+        defaultTitle = '💠 CHANNEL POINTS REDEEM! 💠';
+      }
+
+      let titleEl = itemEl.querySelector('.overlay-event-title');
+      if (!titleEl && bodyEl) {
+        titleEl = document.createElement('div');
+        titleEl.className = 'overlay-event-title';
+        titleEl.textContent = defaultTitle;
+        bodyEl.insertBefore(titleEl, bodyEl.children[1] || null);
+      }
+
+      if (alertIcon && authorEl && !authorEl.querySelector('.cb-pill-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'cb-pill-icon';
+        iconSpan.textContent = `✦ ${alertIcon}`;
+        authorEl.prepend(iconSpan);
+
+        const endSpan = document.createElement('span');
+        endSpan.className = 'cb-pill-icon';
+        endSpan.textContent = ` ✦`;
+        authorEl.appendChild(endSpan);
+      }
+
+      return;
+    }
+
+    // ========================================================================
+    // D. JIKA INI PESAN CHAT REGULER: BALON JAHITAN DENGAN EKOR KIRI BAWAH
+    // ========================================================================
+    if (bodyEl && !bodyEl.querySelector('.cb-tail-highlight')) {
+      const tailHighlight = document.createElement('div');
+      tailHighlight.className = 'cb-tail-highlight';
+      bodyEl.appendChild(tailHighlight);
+    }
+  }
+
+  // 3. Inisialisasi ke Seluruh Kontainer Chat OBS
+  const container = document.getElementById('overlayChatContainer');
+  if (container) {
+    container.querySelectorAll('.overlay-item').forEach(applyChatBubble);
+
+    const observer = new MutationObserver((mutations) => {
+      for (let i = 0; i < mutations.length; i++) {
+        const m = mutations[i];
+        for (let j = 0; j < m.addedNodes.length; j++) {
+          const node = m.addedNodes[j];
+          if (node.nodeType === 1 && node.classList.contains('overlay-item')) {
+            applyChatBubble(node);
+          }
+        }
+      }
+    });
+
+    observer.observe(container, { childList: true });
+  }
+
+  console.log('[StreamPulse] Stitched Chat Bubble: Clean, lightweight & natural!');
+})(config, socket);
