@@ -1,0 +1,45 @@
+{
+  "name": "streampulse-hud-overlay",
+  "version": "1.0.0",
+  "description": "Aplikasi Mini In-Game HUD Overlay transparan & tembus mouse (click-through) untuk StreamPulse MultiChat",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "build:portable": "electron-builder --win portable --x64",
+    "build:dir": "electron-builder --dir --win --x64"
+  },
+  "build": {
+    "appId": "com.streampulse.hud",
+    "productName": "StreamPulse HUD Overlay",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "assets/icon.png"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ]
+  },
+  "keywords": [
+    "streampulse",
+    "hud",
+    "overlay",
+    "discord-overlay",
+    "gaming",
+    "twitch",
+    "youtube",
+    "tiktok",
+    "chat"
+  ],
+  "author": "StreamPulse",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^26.0.0"
+  }
+}

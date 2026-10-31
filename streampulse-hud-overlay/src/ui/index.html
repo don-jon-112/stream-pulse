@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamPulse - In-Game HUD Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-alpha: 0.45;
+      --font-size: 13px;
+      --text-color: #ffffff;
+      --twitch-color: #a970ff;
+      --yt-color: #ff4e45;
+      --tiktok-color: #00f2fe;
+      --tiktok-pink: #fe2c55;
+      --sys-color: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: transparent !important;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Container Overlay */
+    .hud-window {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      transition: background 0.2s ease, border 0.2s ease;
+      background: rgba(10, 14, 26, var(--bg-alpha));
+      border: 1px solid transparent;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    /* Mode Unlocked / Edit Mode (Border tampak & Drag aktif) */
+    .hud-window.unlocked {
+      border: 2px dashed rgba(139, 92, 246, 0.8) !important;
+      background: rgba(15, 23, 42, 0.85) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Header Bar (Draggable in unlocked mode) */
+    .hud-header {
+      height: 38px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      -webkit-app-region: drag; /* Electron window dragging */
+      cursor: grab;
+      flex-shrink: 0;
+    }
+
+    .hud-window:not(.unlocked) .hud-header {
+      display: none; /* Sembunyikan header saat terkunci in-game agar layar 100% bersih */
+    }
+
+    .hud-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-badge {
+      background: #8b5cf6;
+      color: white;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .hud-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .hud-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f1f5f9;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .hud-btn-lock {
+      background: #8b5cf6;
+      border-color: #7c3aed;
+    }
+
+    .hud-btn-lock:hover {
+      background: #7c3aed;
+    }
+
+    /* Settings Bar (Tampil saat Unlocked) */
+    .hud-settings {
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.45);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px 10px;
+      font-size: 11px;
+      color: #94a3b8;
+      -webkit-app-region: no-drag;
+      flex-shrink: 0;
+    }
+
+    .hud-window:not(.unlocked) .hud-settings {
+      display: none;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .setting-item input[type="range"] {
+      width: 70px;
+      height: 4px;
+      accent-color: #8b5cf6;
+      cursor: pointer;
+    }
+
+    /* Floating Status Pill (Tampil saat Locked) */
+    .hud-floating-pill {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 10;
+      pointer-events: auto;
+      cursor: pointer;
+      backdrop-filter: blur(2px);
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .hud-floating-pill:hover {
+      background: rgba(139, 92, 246, 0.4);
+      border-color: rgba(139, 92, 246, 0.8);
+      color: #ffffff;
+    }
+
+    .hud-window.unlocked .hud-floating-pill {
+      display: none;
+    }
+
+    .hud-browser-notice {
+      background: linear-gradient(90deg, #4c1d95, #1e1b4b);
+      border-bottom: 1px solid rgba(139, 92, 246, 0.6);
+      color: #ede9fe;
+      font-size: 11px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      line-height: 1.3;
+      z-index: 20;
+    }
+
+    /* Modal Atur Channel */
+    .hud-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 14, 26, 0.92);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .hud-modal-card {
+      max-height: 88vh;
+      overflow-y: auto;
+      background: #0f172a;
+      border: 1px solid rgba(139, 92, 246, 0.7);
+      border-radius: 10px;
+      padding: 14px;
+      width: 100%;
+      max-width: 330px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+    .hud-modal-title {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #f1f5f9;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 6px;
+    }
+    .channel-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .channel-input-group label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .channel-input-group input {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #f8fafc;
+      padding: 5px 8px;
+      font-size: 11px;
+      outline: none;
+      font-family: inherit;
+    }
+    .channel-input-group input:focus {
+      border-color: #8b5cf6;
+      background: #0f172a;
+    }
+
+    .viewers-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+    }
+
+    /* Stream Feed Container */
+    .hud-chat-list {
+      flex: 1;
+      overflow-y: hidden;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 6px;
+      pointer-events: none; /* Mouse tembus chat list */
+    }
+
+        /* Custom Chat Stream Iframe */
+    .hud-custom-frame {
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      border: none;
+      background: transparent;
+      pointer-events: none;
+    }
+    .hud-window.unlocked .hud-custom-frame {
+      pointer-events: auto;
+    }
+
+    .hud-window.unlocked .hud-chat-list {
+      overflow-y: auto;
+      pointer-events: auto;
+    }
+
+    /* Chat Item Card */
+    .chat-msg {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: var(--font-size);
+      line-height: 1.35;
+      color: var(--text-color);
+      animation: fadeInMsg 0.15s ease-out;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.8);
+      word-break: break-word;
+    }
+
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-header {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 700;
+      font-size: 0.92em;
+    }
+
+    .platform-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .platform-icon.twitch { color: var(--twitch-color); }
+    .platform-icon.youtube { color: var(--yt-color); }
+    .platform-icon.tiktok { color: var(--tiktok-color); }
+
+    .msg-author {
+      color: #f8fafc;
+      letter-spacing: 0.2px;
+    }
+
+    .msg-text {
+      color: #f1f5f9;
+      padding-left: 19px;
+      font-weight: 500;
+    }
+
+    .chat-emote {
+      height: 1.3em;
+      vertical-align: -0.2em;
+      margin: 0 1px;
+    }
+
+    /* Event Card (Gift / Donasi / Sub) */
+    .event-msg {
+      background: rgba(139, 92, 246, 0.25);
+      border-left: 3px solid #8b5cf6;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: var(--font-size);
+      color: #f8fafc;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      animation: fadeInMsg 0.2s ease-out;
+    }
+
+    .event-msg.tiktok-gift {
+      background: rgba(254, 44, 85, 0.25);
+      border-left-color: var(--tiktok-pink);
+    }
+
+    .event-msg.twitch-redeem {
+      background: rgba(169, 112, 255, 0.28);
+      border-left-color: #a970ff;
+    }
+
+    .event-msg.superchat {
+      background: rgba(255, 0, 0, 0.25);
+      border-left-color: var(--yt-color);
+    }
+
+    .event-title {
+      font-weight: 700;
+      font-size: 0.88em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .event-detail {
+      font-weight: 600;
+      color: #fde047;
+      font-size: 0.95em;
+    }
+
+    /* Toast Notification for Hotkey */
+    .hud-toast {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #8b5cf6;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .hud-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+  </style>
+</head>
+<body>
+  <div class="hud-window unlocked" id="hud-window">
+    <!-- NOTICE JIKA DIJALANKAN DI WEB BROWSER -->
+    <div class="hud-browser-notice" id="browser-notice" style="display:none;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:13px;">⚠️</span>
+        <span>Mode Browser Web: Klik tembus game & hotkey global memerlukan <strong>Aplikasi Desktop (.exe)</strong></span>
+      </div>
+      <a href="/download/portable" class="hud-btn" style="background:#8b5cf6; color:white; text-decoration:none; padding:3px 8px; font-weight:700; white-space:nowrap; border-radius:4px; font-size:10px;">
+        ⬇️ Download .exe
+      </a>
+    </div>
+
+    <!-- HEADER BAR (DRAGGABLE & CONTROLS) -->
+    <header class="hud-header" id="hud-header">
+      <div class="hud-title">
+        <span class="hud-badge">HUD</span>
+        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">StreamPulse</span>
+      </div>
+      <div class="hud-controls">
+        <button class="hud-btn" id="btn-open-channels" style="background:#8b5cf6; border-color:#7c3aed; color:#fff; font-weight:700; box-shadow:0 2px 8px rgba(139,92,246,0.35); font-size:11px; padding:3px 9px;" title="Atur Channel Live & Custom Chat Stream URL">
+          ⚙️ Atur Channel & URL
+        </button>
+        <button class="hud-btn hud-btn-lock" id="btn-lock" title="Kunci Overlay & Aktifkan Click-Through Tembus Game (Ctrl+Shift+X / F8)">
+          🔒 Lock
+        </button>
+        <button class="hud-btn" id="btn-close" title="Tutup Overlay">✕</button>
+      </div>
+    </header>
+
+    <!-- SETTINGS BAR (WHEN UNLOCKED) -->
+    <div class="hud-settings" id="hud-settings">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="setting-item">
+          <label for="slider-opacity">Opacity:</label>
+          <input type="range" id="slider-opacity" min="0" max="95" value="45" style="width:50px;">
+          <span id="opacity-val">45%</span>
+        </div>
+        <div class="setting-item">
+          <label for="slider-font">Font:</label>
+          <input type="range" id="slider-font" min="11" max="18" value="13" style="width:45px;">
+          <span id="font-val">13px</span>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:2px 6px; background:rgba(255,255,255,0.08); color:#cbd5e1;" title="Setel Custom Chat Stream URL (Cepat)">🔗 Custom URL</button>
+        <span style="color: #a78bfa; font-weight: 600; font-size:10.5px;">💡 <strong>F8</strong> / <strong>Ctrl+Shift+X</strong></span>
+      </div>
+    </div>
+
+    <!-- MODAL ATUR CHANNEL -->
+    <div class="hud-modal-overlay" id="modal-channels" style="display:none;">
+      <div class="hud-modal-card">
+        <div class="hud-modal-title">
+          <span>⚙️ Pengaturan Channel & URL Chat Stream</span>
+          <button class="hud-btn" id="btn-close-channels-x" style="padding:1px 6px;">✕</button>
+        </div>
+        <p style="font-size:10px; color:#94a3b8; line-height:1.4; margin:0;">
+          Masukkan channel atau sambungkan akun untuk memantau chat & aktivitas redeem:
+        </p>
+
+        <!-- TWITCH SECTION -->
+        <div class="channel-input-group">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="color:#a970ff; display:inline-flex; align-items:center; gap:4px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+              <span>Twitch Channel:</span>
+            </label>
+            <span id="twitch-auth-tag" style="font-size:8.5px; padding:1px 5px; border-radius:4px; background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.35);">Belum OAuth</span>
+          </div>
+          <input type="text" id="input-ch-twitch" placeholder="contoh: joo_nathan">
+
+          <!-- Twitch OAuth Connection Box -->
+          <div id="twitch-oauth-box" style="margin-top:2px;">
+            <!-- Not Connected State -->
+            <div id="twitch-not-connected-box" style="display:flex; flex-direction:column; gap:4px; background:rgba(145,70,255,0.08); border:1px solid rgba(145,70,255,0.28); border-radius:6px; padding:6px 8px;">
+              <div style="font-size:8.5px; color:#cbd5e1; line-height:1.3;">
+                <span style="font-weight:700; color:#c084fc;">💠 Deteksi Redeem Points & Aktivitas:</span><br>
+                Login Twitch broadcaster agar custom reward redeem terdeteksi otomatis.
+              </div>
+              <button type="button" id="btn-login-twitch-oauth" class="hud-btn" style="background:#9146ff; color:#fff; font-weight:700; font-size:10px; padding:5px 8px; justify-content:center; gap:5px; border:none; box-shadow:0 2px 6px rgba(145,70,255,0.35); cursor:pointer;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+                <span>🟣 Hubungkan / Login Twitch (OAuth)</span>
+              </button>
+            </div>
+
+            <!-- Connected State -->
+            <div id="twitch-connected-box" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:rgba(16,185,129,0.09); border:1px solid rgba(16,185,129,0.35); border-radius:6px; padding:5px 8px;">
+              <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                <img id="twitch-auth-avatar" src="" alt="Avatar" style="width:22px; height:22px; border-radius:50%; border:1px solid #10b981; object-fit:cover; display:none;">
+                <div style="font-size:9px; line-height:1.2; min-width:0; overflow:hidden;">
+                  <div style="font-weight:700; color:#10b981; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
+                    ✓ <span id="twitch-connected-name">joo_nathan</span>
+                  </div>
+                  <span style="color:#94a3b8; font-size:8px;">Redeem Points & EventSub Aktif 💠</span>
+                </div>
+              </div>
+              <button type="button" id="btn-disconnect-twitch-oauth" class="hud-btn" style="font-size:8.5px; padding:2px 6px; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); flex-shrink:0;">
+                Putuskan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- YOUTUBE SECTION -->
+        <div class="channel-input-group">
+          <label style="color:#ff4e45; display:inline-flex; align-items:center; gap:4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>YouTube Channel ID / Live URL:</span>
+          </label>
+          <input type="text" id="input-ch-youtube" placeholder="contoh: UC... atau youtube.com/@channel/live">
+        </div>
+
+        <!-- TIKTOK SECTION -->
+        <div class="channel-input-group">
+          <label style="color:#00f2fe; display:inline-flex; align-items:center; gap:4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
+            <span>TikTok Username:</span>
+          </label>
+          <input type="text" id="input-ch-tiktok" placeholder="contoh: username_tiktok (tanpa @)">
+        </div>
+
+                <!-- CUSTOM CHAT STREAM URL SECTION -->
+        <div class="channel-input-group" style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.15);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="color:#38bdf8; display:inline-flex; align-items:center; gap:4px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span>Custom Chat Stream URL (Opsional):</span>
+            </label>
+            <span id="custom-url-tag" style="font-size:8.5px; padding:1px 5px; border-radius:4px; background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); display:none;">Custom URL Aktif</span>
+          </div>
+          <input type="text" id="input-custom-chat-url" placeholder="https://... (URL Overlay Chat kustom, OBS Browser Source, dll)">
+          <div style="font-size:8.5px; color:#94a3b8; line-height:1.3; margin-top:2px;">
+            💡 Masukkan URL overlay chat kustom Anda (misal: StreamPulse /overlay, /dock, Botrix, StreamElements, dll) untuk menampilkan web chat kustom di HUD ini. Kosongkan untuk kembali ke mode multi-chat bawaan.
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:6px;">
+          <button class="hud-btn" id="btn-cancel-channels">Batal</button>
+          <button class="hud-btn" id="btn-save-channels" style="background:#8b5cf6; color:white; font-weight:700;">Simpan & Hubungkan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOATING STATUS PILL (WHEN LOCKED) -->
+    <div class="hud-floating-pill" id="hud-pill" title="Klik untuk membuka kunci / Mode Edit">
+      <span class="viewers-badge">
+        👁️ <span id="hud-total-viewers">0</span>
+      </span>
+      <span style="opacity: 0.5;">|</span>
+      <span id="btn-pill-open-channels" style="color:#c084fc; cursor:pointer; font-weight:700;" title="Buka Pengaturan Channel & URL">⚙️ Atur</span>
+      <span style="opacity: 0.5;">|</span>
+      <span style="color: #cbd5e1;">🔓 Buka (F8)</span>
+    </div>
+
+    <!-- CHAT STREAM LIST -->
+    <main class="hud-chat-list" id="chat-list">
+      <div class="chat-msg" style="opacity: 0.9; border: 1px dashed rgba(139,92,246,0.4); background: rgba(139,92,246,0.08);">
+        <div class="msg-header">
+          <span style="color: #10b981;">⚡ STREAM PULSE HUD</span>
+        </div>
+        <div class="msg-text" style="font-size: 11px; line-height: 1.4;">
+          HUD In-Game Overlay aktif. Klik <button id="btn-chat-open-channels" class="hud-btn" style="padding:1px 6px; font-size:10px; background:#8b5cf6; color:#fff; font-weight:700; margin:2px 2px;">⚙️ Atur Channel & URL</button> untuk menghubungkan channel Twitch/YT/TikTok atau memasukkan URL Chat Kustom Anda.
+          <div style="margin-top: 4px; color: #a78bfa; font-size: 10px;">Tekan <strong>F8</strong> atau <strong>Ctrl + Shift + X</strong> untuk Lock/Unlock (tembus mouse ke game).</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- CUSTOM CHAT STREAM IFRAME -->
+    <iframe id="custom-chat-frame" class="hud-custom-frame" style="display:none;" allow="autoplay" allowtransparency="true"></iframe>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="hud-toast" id="hud-toast">Overlay Dikunci (Mouse Tembus ke Game)</div>
+  </div>
+
+  <script src="js/socket.io.min.js"></script>
+  <script>
+    (function() {
+      const isElectron = !!(window.electronOverlay && window.electronOverlay.isElectron);
+      const hudWindow = document.getElementById('hud-window');
+      const btnLock = document.getElementById('btn-lock');
+      const btnClose = document.getElementById('btn-close');
+      const btnDownloadHud = document.getElementById('btn-download-hud');
+      const browserNotice = document.getElementById('browser-notice');
+      const hudPill = document.getElementById('hud-pill');
+      const sliderOpacity = document.getElementById('slider-opacity');
+      const opacityVal = document.getElementById('opacity-val');
+      const sliderFont = document.getElementById('slider-font');
+      const fontVal = document.getElementById('font-val');
+      const chatList = document.getElementById('chat-list');
+      const toastEl = document.getElementById('hud-toast');
+      const totalViewersEl = document.getElementById('hud-total-viewers');
+
+      // Tampilkan banner peringatan jika dibuka di Web Browser biasa
+      if (!isElectron) {
+        if (browserNotice) browserNotice.style.display = 'flex';
+      } else {
+        if (browserNotice) browserNotice.style.display = 'none';
+        if (btnDownloadHud) btnDownloadHud.style.display = 'none';
+      }
+
+      let isLocked = false;
+      const MAX_MESSAGES = 60;
+      let toastTimer = null;
+
+      function showToast(msg) {
+        if (!toastEl) return;
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toastEl.classList.remove('show');
+        }, 2200);
+      }
+
+      // 1. SETTINGS STORAGE & RESTORE
+      const savedOpacity = localStorage.getItem('hud_opacity') || '45';
+      const savedFont = localStorage.getItem('hud_font') || '13';
+      sliderOpacity.value = savedOpacity;
+      opacityVal.textContent = savedOpacity + '%';
+      document.documentElement.style.setProperty('--bg-alpha', (parseInt(savedOpacity, 10) / 100).toString());
+
+      sliderFont.value = savedFont;
+      fontVal.textContent = savedFont + 'px';
+      document.documentElement.style.setProperty('--font-size', savedFont + 'px');
+
+      sliderOpacity.addEventListener('input', (e) => {
+        const val = e.target.value;
+        opacityVal.textContent = val + '%';
+        document.documentElement.style.setProperty('--bg-alpha', (parseInt(val, 10) / 100).toString());
+        localStorage.setItem('hud_opacity', val);
+      });
+
+      sliderFont.addEventListener('input', (e) => {
+        const val = e.target.value;
+        fontVal.textContent = val + 'px';
+        document.documentElement.style.setProperty('--font-size', val + 'px');
+        localStorage.setItem('hud_font', val);
+      });
+
+      // 2. LOCK & CLICK-THROUGH HANDLER
+      function setLockState(locked) {
+        isLocked = locked;
+        if (isLocked) {
+          hudWindow.classList.remove('unlocked');
+          showToast('🔒 Dikunci: Mouse Tembus ke Game (Tekan Ctrl+Shift+X atau F8)');
+          if (isElectron) {
+            // Forward mouse click 100% tembus ke game di belakangnya
+            window.electronOverlay.setIgnoreMouseEvents(true, true);
+          }
+        } else {
+          hudWindow.classList.add('unlocked');
+          showToast('🔓 Mode Edit: Geser / Atur Posisi / Ukuran Jendela');
+          if (isElectron) {
+            window.electronOverlay.setIgnoreMouseEvents(false, false);
+          }
+        }
+      }
+
+      btnLock.addEventListener('click', () => setLockState(true));
+
+      // Klik pill status saat locked untuk membuka kunci
+      if (hudPill) {
+        hudPill.addEventListener('click', () => {
+          if (isElectron && window.electronOverlay && window.electronOverlay.toggleLock) {
+            window.electronOverlay.toggleLock();
+          } else {
+            setLockState(false);
+          }
+        });
+      }
+
+      const btnServerUrl = document.getElementById('btn-server-url');
+      if (btnServerUrl) {
+        btnServerUrl.addEventListener('click', () => {
+          const curCustom = localStorage.getItem('streampulse_custom_chat_url') || '';
+          const nextUrl = prompt('Masukkan Custom Chat Stream URL Anda (contoh: https://joo-nathan.my.id/overlay?theme=compact atau URL widget lain; kosongkan untuk multi-chat bawaan):', curCustom);
+          if (nextUrl !== null) {
+            const clean = nextUrl.trim();
+            localStorage.setItem('streampulse_custom_chat_url', clean);
+            if (inputCustomChatUrl) inputCustomChatUrl.value = clean;
+            applyCustomChatUrl(clean);
+            showToast(clean ? '✓ Custom Chat URL diaktifkan!' : '✓ Mode Multi-Chat Default diaktifkan');
+          }
+        });
+      }
+
+      if (btnClose) {
+        btnClose.addEventListener('click', () => {
+          if (isElectron) {
+            window.electronOverlay.close();
+          } else {
+            window.close();
+          }
+        });
+      }
+
+      // Listen hotkey event dari Electron Main process (Ctrl+Shift+X / F8)
+      if (isElectron && window.electronOverlay && window.electronOverlay.onToggleLock) {
+        window.electronOverlay.onToggleLock((locked) => {
+          setLockState(locked);
+        });
+      }
+
+      // Hotkey listener (F8 / Ctrl+Shift+X / F9)
+      window.addEventListener('keydown', (e) => {
+        const isX = e.code === 'KeyX' || e.key === 'x' || e.key === 'X';
+        const isZ = e.code === 'KeyZ' || e.key === 'z' || e.key === 'Z';
+        const isH = e.code === 'KeyH' || e.key === 'h' || e.key === 'H';
+
+        // Toggle Lock/Unlock: F8, Ctrl+Shift+X, Ctrl+Shift+Z
+        if ((e.ctrlKey && e.shiftKey && (isX || isZ)) || e.code === 'F8' || e.key === 'F8') {
+          e.preventDefault();
+          if (isElectron && window.electronOverlay && window.electronOverlay.toggleLock) {
+            window.electronOverlay.toggleLock();
+          } else {
+            setLockState(!isLocked);
+          }
+        }
+
+        // Toggle Sembunyikan/Nyalakan (Hide/Show): F9, Ctrl+Shift+H
+        if ((e.ctrlKey && e.shiftKey && isH) || e.code === 'F9' || e.key === 'F9') {
+          e.preventDefault();
+          if (hudWindow.style.display === 'none') {
+            hudWindow.style.display = 'flex';
+            showToast('👁️ HUD Dinyalakan');
+          } else {
+            hudWindow.style.display = 'none';
+          }
+        }
+      });
+
+      // 3. CHANNEL CONFIGURATION (TWITCH, YOUTUBE, TIKTOK & TWITCH OAUTH)
+      const btnOpenChannels = document.getElementById('btn-open-channels');
+      const modalChannels = document.getElementById('modal-channels');
+      const btnCloseChannelsX = document.getElementById('btn-close-channels-x');
+      const btnCancelChannels = document.getElementById('btn-cancel-channels');
+      const btnSaveChannels = document.getElementById('btn-save-channels');
+      const inputChTwitch = document.getElementById('input-ch-twitch');
+      const inputChYoutube = document.getElementById('input-ch-youtube');
+      const inputChTiktok = document.getElementById('input-ch-tiktok');
+      const inputCustomChatUrl = document.getElementById('input-custom-chat-url');
+      const customUrlTag = document.getElementById('custom-url-tag');
+      const customChatFrame = document.getElementById('custom-chat-frame');
+
+      function applyCustomChatUrl(url) {
+        const cleanUrl = (url || '').trim();
+        if (cleanUrl) {
+          let targetUrl = cleanUrl;
+          if (targetUrl.startsWith('/')) {
+            targetUrl = window.location.origin + targetUrl;
+          }
+          if (customChatFrame) {
+            if (customChatFrame.src !== targetUrl) {
+              customChatFrame.src = targetUrl;
+            }
+            customChatFrame.style.display = 'block';
+          }
+          if (chatList) chatList.style.display = 'none';
+          if (customUrlTag) customUrlTag.style.display = 'inline-block';
+        } else {
+          if (customChatFrame) {
+            customChatFrame.src = 'about:blank';
+            customChatFrame.style.display = 'none';
+          }
+          if (chatList) chatList.style.display = 'flex';
+          if (customUrlTag) customUrlTag.style.display = 'none';
+        }
+      }
+
+      // Twitch OAuth Elements
+      const twitchAuthTag = document.getElementById('twitch-auth-tag');
+      const twitchNotConnectedBox = document.getElementById('twitch-not-connected-box');
+      const twitchConnectedBox = document.getElementById('twitch-connected-box');
+      const btnLoginTwitchOAuth = document.getElementById('btn-login-twitch-oauth');
+      const btnDisconnectTwitchOAuth = document.getElementById('btn-disconnect-twitch-oauth');
+      const twitchAuthAvatar = document.getElementById('twitch-auth-avatar');
+      const twitchConnectedName = document.getElementById('twitch-connected-name');
+
+      function getSavedTwitchOAuth() {
+        try {
+          const raw = localStorage.getItem('streampulse_twitch_oauth') || sessionStorage.getItem('streampulse_twitch_oauth');
+          if (raw) return JSON.parse(raw);
+        } catch (_) {}
+        return null;
+      }
+
+      function updateTwitchAuthUI(isAuth, data = {}) {
+        if (!twitchAuthTag) return;
+        if (isAuth) {
+          twitchAuthTag.textContent = 'OAuth Aktif 💠';
+          twitchAuthTag.style.background = 'rgba(16,185,129,0.2)';
+          twitchAuthTag.style.color = '#6ee7b7';
+          twitchAuthTag.style.border = '1px solid rgba(16,185,129,0.4)';
+
+          if (twitchNotConnectedBox) twitchNotConnectedBox.style.display = 'none';
+          if (twitchConnectedBox) twitchConnectedBox.style.display = 'flex';
+          if (twitchConnectedName) {
+            twitchConnectedName.textContent = data.displayName || data.twitch || data.login || 'Broadcaster';
+          }
+          if (twitchAuthAvatar) {
+            if (data.avatar) {
+              twitchAuthAvatar.src = data.avatar;
+              twitchAuthAvatar.style.display = 'block';
+            } else {
+              twitchAuthAvatar.style.display = 'none';
+            }
+          }
+        } else {
+          twitchAuthTag.textContent = 'Belum OAuth';
+          twitchAuthTag.style.background = 'rgba(239,68,68,0.18)';
+          twitchAuthTag.style.color = '#fca5a5';
+          twitchAuthTag.style.border = '1px solid rgba(239,68,68,0.35)';
+
+          if (twitchNotConnectedBox) twitchNotConnectedBox.style.display = 'flex';
+          if (twitchConnectedBox) twitchConnectedBox.style.display = 'none';
+          if (twitchAuthAvatar) twitchAuthAvatar.style.display = 'none';
+        }
+      }
+
+      function getStoredChannels() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let ch = { twitch: '', youtube: '', tiktok: '' };
+        try {
+          const raw = localStorage.getItem('streampulse_user_channels') || localStorage.getItem('streampulse_guest_channels');
+          if (raw) ch = JSON.parse(raw);
+        } catch (_) {}
+
+        if (urlParams.get('twitch')) ch.twitch = urlParams.get('twitch');
+        if (urlParams.get('youtube')) ch.youtube = urlParams.get('youtube');
+        if (urlParams.get('tiktok')) ch.tiktok = urlParams.get('tiktok');
+        return ch;
+      }
+
+      function populateChannelInputs() {
+        const ch = getStoredChannels();
+        if (inputChTwitch) inputChTwitch.value = ch.twitch || '';
+        if (inputChYoutube) inputChYoutube.value = ch.youtube || '';
+        if (inputChTiktok) inputChTiktok.value = ch.tiktok || '';
+
+        const savedCustomUrl = localStorage.getItem('streampulse_custom_chat_url') || '';
+        if (inputCustomChatUrl) inputCustomChatUrl.value = savedCustomUrl;
+        if (customUrlTag) customUrlTag.style.display = savedCustomUrl ? 'inline-block' : 'none';
+
+        const oauth = getSavedTwitchOAuth();
+        if (oauth && oauth.token) {
+          updateTwitchAuthUI(true, oauth);
+          if (!inputChTwitch.value && (oauth.twitch || oauth.login)) {
+            inputChTwitch.value = oauth.twitch || oauth.login;
+          }
+        } else {
+          updateTwitchAuthUI(false);
+        }
+      }
+
+      function openChannelsModal() {
+        populateChannelInputs();
+        if (modalChannels) modalChannels.style.display = 'flex';
+      }
+
+      if (btnOpenChannels && modalChannels) {
+        btnOpenChannels.addEventListener('click', openChannelsModal);
+      }
+
+      const btnChatOpenChannels = document.getElementById('btn-chat-open-channels');
+      if (btnChatOpenChannels) {
+        btnChatOpenChannels.addEventListener('click', openChannelsModal);
+      }
+
+      const btnPillOpenChannels = document.getElementById('btn-pill-open-channels');
+      if (btnPillOpenChannels) {
+        btnPillOpenChannels.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setLockState(false);
+          openChannelsModal();
+        });
+      }
+
+      function hideChannelsModal() {
+        if (modalChannels) modalChannels.style.display = 'none';
+      }
+
+      if (btnCloseChannelsX) btnCloseChannelsX.addEventListener('click', hideChannelsModal);
+      if (btnCancelChannels) btnCancelChannels.addEventListener('click', hideChannelsModal);
+
+      // Buka popup OAuth Twitch
+      if (btnLoginTwitchOAuth) {
+        btnLoginTwitchOAuth.addEventListener('click', () => {
+          const width = 500;
+          const height = 700;
+          const left = window.screenX + (window.outerWidth - width) / 2;
+          const top = window.screenY + (window.outerHeight - height) / 2;
+          const origin = (typeof currentServerUrl !== "undefined" && currentServerUrl) ? currentServerUrl : (window.location.origin.startsWith("http") ? window.location.origin : "https://joo-nathan.my.id");
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          const authUrl = `/auth/twitch?redirect_origin=${encodeURIComponent(origin)}${userToken ? `&userToken=${encodeURIComponent(userToken)}` : ''}`;
+
+          window.open(authUrl, 'twitch_auth_popup', `width=${width},height=${height},left=${left},top=${top},status=0,toolbar=0,menubar=0,location=1`);
+        });
+      }
+
+      // Handle callback Twitch OAuth dari popup
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'TWITCH_AUTH_SUCCESS') {
+          const { twitch, displayName, avatar, token } = event.data;
+          console.log(`[HUD] Twitch OAuth Berhasil: ${twitch} (${displayName})`);
+
+          const authData = { login: twitch, twitch, displayName, avatar, token };
+          localStorage.setItem('streampulse_twitch_oauth', JSON.stringify(authData));
+
+          if (inputChTwitch) inputChTwitch.value = twitch;
+          updateTwitchAuthUI(true, authData);
+
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          const payload = {
+            twitch,
+            twitchToken: token,
+            youtube: (inputChYoutube ? inputChYoutube.value : '').trim(),
+            tiktok: (inputChTiktok ? inputChTiktok.value : '').trim(),
+            userToken
+          };
+          localStorage.setItem('streampulse_user_channels', JSON.stringify(payload));
+          localStorage.setItem('streampulse_guest_channels', JSON.stringify(payload));
+
+          if (socket && socket.connected) {
+            socket.emit('update_channels', payload);
+          }
+          showToast(`✓ Twitch OAuth Terhubung! (Poin Redeem Aktif)`);
+        } else if (event.data && event.data.type === 'TWITCH_AUTH_ERROR') {
+          showToast(`✕ Gagal login Twitch: ${event.data.error || 'Dibatalkan'}`);
+        }
+      });
+
+      // Putuskan Twitch OAuth
+      if (btnDisconnectTwitchOAuth) {
+        btnDisconnectTwitchOAuth.addEventListener('click', () => {
+          localStorage.removeItem('streampulse_twitch_oauth');
+          sessionStorage.removeItem('streampulse_twitch_oauth');
+          updateTwitchAuthUI(false);
+
+          const ch = getStoredChannels();
+          ch.twitchToken = '';
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          if (socket && socket.connected) {
+            socket.emit('update_channels', { ...ch, twitchToken: '', userToken });
+          }
+          showToast('Twitch OAuth diputuskan.');
+        });
+      }
+
+      if (btnSaveChannels) {
+        btnSaveChannels.addEventListener('click', () => {
+          const twitch = (inputChTwitch.value || '').trim().toLowerCase().replace(/^[#@]/, '');
+          const youtube = (inputChYoutube.value || '').trim();
+          const tiktok = (inputChTiktok.value || '').trim().replace(/^@/, '');
+          const customUrl = (inputCustomChatUrl ? inputCustomChatUrl.value : '').trim();
+
+          localStorage.setItem('streampulse_custom_chat_url', customUrl);
+          applyCustomChatUrl(customUrl);
+
+          const oauth = getSavedTwitchOAuth();
+          const twitchToken = (oauth && oauth.token) ? oauth.token : '';
+
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          const payload = { twitch, twitchToken, youtube, tiktok, userToken };
+          localStorage.setItem('streampulse_user_channels', JSON.stringify(payload));
+          localStorage.setItem('streampulse_guest_channels', JSON.stringify(payload));
+
+          if (socket && socket.connected) {
+            socket.emit('update_channels', payload);
+          }
+          hideChannelsModal();
+          showToast(`✓ Channel disimpan & terhubung!`);
+        });
+      }
+
+      // 4. SOCKET.IO INTEGRATION (MULTI-PLATFORM LIVE CHAT & VIEWERS)
+      const DEFAULT_SERVER = 'https://joo-nathan.my.id';
+      let currentServerUrl = localStorage.getItem('streampulse_server_url') || DEFAULT_SERVER;
+      const socket = io(currentServerUrl, {
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionDelay: 2000
+      });
+
+      // Initial load custom chat stream url jika ada
+      const initialCustomUrl = new URLSearchParams(window.location.search).get('customUrl') || 
+                               new URLSearchParams(window.location.search).get('chatUrl') || 
+                               localStorage.getItem('streampulse_custom_chat_url') || '';
+      if (initialCustomUrl) {
+        applyCustomChatUrl(initialCustomUrl);
+      }
+
+      socket.on('connect', () => {
+        console.log('[HUD] Connected to StreamPulse Socket');
+        const ch = getStoredChannels();
+        const userToken = localStorage.getItem('streampulse_user_token') || '';
+        if (ch.twitch || ch.youtube || ch.tiktok || userToken) {
+          socket.emit('update_channels', { ...ch, userToken });
+        }
+      });
+
+      socket.on('initial_state', (data) => {
+        if (data && data.channels) {
+          const ch = getStoredChannels();
+          let needsUpdate = false;
+          if (!ch.twitch && data.channels.twitch) { ch.twitch = data.channels.twitch; needsUpdate = true; }
+          if (!ch.youtube && data.channels.youtube) { ch.youtube = data.channels.youtube; needsUpdate = true; }
+          if (!ch.tiktok && data.channels.tiktok) { ch.tiktok = data.channels.tiktok; needsUpdate = true; }
+          if (needsUpdate) {
+            localStorage.setItem('streampulse_user_channels', JSON.stringify(ch));
+            populateChannelInputs();
+          }
+        }
+        if (data && data.hasTwitchAuth) {
+          updateTwitchAuthUI(true, { displayName: data.channels?.twitch || inputChTwitch.value });
+        }
+      });
+
+      socket.on('auth_status', (status) => {
+        if (status && status.hasTwitchAuth) {
+          updateTwitchAuthUI(true, {
+            displayName: status.twitchChannel || inputChTwitch.value,
+            twitch: status.twitchChannel || inputChTwitch.value
+          });
+        }
+      });
+
+      // Platform Icons
+      function getPlatformSvg(platform) {
+        if (platform === 'twitch') {
+          return '<span class="platform-icon twitch"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></span>';
+        }
+        if (platform === 'youtube') {
+          return '<span class="platform-icon youtube"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>';
+        }
+        return '<span class="platform-icon tiktok"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg></span>';
+      }
+
+      function appendItem(node) {
+        chatList.appendChild(node);
+        while (chatList.children.length > MAX_MESSAGES) {
+          chatList.removeChild(chatList.firstElementChild);
+        }
+        // Auto scroll to bottom
+        chatList.scrollTop = chatList.scrollHeight;
+      }
+
+      // Render Chat Message
+      socket.on('new_chat', (chat) => {
+        if (!chat) return;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg';
+
+        const authorName = (chat.author && (chat.author.nickname || chat.author.name || chat.author.username)) || 'Anon';
+        const pIcon = getPlatformSvg(chat.platform);
+
+        let content = chat.text || '';
+        // Jika ada formatted messageParts (emotes)
+        if (Array.isArray(chat.messageParts) && chat.messageParts.length > 0) {
+          content = chat.messageParts.map(p => {
+            if (p.type === 'emoji' && p.url) {
+              return `<img class="chat-emote" src="${p.url}" alt="${p.alt || ''}">`;
+            }
+            return p.text || '';
+          }).join('');
+        }
+
+        msgDiv.innerHTML = `
+          <div class="msg-header">
+            ${pIcon}
+            <span class="msg-author">${authorName}:</span>
+          </div>
+          <div class="msg-text">${content}</div>
+        `;
+        appendItem(msgDiv);
+      });
+
+      // Render Events (Gift / Donasi / Sub / Twitch Channel Points Redeem)
+      socket.on('new_event', (evt) => {
+        if (!evt) return;
+        const evtDiv = document.createElement('div');
+        const isGift = evt.eventType === 'gift';
+        const isSuperchat = evt.eventType === 'superchat';
+        const isRedeem = evt.eventType === 'redeem';
+        evtDiv.className = `event-msg ${isGift ? 'tiktok-gift' : ''} ${isSuperchat ? 'superchat' : ''} ${isRedeem ? 'twitch-redeem' : ''}`;
+
+        const pIcon = getPlatformSvg(evt.platform);
+        const badgeText = evt.badge ? `<span style="font-size:9px; background:rgba(255,255,255,0.2); padding:1px 4px; border-radius:3px; margin-left:4px;">${evt.badge}</span>` : '';
+
+        evtDiv.innerHTML = `
+          <div class="event-title">
+            ${pIcon}
+            <span>${evt.title || 'Event Baru'}</span>
+            ${badgeText}
+          </div>
+          <div class="event-detail">${evt.author || 'User'}: ${evt.detail || ''}</div>
+        `;
+        appendItem(evtDiv);
+      });
+
+      // Viewer counts updates
+      let vCounts = { twitch: 0, youtube: 0, tiktok: 0 };
+      socket.on('viewer_count', (payload) => {
+        if (!payload || !payload.platform) return;
+        vCounts[payload.platform] = parseInt(payload.count, 10) || 0;
+        const total = (vCounts.twitch || 0) + (vCounts.youtube || 0) + (vCounts.tiktok || 0);
+        if (totalViewersEl) {
+          totalViewersEl.textContent = total >= 1000 ? (total / 1000).toFixed(1) + 'k' : total;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
