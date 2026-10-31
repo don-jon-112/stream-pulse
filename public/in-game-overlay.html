@@ -224,6 +224,8 @@
       -webkit-backdrop-filter: blur(6px);
     }
     .hud-modal-card {
+      max-height: 88vh;
+      overflow-y: auto;
       background: #0f172a;
       border: 1px solid rgba(139, 92, 246, 0.7);
       border-radius: 10px;
@@ -476,22 +478,72 @@
           <span>📺 Pengaturan Channel Live</span>
           <button class="hud-btn" id="btn-close-channels-x" style="padding:1px 6px;">✕</button>
         </div>
-        <p style="font-size:10px; color:#94a3b8; line-height:1.4;">
-          Masukkan channel yang ingin dipantau chat-nya di overlay ini:
+        <p style="font-size:10px; color:#94a3b8; line-height:1.4; margin:0;">
+          Masukkan channel atau sambungkan akun untuk memantau chat & aktivitas redeem:
         </p>
+
+        <!-- TWITCH SECTION -->
         <div class="channel-input-group">
-          <label style="color:#a970ff;">Twitch Username:</label>
-          <input type="text" id="input-ch-twitch" placeholder="contoh: shroud atau nama channel">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="color:#a970ff; display:inline-flex; align-items:center; gap:4px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+              <span>Twitch Channel:</span>
+            </label>
+            <span id="twitch-auth-tag" style="font-size:8.5px; padding:1px 5px; border-radius:4px; background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.35);">Belum OAuth</span>
+          </div>
+          <input type="text" id="input-ch-twitch" placeholder="contoh: joo_nathan">
+
+          <!-- Twitch OAuth Connection Box -->
+          <div id="twitch-oauth-box" style="margin-top:2px;">
+            <!-- Not Connected State -->
+            <div id="twitch-not-connected-box" style="display:flex; flex-direction:column; gap:4px; background:rgba(145,70,255,0.08); border:1px solid rgba(145,70,255,0.28); border-radius:6px; padding:6px 8px;">
+              <div style="font-size:8.5px; color:#cbd5e1; line-height:1.3;">
+                <span style="font-weight:700; color:#c084fc;">💠 Deteksi Redeem Points & Aktivitas:</span><br>
+                Login Twitch broadcaster agar custom reward redeem terdeteksi otomatis.
+              </div>
+              <button type="button" id="btn-login-twitch-oauth" class="hud-btn" style="background:#9146ff; color:#fff; font-weight:700; font-size:10px; padding:5px 8px; justify-content:center; gap:5px; border:none; box-shadow:0 2px 6px rgba(145,70,255,0.35); cursor:pointer;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+                <span>🟣 Hubungkan / Login Twitch (OAuth)</span>
+              </button>
+            </div>
+
+            <!-- Connected State -->
+            <div id="twitch-connected-box" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:rgba(16,185,129,0.09); border:1px solid rgba(16,185,129,0.35); border-radius:6px; padding:5px 8px;">
+              <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+                <img id="twitch-auth-avatar" src="" alt="Avatar" style="width:22px; height:22px; border-radius:50%; border:1px solid #10b981; object-fit:cover; display:none;">
+                <div style="font-size:9px; line-height:1.2; min-width:0; overflow:hidden;">
+                  <div style="font-weight:700; color:#10b981; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
+                    ✓ <span id="twitch-connected-name">joo_nathan</span>
+                  </div>
+                  <span style="color:#94a3b8; font-size:8px;">Redeem Points & EventSub Aktif 💠</span>
+                </div>
+              </div>
+              <button type="button" id="btn-disconnect-twitch-oauth" class="hud-btn" style="font-size:8.5px; padding:2px 6px; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); flex-shrink:0;">
+                Putuskan
+              </button>
+            </div>
+          </div>
         </div>
+
+        <!-- YOUTUBE SECTION -->
         <div class="channel-input-group">
-          <label style="color:#ff4e45;">YouTube Channel ID / Live URL:</label>
+          <label style="color:#ff4e45; display:inline-flex; align-items:center; gap:4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>YouTube Channel ID / Live URL:</span>
+          </label>
           <input type="text" id="input-ch-youtube" placeholder="contoh: UC... atau youtube.com/@channel/live">
         </div>
+
+        <!-- TIKTOK SECTION -->
         <div class="channel-input-group">
-          <label style="color:#00f2fe;">TikTok Username:</label>
+          <label style="color:#00f2fe; display:inline-flex; align-items:center; gap:4px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
+            <span>TikTok Username:</span>
+          </label>
           <input type="text" id="input-ch-tiktok" placeholder="contoh: username_tiktok (tanpa @)">
         </div>
-        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
+
+        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:6px;">
           <button class="hud-btn" id="btn-cancel-channels">Batal</button>
           <button class="hud-btn" id="btn-save-channels" style="background:#8b5cf6; color:white; font-weight:700;">Simpan & Hubungkan</button>
         </div>
@@ -679,7 +731,7 @@
         }
       });
 
-      // 3. CHANNEL CONFIGURATION (TWITCH, YOUTUBE, TIKTOK)
+      // 3. CHANNEL CONFIGURATION (TWITCH, YOUTUBE, TIKTOK & TWITCH OAUTH)
       const btnOpenChannels = document.getElementById('btn-open-channels');
       const modalChannels = document.getElementById('modal-channels');
       const btnCloseChannelsX = document.getElementById('btn-close-channels-x');
@@ -688,6 +740,56 @@
       const inputChTwitch = document.getElementById('input-ch-twitch');
       const inputChYoutube = document.getElementById('input-ch-youtube');
       const inputChTiktok = document.getElementById('input-ch-tiktok');
+
+      // Twitch OAuth Elements
+      const twitchAuthTag = document.getElementById('twitch-auth-tag');
+      const twitchNotConnectedBox = document.getElementById('twitch-not-connected-box');
+      const twitchConnectedBox = document.getElementById('twitch-connected-box');
+      const btnLoginTwitchOAuth = document.getElementById('btn-login-twitch-oauth');
+      const btnDisconnectTwitchOAuth = document.getElementById('btn-disconnect-twitch-oauth');
+      const twitchAuthAvatar = document.getElementById('twitch-auth-avatar');
+      const twitchConnectedName = document.getElementById('twitch-connected-name');
+
+      function getSavedTwitchOAuth() {
+        try {
+          const raw = localStorage.getItem('streampulse_twitch_oauth') || sessionStorage.getItem('streampulse_twitch_oauth');
+          if (raw) return JSON.parse(raw);
+        } catch (_) {}
+        return null;
+      }
+
+      function updateTwitchAuthUI(isAuth, data = {}) {
+        if (!twitchAuthTag) return;
+        if (isAuth) {
+          twitchAuthTag.textContent = 'OAuth Aktif 💠';
+          twitchAuthTag.style.background = 'rgba(16,185,129,0.2)';
+          twitchAuthTag.style.color = '#6ee7b7';
+          twitchAuthTag.style.border = '1px solid rgba(16,185,129,0.4)';
+
+          if (twitchNotConnectedBox) twitchNotConnectedBox.style.display = 'none';
+          if (twitchConnectedBox) twitchConnectedBox.style.display = 'flex';
+          if (twitchConnectedName) {
+            twitchConnectedName.textContent = data.displayName || data.twitch || data.login || 'Broadcaster';
+          }
+          if (twitchAuthAvatar) {
+            if (data.avatar) {
+              twitchAuthAvatar.src = data.avatar;
+              twitchAuthAvatar.style.display = 'block';
+            } else {
+              twitchAuthAvatar.style.display = 'none';
+            }
+          }
+        } else {
+          twitchAuthTag.textContent = 'Belum OAuth';
+          twitchAuthTag.style.background = 'rgba(239,68,68,0.18)';
+          twitchAuthTag.style.color = '#fca5a5';
+          twitchAuthTag.style.border = '1px solid rgba(239,68,68,0.35)';
+
+          if (twitchNotConnectedBox) twitchNotConnectedBox.style.display = 'flex';
+          if (twitchConnectedBox) twitchConnectedBox.style.display = 'none';
+          if (twitchAuthAvatar) twitchAuthAvatar.style.display = 'none';
+        }
+      }
 
       function getStoredChannels() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -708,6 +810,16 @@
         if (inputChTwitch) inputChTwitch.value = ch.twitch || '';
         if (inputChYoutube) inputChYoutube.value = ch.youtube || '';
         if (inputChTiktok) inputChTiktok.value = ch.tiktok || '';
+
+        const oauth = getSavedTwitchOAuth();
+        if (oauth && oauth.token) {
+          updateTwitchAuthUI(true, oauth);
+          if (!inputChTwitch.value && (oauth.twitch || oauth.login)) {
+            inputChTwitch.value = oauth.twitch || oauth.login;
+          }
+        } else {
+          updateTwitchAuthUI(false);
+        }
       }
 
       if (btnOpenChannels && modalChannels) {
@@ -724,14 +836,81 @@
       if (btnCloseChannelsX) btnCloseChannelsX.addEventListener('click', hideChannelsModal);
       if (btnCancelChannels) btnCancelChannels.addEventListener('click', hideChannelsModal);
 
+      // Buka popup OAuth Twitch
+      if (btnLoginTwitchOAuth) {
+        btnLoginTwitchOAuth.addEventListener('click', () => {
+          const width = 500;
+          const height = 700;
+          const left = window.screenX + (window.outerWidth - width) / 2;
+          const top = window.screenY + (window.outerHeight - height) / 2;
+          const origin = window.location.origin;
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          const authUrl = `/auth/twitch?redirect_origin=${encodeURIComponent(origin)}${userToken ? `&userToken=${encodeURIComponent(userToken)}` : ''}`;
+
+          window.open(authUrl, 'twitch_auth_popup', `width=${width},height=${height},left=${left},top=${top},status=0,toolbar=0,menubar=0,location=1`);
+        });
+      }
+
+      // Handle callback Twitch OAuth dari popup
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'TWITCH_AUTH_SUCCESS') {
+          const { twitch, displayName, avatar, token } = event.data;
+          console.log(`[HUD] Twitch OAuth Berhasil: ${twitch} (${displayName})`);
+
+          const authData = { login: twitch, twitch, displayName, avatar, token };
+          localStorage.setItem('streampulse_twitch_oauth', JSON.stringify(authData));
+
+          if (inputChTwitch) inputChTwitch.value = twitch;
+          updateTwitchAuthUI(true, authData);
+
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          const payload = {
+            twitch,
+            twitchToken: token,
+            youtube: (inputChYoutube ? inputChYoutube.value : '').trim(),
+            tiktok: (inputChTiktok ? inputChTiktok.value : '').trim(),
+            userToken
+          };
+          localStorage.setItem('streampulse_user_channels', JSON.stringify(payload));
+          localStorage.setItem('streampulse_guest_channels', JSON.stringify(payload));
+
+          if (socket && socket.connected) {
+            socket.emit('update_channels', payload);
+          }
+          showToast(`✓ Twitch OAuth Terhubung! (Poin Redeem Aktif)`);
+        } else if (event.data && event.data.type === 'TWITCH_AUTH_ERROR') {
+          showToast(`✕ Gagal login Twitch: ${event.data.error || 'Dibatalkan'}`);
+        }
+      });
+
+      // Putuskan Twitch OAuth
+      if (btnDisconnectTwitchOAuth) {
+        btnDisconnectTwitchOAuth.addEventListener('click', () => {
+          localStorage.removeItem('streampulse_twitch_oauth');
+          sessionStorage.removeItem('streampulse_twitch_oauth');
+          updateTwitchAuthUI(false);
+
+          const ch = getStoredChannels();
+          ch.twitchToken = '';
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          if (socket && socket.connected) {
+            socket.emit('update_channels', { ...ch, twitchToken: '', userToken });
+          }
+          showToast('Twitch OAuth diputuskan.');
+        });
+      }
+
       if (btnSaveChannels) {
         btnSaveChannels.addEventListener('click', () => {
           const twitch = (inputChTwitch.value || '').trim().toLowerCase().replace(/^[#@]/, '');
           const youtube = (inputChYoutube.value || '').trim();
           const tiktok = (inputChTiktok.value || '').trim().replace(/^@/, '');
 
+          const oauth = getSavedTwitchOAuth();
+          const twitchToken = (oauth && oauth.token) ? oauth.token : '';
+
           const userToken = localStorage.getItem('streampulse_user_token') || '';
-          const payload = { twitch, youtube, tiktok, userToken };
+          const payload = { twitch, twitchToken, youtube, tiktok, userToken };
           localStorage.setItem('streampulse_user_channels', JSON.stringify(payload));
           localStorage.setItem('streampulse_guest_channels', JSON.stringify(payload));
 
@@ -766,6 +945,18 @@
             localStorage.setItem('streampulse_user_channels', JSON.stringify(ch));
             populateChannelInputs();
           }
+        }
+        if (data && data.hasTwitchAuth) {
+          updateTwitchAuthUI(true, { displayName: data.channels?.twitch || inputChTwitch.value });
+        }
+      });
+
+      socket.on('auth_status', (status) => {
+        if (status && status.hasTwitchAuth) {
+          updateTwitchAuthUI(true, {
+            displayName: status.twitchChannel || inputChTwitch.value,
+            twitch: status.twitchChannel || inputChTwitch.value
+          });
         }
       });
 

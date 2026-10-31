@@ -141,6 +141,28 @@ function createOverlayWindow() {
   // Mute audio
   overlayWindow.webContents.setAudioMuted(true);
 
+  // Izinkan popup OAuth (Twitch / YouTube / Google) terbuka sebagai jendela otentikasi
+  overlayWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.includes('/auth/twitch') || url.includes('id.twitch.tv') || url.includes('/auth/youtube') || url.includes('accounts.google.com')) {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 520,
+          height: 720,
+          autoHideMenuBar: true,
+          alwaysOnTop: true,
+          title: 'StreamPulse - Otentikasi OAuth',
+          webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true
+          }
+        }
+      };
+    }
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
   overlayWindow.loadURL(`${APP_URL}/in-game-overlay`);
 
   overlayWindow.on('closed', () => {

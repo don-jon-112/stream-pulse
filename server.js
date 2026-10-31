@@ -174,6 +174,18 @@ io.on('connection', (socket) => {
       }
     }
 
+    // Auto-match dari database users jika username cocok dengan channel Twitch
+    if (!token && cleanTwitch) {
+      const users = readJsonFile(USERS_FILE, {});
+      const matched = Object.values(users).find(x => {
+        const t = (x.channels?.twitch || x.username || '').toLowerCase().replace(/^[#@]/, '');
+        return t === cleanTwitch;
+      });
+      if (matched?.channels?.twitchTokenEncrypted) {
+        token = decryptToken(matched.channels.twitchTokenEncrypted);
+      }
+    }
+
     if (!token && cleanTwitch) {
       const existingPool = streamManager.twitchPool.get(cleanTwitch);
       if (existingPool && existingPool.token) {
