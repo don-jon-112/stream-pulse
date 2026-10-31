@@ -23,3 +23,6 @@ android/app/build/
 
 # Database & Runtime Data
 data/
+
+# Downloadable large packages
+public/downloads/

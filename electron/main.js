@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, nativeImage, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, Tray, Menu, nativeImage, shell, ipcMain, globalShortcut } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -14,7 +14,7 @@ app.commandLine.appendSwitch('js-flags', '--expose-gc --max-old-space-size=64');
 
 // Nonaktifkan proses renderer cadangan Chromium (menghemat 40-60MB RAM)
 app.commandLine.appendSwitch('disable-features', 'SpareRendererForSitePerProcess,CalculateNativeWinOcclusion,InterestFeedContentSuggestions');
-app.commandLine.appendSwitch('renderer-process-limit', '1');
+app.commandLine.appendSwitch('renderer-process-limit', '2');
 
 // Matikan modul-modul Chromium yang tidak dipakai
 app.commandLine.appendSwitch('disable-breakpad');                  // Crash reporter
@@ -29,17 +29,12 @@ app.commandLine.appendSwitch('disable-default-apps');
 app.commandLine.appendSwitch('no-default-browser-check');
 app.commandLine.appendSwitch('disable-dev-shm-usage');
 
-// Matikan proses GPU terpisah Chromium (menghemat 70-100MB RAM!)
-app.commandLine.appendSwitch('disable-gpu');
-app.commandLine.appendSwitch('disable-gpu-compositing');
-app.commandLine.appendSwitch('disable-software-rasterizer');
-app.commandLine.appendSwitch('disable-d3d11');
-app.commandLine.appendSwitch('disable-accelerated-2d-canvas');
-app.commandLine.appendSwitch('disable-accelerated-video-decode');
 // Nonaktifkan audio hardware sepenuhnya (Mode Hening)
 app.commandLine.appendSwitch('mute-audio');
 
 let mainWindow = null;
+let overlayWindow = null;
+let isOverlayLocked = false;
 let tray = null;
 let isQuitting = false;
 
@@ -86,8 +81,12 @@ function createWindow() {
     mainWindow.show();
   });
 
-  // Open external links in default browser
+  // Open external links in default browser, but open HUD overlay in Electron's transparent window
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.includes('/in-game-overlay') || url.includes('/hud') || url.includes('/game-overlay')) {
+      createOverlayWindow();
+      return { action: 'deny' };
+    }
     shell.openExternal(url);
     return { action: 'deny' };
   });
@@ -101,6 +100,101 @@ function createWindow() {
     return false;
   });
 }
+
+function createOverlayWindow() {
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    overlayWindow.show();
+    overlayWindow.focus();
+    return;
+  }
+
+  const iconPath = path.join(__dirname, '..', 'public', 'icons', 'icon-512.png');
+  const preloadPath = path.join(__dirname, 'preload-overlay.cjs');
+
+  overlayWindow = new BrowserWindow({
+    width: 380,
+    height: 520,
+    minWidth: 240,
+    minHeight: 280,
+    x: 40,
+    y: 80,
+    transparent: true,
+    frame: false,
+    hasShadow: false,
+    alwaysOnTop: true,
+    skipTaskbar: false,
+    backgroundColor: '#00000000',
+    title: 'StreamPulse - In-Game HUD Overlay',
+    icon: iconPath,
+    webPreferences: {
+      preload: preloadPath,
+      nodeIntegration: false,
+      contextIsolation: true,
+      spellcheck: false,
+      devTools: false,
+      backgroundThrottling: false
+    }
+  });
+
+  // Level prioritas tertinggi agar melayang di depan game borderless / fullscreen
+  overlayWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+
+  // Mute audio
+  overlayWindow.webContents.setAudioMuted(true);
+
+  overlayWindow.loadURL(`${APP_URL}/in-game-overlay`);
+
+  overlayWindow.on('closed', () => {
+    overlayWindow = null;
+    isOverlayLocked = false;
+  });
+}
+
+function toggleOverlayLock() {
+  if (!overlayWindow || overlayWindow.isDestroyed()) {
+    createOverlayWindow();
+    return;
+  }
+  isOverlayLocked = !isOverlayLocked;
+
+  if (isOverlayLocked) {
+    // Mode Lock (Mouse tembus game)
+    overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+    overlayWindow.webContents.send('overlay-toggle-lock', true);
+  } else {
+    // Mode Edit (Mouse bisa menggeser & mengatur overlay)
+    overlayWindow.setIgnoreMouseEvents(false);
+    overlayWindow.webContents.send('overlay-toggle-lock', false);
+    overlayWindow.focus();
+  }
+}
+
+// IPC Handlers untuk In-Game Overlay
+ipcMain.on('overlay-ignore-mouse-events', (event, { ignore, forward }) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) {
+    isOverlayLocked = !!ignore;
+    win.setIgnoreMouseEvents(ignore, { forward: !!forward });
+  }
+});
+
+ipcMain.on('overlay-toggle-lock-request', () => {
+  toggleOverlayLock();
+});
+
+ipcMain.on('overlay-close', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) win.close();
+});
+
+ipcMain.on('overlay-minimize', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) win.minimize();
+});
+
+ipcMain.on('open-in-game-overlay', () => {
+  createOverlayWindow();
+});
 
 function createTray() {
   try {
@@ -118,6 +212,18 @@ function createTray() {
             mainWindow.show();
             mainWindow.focus();
           }
+        }
+      },
+      {
+        label: '🎮 Buka In-Game HUD Overlay',
+        click: () => {
+          createOverlayWindow();
+        }
+      },
+      {
+        label: '🔒 Lock/Unlock Overlay (Ctrl+Shift+X)',
+        click: () => {
+          toggleOverlayLock();
         }
       },
       {
@@ -176,8 +282,27 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(() => {
-    createWindow();
+    const startOverlayOnly = process.argv.includes('--overlay') || process.argv.includes('--hud');
+
+    if (startOverlayOnly) {
+      createOverlayWindow();
+    } else {
+      createWindow();
+    }
     createTray();
+
+    // Daftarkan Global Shortcut untuk Lock/Unlock Overlay saat bermain game
+    try {
+      globalShortcut.register('CommandOrControl+Shift+X', () => {
+        toggleOverlayLock();
+      });
+      globalShortcut.register('F8', () => {
+        toggleOverlayLock();
+      });
+      console.log('[Electron] Global shortcuts registered: Ctrl+Shift+X and F8');
+    } catch (e) {
+      console.warn('[Electron] Failed to register global shortcut:', e.message);
+    }
 
     // Jalankan Garbage Collector berkala (tiap 60 detik) untuk membebaskan memori yang tidak dipakai
     setInterval(() => {
@@ -199,6 +324,9 @@ if (!gotTheLock) {
 
   app.on('before-quit', () => {
     isQuitting = true;
+    try {
+      globalShortcut.unregisterAll();
+    } catch (_) {}
   });
 
   app.on('window-all-closed', () => {

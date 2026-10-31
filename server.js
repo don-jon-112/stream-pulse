@@ -254,6 +254,24 @@ app.get(['/dock', '/obs-dock', '/browser-dock'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dock.html'));
 });
 
+app.get(['/in-game-overlay', '/game-overlay', '/hud'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'in-game-overlay.html'));
+});
+
+// Download Portable Executable / Zip
+app.get(['/download', '/download/exe', '/download/portable', '/download/streampulse'], (req, res) => {
+  const zipPath = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip');
+  const exePath = path.join(__dirname, 'dist', 'StreamPulse MultiChat-win32-x64', 'StreamPulse MultiChat.exe');
+
+  if (fs.existsSync(zipPath)) {
+    return res.download(zipPath, 'StreamPulse-Portable-Win64.zip');
+  } else if (fs.existsSync(exePath)) {
+    return res.download(exePath, 'StreamPulse-MultiChat.exe');
+  } else {
+    res.status(404).send('File aplikasi portable belum tersedia.');
+  }
+});
+
 
 app.get(['/features', '/roadmap'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'features.html'));
