@@ -133,11 +133,13 @@
     /* Settings Bar (Tampil saat Unlocked) */
     .hud-settings {
       padding: 6px 10px;
-      background: rgba(0, 0, 0, 0.35);
+      background: rgba(0, 0, 0, 0.45);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      gap: 6px 10px;
       font-size: 11px;
       color: #94a3b8;
       -webkit-app-region: no-drag;
@@ -451,15 +453,15 @@
     <!-- HEADER BAR (DRAGGABLE & CONTROLS) -->
     <header class="hud-header" id="hud-header">
       <div class="hud-title">
-        <span class="hud-badge">IN-GAME HUD</span>
-        <span>StreamPulse MultiChat</span>
+        <span class="hud-badge">HUD</span>
+        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">StreamPulse</span>
       </div>
       <div class="hud-controls">
-        <a href="/download/portable" class="hud-btn" id="btn-download-hud" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#6ee7b7; font-size:11px;" title="Download StreamPulse Portable (.exe)">
-          ⬇️ Download .exe
-        </a>
-        <button class="hud-btn hud-btn-lock" id="btn-lock" title="Kunci Overlay & Aktifkan Click-Through Tembus Game (Ctrl+Shift+X)">
-          🔒 Lock (Tembus Mouse)
+        <button class="hud-btn" id="btn-open-channels" style="background:#8b5cf6; border-color:#7c3aed; color:#fff; font-weight:700; box-shadow:0 2px 8px rgba(139,92,246,0.35); font-size:11px; padding:3px 9px;" title="Atur Channel Live & Custom Chat Stream URL">
+          ⚙️ Atur Channel & URL
+        </button>
+        <button class="hud-btn hud-btn-lock" id="btn-lock" title="Kunci Overlay & Aktifkan Click-Through Tembus Game (Ctrl+Shift+X / F8)">
+          🔒 Lock
         </button>
         <button class="hud-btn" id="btn-close" title="Tutup Overlay">✕</button>
       </div>
@@ -467,20 +469,21 @@
 
     <!-- SETTINGS BAR (WHEN UNLOCKED) -->
     <div class="hud-settings" id="hud-settings">
-      <div class="setting-item">
-        <label for="slider-opacity">Opacity:</label>
-        <input type="range" id="slider-opacity" min="0" max="95" value="45">
-        <span id="opacity-val">45%</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="setting-item">
+          <label for="slider-opacity">Opacity:</label>
+          <input type="range" id="slider-opacity" min="0" max="95" value="45" style="width:50px;">
+          <span id="opacity-val">45%</span>
+        </div>
+        <div class="setting-item">
+          <label for="slider-font">Font:</label>
+          <input type="range" id="slider-font" min="11" max="18" value="13" style="width:45px;">
+          <span id="font-val">13px</span>
+        </div>
       </div>
-      <div class="setting-item">
-        <label for="slider-font">Font:</label>
-        <input type="range" id="slider-font" min="11" max="18" value="13">
-        <span id="font-val">13px</span>
-      </div>
-      <div class="setting-item" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
-        <button class="hud-btn" id="btn-open-channels" style="font-size:10px; padding:3px 8px; background:rgba(139,92,246,0.35); border:1px solid rgba(139,92,246,0.7); color:#fff; font-weight:700;" title="Atur Channel Twitch, YouTube, TikTok & Custom Chat URL">📺 Atur Channel & URL</button>
-        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:3px 6px; background:rgba(255,255,255,0.08); color:#cbd5e1;" title="Setel Custom Chat Stream URL (Cepat)">⚙️</button>
-        <span style="color: #a78bfa; font-weight: 600; font-size:11px;">💡 <strong>F8</strong> / <strong>Ctrl+Shift+X</strong></span>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:2px 6px; background:rgba(255,255,255,0.08); color:#cbd5e1;" title="Setel Custom Chat Stream URL (Cepat)">🔗 Custom URL</button>
+        <span style="color: #a78bfa; font-weight: 600; font-size:10.5px;">💡 <strong>F8</strong> / <strong>Ctrl+Shift+X</strong></span>
       </div>
     </div>
 
@@ -488,7 +491,7 @@
     <div class="hud-modal-overlay" id="modal-channels" style="display:none;">
       <div class="hud-modal-card">
         <div class="hud-modal-title">
-          <span>📺 Pengaturan Channel Live</span>
+          <span>⚙️ Pengaturan Channel & URL Chat Stream</span>
           <button class="hud-btn" id="btn-close-channels-x" style="padding:1px 6px;">✕</button>
         </div>
         <p style="font-size:10px; color:#94a3b8; line-height:1.4; margin:0;">
@@ -584,16 +587,21 @@
         👁️ <span id="hud-total-viewers">0</span>
       </span>
       <span style="opacity: 0.5;">|</span>
-      <span style="color: #cbd5e1;">🔓 Buka (F8 / Ctrl+Shift+X)</span>
+      <span id="btn-pill-open-channels" style="color:#c084fc; cursor:pointer; font-weight:700;" title="Buka Pengaturan Channel & URL">⚙️ Atur</span>
+      <span style="opacity: 0.5;">|</span>
+      <span style="color: #cbd5e1;">🔓 Buka (F8)</span>
     </div>
 
     <!-- CHAT STREAM LIST -->
     <main class="hud-chat-list" id="chat-list">
-      <div class="chat-msg" style="opacity: 0.7;">
+      <div class="chat-msg" style="opacity: 0.9; border: 1px dashed rgba(139,92,246,0.4); background: rgba(139,92,246,0.08);">
         <div class="msg-header">
-          <span style="color: #10b981;">⚡ STREAM PULSE</span>
+          <span style="color: #10b981;">⚡ STREAM PULSE HUD</span>
         </div>
-        <div class="msg-text">HUD In-Game Overlay aktif. Tekan <strong>Ctrl + Shift + X</strong> untuk Lock/Unlock.</div>
+        <div class="msg-text" style="font-size: 11px; line-height: 1.4;">
+          HUD In-Game Overlay aktif. Klik <button id="btn-chat-open-channels" class="hud-btn" style="padding:1px 6px; font-size:10px; background:#8b5cf6; color:#fff; font-weight:700; margin:2px 2px;">⚙️ Atur Channel & URL</button> untuk menghubungkan channel Twitch/YT/TikTok atau memasukkan URL Chat Kustom Anda.
+          <div style="margin-top: 4px; color: #a78bfa; font-size: 10px;">Tekan <strong>F8</strong> atau <strong>Ctrl + Shift + X</strong> untuk Lock/Unlock (tembus mouse ke game).</div>
+        </div>
       </div>
     </main>
 
@@ -884,10 +892,26 @@
         }
       }
 
+      function openChannelsModal() {
+        populateChannelInputs();
+        if (modalChannels) modalChannels.style.display = 'flex';
+      }
+
       if (btnOpenChannels && modalChannels) {
-        btnOpenChannels.addEventListener('click', () => {
-          populateChannelInputs();
-          modalChannels.style.display = 'flex';
+        btnOpenChannels.addEventListener('click', openChannelsModal);
+      }
+
+      const btnChatOpenChannels = document.getElementById('btn-chat-open-channels');
+      if (btnChatOpenChannels) {
+        btnChatOpenChannels.addEventListener('click', openChannelsModal);
+      }
+
+      const btnPillOpenChannels = document.getElementById('btn-pill-open-channels');
+      if (btnPillOpenChannels) {
+        btnPillOpenChannels.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setLockState(false);
+          openChannelsModal();
         });
       }
 
