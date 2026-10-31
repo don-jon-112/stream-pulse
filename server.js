@@ -268,55 +268,43 @@ app.get(['/in-game-overlay', '/game-overlay', '/hud'], (req, res) => {
 
 // Helper: Pastikan file ZIP terakit utuh jika ada parts (untuk deploy di cloud / VPS)
 function ensurePortableZip() {
-  const targetZip = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip');
+  const targetZip = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Overlay-Portable.zip');
+  const legacyZip = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip');
   const partsDir = path.join(__dirname, 'public', 'downloads', 'parts');
 
   if (!fs.existsSync(targetZip) && fs.existsSync(partsDir)) {
     try {
-      const parts = fs.readdirSync(partsDir).filter(f => f.startsWith('StreamPulse-Portable.zip.')).sort();
+      const parts = fs.readdirSync(partsDir).filter(f => f.startsWith('StreamPulse-Overlay.zip.')).sort();
       if (parts.length > 0) {
-        console.log('[AutoMerge] Menggabungkan paket portable dari parts...');
+        console.log('[AutoMerge] Menggabungkan paket mini overlay dari parts...');
         const bufs = parts.map(p => fs.readFileSync(path.join(partsDir, p)));
         fs.writeFileSync(targetZip, Buffer.concat(bufs));
-        console.log('[AutoMerge] Paket StreamPulse-Portable-Win64.zip siap diunduh!');
+        console.log('[AutoMerge] Paket StreamPulse-Overlay-Portable.zip siap diunduh!');
       }
     } catch (err) {
       console.warn('[AutoMerge] Gagal menggabungkan parts:', err.message);
     }
   }
-  return targetZip;
+  return fs.existsSync(targetZip) ? targetZip : legacyZip;
 }
 
-// Download Portable Executable / Zip
-app.get(['/download', '/download/exe', '/download/portable', '/download/streampulse'], (req, res) => {
-  ensurePortableZip();
+// Download Portable Executable / Zip (Mini App Overlay Client)
+app.get(['/download', '/download/exe', '/download/portable', '/download/overlay', '/download/streampulse'], (req, res) => {
+  const zipFile = ensurePortableZip();
 
   const possibleZipPaths = [
-    path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip'),
-    path.join(process.cwd(), 'public', 'downloads', 'StreamPulse-Portable-Win64.zip'),
-    path.resolve(__dirname, '..', '..', '..', 'public', 'downloads', 'StreamPulse-Portable-Win64.zip')
+    zipFile,
+    path.join(__dirname, 'public', 'downloads', 'StreamPulse-Overlay-Portable.zip'),
+    path.join(process.cwd(), 'public', 'downloads', 'StreamPulse-Overlay-Portable.zip'),
+    path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip')
   ];
 
-  const possibleExePaths = [
-    path.join(__dirname, 'dist', 'StreamPulse MultiChat-win32-x64', 'StreamPulse MultiChat.exe'),
-    path.join(process.cwd(), 'dist', 'StreamPulse MultiChat-win32-x64', 'StreamPulse MultiChat.exe'),
-    path.resolve(__dirname, '..', '..', 'StreamPulse MultiChat.exe'),
-    path.join(path.dirname(process.execPath), 'StreamPulse MultiChat.exe')
-  ];
-
-  const validZip = possibleZipPaths.find(p => fs.existsSync(p));
-  const validExe = possibleExePaths.find(p => fs.existsSync(p));
-
-  if (req.path.includes('/exe') && validExe) {
-    return res.download(validExe, 'StreamPulse-MultiChat.exe');
-  }
+  const validZip = possibleZipPaths.find(p => p && fs.existsSync(p));
 
   if (validZip) {
-    return res.download(validZip, 'StreamPulse-Portable-Win64.zip');
-  } else if (validExe) {
-    return res.download(validExe, 'StreamPulse-MultiChat.exe');
+    return res.download(validZip, 'StreamPulse-Overlay-Portable.zip');
   } else {
-    res.status(404).send('File aplikasi portable belum tersedia.');
+    res.status(404).send('File aplikasi mini overlay portable belum tersedia.');
   }
 });
 

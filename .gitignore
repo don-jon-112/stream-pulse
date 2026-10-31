@@ -27,3 +27,4 @@ data/
 # Downloadable large packages
 public/downloads/*.zip
 !public/downloads/parts/
+build-mini-overlay/

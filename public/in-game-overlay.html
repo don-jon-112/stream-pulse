@@ -394,8 +394,9 @@
         <input type="range" id="slider-font" min="11" max="18" value="13">
         <span id="font-val">13px</span>
       </div>
-      <div class="setting-item" style="margin-left: auto; color: #a78bfa; font-weight: 600;">
-        💡 Hotkey: <strong>Ctrl + Shift + X</strong> / <strong>F8</strong>
+      <div class="setting-item" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:2px 7px; background:rgba(255,255,255,0.08); color:#cbd5e1;" title="Ganti URL Server StreamPulse">⚙️ Server</button>
+        <span style="color: #a78bfa; font-weight: 600; font-size:11px;">💡 Hotkey: <strong>Ctrl + Shift + X</strong> / <strong>F8</strong></span>
       </div>
     </div>
 
@@ -515,6 +516,22 @@
             window.electronOverlay.toggleLock();
           } else {
             setLockState(false);
+          }
+        });
+      }
+
+      const btnServerUrl = document.getElementById('btn-server-url');
+      if (btnServerUrl) {
+        btnServerUrl.addEventListener('click', () => {
+          const cur = window.location.origin;
+          const nextUrl = prompt('Masukkan URL Server StreamPulse Anda (contoh: https://joo-nathan.my.id atau http://localhost:3000):', cur);
+          if (nextUrl && nextUrl.trim()) {
+            const clean = nextUrl.trim().replace(/\/$/, '');
+            if (isElectron && window.electronOverlay && window.electronOverlay.setServerUrl) {
+              window.electronOverlay.setServerUrl(clean);
+            } else {
+              window.location.href = `${clean}/in-game-overlay`;
+            }
           }
         });
       }
