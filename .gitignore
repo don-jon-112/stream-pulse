@@ -25,4 +25,5 @@ android/app/build/
 data/
 
 # Downloadable large packages
-public/downloads/
+public/downloads/*.zip
+!public/downloads/parts/

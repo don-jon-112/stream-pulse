@@ -6,8 +6,16 @@ import path from 'path';
 import os from 'os';
 import fs from 'fs';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-import * as argon2 from '@node-rs/argon2';
+let nodemailer = null;
+try {
+  const nm = await import('nodemailer');
+  nodemailer = nm.default || nm;
+} catch (_) {}
+
+let argon2 = null;
+try {
+  argon2 = await import('@node-rs/argon2');
+} catch (_) {}
 import { fileURLToPath } from 'url';
 import compression from 'compression';
 import { StreamManager } from './lib/streamManager.js';
@@ -258,8 +266,31 @@ app.get(['/in-game-overlay', '/game-overlay', '/hud'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'in-game-overlay.html'));
 });
 
+// Helper: Pastikan file ZIP terakit utuh jika ada parts (untuk deploy di cloud / VPS)
+function ensurePortableZip() {
+  const targetZip = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip');
+  const partsDir = path.join(__dirname, 'public', 'downloads', 'parts');
+
+  if (!fs.existsSync(targetZip) && fs.existsSync(partsDir)) {
+    try {
+      const parts = fs.readdirSync(partsDir).filter(f => f.startsWith('StreamPulse-Portable.zip.')).sort();
+      if (parts.length > 0) {
+        console.log('[AutoMerge] Menggabungkan paket portable dari parts...');
+        const bufs = parts.map(p => fs.readFileSync(path.join(partsDir, p)));
+        fs.writeFileSync(targetZip, Buffer.concat(bufs));
+        console.log('[AutoMerge] Paket StreamPulse-Portable-Win64.zip siap diunduh!');
+      }
+    } catch (err) {
+      console.warn('[AutoMerge] Gagal menggabungkan parts:', err.message);
+    }
+  }
+  return targetZip;
+}
+
 // Download Portable Executable / Zip
 app.get(['/download', '/download/exe', '/download/portable', '/download/streampulse'], (req, res) => {
+  ensurePortableZip();
+
   const possibleZipPaths = [
     path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip'),
     path.join(process.cwd(), 'public', 'downloads', 'StreamPulse-Portable-Win64.zip'),
@@ -675,7 +706,7 @@ function checkRateLimit(key, maxAttempts, windowMs) {
 }
 
 // Mail Transporter Setup
-const mailTransporter = process.env.SMTP_HOST ? nodemailer.createTransport({
+const mailTransporter = (process.env.SMTP_HOST && nodemailer) ? nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '465', 10),
   secure: (process.env.SMTP_PORT === '465' || !process.env.SMTP_PORT),

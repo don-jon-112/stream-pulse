@@ -91,13 +91,12 @@ function createWindow() {
     return { action: 'deny' };
   });
 
-  // Minimize to tray on close if user prefers, or quit
-  mainWindow.on('close', (event) => {
-    if (!isQuitting) {
-      event.preventDefault();
-      mainWindow.hide();
-    }
-    return false;
+  // Tutup dan matikan total seluruh proses aplikasi saat jendela utama ditutup
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+    isQuitting = true;
+    app.quit();
+    process.exit(0);
   });
 }
 
@@ -147,6 +146,12 @@ function createOverlayWindow() {
   overlayWindow.on('closed', () => {
     overlayWindow = null;
     isOverlayLocked = false;
+    // Jika window utama tidak ada / tertutup, tutup total aplikasi
+    if (!mainWindow || mainWindow.isDestroyed() || !mainWindow.isVisible()) {
+      isQuitting = true;
+      app.quit();
+      process.exit(0);
+    }
   });
 }
 
@@ -185,6 +190,11 @@ ipcMain.on('overlay-toggle-lock-request', () => {
 ipcMain.on('overlay-close', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (win) win.close();
+  if (!mainWindow || mainWindow.isDestroyed() || !mainWindow.isVisible()) {
+    isQuitting = true;
+    app.quit();
+    process.exit(0);
+  }
 });
 
 ipcMain.on('overlay-minimize', (event) => {
@@ -330,11 +340,8 @@ if (!gotTheLock) {
   });
 
   app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      // Keep running in tray or quit if isQuitting
-      if (isQuitting) {
-        app.quit();
-      }
-    }
+    isQuitting = true;
+    app.quit();
+    process.exit(0);
   });
 }
