@@ -8,9 +8,13 @@ contextBridge.exposeInMainWorld('electronOverlay', {
   toggleLock: () => {
     ipcRenderer.send('overlay-toggle-lock-request');
   },
+  toggleVisibility: () => {
+    ipcRenderer.send('overlay-toggle-visibility-request');
+  },
   close: () => ipcRenderer.send('overlay-close'),
   minimize: () => ipcRenderer.send('overlay-minimize'),
   togglePin: (pinned) => ipcRenderer.send('overlay-set-pinned', pinned),
+  setServerUrl: (url) => ipcRenderer.send('overlay-set-server-url', url),
   saveConfig: (cfg) => ipcRenderer.send('overlay-save-config', cfg),
   loadConfig: () => ipcRenderer.invoke('overlay-load-config'),
   onToggleLock: (callback) => {

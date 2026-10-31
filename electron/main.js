@@ -174,6 +174,21 @@ function toggleOverlayLock() {
   }
 }
 
+function toggleOverlayVisibility() {
+  if (!overlayWindow || overlayWindow.isDestroyed()) {
+    createOverlayWindow();
+    return;
+  }
+  if (overlayWindow.isVisible()) {
+    overlayWindow.hide();
+  } else {
+    overlayWindow.show();
+    if (!isOverlayLocked) {
+      overlayWindow.focus();
+    }
+  }
+}
+
 // IPC Handlers untuk In-Game Overlay
 ipcMain.on('overlay-ignore-mouse-events', (event, { ignore, forward }) => {
   const win = BrowserWindow.fromWebContents(event.sender);
@@ -185,6 +200,10 @@ ipcMain.on('overlay-ignore-mouse-events', (event, { ignore, forward }) => {
 
 ipcMain.on('overlay-toggle-lock-request', () => {
   toggleOverlayLock();
+});
+
+ipcMain.on('overlay-toggle-visibility-request', () => {
+  toggleOverlayVisibility();
 });
 
 ipcMain.on('overlay-close', (event) => {
@@ -301,18 +320,24 @@ if (!gotTheLock) {
     }
     createTray();
 
-    // Daftarkan Global Shortcut untuk Lock/Unlock Overlay saat bermain game
-    try {
-      globalShortcut.register('CommandOrControl+Shift+X', () => {
-        toggleOverlayLock();
-      });
-      globalShortcut.register('F8', () => {
-        toggleOverlayLock();
-      });
-      console.log('[Electron] Global shortcuts registered: Ctrl+Shift+X and F8');
-    } catch (e) {
-      console.warn('[Electron] Failed to register global shortcut:', e.message);
-    }
+    // Daftarkan Global Shortcut untuk Lock/Unlock & Mati/Nyalakan Overlay saat bermain game
+    const registerKey = (accel, fn, label) => {
+      try {
+        const success = globalShortcut.register(accel, fn);
+        console.log(`[Electron] Shortcut ${label} (${accel}): ${success ? 'ACTIVE' : 'FAILED/CONFLICT'}`);
+      } catch (err) {
+        console.warn(`[Electron] Error register ${accel}:`, err.message);
+      }
+    };
+
+    // 1. Lock / Unlock (Mouse Tembus Game <-> Mode Edit): F8, Ctrl+Shift+X, Ctrl+Shift+Z
+    registerKey('CommandOrControl+Shift+X', toggleOverlayLock, 'Lock/Unlock');
+    registerKey('F8', toggleOverlayLock, 'Lock/Unlock');
+    registerKey('CommandOrControl+Shift+Z', toggleOverlayLock, 'Lock/Unlock');
+
+    // 2. Mati / Nyalakan Tampilan (Hide / Show): F9, Ctrl+Shift+H
+    registerKey('F9', toggleOverlayVisibility, 'Hide/Show');
+    registerKey('CommandOrControl+Shift+H', toggleOverlayVisibility, 'Hide/Show');
 
     // Jalankan Garbage Collector berkala (tiap 60 detik) untuk membebaskan memori yang tidak dipakai
     setInterval(() => {

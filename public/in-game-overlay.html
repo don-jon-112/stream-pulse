@@ -207,6 +207,69 @@
       z-index: 20;
     }
 
+    /* Modal Atur Channel */
+    .hud-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 14, 26, 0.92);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .hud-modal-card {
+      background: #0f172a;
+      border: 1px solid rgba(139, 92, 246, 0.7);
+      border-radius: 10px;
+      padding: 14px;
+      width: 100%;
+      max-width: 330px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+    .hud-modal-title {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #f1f5f9;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 6px;
+    }
+    .channel-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .channel-input-group label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .channel-input-group input {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #f8fafc;
+      padding: 5px 8px;
+      font-size: 11px;
+      outline: none;
+      font-family: inherit;
+    }
+    .channel-input-group input:focus {
+      border-color: #8b5cf6;
+      background: #0f172a;
+    }
+
     .viewers-badge {
       display: inline-flex;
       align-items: center;
@@ -394,9 +457,39 @@
         <input type="range" id="slider-font" min="11" max="18" value="13">
         <span id="font-val">13px</span>
       </div>
-      <div class="setting-item" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
-        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:2px 7px; background:rgba(255,255,255,0.08); color:#cbd5e1;" title="Ganti URL Server StreamPulse">⚙️ Server</button>
-        <span style="color: #a78bfa; font-weight: 600; font-size:11px;">💡 Hotkey: <strong>Ctrl + Shift + X</strong> / <strong>F8</strong></span>
+      <div class="setting-item" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+        <button class="hud-btn" id="btn-open-channels" style="font-size:10px; padding:3px 8px; background:rgba(139,92,246,0.35); border:1px solid rgba(139,92,246,0.7); color:#fff; font-weight:700;" title="Atur Channel Twitch, YouTube, & TikTok">📺 Atur Channel</button>
+        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:3px 6px; background:rgba(255,255,255,0.08); color:#cbd5e1;" title="Ganti URL Server StreamPulse">⚙️</button>
+        <span style="color: #a78bfa; font-weight: 600; font-size:11px;">💡 <strong>F8</strong> / <strong>Ctrl+Shift+X</strong></span>
+      </div>
+    </div>
+
+    <!-- MODAL ATUR CHANNEL -->
+    <div class="hud-modal-overlay" id="modal-channels" style="display:none;">
+      <div class="hud-modal-card">
+        <div class="hud-modal-title">
+          <span>📺 Pengaturan Channel Live</span>
+          <button class="hud-btn" id="btn-close-channels-x" style="padding:1px 6px;">✕</button>
+        </div>
+        <p style="font-size:10px; color:#94a3b8; line-height:1.4;">
+          Masukkan channel yang ingin dipantau chat-nya di overlay ini:
+        </p>
+        <div class="channel-input-group">
+          <label style="color:#a970ff;">Twitch Username:</label>
+          <input type="text" id="input-ch-twitch" placeholder="contoh: shroud atau nama channel">
+        </div>
+        <div class="channel-input-group">
+          <label style="color:#ff4e45;">YouTube Channel ID / Live URL:</label>
+          <input type="text" id="input-ch-youtube" placeholder="contoh: UC... atau youtube.com/@channel/live">
+        </div>
+        <div class="channel-input-group">
+          <label style="color:#00f2fe;">TikTok Username:</label>
+          <input type="text" id="input-ch-tiktok" placeholder="contoh: username_tiktok (tanpa @)">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
+          <button class="hud-btn" id="btn-cancel-channels">Batal</button>
+          <button class="hud-btn" id="btn-save-channels" style="background:#8b5cf6; color:white; font-weight:700;">Simpan & Hubungkan</button>
+        </div>
       </div>
     </div>
 
@@ -406,7 +499,7 @@
         👁️ <span id="hud-total-viewers">0</span>
       </span>
       <span style="opacity: 0.5;">|</span>
-      <span style="color: #cbd5e1;">🔓 Buka (Ctrl+Shift+X)</span>
+      <span style="color: #cbd5e1;">🔓 Buka (F8 / Ctrl+Shift+X)</span>
     </div>
 
     <!-- CHAT STREAM LIST -->
@@ -546,18 +639,21 @@
         });
       }
 
-      // Listen hotkey event dari Electron Main process (Ctrl+Shift+X)
+      // Listen hotkey event dari Electron Main process (Ctrl+Shift+X / F8)
       if (isElectron && window.electronOverlay && window.electronOverlay.onToggleLock) {
         window.electronOverlay.onToggleLock((locked) => {
           setLockState(locked);
         });
       }
 
-      // Hotkey listener (Ctrl+Shift+X / F8)
+      // Hotkey listener (F8 / Ctrl+Shift+X / F9)
       window.addEventListener('keydown', (e) => {
         const isX = e.code === 'KeyX' || e.key === 'x' || e.key === 'X';
-        const isHotKey = (e.ctrlKey && e.shiftKey && isX) || e.code === 'F8' || e.key === 'F8';
-        if (isHotKey) {
+        const isZ = e.code === 'KeyZ' || e.key === 'z' || e.key === 'Z';
+        const isH = e.code === 'KeyH' || e.key === 'h' || e.key === 'H';
+
+        // Toggle Lock/Unlock: F8, Ctrl+Shift+X, Ctrl+Shift+Z
+        if ((e.ctrlKey && e.shiftKey && (isX || isZ)) || e.code === 'F8' || e.key === 'F8') {
           e.preventDefault();
           if (isElectron && window.electronOverlay && window.electronOverlay.toggleLock) {
             window.electronOverlay.toggleLock();
@@ -565,10 +661,106 @@
             setLockState(!isLocked);
           }
         }
+
+        // Toggle Sembunyikan/Nyalakan (Hide/Show): F9, Ctrl+Shift+H
+        if ((e.ctrlKey && e.shiftKey && isH) || e.code === 'F9' || e.key === 'F9') {
+          e.preventDefault();
+          if (hudWindow.style.display === 'none') {
+            hudWindow.style.display = 'flex';
+            showToast('👁️ HUD Dinyalakan');
+          } else {
+            hudWindow.style.display = 'none';
+          }
+        }
       });
 
-      // 3. SOCKET.IO INTEGRATION (MULTI-PLATFORM LIVE CHAT & VIEWERS)
+      // 3. CHANNEL CONFIGURATION (TWITCH, YOUTUBE, TIKTOK)
+      const btnOpenChannels = document.getElementById('btn-open-channels');
+      const modalChannels = document.getElementById('modal-channels');
+      const btnCloseChannelsX = document.getElementById('btn-close-channels-x');
+      const btnCancelChannels = document.getElementById('btn-cancel-channels');
+      const btnSaveChannels = document.getElementById('btn-save-channels');
+      const inputChTwitch = document.getElementById('input-ch-twitch');
+      const inputChYoutube = document.getElementById('input-ch-youtube');
+      const inputChTiktok = document.getElementById('input-ch-tiktok');
+
+      function getStoredChannels() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let ch = { twitch: '', youtube: '', tiktok: '' };
+        try {
+          const raw = localStorage.getItem('streampulse_user_channels') || localStorage.getItem('streampulse_guest_channels');
+          if (raw) ch = JSON.parse(raw);
+        } catch (_) {}
+
+        if (urlParams.get('twitch')) ch.twitch = urlParams.get('twitch');
+        if (urlParams.get('youtube')) ch.youtube = urlParams.get('youtube');
+        if (urlParams.get('tiktok')) ch.tiktok = urlParams.get('tiktok');
+        return ch;
+      }
+
+      function populateChannelInputs() {
+        const ch = getStoredChannels();
+        if (inputChTwitch) inputChTwitch.value = ch.twitch || '';
+        if (inputChYoutube) inputChYoutube.value = ch.youtube || '';
+        if (inputChTiktok) inputChTiktok.value = ch.tiktok || '';
+      }
+
+      if (btnOpenChannels && modalChannels) {
+        btnOpenChannels.addEventListener('click', () => {
+          populateChannelInputs();
+          modalChannels.style.display = 'flex';
+        });
+      }
+
+      function hideChannelsModal() {
+        if (modalChannels) modalChannels.style.display = 'none';
+      }
+
+      if (btnCloseChannelsX) btnCloseChannelsX.addEventListener('click', hideChannelsModal);
+      if (btnCancelChannels) btnCancelChannels.addEventListener('click', hideChannelsModal);
+
+      if (btnSaveChannels) {
+        btnSaveChannels.addEventListener('click', () => {
+          const twitch = (inputChTwitch.value || '').trim().toLowerCase().replace(/^[#@]/, '');
+          const youtube = (inputChYoutube.value || '').trim();
+          const tiktok = (inputChTiktok.value || '').trim().replace(/^@/, '');
+
+          const payload = { twitch, youtube, tiktok };
+          localStorage.setItem('streampulse_user_channels', JSON.stringify(payload));
+          localStorage.setItem('streampulse_guest_channels', JSON.stringify(payload));
+
+          if (socket && socket.connected) {
+            socket.emit('update_channels', payload);
+          }
+          hideChannelsModal();
+          showToast(`✓ Channel disimpan & terhubung!`);
+        });
+      }
+
+      // 4. SOCKET.IO INTEGRATION (MULTI-PLATFORM LIVE CHAT & VIEWERS)
       const socket = io();
+
+      socket.on('connect', () => {
+        console.log('[HUD] Connected to StreamPulse Socket');
+        const ch = getStoredChannels();
+        if (ch.twitch || ch.youtube || ch.tiktok) {
+          socket.emit('update_channels', ch);
+        }
+      });
+
+      socket.on('initial_state', (data) => {
+        if (data && data.channels) {
+          const ch = getStoredChannels();
+          let needsUpdate = false;
+          if (!ch.twitch && data.channels.twitch) { ch.twitch = data.channels.twitch; needsUpdate = true; }
+          if (!ch.youtube && data.channels.youtube) { ch.youtube = data.channels.youtube; needsUpdate = true; }
+          if (!ch.tiktok && data.channels.tiktok) { ch.tiktok = data.channels.tiktok; needsUpdate = true; }
+          if (needsUpdate) {
+            localStorage.setItem('streampulse_user_channels', JSON.stringify(ch));
+            populateChannelInputs();
+          }
+        }
+      });
 
       // Platform Icons
       function getPlatformSvg(platform) {
