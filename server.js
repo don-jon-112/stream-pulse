@@ -260,13 +260,30 @@ app.get(['/in-game-overlay', '/game-overlay', '/hud'], (req, res) => {
 
 // Download Portable Executable / Zip
 app.get(['/download', '/download/exe', '/download/portable', '/download/streampulse'], (req, res) => {
-  const zipPath = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip');
-  const exePath = path.join(__dirname, 'dist', 'StreamPulse MultiChat-win32-x64', 'StreamPulse MultiChat.exe');
+  const possibleZipPaths = [
+    path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip'),
+    path.join(process.cwd(), 'public', 'downloads', 'StreamPulse-Portable-Win64.zip'),
+    path.resolve(__dirname, '..', '..', '..', 'public', 'downloads', 'StreamPulse-Portable-Win64.zip')
+  ];
 
-  if (fs.existsSync(zipPath)) {
-    return res.download(zipPath, 'StreamPulse-Portable-Win64.zip');
-  } else if (fs.existsSync(exePath)) {
-    return res.download(exePath, 'StreamPulse-MultiChat.exe');
+  const possibleExePaths = [
+    path.join(__dirname, 'dist', 'StreamPulse MultiChat-win32-x64', 'StreamPulse MultiChat.exe'),
+    path.join(process.cwd(), 'dist', 'StreamPulse MultiChat-win32-x64', 'StreamPulse MultiChat.exe'),
+    path.resolve(__dirname, '..', '..', 'StreamPulse MultiChat.exe'),
+    path.join(path.dirname(process.execPath), 'StreamPulse MultiChat.exe')
+  ];
+
+  const validZip = possibleZipPaths.find(p => fs.existsSync(p));
+  const validExe = possibleExePaths.find(p => fs.existsSync(p));
+
+  if (req.path.includes('/exe') && validExe) {
+    return res.download(validExe, 'StreamPulse-MultiChat.exe');
+  }
+
+  if (validZip) {
+    return res.download(validZip, 'StreamPulse-Portable-Win64.zip');
+  } else if (validExe) {
+    return res.download(validExe, 'StreamPulse-MultiChat.exe');
   } else {
     res.status(404).send('File aplikasi portable belum tersedia.');
   }
