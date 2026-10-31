@@ -370,6 +370,11 @@
       border-left-color: var(--tiktok-pink);
     }
 
+    .event-msg.twitch-redeem {
+      background: rgba(169, 112, 255, 0.28);
+      border-left-color: #a970ff;
+    }
+
     .event-msg.superchat {
       background: rgba(255, 0, 0, 0.25);
       border-left-color: var(--yt-color);
@@ -725,7 +730,8 @@
           const youtube = (inputChYoutube.value || '').trim();
           const tiktok = (inputChTiktok.value || '').trim().replace(/^@/, '');
 
-          const payload = { twitch, youtube, tiktok };
+          const userToken = localStorage.getItem('streampulse_user_token') || '';
+          const payload = { twitch, youtube, tiktok, userToken };
           localStorage.setItem('streampulse_user_channels', JSON.stringify(payload));
           localStorage.setItem('streampulse_guest_channels', JSON.stringify(payload));
 
@@ -743,8 +749,9 @@
       socket.on('connect', () => {
         console.log('[HUD] Connected to StreamPulse Socket');
         const ch = getStoredChannels();
-        if (ch.twitch || ch.youtube || ch.tiktok) {
-          socket.emit('update_channels', ch);
+        const userToken = localStorage.getItem('streampulse_user_token') || '';
+        if (ch.twitch || ch.youtube || ch.tiktok || userToken) {
+          socket.emit('update_channels', { ...ch, userToken });
         }
       });
 
@@ -812,19 +819,23 @@
         appendItem(msgDiv);
       });
 
-      // Render Events (Gift / Donasi / Sub)
+      // Render Events (Gift / Donasi / Sub / Twitch Channel Points Redeem)
       socket.on('new_event', (evt) => {
         if (!evt) return;
         const evtDiv = document.createElement('div');
         const isGift = evt.eventType === 'gift';
         const isSuperchat = evt.eventType === 'superchat';
-        evtDiv.className = `event-msg ${isGift ? 'tiktok-gift' : ''} ${isSuperchat ? 'superchat' : ''}`;
+        const isRedeem = evt.eventType === 'redeem';
+        evtDiv.className = `event-msg ${isGift ? 'tiktok-gift' : ''} ${isSuperchat ? 'superchat' : ''} ${isRedeem ? 'twitch-redeem' : ''}`;
 
         const pIcon = getPlatformSvg(evt.platform);
+        const badgeText = evt.badge ? `<span style="font-size:9px; background:rgba(255,255,255,0.2); padding:1px 4px; border-radius:3px; margin-left:4px;">${evt.badge}</span>` : '';
+
         evtDiv.innerHTML = `
           <div class="event-title">
             ${pIcon}
             <span>${evt.title || 'Event Baru'}</span>
+            ${badgeText}
           </div>
           <div class="event-detail">${evt.author || 'User'}: ${evt.detail || ''}</div>
         `;
