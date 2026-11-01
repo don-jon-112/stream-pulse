@@ -1758,7 +1758,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
+  // Auto-clean TikTok input jika pengguna mem-paste URL TikTok lengkap
+  if (inputTikTok) {
+    const cleanTikTokInput = () => {
+      const val = inputTikTok.value.trim();
+      if (!val) return;
+      if (/^\d{15,22}$/.test(val)) return;
+      const queryRoom = val.match(/room_id=(\d{15,22})/);
+      if (queryRoom) { inputTikTok.value = queryRoom[1]; return; }
+      const pathRoom = val.match(/(?:\/live\/|\/room\/|\/v\/)(\d{15,22})/);
+      if (pathRoom) { inputTikTok.value = pathRoom[1]; return; }
+      const userMatch = val.match(/tiktok\.com\/@([a-zA-Z0-9_\.]{2,30})/i);
+      if (userMatch) { inputTikTok.value = userMatch[1].toLowerCase(); return; }
+      if (val.startsWith('@')) { inputTikTok.value = val.slice(1).trim(); }
+    };
+    inputTikTok.addEventListener('blur', cleanTikTokInput);
+    inputTikTok.addEventListener('paste', () => setTimeout(cleanTikTokInput, 50));
+  }
+
   btnSaveChannels.addEventListener('click', async () => {
+    if (inputTikTok) {
+      const val = inputTikTok.value.trim();
+      const queryRoom = val.match(/room_id=(\d{15,22})/);
+      const pathRoom = val.match(/(?:\/live\/|\/room\/|\/v\/)(\d{15,22})/);
+      const userMatch = val.match(/tiktok\.com\/@([a-zA-Z0-9_\.]{2,30})/i);
+      if (queryRoom) inputTikTok.value = queryRoom[1];
+      else if (pathRoom) inputTikTok.value = pathRoom[1];
+      else if (userMatch) inputTikTok.value = userMatch[1].toLowerCase();
+      else if (val.startsWith('@')) inputTikTok.value = val.slice(1).trim();
+    }
     const twitch = inputTwitch.value.trim();
     let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
     const youtube = inputYouTube.value.trim();

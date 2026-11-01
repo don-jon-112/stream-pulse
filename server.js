@@ -153,7 +153,7 @@ io.on('connection', (socket) => {
     let token = data?.twitchToken;
     let cleanTwitch = (data?.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
     let cleanYouTube = (data?.youtube || '').trim();
-    let cleanTikTok = (data?.tiktok || '').trim().replace(/^@/, '');
+    let cleanTikTok = streamManager.parseTikTokInput ? streamManager.parseTikTokInput(data?.tiktok) : (data?.tiktok || '').trim().replace(/^@/, '');
 
     // Fallback dari userToken jika client mengirim token user
     if (data?.userToken) {
@@ -1011,7 +1011,7 @@ app.post('/api/user/channels', (req, res) => {
   if (!currentUser.channels) currentUser.channels = {};
   if (twitch !== undefined) currentUser.channels.twitch = String(twitch).trim();
   if (youtube !== undefined) currentUser.channels.youtube = String(youtube).trim();
-  if (tiktok !== undefined) currentUser.channels.tiktok = String(tiktok).trim();
+  if (tiktok !== undefined) currentUser.channels.tiktok = streamManager.parseTikTokInput ? streamManager.parseTikTokInput(tiktok) : String(tiktok).trim();
 
   // Encrypt OAuth Token if provided and not masked placeholder
   const isMaskedToken = String(twitchToken).includes('***') || String(twitchToken).includes('••••') || String(twitchToken).includes('Tersimpan');
