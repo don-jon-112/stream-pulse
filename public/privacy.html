@@ -4,19 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-  <title>Kebijakan Privasi & Penghapusan Akun - StreamPulse</title>
+  <title>Kebijakan Privasi & Keamanan - StreamPulse</title>
   <meta name="description" content="Kebijakan privasi resmi StreamPulse mengenai keamanan data streamer, enkripsi token OAuth AES-256, Argon2, dan prosedur penghapusan akun permanen.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
-  <link rel="stylesheet" href="/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="/js/sp-popup.js?v=fresh_6"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/sp-popup.js?v=fresh_8"></script>
   <style>
     :root {
-      --bg-canvas: #06080f;
-      --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --bg-canvas: #ffffff;
+      --font-display: 'Nunito', 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
+      --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --font-mono: ui-monospace, 'JetBrains Mono', monospace;
+      --hairline: #e5e5e5;
+      --hairline-strong: #d4d4d4;
+      --ink: #000000;
+      --body: #737373;
+      --surface-soft: #fafafa;
     }
 
     * {
@@ -24,245 +30,265 @@
     }
 
     body {
-      font-family: var(--font-display);
+      font-family: var(--font-body);
       background-color: var(--bg-canvas);
-      background-image:
-        radial-gradient(circle at 50% -120px, rgba(139, 92, 246, 0.28) 0%, transparent 60%),
-        radial-gradient(circle at 10% 40%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 90% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
-        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-      background-size: auto, auto, auto, 48px 48px, 48px 48px;
-      background-attachment: fixed;
-      color: var(--text-primary);
+      background-image: none;
+      color: var(--ink);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       margin: 0;
       padding: 0;
-      padding-top: env(safe-area-inset-top, 0);
-      padding-bottom: env(safe-area-inset-bottom, 0);
     }
 
-    /* Floating Pill Header */
+    /* 56px Navigation Header */
     .privacy-header-wrapper {
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 12px 20px 6px;
-      background: linear-gradient(180deg, rgba(6, 8, 15, 0.96) 0%, rgba(6, 8, 15, 0.7) 80%, transparent 100%);
+      background: #ffffff;
+      border-bottom: 1px solid var(--hairline);
     }
 
     .privacy-header {
       max-width: 960px;
       margin: 0 auto;
-      padding: 10px 18px;
-      background: rgba(14, 18, 34, 0.92);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 999px;
+      padding: 0 24px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
       gap: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.08);
     }
 
     .nav-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 14px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 500;
       text-decoration: none;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s ease;
       cursor: pointer;
-      border: 1px solid transparent;
+      border: 1px solid var(--hairline);
+      background: #ffffff;
+      color: var(--ink);
+      height: 36px;
     }
 
-    .nav-btn-subtle {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.08);
-      color: var(--text-secondary);
-    }
-    .nav-btn-subtle:hover {
-      background: rgba(255, 255, 255, 0.09);
-      border-color: rgba(255, 255, 255, 0.18);
-      color: #fff;
-      transform: translateY(-1px);
+    .nav-btn:hover {
+      background: var(--surface-soft);
+      border-color: var(--hairline-strong);
     }
 
+    /* 720px Documentation Column */
     .privacy-container {
-      max-width: 960px;
+      max-width: 720px;
       width: 100%;
-      margin: 20px auto 48px;
-      padding: 0 20px;
-      box-sizing: border-box;
+      margin: 48px auto 88px;
+      padding: 0 24px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 32px;
     }
 
-    .privacy-card {
-      background: rgba(13, 17, 30, 0.94);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 32px 36px;
-      line-height: 1.75;
-      font-size: 0.94rem;
-      color: #94a3b8;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-      position: relative;
+    .doc-hero {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--hairline);
     }
 
-    .privacy-card h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #fff;
-      margin: 0 0 10px 0;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 60%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .privacy-card h2 {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #f1f5f9;
-      margin: 30px 0 12px 0;
+    .lock-mascot {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+    }
+
+    .lock-mascot svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .doc-hero h1 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 10px 0;
       letter-spacing: -0.02em;
     }
 
-    .privacy-card p {
-      margin: 0 0 14px 0;
+    .doc-hero p {
+      font-size: 15px;
+      color: var(--body);
+      line-height: 1.5;
+      margin: 0;
     }
 
-    .privacy-card ul {
-      margin: 0 0 18px 0;
-      padding-left: 22px;
+    .doc-content {
+      line-height: 1.7;
+      font-size: 15px;
+      color: var(--body);
     }
 
-    .privacy-card li {
-      margin-bottom: 8px;
+    .doc-content h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 36px 0 12px 0;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .privacy-card strong {
-      color: #f8fafc;
+    .doc-content p {
+      margin: 0 0 16px 0;
     }
 
-    .privacy-card code {
+    .doc-content ul {
+      margin: 0 0 20px 0;
+      padding-left: 20px;
+    }
+
+    .doc-content li {
+      margin-bottom: 10px;
+    }
+
+    .doc-content strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .doc-content code {
       font-family: var(--font-mono);
-      background: rgba(139, 92, 246, 0.15);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      color: #c4b5fd;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      color: var(--ink);
       padding: 2px 6px;
       border-radius: 6px;
-      font-size: 0.85em;
+      font-size: 13px;
     }
 
+    /* Danger Card (Clean Hairline Card) */
     .danger-zone-card {
-      background: rgba(22, 16, 26, 0.94);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      border-radius: 20px;
-      padding: 30px 36px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 24px rgba(239, 68, 68, 0.08);
+      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 28px;
+      margin-top: 16px;
     }
 
     .danger-zone-card h2 {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #f87171;
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
       margin: 0 0 10px 0;
       display: flex;
       align-items: center;
-      gap: 10px;
-      letter-spacing: -0.02em;
+      gap: 8px;
     }
 
-    .toast-msg {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: rgba(18, 24, 42, 0.95);
-      border: 1px solid rgba(139, 92, 246, 0.5);
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(139, 92, 246, 0.3);
-      font-size: 0.85rem;
+    .danger-badge {
+      display: inline-block;
+      font-size: 11px;
       font-weight: 600;
-      z-index: 100000;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #e11d48;
+      text-transform: uppercase;
     }
-    .toast-msg.show { transform: translateY(0); opacity: 1; }
+
+    .btn-danger-pill {
+      background: #000000;
+      color: #ffffff;
+      border: 1px solid #000000;
+      border-radius: 9999px;
+      padding: 10px 20px;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      height: 40px;
+    }
+
+    .btn-danger-pill:hover {
+      background: #090909;
+    }
 
     @media (max-width: 768px) {
-      .privacy-header-wrapper {
-        padding: 10px 12px 6px;
+      .privacy-container {
+        padding: 0 16px;
+        margin-top: 32px;
       }
-      .privacy-header {
-        border-radius: 16px;
-        padding: 10px 14px;
-      }
-      .privacy-card, .danger-zone-card {
-        padding: 22px 20px;
-        border-radius: 16px;
-      }
-      .privacy-card h1 {
-        font-size: 1.4rem;
+      .doc-hero h1 {
+        font-size: 26px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Floating Header Wrapper -->
+  <!-- 56px Navigation Bar -->
   <div class="privacy-header-wrapper">
     <header class="privacy-header">
       <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
-        <div class="brand-logo" style="width:34px; height:34px;">
-          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <div class="brand-logo" style="width:32px; height:32px; border-radius:8px; background:#000000; display:flex; align-items:center; justify-content:center;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
-        <div style="font-weight:800; font-size:1.08rem; color:#fff; display:flex; align-items:center; gap:8px;">
+        <div style="font-weight:700; font-size:1.15rem; color:#000000; display:flex; align-items:center; gap:8px;">
           <span>StreamPulse</span>
-          <span style="background:rgba(16, 185, 129, 0.18); border:1px solid rgba(16, 185, 129, 0.45); color:#6ee7b7; font-size:0.68rem; font-weight:800; padding:2px 8px; border-radius:999px; font-family:var(--font-mono); letter-spacing:0.05em;">PRIVASI</span>
+          <span style="background:var(--surface-soft); border:1px solid var(--hairline); color:var(--body); font-size:0.68rem; font-weight:600; padding:2px 8px; border-radius:9999px; font-family:var(--font-mono); letter-spacing:0.05em;">PRIVACY</span>
         </div>
       </a>
 
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <!-- Language Switcher -->
+      <div style="display:flex; align-items:center; gap:8px;">
         <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
           <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
           <span>ID</span>
         </button>
-        <a href="/" class="nav-btn nav-btn-subtle">← Live Chat</a>
-        <a href="/studio" class="nav-btn nav-btn-subtle">Overlay Studio 🖥️</a>
+        <a href="/" class="nav-btn">← Live Chat</a>
+        <a href="/studio" class="nav-btn">Overlay Studio 🖥️</a>
       </div>
     </header>
   </div>
 
   <div class="privacy-container">
 
-    <!-- Privacy Statement -->
-    <div class="privacy-card">
-      <h1 data-i18n="privacy_h1">Kebijakan Privasi StreamPulse</h1>
-      <p style="font-size:0.8rem; color:var(--text-tertiary);" data-i18n="privacy_date">Terakhir diperbarui: Oktober 2026</p>
-      
+    <!-- Document Hero -->
+    <div class="doc-hero">
+      <div class="lock-mascot">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h1 data-i18n="privacy_h1">Kebijakan Privasi & Keamanan Data</h1>
       <p data-i18n="privacy_intro">
-        StreamPulse berkomitmen untuk melindungi privasi Anda. Layanan kami dirancang untuk membantu para konten kreator dan streamer memantau chat serta mengelola OBS overlay tanpa melacak atau memperjualbelikan data pribadi Anda ke pihak manapun.
+        StreamPulse berkomitmen untuk melindungi privasi Anda. Layanan kami dirancang untuk memantau chat dan mengelola OBS overlay tanpa melacak atau memperjualbelikan data pribadi Anda.
       </p>
+    </div>
 
-      <h2 data-i18n="privacy_sec1_title">🛡️ 1. Data yang Kami Kumpulkan</h2>
+    <!-- Privacy Statement -->
+    <div class="doc-content">
+      <h2 data-i18n="privacy_sec1_title">1. Data yang Kami Kumpulkan</h2>
       <ul>
         <li data-i18n-html="privacy_sec1_email"><strong>Alamat Email:</strong> Digunakan secara eksklusif untuk verifikasi kepemilikan akun saat registrasi dan pemulihan akun. Kami tidak mengirimkan email spam atau buletin promosi.</li>
         <li data-i18n-html="privacy_sec1_username"><strong>Nama Pengguna (Username):</strong> Identitas akun Anda untuk mengelola konfigurasi saluran dan slot overlay.</li>
@@ -271,61 +297,82 @@
         <li data-i18n-html="privacy_sec1_pass"><strong>Kata Sandi:</strong> Dienkripsi menggunakan algoritma hashing memori keras mutakhir <strong>Argon2id</strong> dengan salt unik. Kami tidak dapat melihat kata sandi asli Anda.</li>
       </ul>
 
-      <h2 data-i18n="privacy_sec2_title">💬 2. Pemrosesan Data Chat & Live Stream</h2>
+      <h2 data-i18n="privacy_sec2_title">2. Pemrosesan Data Chat & Live Stream</h2>
       <p data-i18n-html="privacy_sec2_desc">
         Pesan chat dari penonton Twitch, YouTube, dan TikTok diproses secara <em>real-time streaming</em> di perangkat/browser Anda menggunakan protokol WebSocket. StreamPulse <strong>tidak menyimpan riwayat isi chat penonton ke database permanen</strong>. Saat sesi streaming selesai atau browser ditutup, pesan chat langsung dibersihkan dari memori.
       </p>
 
-      <h2 data-i18n="privacy_sec3_title">🍪 3. Penggunaan Cookie & Penyimpanan Lokal</h2>
+      <h2 data-i18n="privacy_sec3_title">3. Penggunaan Cookie & Penyimpanan Lokal</h2>
       <p data-i18n-html="privacy_sec3_desc">
-        Kami hanya menggunakan <code>localStorage</code> dan <code>sessionStorage</code> di browser Anda untuk menyimpan token sesi login Anda dan preferensi tampilan (seperti tema gelap, ukuran font overlay). Kami tidak menggunakan cookie pelacak pihak ketiga atau iklan (No Third-Party Trackers).
+        Kami hanya menggunakan <code>localStorage</code> dan <code>sessionStorage</code> di browser Anda untuk menyimpan token sesi login Anda dan preferensi tampilan. Kami tidak menggunakan cookie pelacak pihak ketiga atau iklan (No Third-Party Trackers).
       </p>
 
-      <h2 data-i18n="privacy_sec4_title">🔒 4. Keamanan & Enkripsi</h2>
-      <p data-i18n="privacy_sec4_desc">
+      <h2 data-i18n="privacy_sec4_title">4. Keamanan & Enkripsi</h2>
+      <p data-i18n-html="privacy_sec4_desc">
         Seluruh komunikasi data antara browser, OBS Studio, dan server kami dilindungi dengan enkripsi SSL/TLS (HTTPS & WSS). Kredensial sensitif disimpan terenkripsi dan terlindung dari akses tidak sah dengan mekanisme Rate Limiting.
       </p>
     </div>
 
     <!-- Interactive Account Deletion Zone -->
     <div class="danger-zone-card" id="accountDeletionSection">
-      <h2 data-i18n="privacy_danger_title">⚠️ Penghapusan Akun & Seluruh Data (Data Deletion)</h2>
-      <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;" data-i18n-html="privacy_danger_desc">
-        Sesuai dengan hak privasi pengguna (GDPR Compliance), Anda berhak menghapus akun Anda kapan saja. Jika Anda menghapus akun, seluruh data profil Anda, kredensial yang tersimpan, dan ketiga slot OBS Overlay Anda akan <strong>dihapus secara permanen dari server dan tidak dapat dipulihkan kembali</strong>.
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <h2 data-i18n="privacy_danger_title" style="margin:0;">Penghapusan Akun & Data (Data Deletion)</h2>
+        <span class="danger-badge">GDPR</span>
+      </div>
+      <p style="font-size:0.9rem; color:var(--body); line-height:1.6; margin:0 0 16px 0;" data-i18n-html="privacy_danger_desc">
+        Sesuai dengan hak privasi pengguna (GDPR Compliance), Anda berhak menghapus akun Anda kapan saja. Jika Anda menghapus akun, seluruh data profil Anda, kredensial yang tersimpan, dan slot OBS Overlay Anda akan <strong>dihapus secara permanen dari server dan tidak dapat dipulihkan kembali</strong>.
       </p>
 
       <div id="deletionLoggedInArea" style="display:none; margin-top:16px;">
-        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:var(--radius-sm); margin-bottom:16px;">
-          <div style="font-size:0.85rem; color:#fff;">
-            <span data-i18n="privacy_active_account_label">Akun Aktif:</span> <strong id="deleteTargetUsername" style="color:#67e8f9;">-</strong> (<span id="deleteTargetEmail">-</span>)
+        <div style="background:var(--surface-soft); border:1px solid var(--hairline); padding:16px; border-radius:12px; margin-bottom:16px;">
+          <div style="font-size:0.88rem; color:var(--ink);">
+            <span data-i18n="privacy_active_account_label">Akun Aktif:</span> <strong id="deleteTargetUsername">-</strong> (<span id="deleteTargetEmail">-</span>)
           </div>
-          <div style="font-size:0.75rem; color:var(--text-tertiary); margin-top:2px;" data-i18n="privacy_active_note">
+          <div style="font-size:0.75rem; color:var(--body); margin-top:4px;" data-i18n="privacy_active_note">
             Seluruh slot OBS overlay milik akun ini akan langsung dimusnahkan.
           </div>
         </div>
 
         <form id="formDeleteAccount" style="display:flex; flex-direction:column; gap:12px; max-width:440px;">
-          <div class="form-group">
-            <label class="form-label" for="inputDeletePassword" style="color:#fca5a5;" data-i18n="privacy_delete_pass_label">Masukkan Kata Sandi untuk Konfirmasi:</label>
-            <div class="password-input-wrap">
-              <input type="password" id="inputDeletePassword" required class="search-input" style="width:100%; box-sizing:border-box;" placeholder="Ketik kata sandi Anda saat ini..." data-i18n-ph="ph_current_pass">
-            </div>
+          <div class="channel-field">
+            <label class="channel-label" for="inputDeletePassword" data-i18n="privacy_delete_pass_label">Masukkan Kata Sandi untuk Konfirmasi:</label>
+            <input type="password" id="inputDeletePassword" required style="width:100%; height:40px; padding:8px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:9999px; color:var(--ink); font-size:0.88rem; outline:none;" placeholder="Ketik kata sandi Anda saat ini..." data-i18n-ph="ph_current_pass">
           </div>
           <div id="deleteErrorMsg" style="font-size:0.75rem; color:#ef4444; display:none;"></div>
-          <button type="submit" class="btn-action-sm danger" style="padding:10px 16px; font-weight:800; border-radius:var(--radius-sm);">
+          <button type="submit" class="btn-danger-pill">
             <span data-i18n="privacy_delete_btn">🗑️ Hapus Akun Saya Secara Permanen</span>
           </button>
         </form>
       </div>
 
       <div id="deletionGuestArea" style="margin-top:16px;">
-        <p style="font-size:0.82rem; color:var(--text-tertiary);" data-i18n-html="privacy_guest_notice">
-          Anda sedang tidak login. Silakan <a href="/studio" style="color:#6366f1; font-weight:700;">Masuk ke Akun Anda</a> terlebih dahulu untuk mengakses menu penghapusan akun mandiri.
+        <p style="font-size:0.85rem; color:var(--body); margin:0;" data-i18n-html="privacy_guest_notice">
+          Anda sedang tidak login. Silakan <a href="/studio" style="color:var(--ink); font-weight:600; text-decoration:underline;">Masuk ke Akun Anda</a> terlebih dahulu untuk mengakses menu penghapusan akun mandiri.
         </p>
       </div>
     </div>
 
   </div>
+
+  <!-- Ollama Minimal Footer -->
+  <footer class="ollama-footer">
+    <div class="ollama-footer-links">
+      <a href="/">Live Monitor</a>
+      <span>·</span>
+      <a href="/dock" target="_blank">OBS Dock</a>
+      <span>·</span>
+      <a href="/studio">Overlay Studio</a>
+      <span>·</span>
+      <a href="/features">Roadmap</a>
+      <span>·</span>
+      <a href="https://github.com/Joo-Nathan/streampulse-multichat" target="_blank" rel="noopener">GitHub</a>
+      <span>·</span>
+      <a href="https://discord.gg/GMrBUgwNFu" target="_blank" rel="noopener">Discord</a>
+    </div>
+    <div class="ollama-footer-copy">
+      © 2026 StreamPulse · Privacy & Encryption
+    </div>
+  </footer>
 
   <div id="toast" class="toast-msg"></div>
 

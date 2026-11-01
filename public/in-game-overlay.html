@@ -86,30 +86,31 @@
     }
 
     .hud-badge {
-      background: #8b5cf6;
+      background: #000000;
       color: white;
       font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+      letter-spacing: 0.3px;
     }
 
     .hud-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       -webkit-app-region: no-drag;
     }
 
     .hud-btn {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #f1f5f9;
+      color: #ffffff;
       font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 9999px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -118,16 +119,17 @@
     }
 
     .hud-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.85);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .hud-btn-lock {
-      background: #8b5cf6;
-      border-color: #7c3aed;
+      background: #000000;
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
     .hud-btn-lock:hover {
-      background: #7c3aed;
+      background: #171717;
     }
 
     /* Settings Bar (Tampil saat Unlocked) */
@@ -228,50 +230,52 @@
     .hud-modal-card {
       max-height: 88vh;
       overflow-y: auto;
-      background: #0f172a;
-      border: 1px solid rgba(139, 92, 246, 0.7);
-      border-radius: 10px;
-      padding: 14px;
+      background: #ffffff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 18px 20px;
       width: 100%;
-      max-width: 330px;
+      max-width: 350px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      gap: 12px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+      color: #000000;
     }
     .hud-modal-title {
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 600;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      color: #f1f5f9;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 6px;
+      color: #000000;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 8px;
     }
     .channel-input-group {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
     }
     .channel-input-group label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #000000;
     }
     .channel-input-group input {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      color: #f8fafc;
-      padding: 5px 8px;
+      background: #ffffff;
+      border: 1px solid #e5e5e5;
+      border-radius: 9999px;
+      color: #000000;
+      padding: 6px 14px;
       font-size: 11px;
       outline: none;
       font-family: inherit;
+      transition: all 0.15s ease;
     }
     .channel-input-group input:focus {
-      border-color: #8b5cf6;
-      background: #0f172a;
+      border-color: #000000;
+      outline: 2px solid rgba(59, 130, 246, 0.5);
     }
 
     .viewers-badge {
@@ -457,13 +461,13 @@
         <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">StreamPulse</span>
       </div>
       <div class="hud-controls">
-        <button class="hud-btn" id="btn-open-channels" style="background:#8b5cf6; border-color:#7c3aed; color:#fff; font-weight:700; box-shadow:0 2px 8px rgba(139,92,246,0.35); font-size:11px; padding:3px 9px;" title="Atur Channel Live & Custom Chat Stream URL">
+        <button class="hud-btn" id="btn-open-channels" style="background:#000000; border-color:rgba(255,255,255,0.25); color:#fff; font-weight:500; font-size:11px; padding:3px 12px; border-radius:9999px;" title="Atur Channel Live & Custom Chat Stream URL">
           ⚙️ Atur Channel & URL
         </button>
         <button class="hud-btn hud-btn-lock" id="btn-lock" title="Kunci Overlay & Aktifkan Click-Through Tembus Game (Ctrl+Shift+X / F8)">
           🔒 Lock
         </button>
-        <button class="hud-btn" id="btn-close" title="Tutup Overlay">✕</button>
+        <button class="hud-btn" id="btn-close" title="Tutup Overlay" style="padding:3px 8px;">✕</button>
       </div>
     </header>
 
@@ -482,8 +486,8 @@
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:6px;">
-        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:2px 6px; background:rgba(255,255,255,0.08); color:#cbd5e1;" title="Setel Custom Chat Stream URL (Cepat)">🔗 Custom URL</button>
-        <span style="color: #a78bfa; font-weight: 600; font-size:10.5px;">💡 <strong>F8</strong> / <strong>Ctrl+Shift+X</strong></span>
+        <button class="hud-btn" id="btn-server-url" style="font-size:10px; padding:2px 10px; background:rgba(255,255,255,0.08); border-radius:9999px; color:#cbd5e1;" title="Setel Custom Chat Stream URL (Cepat)">🔗 Custom URL</button>
+        <span style="color: #cbd5e1; font-weight: 500; font-size:10.5px;">💡 <strong>F8</strong> / <strong>Ctrl+Shift+X</strong></span>
       </div>
     </div>
 
@@ -491,50 +495,50 @@
     <div class="hud-modal-overlay" id="modal-channels" style="display:none;">
       <div class="hud-modal-card">
         <div class="hud-modal-title">
-          <span>⚙️ Pengaturan Channel & URL Chat Stream</span>
-          <button class="hud-btn" id="btn-close-channels-x" style="padding:1px 6px;">✕</button>
+          <span>⚙️ Pengaturan Channel & URL</span>
+          <button class="hud-btn" id="btn-close-channels-x" style="padding:2px 8px; background:#fafafa; border:1px solid #e5e5e5; color:#000; border-radius:9999px;">✕</button>
         </div>
-        <p style="font-size:10px; color:#94a3b8; line-height:1.4; margin:0;">
-          Masukkan channel atau sambungkan akun untuk memantau chat & aktivitas redeem:
+        <p style="font-size:11px; color:#737373; line-height:1.4; margin:0;">
+          Masukkan channel atau hubungkan akun untuk memantau aktivitas live:
         </p>
 
         <!-- TWITCH SECTION -->
         <div class="channel-input-group">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label style="color:#a970ff; display:inline-flex; align-items:center; gap:4px;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-              <span>Twitch Channel:</span>
+            <label style="color:#000000; display:inline-flex; align-items:center; gap:5px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#9146ff"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+              <span>Twitch Channel</span>
             </label>
-            <span id="twitch-auth-tag" style="font-size:8.5px; padding:1px 5px; border-radius:4px; background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.35);">Belum OAuth</span>
+            <span id="twitch-auth-tag" style="font-size:9px; padding:1px 6px; border-radius:9999px; background:#fafafa; color:#737373; border:1px solid #e5e5e5;">Belum OAuth</span>
           </div>
           <input type="text" id="input-ch-twitch" placeholder="contoh: joo_nathan">
 
           <!-- Twitch OAuth Connection Box -->
           <div id="twitch-oauth-box" style="margin-top:2px;">
             <!-- Not Connected State -->
-            <div id="twitch-not-connected-box" style="display:flex; flex-direction:column; gap:4px; background:rgba(145,70,255,0.08); border:1px solid rgba(145,70,255,0.28); border-radius:6px; padding:6px 8px;">
-              <div style="font-size:8.5px; color:#cbd5e1; line-height:1.3;">
-                <span style="font-weight:700; color:#c084fc;">💠 Deteksi Redeem Points & Aktivitas:</span><br>
+            <div id="twitch-not-connected-box" style="display:flex; flex-direction:column; gap:6px; background:#fafafa; border:1px solid #e5e5e5; border-radius:12px; padding:8px 10px;">
+              <div style="font-size:10px; color:#737373; line-height:1.35;">
+                <span style="font-weight:600; color:#000000;">💠 Deteksi Redeem Points & Aktivitas:</span><br>
                 Login Twitch broadcaster agar custom reward redeem terdeteksi otomatis.
               </div>
-              <button type="button" id="btn-login-twitch-oauth" class="hud-btn" style="background:#9146ff; color:#fff; font-weight:700; font-size:10px; padding:5px 8px; justify-content:center; gap:5px; border:none; box-shadow:0 2px 6px rgba(145,70,255,0.35); cursor:pointer;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
-                <span>🟣 Hubungkan / Login Twitch (OAuth)</span>
+              <button type="button" id="btn-login-twitch-oauth" class="hud-btn" style="background:#000000; color:#fff; font-weight:500; font-size:10px; padding:5px 12px; justify-content:center; gap:5px; border:1px solid #000; border-radius:9999px; cursor:pointer;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#a970ff"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+                <span>Hubungkan Twitch (OAuth)</span>
               </button>
             </div>
 
             <!-- Connected State -->
-            <div id="twitch-connected-box" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:rgba(16,185,129,0.09); border:1px solid rgba(16,185,129,0.35); border-radius:6px; padding:5px 8px;">
+            <div id="twitch-connected-box" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:#fafafa; border:1px solid #e5e5e5; border-radius:12px; padding:6px 10px;">
               <div style="display:flex; align-items:center; gap:6px; min-width:0;">
-                <img id="twitch-auth-avatar" src="" alt="Avatar" style="width:22px; height:22px; border-radius:50%; border:1px solid #10b981; object-fit:cover; display:none;">
-                <div style="font-size:9px; line-height:1.2; min-width:0; overflow:hidden;">
-                  <div style="font-weight:700; color:#10b981; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
+                <img id="twitch-auth-avatar" src="" alt="Avatar" style="width:22px; height:22px; border-radius:50%; border:1px solid #e5e5e5; object-fit:cover; display:none;">
+                <div style="font-size:9.5px; line-height:1.2; min-width:0; overflow:hidden;">
+                  <div style="font-weight:600; color:#000000; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
                     ✓ <span id="twitch-connected-name">joo_nathan</span>
                   </div>
-                  <span style="color:#94a3b8; font-size:8px;">Redeem Points & EventSub Aktif 💠</span>
+                  <span style="color:#737373; font-size:8.5px;">Redeem Points & EventSub Aktif 💠</span>
                 </div>
               </div>
-              <button type="button" id="btn-disconnect-twitch-oauth" class="hud-btn" style="font-size:8.5px; padding:2px 6px; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); flex-shrink:0;">
+              <button type="button" id="btn-disconnect-twitch-oauth" class="hud-btn" style="font-size:9px; padding:2px 8px; background:#ffffff; color:#ef4444; border:1px solid #e5e5e5; border-radius:9999px; flex-shrink:0;">
                 Putuskan
               </button>
             </div>
@@ -543,45 +547,45 @@
 
         <!-- YOUTUBE SECTION -->
         <div class="channel-input-group">
-          <label style="color:#ff4e45; display:inline-flex; align-items:center; gap:4px;">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-            <span>YouTube Channel ID / Live URL:</span>
+          <label style="color:#000000; display:inline-flex; align-items:center; gap:5px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>YouTube Live URL / ID</span>
           </label>
           <input type="text" id="input-ch-youtube" placeholder="contoh: UC... atau youtube.com/@channel/live">
         </div>
 
         <!-- TIKTOK SECTION -->
         <div class="channel-input-group">
-          <label style="color:#00f2fe; display:inline-flex; align-items:center; gap:4px;">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
-            <span>TikTok Username:</span>
+          <label style="color:#000000; display:inline-flex; align-items:center; gap:5px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
+            <span>TikTok Username</span>
           </label>
           <input type="text" id="input-ch-tiktok" placeholder="contoh: username_tiktok (tanpa @)">
         </div>
 
-                <!-- CUSTOM CHAT STREAM URL SECTION -->
-        <div class="channel-input-group" style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.15);">
+        <!-- CUSTOM CHAT STREAM URL SECTION -->
+        <div class="channel-input-group" style="margin-top:6px; padding-top:8px; border-top:1px solid #e5e5e5;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label style="color:#38bdf8; display:inline-flex; align-items:center; gap:4px;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              <span>Custom Chat Stream URL (Opsional):</span>
+            <label style="color:#000000; display:inline-flex; align-items:center; gap:5px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span>Custom Chat Stream URL (Opsional)</span>
             </label>
-            <span id="custom-url-tag" style="font-size:8.5px; padding:1px 5px; border-radius:4px; background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); display:none;">Custom URL Aktif</span>
+            <span id="custom-url-tag" style="font-size:9px; padding:1px 6px; border-radius:9999px; background:#fafafa; color:#000000; border:1px solid #e5e5e5; display:none;">Custom Aktif</span>
           </div>
-          <input type="text" id="input-custom-chat-url" placeholder="https://... (URL Overlay Chat kustom, OBS Browser Source, dll)">
-          <div style="font-size:8.5px; color:#94a3b8; line-height:1.3; margin-top:2px;">
-            💡 Masukkan URL overlay chat kustom Anda (misal: StreamPulse /overlay, /dock, Botrix, StreamElements, dll) untuk menampilkan web chat kustom di HUD ini. Kosongkan untuk kembali ke mode multi-chat bawaan.
+          <input type="text" id="input-custom-chat-url" placeholder="https://... (URL Overlay Chat kustom)">
+          <div style="font-size:9.5px; color:#737373; line-height:1.3; margin-top:2px;">
+            💡 Masukkan URL overlay chat kustom Anda (/overlay, /dock, Botrix, StreamElements). Kosongkan untuk kembali ke mode multi-chat bawaan.
           </div>
         </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:6px;">
-          <button class="hud-btn" id="btn-cancel-channels">Batal</button>
-          <button class="hud-btn" id="btn-save-channels" style="background:#8b5cf6; color:white; font-weight:700;">Simpan & Hubungkan</button>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+          <button class="hud-btn" id="btn-cancel-channels" style="background:#fafafa; border:1px solid #e5e5e5; color:#000000; border-radius:9999px; padding:5px 14px; font-weight:500;">Batal</button>
+          <button class="hud-btn" id="btn-save-channels" style="background:#000000; color:#ffffff; border:1px solid #000000; border-radius:9999px; padding:5px 18px; font-weight:500;">Simpan & Hubungkan</button>
         </div>
       </div>
     </div>
 
-    <!-- FLOATING STATUS PILL (WHEN LOCKED) -->
+        <!-- FLOATING STATUS PILL (WHEN LOCKED) -->
     <div class="hud-floating-pill" id="hud-pill" title="Klik untuk membuka kunci / Mode Edit">
       <span class="viewers-badge">
         👁️ <span id="hud-total-viewers">0</span>

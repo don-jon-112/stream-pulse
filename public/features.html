@@ -6,16 +6,22 @@
   <title>Roadmap & Usulan Fitur - StreamPulse MultiChat</title>
   <meta name="description" content="Papan Kanban interaktif untuk roadmap fitur baru dan pengajuan usulan fitur dari komunitas streamer StreamPulse.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
-  <link rel="stylesheet" href="/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="/js/sp-popup.js?v=fresh_6"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/sp-popup.js?v=fresh_8"></script>
   <style>
     :root {
-      --bg-canvas: #06080f;
-      --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --bg-canvas: #ffffff;
+      --font-display: 'Nunito', 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
+      --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --font-mono: ui-monospace, 'JetBrains Mono', monospace;
+      --hairline: #e5e5e5;
+      --hairline-strong: #d4d4d4;
+      --ink: #000000;
+      --body: #737373;
+      --surface-soft: #fafafa;
     }
 
     * {
@@ -23,50 +29,35 @@
     }
 
     body {
-      font-family: var(--font-display);
+      font-family: var(--font-body);
       background-color: var(--bg-canvas);
-      background-image:
-        radial-gradient(circle at 50% -120px, rgba(139, 92, 246, 0.28) 0%, transparent 60%),
-        radial-gradient(circle at 10% 40%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 90% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
-        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-      background-size: auto, auto, auto, 48px 48px, 48px 48px;
-      background-attachment: fixed;
-      color: var(--text-primary);
+      background-image: none;
+      color: var(--ink);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       margin: 0;
       padding: 0;
-      padding-top: env(safe-area-inset-top, 0);
-      padding-bottom: env(safe-area-inset-bottom, 0);
     }
 
-    /* Floating Pill Header */
+    /* 56px Navigation Header */
     .roadmap-header-wrapper {
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 12px 20px 6px;
-      background: linear-gradient(180deg, rgba(6, 8, 15, 0.96) 0%, rgba(6, 8, 15, 0.7) 80%, transparent 100%);
+      background: #ffffff;
+      border-bottom: 1px solid var(--hairline);
     }
 
     .roadmap-header {
-      max-width: 1380px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 10px 18px;
-      background: rgba(14, 18, 34, 0.92);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 999px;
+      padding: 0 24px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
       gap: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.08);
     }
 
     .roadmap-brand {
@@ -77,9 +68,10 @@
     }
 
     .roadmap-title {
-      font-size: 1.08rem;
-      font-weight: 800;
-      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -87,13 +79,13 @@
     }
 
     .brand-badge-glow {
-      background: rgba(139, 92, 246, 0.18);
-      border: 1px solid rgba(139, 92, 246, 0.45);
-      color: #c4b5fd;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      color: var(--body);
       font-size: 0.68rem;
-      font-weight: 800;
+      font-weight: 600;
       padding: 2px 8px;
-      border-radius: 999px;
+      border-radius: 9999px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       font-family: var(--font-mono);
@@ -103,88 +95,56 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 14px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 500;
       text-decoration: none;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s ease;
       cursor: pointer;
-      border: 1px solid transparent;
+      border: 1px solid var(--hairline);
+      background: #ffffff;
+      color: var(--ink);
+      height: 36px;
     }
 
-    .nav-btn-subtle {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.08);
-      color: var(--text-secondary);
-    }
-    .nav-btn-subtle:hover {
-      background: rgba(255, 255, 255, 0.09);
-      border-color: rgba(255, 255, 255, 0.18);
-      color: #fff;
-      transform: translateY(-1px);
-    }
-
-    .nav-btn-donate {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.35);
-      color: #fde68a;
-    }
-    .nav-btn-donate:hover {
-      background: rgba(245, 158, 11, 0.22);
-      border-color: rgba(245, 158, 11, 0.55);
-      color: #fff;
-      transform: translateY(-1px);
+    .nav-btn:hover {
+      background: var(--surface-soft);
+      border-color: var(--hairline-strong);
     }
 
     .nav-btn-primary {
-      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #4f46e5 100%);
-      color: #fff;
-      border: none;
-      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+      background: #000000 !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
     }
+
     .nav-btn-primary:hover {
-      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-      box-shadow: 0 6px 22px rgba(139, 92, 246, 0.55);
-      transform: translateY(-1px);
+      background: #090909 !important;
     }
 
     .kanban-container {
       flex: 1;
-      padding: 16px 20px 48px;
-      max-width: 1380px;
+      padding: 32px 24px 64px;
+      max-width: 1400px;
       width: 100%;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 32px;
     }
 
-    /* Hero Banner Modern SaaS */
+    /* Hero Banner (Ollama Documentation Style) */
     .hero-banner {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.14) 0%, rgba(99, 102, 241, 0.08) 50%, rgba(13, 17, 30, 0.6) 100%);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 20px;
-      padding: 28px 32px;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 20px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-    }
-
-    .hero-banner::after {
-      content: '';
-      position: absolute;
-      top: -50px;
-      right: 10%;
-      width: 250px;
-      height: 180px;
-      background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
-      pointer-events: none;
     }
 
     .hero-tag {
@@ -192,31 +152,29 @@
       align-items: center;
       gap: 6px;
       padding: 3px 10px;
-      background: rgba(139, 92, 246, 0.2);
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: 9999px;
       font-size: 0.72rem;
-      font-weight: 800;
-      color: #c4b5fd;
+      font-weight: 600;
+      color: var(--body);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .hero-text h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #fff;
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-weight: 600;
+      color: var(--ink);
       margin: 0 0 8px 0;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 60%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
     }
 
     .hero-text p {
-      font-size: 0.9rem;
-      color: #94a3b8;
+      font-size: 0.95rem;
+      color: var(--body);
       max-width: 640px;
       line-height: 1.6;
       margin: 0;
@@ -226,99 +184,73 @@
     .kanban-board {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
+      gap: 20px;
       align-items: start;
     }
 
     .kanban-column {
-      background: rgba(13, 17, 30, 0.94);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
       display: flex;
       flex-direction: column;
-      min-height: 540px;
+      min-height: 520px;
       overflow: hidden;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
-      position: relative;
-    }
-
-    .kanban-column::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-    }
-
-    .kanban-column.todo::before {
-      background: linear-gradient(90deg, #8b5cf6, #6366f1);
-      box-shadow: 0 0 14px rgba(139, 92, 246, 0.7);
-    }
-    .kanban-column.in_progress::before {
-      background: linear-gradient(90deg, #f59e0b, #fbbf24);
-      box-shadow: 0 0 14px rgba(245, 158, 11, 0.7);
-    }
-    .kanban-column.done::before {
-      background: linear-gradient(90deg, #10b981, #34d399);
-      box-shadow: 0 0 14px rgba(16, 185, 129, 0.7);
     }
 
     .column-header {
-      padding: 16px 20px;
+      padding: 14px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-      background: rgba(255, 255, 255, 0.015);
+      border-bottom: 1px solid var(--hairline);
+      background: var(--surface-soft);
     }
 
     .column-title-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      font-family: var(--font-display);
       font-size: 0.95rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
+      font-weight: 600;
+      color: var(--ink);
     }
 
     .column-badge {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #ffffff;
+      border: 1px solid var(--hairline);
       font-size: 0.72rem;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 999px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
       font-family: var(--font-mono);
-      color: #e2e8f0;
+      color: var(--charcoal);
     }
 
     .cards-list {
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       flex: 1;
     }
 
     .feature-card {
-      background: rgba(18, 24, 42, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 14px;
-      padding: 16px 18px;
+      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-      position: relative;
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+      box-shadow: none;
     }
 
     .feature-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(139, 92, 246, 0.45);
-      background: rgba(24, 32, 56, 0.85);
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), 0 0 18px rgba(139, 92, 246, 0.15);
+      border-color: var(--hairline-strong);
+      background: var(--surface-soft);
     }
 
     .card-top {
@@ -329,31 +261,34 @@
     }
 
     .cat-tag {
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.03em;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      color: var(--body);
     }
-    .cat-tag.twitch { background: rgba(145, 70, 255, 0.2); color: #c084fc; border: 1px solid rgba(145, 70, 255, 0.4); }
-    .cat-tag.youtube { background: rgba(255, 0, 0, 0.2); color: #f87171; border: 1px solid rgba(255, 0, 0, 0.4); }
-    .cat-tag.tiktok { background: rgba(0, 242, 254, 0.18); color: #38bdf8; border: 1px solid rgba(0, 242, 254, 0.4); }
-    .cat-tag.overlay { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .cat-tag.core { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.4); }
-    .cat-tag.general { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
+    .cat-tag.twitch { color: #9146ff; border-color: #e9d5ff; background: #fdfaff; }
+    .cat-tag.youtube { color: #ff0033; border-color: #fecaca; background: #fffafa; }
+    .cat-tag.tiktok { color: #000000; border-color: var(--hairline); background: var(--surface-soft); }
+    .cat-tag.overlay { color: #d97706; border-color: #fde68a; background: #fffbeb; }
+    .cat-tag.core { color: #000000; border-color: var(--hairline); background: var(--surface-soft); }
+    .cat-tag.general { color: var(--body); }
 
     .card-title {
+      font-family: var(--font-display);
       font-size: 0.95rem;
-      font-weight: 700;
-      color: #fff;
+      font-weight: 600;
+      color: var(--ink);
       line-height: 1.4;
-      letter-spacing: -0.01em;
     }
 
     .card-desc {
-      font-size: 0.82rem;
-      color: #94a3b8;
+      font-size: 0.85rem;
+      color: var(--body);
       line-height: 1.55;
     }
 
@@ -362,13 +297,13 @@
       align-items: center;
       justify-content: space-between;
       margin-top: 4px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 10px;
+      border-top: 1px solid var(--hairline);
     }
 
     .card-author {
       font-size: 0.72rem;
-      color: var(--text-tertiary);
+      color: var(--mute);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -379,43 +314,37 @@
       align-items: center;
       gap: 6px;
       padding: 5px 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 999px;
-      color: #cbd5e1;
-      font-size: 0.76rem;
-      font-weight: 700;
+      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: 9999px;
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s ease;
+      height: 32px;
     }
 
     .btn-upvote:hover {
-      background: rgba(139, 92, 246, 0.25);
-      border-color: #8b5cf6;
-      color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+      background: var(--surface-soft);
+      border-color: var(--hairline-strong);
     }
 
     .btn-upvote.voted {
-      background: rgba(139, 92, 246, 0.35);
-      border-color: #a78bfa;
-      color: #e9d5ff;
+      background: #000000;
+      border-color: #000000;
+      color: #ffffff;
     }
 
     @media (max-width: 768px) {
-      .roadmap-header-wrapper {
-        padding: 10px 12px 6px;
-      }
       .roadmap-header {
-        border-radius: 16px;
-        padding: 10px 14px;
+        padding: 0 16px;
       }
       .hero-banner {
         padding: 20px;
       }
       .hero-text h1 {
-        font-size: 1.35rem;
+        font-size: 1.4rem;
       }
       .kanban-board {
         grid-template-columns: 1fr;
@@ -430,8 +359,8 @@
     <header class="roadmap-header">
       <div style="display:flex; align-items:center; gap:12px;">
         <a href="/" class="roadmap-brand">
-          <div class="brand-logo" style="width:34px; height:34px;">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <div class="brand-logo" style="width:32px; height:32px; border-radius:8px; background:#000000; display:flex; align-items:center; justify-content:center;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           </div>
           <div class="roadmap-title">
             <span>StreamPulse</span>
@@ -448,6 +377,10 @@
         <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
           <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
           <span>ID</span>
+        </button>
+      </div>
+    </header>
+  </div>
         </button>
       </div>
     </header>
@@ -535,12 +468,12 @@
       <form id="formNewRequest" class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
         <div class="channel-field">
           <label class="channel-label" for="reqTitle" data-i18n="feat_req_title_label">Judul Fitur *</label>
-          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." data-i18n-ph="feat_req_title_ph" autocomplete="off">
+          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." data-i18n-ph="feat_req_title_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:9999px; color:var(--ink); font-size:0.88rem; outline:none;">
         </div>
 
         <div class="channel-field">
           <label class="channel-label" for="reqCategory" data-i18n="feat_req_cat_label">Kategori Platform</label>
-          <select id="reqCategory" style="width:100%; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.85rem;">
+          <select id="reqCategory" style="width:100%; height:40px; padding:8px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:9999px; color:var(--ink); font-size:0.88rem; outline:none; cursor:pointer;">
             <option value="twitch">🟣 Twitch</option>
             <option value="youtube">🔴 YouTube Live</option>
             <option value="tiktok">🎵 TikTok LIVE</option>
@@ -552,23 +485,43 @@
 
         <div class="channel-field">
           <label class="channel-label" for="reqAuthor" data-i18n="feat_req_author_label">Nama Anda / Streamer (Opsional)</label>
-          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" data-i18n-ph="feat_req_author_ph" autocomplete="off">
+          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" data-i18n-ph="feat_req_author_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:9999px; color:var(--ink); font-size:0.88rem; outline:none;">
         </div>
 
         <div class="channel-field">
           <label class="channel-label" for="reqDesc" data-i18n="feat_req_desc_label">Deskripsi Fitur *</label>
-          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." data-i18n-ph="feat_req_desc_ph" style="width:100%; padding:10px 14px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.85rem; resize:vertical; font-family:var(--font-sans);"></textarea>
+          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." data-i18n-ph="feat_req_desc_ph" style="width:100%; padding:12px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:12px; color:var(--ink); font-size:0.88rem; resize:vertical; font-family:var(--font-body); outline:none;"></textarea>
         </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+        <div class="modal-footer" style="padding:14px 0 0 0; background:transparent;">
           <button type="button" id="btnCancelRequest" class="btn-icon" data-i18n="dialog_cancel">Batal</button>
-          <button type="submit" id="btnSubmitRequest" class="btn-icon btn-primary">
+          <button type="submit" id="btnSubmitRequest" class="btn-primary">
             <span data-i18n="feat_req_submit_btn">Kirim Usulan 🚀</span>
           </button>
         </div>
       </form>
     </div>
   </div>
+
+  <!-- Ollama Minimal Footer -->
+  <footer class="ollama-footer">
+    <div class="ollama-footer-links">
+      <a href="/">Live Monitor</a>
+      <span>·</span>
+      <a href="/dock" target="_blank">OBS Dock</a>
+      <span>·</span>
+      <a href="/studio">Overlay Studio</a>
+      <span>·</span>
+      <a href="/privacy">Privacy</a>
+      <span>·</span>
+      <a href="https://github.com/Joo-Nathan/streampulse-multichat" target="_blank" rel="noopener">GitHub</a>
+      <span>·</span>
+      <a href="https://discord.gg/GMrBUgwNFu" target="_blank" rel="noopener">Discord</a>
+    </div>
+    <div class="ollama-footer-copy">
+      © 2026 StreamPulse · Roadmap & Kanban
+    </div>
+  </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

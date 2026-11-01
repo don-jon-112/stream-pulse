@@ -16,15 +16,18 @@
 
   <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#06080d">
+  <meta name="theme-color" content="#ffffff">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="StreamPulse">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
 
-  <!-- UI/UX Pro Max Stylesheet -->
+  <!-- Fonts & Ollama Design System Stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -169,6 +172,28 @@
 
     </div>
   </header>
+
+  <!-- Hero Section (Ollama Documentation-First Hero) -->
+  <section class="ollama-hero" style="max-width: 960px; margin: 32px auto 20px auto; padding: 0 20px; text-align: center;">
+    <h1 style="font-family: var(--font-display); font-size: 32px; font-weight: 600; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.02em;">
+      The unified livestream monitor & in-game overlay
+    </h1>
+    <p style="font-size: 15px; color: var(--body); margin-bottom: 18px; line-height: 1.5; max-width: 620px; margin-left: auto; margin-right: auto;">
+      Monitor Twitch, YouTube, and TikTok chat in real-time. Unified OBS Browser Dock, customizable CSS, and standalone transparent HUD overlay.
+    </p>
+
+    <!-- Inline Terminal Install / Run Snippet Pill -->
+    <div class="install-snippet-wrap">
+      <div class="install-snippet">
+        <code>git clone https://github.com/Joo-Nathan/streampulse-multichat.git && npm start</code>
+        <button class="install-snippet-copy" onclick="navigator.clipboard.writeText('git clone https://github.com/Joo-Nathan/streampulse-multichat.git && npm start'); if(window.spToast) spToast('Command disalin ke clipboard!', 'success');" title="Salin Command">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
 
   <!-- Main Multi-Column Content Area -->
   <main class="main-wrapper">
@@ -416,21 +441,21 @@
 
         <!-- Account Channel Storage Status Notice -->
         <div id="channelAuthNotice"
-          style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px; font-size: 0.78rem;">
+          style="background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 10px 14px; margin-bottom: 12px; font-size: 0.8rem; color: var(--body);">
           <!-- Dynamically populated via JS -->
         </div>
 
         <!-- Twitch Channel -->
         <div class="channel-field">
           <label class="channel-label" for="inputTwitch">
-            <span style="color: var(--twitch); display: inline-flex; align-items: center; gap: 5px;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+            <span style="color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="#9146ff"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
               <span>Twitch Channel</span>
             </span>
             <span class="field-tip" id="twitchStatusTip">Username channel streamer</span>
           </label>
           <div class="input-with-icon">
-            <span class="input-icon" style="color: var(--twitch);">#</span>
+            <span class="input-icon" style="color: var(--body);">#</span>
             <input type="text" id="inputTwitch" placeholder="Masukkan username Twitch..." data-i18n-ph="ph_twitch_input"
               autocomplete="off">
           </div>
@@ -439,32 +464,32 @@
           <div id="twitchAuthBox" style="margin-top: 8px;">
             <!-- State: Belum Terhubung Resmi -->
             <div id="twitchNotConnected"
-              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(145, 70, 255, 0.08); border: 1px solid rgba(145, 70, 255, 0.25); border-radius: var(--radius-sm); padding: 9px 12px;">
-              <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.4;">
-                <div style="font-weight: 700; color: #c084fc; margin-bottom: 1px;">💠 Deteksi Channel Points Redeem:</div>
+              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 10px 14px;">
+              <div style="font-size: 0.78rem; color: var(--body); line-height: 1.4;">
+                <div style="font-weight: 600; color: var(--ink); margin-bottom: 2px;">💠 Deteksi Channel Points Redeem:</div>
                 Login dengan Twitch agar poin redeem terdeteksi otomatis tanpa setup manual.
               </div>
               <button type="button" id="btnConnectTwitch" class="btn-twitch-auth"
-                style="display: inline-flex; align-items: center; gap: 6px; background: #9146ff; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 7px 12px; border-radius: var(--radius-sm); border: none; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 8px rgba(145,70,255,0.35);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+                style="display: inline-flex; align-items: center; gap: 6px; background: #000000; color: #ffffff; font-size: 0.78rem; font-weight: 500; padding: 7px 16px; border-radius: 9999px; border: 1px solid #000000; cursor: pointer; white-space: nowrap; transition: opacity 0.15s;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#a970ff"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
                 <span>Login Twitch</span>
               </button>
             </div>
 
             <!-- State: Terhubung Resmi via OAuth -->
             <div id="twitchConnected"
-              style="display: none; align-items: center; justify-content: space-between; gap: 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 8px 12px;">
+              style="display: none; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 10px 14px;">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <img id="twitchUserAvatar" src="" alt="Twitch Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #10b981; object-fit: cover; display: none;">
-                <div style="font-size: 0.72rem; line-height: 1.35;">
-                  <div style="font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 4px;">
-                    ✓ Terhubung ke Twitch: <span id="twitchConnectedUser" style="color: #fff;"></span>
+                <img id="twitchUserAvatar" src="" alt="Twitch Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--hairline-strong); object-fit: cover; display: none;">
+                <div style="font-size: 0.78rem; line-height: 1.35;">
+                  <div style="font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 4px;">
+                    ✓ Terhubung ke Twitch: <span id="twitchConnectedUser" style="color: var(--ink); font-weight: 700;"></span>
                   </div>
-                  <span style="color: #94a3b8; font-size: 0.68rem;">Channel Points EventSub Aktif 💠 • Input dikunci</span>
+                  <span style="color: var(--body); font-size: 0.72rem;">Channel Points EventSub Aktif 💠 • Input dikunci</span>
                 </div>
               </div>
               <button type="button" id="btnDisconnectTwitch"
-                style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
+                style="background: #ffffff; border: 1px solid var(--hairline); color: var(--terminal-red); font-size: 0.72rem; font-weight: 500; padding: 5px 12px; border-radius: 9999px; cursor: pointer; transition: background 0.15s;">
                 Putuskan
               </button>
             </div>
@@ -477,14 +502,14 @@
         <!-- YouTube Channel / Live URL -->
         <div class="channel-field">
           <label class="channel-label" for="inputYouTube">
-            <span style="color: var(--youtube); display: inline-flex; align-items: center; gap: 5px;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span style="color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               <span>YouTube Live Stream</span>
             </span>
             <span class="field-tip" id="youtubeStatusTip">Handle (@channel) atau URL Live</span>
           </label>
           <div class="input-with-icon">
-            <span class="input-icon" style="color: var(--youtube);">▶</span>
+            <span class="input-icon" style="color: var(--body);">▶</span>
             <input type="text" id="inputYouTube" placeholder="@NamaChannel atau URL live..."
               data-i18n-ph="ph_youtube_input" autocomplete="off">
           </div>
@@ -493,32 +518,32 @@
           <div id="youtubeAuthBox" style="display: none; margin-top: 8px;">
             <!-- State: Belum Terhubung Resmi -->
             <div id="youtubeNotConnected"
-              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-sm); padding: 9px 12px;">
-              <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.4;">
-                <div style="font-weight: 700; color: #f87171; margin-bottom: 1px;">🔴 Deteksi Otomatis Live Stream:</div>
+              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 10px 14px;">
+              <div style="font-size: 0.78rem; color: var(--body); line-height: 1.4;">
+                <div style="font-weight: 600; color: var(--ink); margin-bottom: 2px;">🔴 Deteksi Otomatis Live Stream:</div>
                 Login YouTube agar channel & siaran langsung Anda otomatis tersambung tanpa ketik link.
               </div>
               <button type="button" id="btnConnectYouTube" class="btn-youtube-auth"
-                style="display: inline-flex; align-items: center; gap: 6px; background: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 7px 12px; border-radius: var(--radius-sm); border: none; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 8px rgba(239,68,68,0.35);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                style="display: inline-flex; align-items: center; gap: 6px; background: #000000; color: #ffffff; font-size: 0.78rem; font-weight: 500; padding: 7px 16px; border-radius: 9999px; border: 1px solid #000000; cursor: pointer; white-space: nowrap; transition: opacity 0.15s;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#ff4e45"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 <span>Login YouTube</span>
               </button>
             </div>
 
             <!-- State: Terhubung Resmi via OAuth -->
             <div id="youtubeConnected"
-              style="display: none; align-items: center; justify-content: space-between; gap: 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 8px 12px;">
+              style="display: none; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 10px 14px;">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <img id="youtubeUserAvatar" src="" alt="YouTube Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #10b981; object-fit: cover; display: none;">
-                <div style="font-size: 0.72rem; line-height: 1.35;">
-                  <div style="font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 4px;">
-                    ✓ Terhubung ke YouTube: <span id="youtubeConnectedUser" style="color: #fff;"></span>
+                <img id="youtubeUserAvatar" src="" alt="YouTube Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--hairline-strong); object-fit: cover; display: none;">
+                <div style="font-size: 0.78rem; line-height: 1.35;">
+                  <div style="font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 4px;">
+                    ✓ Terhubung ke YouTube: <span id="youtubeConnectedUser" style="color: var(--ink); font-weight: 700;"></span>
                   </div>
-                  <span style="color: #94a3b8; font-size: 0.68rem;">Siaran Live Chat Otomatis Dipantau • Input dikunci</span>
+                  <span style="color: var(--body); font-size: 0.72rem;">Siaran Live Chat Otomatis Dipantau • Input dikunci</span>
                 </div>
               </div>
               <button type="button" id="btnDisconnectYouTube"
-                style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.7rem; font-weight: 600; padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;">
+                style="background: #ffffff; border: 1px solid var(--hairline); color: var(--terminal-red); font-size: 0.72rem; font-weight: 500; padding: 5px 12px; border-radius: 9999px; cursor: pointer; transition: background 0.15s;">
                 Putuskan
               </button>
             </div>
@@ -528,18 +553,21 @@
         <!-- TikTok Username -->
         <div class="channel-field">
           <label class="channel-label" for="inputTikTok">
-            <span style="color: var(--tiktok-cyan);" data-i18n="label_tiktok">🎵 TikTok LIVE Username</span>
+            <span style="color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;" data-i18n="label_tiktok">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/></svg>
+              <span>TikTok LIVE Username</span>
+            </span>
             <span class="field-tip" data-i18n="tip_tiktok">Username akun yang sedang live (tanpa @)</span>
           </label>
           <div class="input-with-icon">
-            <span class="input-icon" style="color: var(--tiktok-pink);">@</span>
+            <span class="input-icon" style="color: var(--body);">@</span>
             <input type="text" id="inputTikTok" placeholder="Username TikTok live..." data-i18n-ph="ph_tiktok_input"
               autocomplete="off">
           </div>
         </div>
 
         <div
-          style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-md); padding: 14px; font-size: 0.75rem; line-height: 1.5; color: #c7d2fe; margin-top: 10px;"
+          style="background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 12px 14px; font-size: 0.8rem; line-height: 1.5; color: var(--body); margin-top: 10px;"
           data-i18n-html="setup_bottom_tip">
           💡 <strong>Tips:</strong> Anda bisa memantau ketiga platform sekaligus atau hanya platform tertentu saja.
           Kosongkan kolom jika tidak ingin menghubungkan platform tersebut.
@@ -548,14 +576,14 @@
       </div>
 
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <button type="button" id="btnRefreshChannels" class="btn-icon" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; font-weight: 700; padding: 7px 12px;" title="Segarkan dan paksa hubungkan ulang semua saluran">
+        <button type="button" id="btnRefreshChannels" class="btn-icon" style="background: var(--surface-soft); border: 1px solid var(--hairline); color: var(--ink); font-weight: 500; padding: 7px 16px; border-radius: 9999px;" title="Segarkan dan paksa hubungkan ulang semua saluran">
           <span>🔄 Segarkan Koneksi</span>
         </button>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <button id="btnCancelSetup" class="btn-icon">
+          <button id="btnCancelSetup" class="btn-icon" style="background: var(--surface-soft); border: 1px solid var(--hairline); color: var(--ink); font-weight: 500; padding: 7px 16px; border-radius: 9999px;">
             <span data-i18n="btn_cancel">Batal</span>
           </button>
-          <button id="btnSaveChannels" class="btn-icon btn-primary">
+          <button id="btnSaveChannels" class="btn-icon btn-primary" style="background: #000000; color: #ffffff; border: 1px solid #000000; font-weight: 500; padding: 7px 18px; border-radius: 9999px;">
             <span data-i18n="btn_save_connect">Simpan & Hubungkan</span>
           </button>
         </div>
@@ -773,6 +801,26 @@
       </div>
     </div>
   </div>
+
+  <!-- Ollama Minimal Footer -->
+  <footer class="ollama-footer">
+    <div class="ollama-footer-links">
+      <a href="/dock" target="_blank">OBS Dock</a>
+      <span>·</span>
+      <a href="/studio">Overlay Studio</a>
+      <span>·</span>
+      <a href="/features">Roadmap</a>
+      <span>·</span>
+      <a href="/privacy">Privacy</a>
+      <span>·</span>
+      <a href="https://github.com/Joo-Nathan/streampulse-multichat" target="_blank" rel="noopener">GitHub</a>
+      <span>·</span>
+      <a href="https://discord.gg/GMrBUgwNFu" target="_blank" rel="noopener">Discord</a>
+    </div>
+    <div class="ollama-footer-copy">
+      © 2026 StreamPulse · Minimal Documentation Design
+    </div>
+  </footer>
 
   <!-- Socket.io & App Scripts -->
   <script src="/js/socket.io.min.js"></script>
