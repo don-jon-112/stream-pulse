@@ -1235,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const author = chat.author || {};
     const authorName = author.name || 'Anonymous';
-    const authorColor = author.color || '#f8fafc';
+    const authorColor = ensureContrastForLightBg(author.color, '#0f172a');
     const initial = (authorName[0] || '?').toUpperCase();
     const showAvatar = !state.hideAvatars;
     const avatarImg = showAvatar
@@ -1343,17 +1343,17 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="chat-meta">
           ${platBadge}
           ${badgePill}
-          <span class="author-name" style="color: #67e8f9; font-weight:800;">${escapeHtml(authorName)}</span>
+          <span class="author-name" style="color: ${escapeHtml(ensureContrastForLightBg(evt.authorColor || '', '#0f172a'))}; font-weight:800;">${escapeHtml(authorName)}</span>
           <span class="chat-time">${formatTime(evt.timestamp)}</span>
         </div>
         <div class="event-highlight-text">
           <span>${escapeHtml(evt.title)}</span>
           <span>•</span>
-          <span style="color:#ffffff;">${escapeHtml(evt.detail || '')}</span>
+          <span style="color: #334155; font-weight: 600;">${escapeHtml(evt.detail || '')}</span>
         </div>
         ${stickerHtml}
         ${iconHtml}
-        ${evt.message ? `<div class="chat-text" style="margin-top: 5px; color: #fff; font-weight: 500;">"${evt.platform === 'twitch' ? formatTwitchMessageWithEmotes(evt.message, evt.emotes) : parse7tvTextTokens(evt.message, state.twitchEmotes)}"</div>` : ''}
+        ${evt.message ? `<div class="chat-text" style="margin-top: 5px; color: #0f172a; font-weight: 500;">"${evt.platform === 'twitch' ? formatTwitchMessageWithEmotes(evt.message, evt.emotes) : parse7tvTextTokens(evt.message, state.twitchEmotes)}"</div>` : ''}
       </div>
     `;
 

@@ -186,19 +186,19 @@
       border-color: rgba(145, 70, 255, 0.3);
     }
     .viewer-pill.twitch svg { fill: var(--twitch-light); }
-    .viewer-pill.twitch .v-num { color: #d8b4fe; }
+    .viewer-pill.twitch .v-num { color: #7e22ce; font-weight: 700; }
 
     .viewer-pill.youtube {
       border-color: rgba(255, 0, 0, 0.3);
     }
     .viewer-pill.youtube svg { fill: var(--youtube-light); }
-    .viewer-pill.youtube .v-num { color: #fca5a5; }
+    .viewer-pill.youtube .v-num { color: #dc2626; font-weight: 700; }
 
     .viewer-pill.tiktok {
       border-color: rgba(0, 242, 254, 0.3);
     }
     .viewer-pill.tiktok svg { fill: var(--tiktok); }
-    .viewer-pill.tiktok .v-num { color: #67e8f9; }
+    .viewer-pill.tiktok .v-num { color: #0284c7; font-weight: 700; }
 
     .viewer-pill.total {
       background: rgba(99, 102, 241, 0.15);
@@ -206,7 +206,7 @@
       margin-left: auto;
     }
     .viewer-pill.total svg { stroke: #a5b4fc; }
-    .viewer-pill.total .v-num { color: #a5b4fc; font-weight: 700; }
+    .viewer-pill.total .v-num { color: #4338ca; font-weight: 800; }
 
     .v-num {
       font-family: var(--font-mono);
@@ -360,9 +360,9 @@
     .platform-badge.tiktok { background: rgba(0, 242, 254, 0.2); color: var(--tiktok); }
 
     .dock-author-name {
-      font-weight: 600;
-      font-size: 12px;
-      color: var(--text-main);
+      font-weight: 700;
+      font-size: 12.5px;
+      color: #0f172a;
     }
 
     .dock-time-label {
@@ -373,9 +373,10 @@
     }
 
     .dock-chat-text {
-      color: var(--text-main);
-      font-size: 12.5px;
-      line-height: 1.4;
+      color: #0f172a !important;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 500;
     }
 
     /* Badges & Emotes */
@@ -395,12 +396,13 @@
 
     /* Event Alert Cards (Gift, Sub, Bits) */
     .dock-event-item {
-      background: #fafafa;
+      background: #ffffff;
       border: 1px solid var(--border-subtle);
-      border-left: 3px solid #000000;
+      border-left: 3px solid #0f172a;
       border-radius: 12px;
       padding: 8px 12px;
       animation: fadeIn 0.2s ease;
+      color: #0f172a !important;
     }
     .dock-event-item.gift {
       background: linear-gradient(90deg, rgba(254, 44, 85, 0.15), var(--bg-card));
@@ -417,15 +419,15 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-main);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #0f172a !important;
       margin-bottom: 2px;
     }
 
     .dock-event-detail {
-      font-size: 12px;
-      color: var(--text-main);
+      font-size: 12.5px;
+      color: #1e293b !important;
       font-weight: 600;
     }
 

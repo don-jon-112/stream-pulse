@@ -343,13 +343,13 @@
       }
     } else if (chat.platform === 'youtube') {
       if (author.isOwner) html += `<span style="color:#f59e0b;font-weight:800;font-size:10px;">[OWNER]</span> `;
-      if (author.isMod) html += `<span style="color:#60a5fa;font-weight:800;font-size:10px;">[MOD]</span> `;
+      if (author.isMod) html += `<span style="color:#2563eb;font-weight:800;font-size:10px;">[MOD]</span> `; // high contrast
       if (author.memberBadge) {
         html += `<img src="${escapeHtml(author.memberBadge)}" class="dock-badge-img" title="Member"> `;
       }
     } else if (chat.platform === 'tiktok') {
-      if (author.isMod) html += `<span style="color:#00f2fe;font-weight:800;font-size:10px;">[MOD]</span> `;
-      if (author.isSub) html += `<span style="color:#fe2c55;font-weight:800;font-size:10px;">[SUB]</span> `;
+      if (author.isMod) html += `<span style="color:#0284c7;font-weight:800;font-size:10px;">[MOD]</span> `; // high contrast
+      if (author.isSub) html += `<span style="color:#e11d48;font-weight:800;font-size:10px;">[SUB]</span> `; // high contrast
     }
 
     return html;
@@ -470,6 +470,42 @@
   // ==========================================
   // RENDER CARDS (CHAT & EVENTS)
   // ==========================================
+  
+  // Pastikan warna teks / author selalu kontras dan jelas terbaca di atas latar belakang putih/terang
+  function ensureContrastForLightBg(colorHex, defaultDark = '#0f172a') {
+    if (!colorHex || typeof colorHex !== 'string') return defaultDark;
+    let hex = colorHex.trim();
+    if (!hex.startsWith('#')) return hex;
+    if (hex.length === 4) {
+      hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    }
+    if (hex.length !== 7) return defaultDark;
+
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return defaultDark;
+
+    // Jika warna terlalu dekat dengan putih / abu-abu terang, gunakan defaultDark
+    if (r > 190 && g > 190 && b > 190) return defaultDark;
+
+    const sR = r / 255, sG = g / 255, sB = b / 255;
+    const R = sR <= 0.03928 ? sR / 12.92 : Math.pow((sR + 0.055) / 1.055, 2.4);
+    const G = sG <= 0.03928 ? sG / 12.92 : Math.pow((sG + 0.055) / 1.055, 2.4);
+    const B = sB <= 0.03928 ? sB / 12.92 : Math.pow((sB + 0.055) / 1.055, 2.4);
+    const L = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+
+    // Jika terlalu terang (luminansi tinggi), turunkan kecerahan agar kontras WCAG tinggi pada kartu putih
+    if (L > 0.35) {
+      const factor = Math.min(0.52, 0.28 / L);
+      const darkR = Math.min(255, Math.floor(r * factor));
+      const darkG = Math.min(255, Math.floor(g * factor));
+      const darkB = Math.min(255, Math.floor(b * factor));
+      return '#' + darkR.toString(16).padStart(2, '0') + darkG.toString(16).padStart(2, '0') + darkB.toString(16).padStart(2, '0');
+    }
+    return hex;
+  }
+
   function renderChatItem(chat, shouldScroll = true) {
     if (!chat) return;
     if (emptyState && emptyState.parentElement) {
@@ -483,7 +519,7 @@
 
     const author = chat.author || {};
     const authorName = author.name || 'Penonton';
-    const authorColor = author.color || '#e2e8f0';
+    const authorColor = ensureContrastForLightBg(author.color, '#0f172a');
     const initial = (authorName[0] || '?').toUpperCase();
     const avatarHtml = author.avatar
       ? `<img src="${escapeHtml(author.avatar)}" class="dock-chat-avatar" alt="${escapeHtml(authorName)}" loading="lazy" onerror="this.onerror=null; this.outerHTML='<div class=\\'dock-chat-avatar\\'>${initial}</div>'">`
