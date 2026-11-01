@@ -826,37 +826,45 @@
     <aside class="themes-sidebar" id="themesSidebar">
       <div class="themes-sidebar-header">THEMES</div>
       <div class="themes-list" id="themesList">
+        <button type="button" class="theme-nav-item" data-theme="simple">
+          <span class="theme-nav-name">Simple Single-Line</span>
+          <span class="theme-nav-sub">clean floating tag</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="glitch">
+          <span class="theme-nav-name">Cyber Glitch</span>
+          <span class="theme-nav-sub">angled cyberpunk neon</span>
+        </button>
         <button type="button" class="theme-nav-item" data-theme="bubbles">
           <span class="theme-nav-name">Bubbles</span>
-          <span class="theme-nav-sub">built-in</span>
+          <span class="theme-nav-sub">rounded chat bubble</span>
         </button>
         <button type="button" class="theme-nav-item" data-theme="classic">
           <span class="theme-nav-name">Classic</span>
-          <span class="theme-nav-sub">built-in · default</span>
+          <span class="theme-nav-sub">standard overlay</span>
         </button>
         <button type="button" class="theme-nav-item" data-theme="compact">
           <span class="theme-nav-name">Compact</span>
-          <span class="theme-nav-sub">built-in</span>
+          <span class="theme-nav-sub">minimal space saver</span>
         </button>
         <button type="button" class="theme-nav-item" data-theme="high-contrast">
           <span class="theme-nav-name">High contrast</span>
-          <span class="theme-nav-sub">built-in</span>
+          <span class="theme-nav-sub">maximum readability</span>
         </button>
         <button type="button" class="theme-nav-item" data-theme="glass">
           <span class="theme-nav-name">Glass</span>
-          <span class="theme-nav-sub">built-in</span>
+          <span class="theme-nav-sub">frosted glassmorphism</span>
         </button>
         <button type="button" class="theme-nav-item" data-theme="minimal-outline">
           <span class="theme-nav-name">Minimal outline</span>
-          <span class="theme-nav-sub">built-in</span>
+          <span class="theme-nav-sub">thin clean outline</span>
         </button>
         <button type="button" class="theme-nav-item" data-theme="neon">
           <span class="theme-nav-name">Neon</span>
-          <span class="theme-nav-sub">built-in</span>
+          <span class="theme-nav-sub">vibrant glowing text</span>
         </button>
-        <button type="button" class="theme-nav-item active" data-theme="paper">
+        <button type="button" class="theme-nav-item" data-theme="paper">
           <span class="theme-nav-name">Paper</span>
-          <span class="theme-nav-sub">built-in</span>
+          <span class="theme-nav-sub">warm paper light card</span>
         </button>
 
         <div style="margin: 10px 4px 4px 4px; border-top: 1px solid var(--hairline); padding-top: 8px; font-size: 10px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.08em;">
@@ -2509,7 +2517,10 @@
               syncInputsWithOfficialChannels();
             }
 
-            if (data.theme !== undefined) settingTheme.value = data.theme;
+            if (data.theme !== undefined) {
+              settingTheme.value = data.theme;
+              setActiveThemeNav(data.theme);
+            }
             if (data.chatAlign !== undefined) settingChatAlign.value = data.chatAlign;
             if (data.chatDirection !== undefined) setSelectedChatDirection(data.chatDirection);
             if (data.chatFade !== undefined) setSelectedChatFade(data.chatFade);
@@ -3313,27 +3324,43 @@
         const sample = testChatUsers[testChatIdx % testChatUsers.length];
         testChatIdx++;
 
-        const simEvent = new CustomEvent('socket_sim', {
-          detail: {
-            type: 'chat',
-            data: {
-              platform: sample.platform || 'twitch',
-              author: {
-                name: sample.name,
-                color: sample.color || '',
-                badges: sample.badges || {},
-                isMod: !!sample.isMod,
-                isSub: !!sample.isSub,
-                isOwner: !!sample.isOwner,
-                isBroadcaster: !!sample.isBroadcaster,
-                memberBadge: sample.memberBadge || ''
-              },
-              text: sample.text,
-              timestamp: Date.now()
+        const simData = {
+          id: 'sim_msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+          isSim: true,
+          platform: sample.platform || 'twitch',
+          author: {
+            name: sample.name,
+            color: sample.color || '',
+            badges: sample.badges || {},
+            isMod: !!sample.isMod,
+            isSub: !!sample.isSub,
+            isOwner: !!sample.isOwner,
+            isBroadcaster: !!sample.isBroadcaster,
+            memberBadge: sample.memberBadge || ''
+          },
+          text: sample.text,
+          timestamp: Date.now()
+        };
+
+        // PostMessage (Standard across all browser contexts)
+        try {
+          iframeWin.postMessage({
+            type: 'socket_sim',
+            subType: 'chat',
+            data: simData
+          }, '*');
+        } catch (_) {}
+
+        // CustomEvent (Fallback for local iframe document)
+        try {
+          const simEvent = new CustomEvent('socket_sim', {
+            detail: {
+              type: 'chat',
+              data: simData
             }
-          }
-        });
-        iframeWin.dispatchEvent(simEvent);
+          });
+          iframeWin.dispatchEvent(simEvent);
+        } catch (_) {}
       }
 
       function startPreviewSimulationLoop() {
@@ -3755,6 +3782,7 @@
           await checkUserSession();
         } else {
           await loadProfile();
+          if (settingTheme) setActiveThemeNav(settingTheme.value);
           if (previewIframe) {
             previewIframe.src = getPreviewIframeUrl(profileId);
           }

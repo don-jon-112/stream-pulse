@@ -474,24 +474,113 @@
       text-shadow: 0 0 8px #00f2fe;
     }
 
-    /* 8. Paper Theme */
+    /* 8. Paper Theme (High-Contrast Light Theme) */
     body.theme-paper .overlay-item,
     body.theme-light .overlay-item {
-      background: #faf6f0 !important;
-      border: 1px solid #e7e5e4 !important;
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
       border-radius: 12px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      color: #1e293b !important;
     }
     body.theme-paper .overlay-author-name,
     body.theme-light .overlay-author-name {
-      color: #292524 !important;
+      color: #0f172a !important;
       font-weight: 700;
-      text-shadow: none;
+      text-shadow: none !important;
     }
     body.theme-paper .overlay-text,
     body.theme-light .overlay-text {
-      color: #1c1917 !important;
-      text-shadow: none;
+      color: #1e293b !important;
+      font-weight: 500;
+      text-shadow: none !important;
+    }
+    body.theme-paper .overlay-event-title,
+    body.theme-light .overlay-event-title {
+      color: #0284c7 !important;
+      font-weight: 800;
+      text-shadow: none !important;
+    }
+    body.theme-paper .overlay-item.overlay-event,
+    body.theme-light .overlay-item.overlay-event {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-left: 4px solid #0284c7 !important;
+    }
+    body.theme-paper .overlay-item.is-redeem,
+    body.theme-light .overlay-item.is-redeem {
+      background: #faf5ff !important;
+      border-left: 4px solid #9333ea !important;
+    }
+    body.theme-paper .overlay-item.is-redeem .overlay-text,
+    body.theme-light .overlay-item.is-redeem .overlay-text {
+      color: #6b21a8 !important;
+    }
+    body.theme-paper .redeem-msg,
+    body.theme-light .redeem-msg {
+      color: #4c1d95 !important;
+      font-weight: 600;
+    }
+    body.theme-paper .overlay-item.youtube-superchat,
+    body.theme-light .overlay-item.youtube-superchat {
+      background: #fffbeb !important;
+      border-left: 4px solid #f59e0b !important;
+    }
+    body.theme-paper .overlay-item.youtube-superchat .overlay-event-title,
+    body.theme-light .overlay-item.youtube-superchat .overlay-event-title {
+      color: #b45309 !important;
+    }
+    body.theme-paper .overlay-item.youtube-superchat .overlay-text,
+    body.theme-light .overlay-item.youtube-superchat .overlay-text {
+      color: #78350f !important;
+    }
+    body.theme-paper .overlay-item.event-cheer,
+    body.theme-light .overlay-item.event-cheer {
+      background: #f5f3ff !important;
+      border-left: 4px solid #7c3aed !important;
+    }
+    body.theme-paper .overlay-item.event-cheer .overlay-event-title,
+    body.theme-light .overlay-item.event-cheer .overlay-event-title {
+      color: #6d28d9 !important;
+    }
+    body.theme-paper .overlay-item.event-cheer .overlay-text,
+    body.theme-light .overlay-item.event-cheer .overlay-text {
+      color: #4c1d95 !important;
+    }
+    body.theme-paper .overlay-item.event-member,
+    body.theme-light .overlay-item.event-member {
+      background: #ecfdf5 !important;
+      border-left: 4px solid #059669 !important;
+    }
+    body.theme-paper .overlay-item.event-member .overlay-event-title,
+    body.theme-light .overlay-item.event-member .overlay-event-title {
+      color: #047857 !important;
+    }
+    body.theme-paper .overlay-item.event-gift,
+    body.theme-paper .overlay-item.event-like,
+    body.theme-paper .overlay-item.event-follow,
+    body.theme-light .overlay-item.event-gift,
+    body.theme-light .overlay-item.event-like,
+    body.theme-light .overlay-item.event-follow {
+      background: #fff1f2 !important;
+      border-left: 4px solid #e11d48 !important;
+    }
+    body.theme-paper .overlay-item.event-gift .overlay-event-title,
+    body.theme-paper .overlay-item.event-like .overlay-event-title,
+    body.theme-paper .overlay-item.event-follow .overlay-event-title,
+    body.theme-light .overlay-item.event-gift .overlay-event-title,
+    body.theme-light .overlay-item.event-like .overlay-event-title,
+    body.theme-light .overlay-item.event-follow .overlay-event-title {
+      color: #be123c !important;
+    }
+    body.theme-paper .overlay-item.twitch-raid,
+    body.theme-light .overlay-item.twitch-raid {
+      background: #fff1f2 !important;
+      border-left: 4px solid #f43f5e !important;
+    }
+    body.theme-paper .overlay-item.twitch-raid .overlay-event-title,
+    body.theme-light .overlay-item.twitch-raid .overlay-event-title {
+      color: #e11d48 !important;
     }
 
     /* Platform Tag / Icon */
@@ -1686,10 +1775,13 @@
       function addOverlayMessage(item) {
         if (!item) return;
 
-        // Cegah duplikasi pesan chat
+        // Cegah duplikasi pesan chat (Kecuali simulasi preview)
+        const isSim = item.isSim || (item.id && String(item.id).startsWith('sim_'));
         const dedupeKey = item.id || `${item.platform || ''}_${item.author?.name || ''}_${item.text || ''}`;
-        if (processedOverlayMsgIds.has(dedupeKey)) return;
-        processedOverlayMsgIds.add(dedupeKey);
+        if (!isSim) {
+          if (processedOverlayMsgIds.has(dedupeKey)) return;
+          processedOverlayMsgIds.add(dedupeKey);
+        }
         if (processedOverlayMsgIds.size > 200) {
           const first = processedOverlayMsgIds.values().next().value;
           processedOverlayMsgIds.delete(first);
@@ -1858,9 +1950,12 @@
         const isTwitchRedeem = (evt.platform === 'twitch') && evt.eventType === 'redeem';
         if (!config.showAlerts && !isTwitchRedeem) return;
 
+        const isSimEvt = evt.isSim || (evt.id && String(evt.id).startsWith('sim_'));
         const evtKey = evt.id || `${evt.platform || ''}_${evt.eventType || ''}_${evt.author || ''}_${evt.detail || ''}_${evt.message || ''}`;
-        if (processedOverlayEventIds.has(evtKey)) return;
-        processedOverlayEventIds.add(evtKey);
+        if (!isSimEvt) {
+          if (processedOverlayEventIds.has(evtKey)) return;
+          processedOverlayEventIds.add(evtKey);
+        }
         if (processedOverlayEventIds.size > 100) {
           const first = processedOverlayEventIds.values().next().value;
           processedOverlayEventIds.delete(first);
@@ -1977,7 +2072,13 @@
           }
         }
 
-        if (customAlertBg) {
+        const isPaperOrLight = document.body.classList.contains('theme-paper') || document.body.classList.contains('theme-light') || config.theme === 'paper' || config.theme === 'light';
+        if (isPaperOrLight) {
+          if (!customAlertTextColor || customAlertTextColor.toLowerCase() === '#ffffff' || customAlertTextColor.toLowerCase() === '#fff') {
+            customAlertTextColor = null; // Biarkan CSS kontras tinggi yang menghiasinya
+          }
+        }
+        if (customAlertBg && !isPaperOrLight) {
           el.style.background = customAlertBg;
         }
         if (customAlertTextColor) {
@@ -2100,9 +2201,16 @@
         if (type === 'event') addOverlayEvent(data);
       });
 
-      // Listen for live preview config updates from Overlay Studio (Allows instant preview even for guest mode)
+      // Listen for live preview simulations and config updates from Overlay Studio
       window.addEventListener('message', (e) => {
-        if (e.data && e.data.type === 'update_preview_config') {
+        if (!e.data) return;
+        if (e.data.type === 'socket_sim') {
+          const { subType, data } = e.data;
+          if (subType === 'chat' || !subType) addOverlayMessage(data);
+          else if (subType === 'event') addOverlayEvent(data);
+          return;
+        }
+        if (e.data.type === 'update_preview_config') {
           const newCfg = e.data.config;
           if (!newCfg) return;
           const oldTwitch = config.twitch;
