@@ -996,6 +996,53 @@
       border-color: var(--hairline) !important;
     }
 
+  
+    /* Studio Header & Preview Controls Dark Mode Adaptability */
+    :root[data-theme="dark"] [data-i18n="obs_link_title"],
+    :root[data-theme="dark"] [data-i18n="live_preview_title"] {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] #btnToggleSimLoop {
+      background: var(--surface-soft) !important;
+      color: var(--ink) !important;
+      border: 1px solid var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .preview-badge-overlay {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--hairline-strong) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .btn-preview-preset {
+      background: var(--surface-soft) !important;
+      color: var(--ink) !important;
+      border-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .btn-preview-preset:hover {
+      background: var(--bg-card-hover) !important;
+      border-color: var(--hairline-strong) !important;
+    }
+
+    :root[data-theme="dark"] .btn-preview-fit {
+      color: #38bdf8 !important;
+      border-color: rgba(56, 189, 248, 0.5) !important;
+      background: rgba(56, 189, 248, 0.1) !important;
+    }
+
+    :root[data-theme="dark"] .preview-dimension-toolbar {
+      background: var(--bg-card) !important;
+      border-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .preview-dimension-toolbar input {
+      background: var(--bg-input) !important;
+      color: var(--ink) !important;
+      border-color: var(--hairline) !important;
+    }
+
   </style>
 
   <script>
@@ -1936,7 +1983,7 @@
       <!-- OBS URL Generator Box -->
       <div class="obs-link-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:0.9rem; font-weight:800; color:#000000;" data-i18n="obs_link_title">🔗 Link OBS Browser Source Anda</span>
+          <span style="font-size:0.9rem; font-weight:800; color:var(--ink);" data-i18n="obs_link_title">🔗 Link OBS Browser Source Anda</span>
           <span id="obsUrlStatusBadge" style="font-size:0.75rem; color:#10b981;" data-i18n="studio_obs_ready">✓ Siap Digunakan di OBS</span>
         </div>
         <div class="obs-link-row">
@@ -1953,7 +2000,7 @@
       <!-- Live Preview Controls -->
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
         <div style="display:flex; align-items:center; gap:10px;">
-          <div style="font-size:0.92rem; font-weight:700; color:#000000;" data-i18n="live_preview_title">
+          <div style="font-size:0.92rem; font-weight:700; color:var(--ink);" data-i18n="live_preview_title">
             👁️ Live Preview
           </div>
           <button type="button" id="btnToggleSimLoop" class="btn-icon" style="padding:3px 10px; font-size:0.72rem; border-radius:9999px; background:#000000; color:#ffffff; border:1px solid #000000; font-weight:500;" title="Jeda atau lanjutkan simulasi chat otomatis">
@@ -2008,7 +2055,7 @@
           <button type="button" class="btn-icon btn-preview-preset" data-w="350" data-h="600" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 350 x 600 px (Ultra Sempit)">350×600</button>
           <button type="button" class="btn-icon btn-preview-preset" data-w="500" data-h="700" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 500 x 700 px">500×700</button>
           <button type="button" class="btn-icon btn-preview-preset" data-w="600" data-h="800" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 600 x 800 px (OBS Standar)">600×800</button>
-          <button type="button" class="btn-icon btn-preview-preset" data-w="100%" data-h="650" style="padding:2px 7px; font-size:0.7rem; color:#0f172a; border-color:rgba(6,182,212,0.4);" title="Lebar Penuh Otomatis">Fit 100%</button>
+          <button type="button" class="btn-icon btn-preview-preset btn-preview-fit" data-w="100%" data-h="650" style="padding:2px 7px; font-size:0.7rem; font-weight:700;" title="Lebar Penuh Otomatis">Fit 100%</button>
         </div>
       </div>
 
@@ -3955,6 +4002,8 @@
             detail: {
               type: 'chat',
               data: {
+                id: 'sim_chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                isSim: true,
                 platform: sample.platform || 'twitch',
                 author: {
                   name: sample.name,
@@ -3982,6 +4031,8 @@
             detail: {
               type: 'chat',
               data: {
+                id: 'sim_link_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                isSim: true,
                 platform: 'twitch',
                 author: { name: 'Chatter123', color: '#38bdf8' },
                 text: 'Cek gameplay mantap ini https://youtube.com/watch?v=123 dan https://discord.gg/xyz gan!',
@@ -4000,6 +4051,8 @@
             detail: {
               type: 'chat',
               data: {
+                id: 'sim_vip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                isSim: true,
                 platform: 'twitch',
                 author: {
                   name: 'ProGamerVIP',
@@ -4022,6 +4075,8 @@
             detail: {
               type: 'event',
               data: {
+                id: 'sim_sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                isSim: true,
                 platform: 'twitch',
                 eventType: 'subscription',
                 title: 'Twitch New Subscriber!',

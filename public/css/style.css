@@ -2373,7 +2373,7 @@ body.obs-mode #exitObsBtn {
 .ollama-footer {
   border-top: 1px solid var(--hairline);
   padding: 32px 24px;
-  background: #ffffff;
+  background: var(--bg-canvas);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2594,4 +2594,21 @@ body.dark-mode {
 :root[data-theme="dark"] .recorder-card {
   background: var(--bg-card) !important;
   border-color: var(--hairline) !important;
+}
+
+
+/* Footer Dark Mode Support */
+:root[data-theme="dark"] .ollama-footer {
+  background: var(--bg-canvas) !important;
+  border-top-color: var(--hairline) !important;
+  color: var(--body) !important;
+}
+:root[data-theme="dark"] .ollama-footer-links a {
+  color: var(--body) !important;
+}
+:root[data-theme="dark"] .ollama-footer-links a:hover {
+  color: var(--ink) !important;
+}
+:root[data-theme="dark"] .ollama-footer-copy {
+  color: var(--mute) !important;
 }

@@ -2795,9 +2795,13 @@
         addOverlayEvent(evt);
       });
 
-      // Listen for preview test simulations from Overlay Studio
+      // Listen for preview test simulations from Overlay Studio (Allows spamming & bypasses dedupe)
       window.addEventListener('socket_sim', (e) => {
         const { type, data } = e.detail || {};
+        if (data) {
+          data.isSim = true;
+          data.id = 'sim_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
         if (type === 'chat') addOverlayMessage(data);
         if (type === 'event') addOverlayEvent(data);
       });
@@ -2807,6 +2811,10 @@
         if (!e.data) return;
         if (e.data.type === 'socket_sim') {
           const { subType, data } = e.data;
+          if (data) {
+            data.isSim = true;
+            data.id = 'sim_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          }
           if (subType === 'chat' || !subType) addOverlayMessage(data);
           else if (subType === 'event') addOverlayEvent(data);
           return;
