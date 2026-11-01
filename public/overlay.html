@@ -285,11 +285,7 @@
       background: #9146ff;
       color: #fff;
     }
-    .badge-icon.redeem-tag {
-      background: #a855f7;
-      color: #fff;
-      box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
-    }
+    
 
     /* Official Platform Badges */
     .platform-official-badge {
@@ -460,18 +456,18 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
-    /* 7. Neon Theme */
+    /* 7. Neon Theme (Configurable Outlines & Platform Follow) */
     body.theme-neon .overlay-item,
     body.theme-cyberpunk .overlay-item {
-      background: rgba(8, 12, 24, 0.9);
-      border: 1.5px solid #00f2fe;
-      box-shadow: 0 0 16px rgba(0, 242, 254, 0.45), inset 0 0 8px rgba(0, 242, 254, 0.2);
-      border-radius: 4px;
+      background: var(--bg-bubble, rgba(8, 12, 24, 0.9));
+      border: var(--neon-width, 2px) solid var(--neon-color, #00f2fe);
+      box-shadow: 0 0 14px var(--neon-color, #00f2fe), inset 0 0 6px var(--neon-color, #00f2fe);
+      border-radius: 6px;
     }
     body.theme-neon .overlay-author-name,
     body.theme-cyberpunk .overlay-author-name {
-      color: #00f2fe !important;
-      text-shadow: 0 0 8px #00f2fe;
+      color: var(--neon-author-color, #00f2fe) !important;
+      text-shadow: 0 0 8px var(--neon-author-color, #00f2fe);
     }
 
     /* 8. Paper Theme (High-Contrast Light Theme) */
@@ -581,6 +577,177 @@
     body.theme-paper .overlay-item.twitch-raid .overlay-event-title,
     body.theme-light .overlay-item.twitch-raid .overlay-event-title {
       color: #e11d48 !important;
+    }
+
+    
+    /* =========================================================================
+       NEW THEMES (V2: Glass v2, Bubbles v2, Paper v2)
+       ========================================================================= */
+
+    /* Glass v2: Modern Frosted Glass HUD */
+    body.theme-glass-v2 .overlay-item,
+    body.theme-glass_v2 .overlay-item {
+      background: var(--bg-bubble, rgba(15, 23, 42, 0.78)) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 12px !important;
+      padding: 8px 14px !important;
+      margin-bottom: 6px !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+      color: #ffffff !important;
+    }
+    body.theme-glass-v2 .overlay-platform-tag,
+    body.theme-glass_v2 .overlay-platform-tag {
+      display: inline-flex !important;
+      width: 18px !important;
+      height: 18px !important;
+      border-radius: 4px !important;
+    }
+    body.theme-glass-v2 .overlay-author-name,
+    body.theme-glass_v2 .overlay-author-name {
+      font-weight: 700 !important;
+      font-size: 0.95em !important;
+      text-shadow: none !important;
+    }
+    body.theme-glass-v2 .overlay-text,
+    body.theme-glass_v2 .overlay-text {
+      color: #ffffff !important;
+      font-weight: 500 !important;
+      text-shadow: none !important;
+    }
+    body.theme-glass-v2 .overlay-item.overlay-event,
+    body.theme-glass_v2 .overlay-item.overlay-event {
+      background: rgba(14, 165, 233, 0.25) !important;
+      border: 1px solid rgba(56, 189, 248, 0.6) !important;
+      box-shadow: 0 0 16px rgba(14, 165, 233, 0.35) !important;
+    }
+
+    /* Bubbles v2: Clean White Pill Bubble with Circular Platform Badge */
+    body.theme-bubbles-v2 .overlay-item,
+    body.theme-bubbles_v2 .overlay-item {
+      background: var(--bg-bubble, #ffffff) !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      border-radius: 16px !important;
+      padding: 8px 16px 8px 22px !important;
+      margin-left: 18px !important;
+      margin-bottom: 8px !important;
+      position: relative !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+      color: #0f172a !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag,
+    body.theme-bubbles_v2 .overlay-platform-tag {
+      display: flex !important;
+      position: absolute !important;
+      left: -16px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 32px !important;
+      height: 32px !important;
+      border-radius: 50% !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
+      z-index: 5 !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch {
+      background: #9146ff !important;
+      color: #ffffff !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube {
+      background: #ff0000 !important;
+      color: #ffffff !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok {
+      background: #000000 !important;
+      color: #00f2fe !important;
+    }
+    body.theme-bubbles-v2 .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-author-name {
+      color: #0f172a !important;
+      font-weight: 700 !important;
+      text-shadow: none !important;
+    }
+    body.theme-bubbles-v2 .overlay-text,
+    body.theme-bubbles_v2 .overlay-text {
+      color: #1e293b !important;
+      text-shadow: none !important;
+    }
+    body.theme-bubbles-v2 .overlay-item.overlay-event,
+    body.theme-bubbles_v2 .overlay-item.overlay-event {
+      background: #f43f5e !important;
+      color: #ffffff !important;
+      border: none !important;
+    }
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-title,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-title {
+      color: #ffffff !important;
+      text-shadow: none !important;
+    }
+
+    /* Paper v2: Clean White Card with Platform Accent Border Strip */
+    body.theme-paper-v2 .overlay-item,
+    body.theme-paper_v2 .overlay-item {
+      background: var(--bg-bubble, #ffffff) !important;
+      border: 1px solid #e2e8f0 !important;
+      border-left: 4.5px solid #6366f1 !important;
+      border-radius: 10px !important;
+      padding: 8px 14px !important;
+      margin-bottom: 6px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+      color: #1c1917 !important;
+    }
+    body.theme-paper-v2 .overlay-item.platform-twitch,
+    body.theme-paper_v2 .overlay-item.platform-twitch {
+      border-left-color: #9146ff !important;
+    }
+    body.theme-paper-v2 .overlay-item.platform-youtube,
+    body.theme-paper_v2 .overlay-item.platform-youtube {
+      border-left-color: #ff0000 !important;
+    }
+    body.theme-paper-v2 .overlay-item.platform-tiktok,
+    body.theme-paper_v2 .overlay-item.platform-tiktok {
+      border-left-color: #06b6d4 !important;
+    }
+    body.theme-paper-v2 .overlay-platform-tag,
+    body.theme-paper_v2 .overlay-platform-tag {
+      display: inline-flex !important;
+      width: 18px !important;
+      height: 18px !important;
+      border-radius: 3px !important;
+    }
+    body.theme-paper-v2 .overlay-author-name,
+    body.theme-paper_v2 .overlay-author-name {
+      color: #0f172a !important;
+      font-weight: 700 !important;
+      text-shadow: none !important;
+    }
+    body.theme-paper-v2 .overlay-text,
+    body.theme-paper_v2 .overlay-text {
+      color: #1c1917 !important;
+      text-shadow: none !important;
+    }
+    body.theme-paper-v2 .overlay-item.overlay-event,
+    body.theme-paper_v2 .overlay-item.overlay-event {
+      background: #ffedd5 !important;
+      border: 1px solid #fed7aa !important;
+      border-left: 4.5px solid #f97316 !important;
+    }
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-title,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-title {
+      color: #c2410c !important;
+      text-shadow: none !important;
+    }
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-text {
+      color: #7c2d12 !important;
+      text-shadow: none !important;
     }
 
     /* Platform Tag / Icon */
@@ -806,7 +973,7 @@
       box-sizing: border-box !important;
       padding: 3px 0 !important;
       margin: 4px 0 !important;
-      background: transparent !important;
+      background: var(--bg-bubble, transparent) !important;
       border: none !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
@@ -1080,14 +1247,7 @@
       line-height: 1.4 !important;
     }
 
-    body.theme-glitch .badge-icon.redeem-tag {
-      background: #06b6d4 !important;
-      color: #ffffff !important;
-      border-radius: 3px !important;
-      padding: 1px 5px !important;
-      font-size: 0.7em !important;
-      font-weight: 700 !important;
-    }
+    body.theme-glitch 
 
     /* Glitch Alert Colors per Platform & Event */
     body.theme-glitch .overlay-item.overlay-event.platform-twitch {
@@ -1213,9 +1373,11 @@
       flex-direction: row-reverse !important;
     }
 
-    /* Horizontal Direction Support for Glitch Theme */
+    /* Horizontal Direction Support for Glitch Theme (Running Text) */
     body.theme-glitch #overlayChatContainer.direction-horizontal .overlay-item {
       display: inline-flex !important;
+      width: auto !important;
+      max-width: none !important;
       flex-shrink: 0 !important;
       white-space: nowrap !important;
       margin: 0 8px !important;
@@ -1641,7 +1803,7 @@
         }
 
         if (chat.isRedeem) {
-          html += `<span class="badge-icon redeem-tag">💠 Points</span>`;
+          html += ``;
         }
 
         return html;
@@ -1697,6 +1859,13 @@
         if (!author) return config.authorColor || '#67e8f9';
 
         // Jika platform Twitch
+        // Opsi warna pengirim mengikuti platform
+        if (config.authorColorMode === 'platform') {
+          if (platform === 'twitch') return config.authorTwitchColor || '#a855f7';
+          if (platform === 'youtube') return config.authorYtColor || '#ef4444';
+          if (platform === 'tiktok') return config.authorTiktokColor || (isLight ? '#0f172a' : '#ffffff');
+        }
+
         if (platform === 'twitch') {
           // Opsi toggle apakah ingin menggunakan warna masing-masing user Twitch (default true)
           if (config.useTwitchColors !== false) {
@@ -1790,6 +1959,17 @@
         const author = item.author || {};
         const authorName = author.name || 'Anonymous';
 
+        // Neon outline customization
+        let neonColor = config.neonOutlineColor || '#00f2fe';
+        if (config.neonOutlineMode === 'platform') {
+          if (item.platform === 'twitch') neonColor = config.neonTwitchColor || '#9146ff';
+          else if (item.platform === 'youtube') neonColor = config.neonYtColor || '#ef4444';
+          else if (item.platform === 'tiktok') neonColor = config.neonTiktokColor || '#ffffff';
+        } else if (config.neonOutlineMode === 'random') {
+          const neonColors = ['#00f2fe', '#ec4899', '#a855f7', '#22c55e', '#eab308', '#f97316', '#38bdf8'];
+          neonColor = neonColors[Math.floor(Math.random() * neonColors.length)];
+        }
+
         // Jika showAlerts aktif di OBS, abaikan bubble chat biasa yang bersumber dari alert (Bits, Superchat, Gifts, dll)
         if (config.showAlerts !== false) {
           if (item.isBits || author.isBits || item.superchat || item.isGift || item.isGiftMembership || item.isMembership) {
@@ -1817,6 +1997,8 @@
 
         const el = document.createElement('div');
         el.className = `overlay-item platform-${item.platform || 'twitch'}${config.showAvatars ? ' has-avatar' : ' no-avatar'}`;
+        if (neonColor) el.style.setProperty('--neon-color', neonColor);
+        if (config.neonWidth) el.style.setProperty('--neon-width', config.neonWidth + 'px');
         if (item.isRedeem) el.classList.add('is-redeem', 'highlighted');
         if (hasCustomTwitchColor) el.classList.add('has-twitch-color');
         if (isMod) el.classList.add('is-mod');
@@ -1894,7 +2076,7 @@
               ${platformTagHtml}
               ${badgesHtml ? `<span class="overlay-badges-container">${badgesHtml}</span>` : ''}
               <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)} ${item.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
-              ${item.isRedeem ? '<span class="badge-icon redeem-tag">💠 Redeem</span>' : ''}
+              ${item.isRedeem ? '' : ''}
             </div>
             <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
           </div>
@@ -2099,7 +2281,7 @@
             <div class="overlay-header">
               ${platformTagHtml}
               ${badgesHtml}
-              <span class="badge-icon redeem-tag">💠 Redeem</span>
+              
               <span class="overlay-author-name" style="color:${escapeHtml(authorColor)} ${evt.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
             </div>
             <div class="overlay-event-title" ${customAlertTextColor ? `style="color:${escapeHtml(customAlertTextColor)};"` : ''}>${escapeHtml(customTitle)}${customDetail ? ` • ${escapeHtml(customDetail)}` : ''}</div>

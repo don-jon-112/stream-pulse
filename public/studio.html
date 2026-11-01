@@ -866,6 +866,18 @@
           <span class="theme-nav-name">Paper</span>
           <span class="theme-nav-sub">warm paper light card</span>
         </button>
+        <button type="button" class="theme-nav-item" data-theme="glass-v2">
+          <span class="theme-nav-name">Glass v2</span>
+          <span class="theme-nav-sub">dark frosted hud card</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="bubbles-v2">
+          <span class="theme-nav-name">Bubbles v2</span>
+          <span class="theme-nav-sub">white pill circular badge</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="paper-v2">
+          <span class="theme-nav-name">Paper v2</span>
+          <span class="theme-nav-sub">card with platform strip</span>
+        </button>
 
         <div style="margin: 10px 4px 4px 4px; border-top: 1px solid var(--hairline); padding-top: 8px; font-size: 10px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.08em;">
           UPCOMING
@@ -920,7 +932,7 @@
             <div>
               <div class="box-title" data-i18n="studio_slots_title">✨ Slot OBS Overlay Cloud</div>
               <div style="font-size:0.75rem; color:var(--text-tertiary);">
-                <span data-i18n="studio_quota_label">Kuota Pengguna:</span> <strong id="slotCounter" style="color:#67e8f9;">0 / 5 Slot Terpakai</strong>
+                <span data-i18n="studio_quota_label">Kuota Pengguna:</span> <strong id="slotCounter" style="color:#0f172a; font-weight:700;">0 / 5 Slot Terpakai</strong>
               </div>
             </div>
             <button id="btnGenerateOverlay" type="button" class="btn-icon btn-primary" style="font-size:0.8rem; padding:8px 14px; font-weight:800;">
@@ -956,7 +968,7 @@
         </div>
 
         <div id="channelModeNotice" style="font-size:0.73rem; color:var(--text-tertiary); line-height:1.4; margin-bottom:8px;">
-          🔒 <strong style="color:#67e8f9;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.
+          🔒 <strong style="color:#0f172a; font-weight:700;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.
         </div>
 
         <div class="form-group">
@@ -1024,7 +1036,7 @@
           <div class="form-group">
             <div class="form-label">
               <span>Warna Background Bubble</span>
-              <span id="labelBgColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#0d111b</span>
+              <span id="labelBgColorHex" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">#0d111b</span>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
               <input type="color" id="settingBgColor" value="#0d111b" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
@@ -1035,7 +1047,7 @@
           <div class="form-group">
             <div class="form-label">
               <span>Transparansi Background Bubble (Opacity)</span>
-              <span id="labelBgOpacity" style="color:#67e8f9; font-family:var(--font-mono);">88%</span>
+              <span id="labelBgOpacity" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">88%</span>
             </div>
             <input type="range" id="settingBgOpacity" min="0" max="100" step="5" value="88" style="width:100%;">
           </div>
@@ -1048,7 +1060,7 @@
           <div class="form-group">
             <div class="form-label">
               <span>Warna Teks Pesan Chat</span>
-              <span id="labelTextColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#e2e8f0</span>
+              <span id="labelTextColorHex" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">#e2e8f0</span>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
               <input type="color" id="settingTextColor" value="#e2e8f0" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
@@ -1059,11 +1071,88 @@
           <div class="form-group">
             <div class="form-label">
               <span>Warna Nama Pengirim (Username Color)</span>
-              <span id="labelAuthorColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#67e8f9</span>
+              <span id="labelAuthorColorHex" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">#67e8f9</span>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
               <input type="color" id="settingAuthorColor" value="#67e8f9" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
               <span style="font-size:0.73rem; color:var(--text-tertiary);">Kustomisasi warna nama akun pengirim pesan di OBS</span>
+            </div>
+          </div>
+        </div>
+
+        
+        <!-- NEON & PLATFORM COLOR CUSTOMIZATION CARD (Shown when theme === 'neon') -->
+        <div id="neonConfigCard" style="display:none; flex-direction:column; gap:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px; margin-top:8px;">
+          <div style="font-size:0.85rem; font-weight:700; color:#0f172a; display:flex; align-items:center; gap:6px;">
+            ⚡ <span>Kustomisasi Tema Neon</span>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Mode Garis Outline Neon</label>
+            <select id="settingNeonOutlineMode" class="form-select">
+              <option value="single">Satu Warna Neon (Semua Bubble)</option>
+              <option value="platform">Mengikuti Warna Platform (Twitch, YT, TikTok)</option>
+              <option value="random">Warna Berbeda / Acak Tiap Bubble Chat</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="rowNeonSingleColor">
+            <label class="form-label">Warna Neon Utama</label>
+            <div class="color-picker-input-row">
+              <input type="color" id="settingNeonOutlineColor" value="#00f2fe" class="color-swatch-input">
+              <input type="text" id="settingNeonOutlineColorHex" value="#00F2FE" class="color-hex-field" maxlength="7">
+            </div>
+          </div>
+
+          <div id="rowNeonPlatformColors" style="display:none; flex-direction:column; gap:8px;">
+            <div class="form-label" style="font-size:0.75rem; color:#64748b;">Atur Warna Outline Per-Platform:</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+              <div>
+                <div style="font-size:0.72rem; font-weight:700; color:#9146ff; margin-bottom:2px;">Twitch</div>
+                <input type="color" id="settingNeonTwitchColor" value="#9146ff" class="color-swatch-input" style="width:100%;">
+              </div>
+              <div>
+                <div style="font-size:0.72rem; font-weight:700; color:#ef4444; margin-bottom:2px;">YouTube</div>
+                <input type="color" id="settingNeonYtColor" value="#ef4444" class="color-swatch-input" style="width:100%;">
+              </div>
+              <div>
+                <div style="font-size:0.72rem; font-weight:700; color:#000000; margin-bottom:2px;">TikTok</div>
+                <input type="color" id="settingNeonTiktokColor" value="#ffffff" class="color-swatch-input" style="width:100%;">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Ketebalan Garis Neon</span>
+              <span id="labelNeonWidth" style="font-family:var(--font-mono); font-weight:700; color:#0f172a; background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">2px</span>
+            </div>
+            <input type="range" id="settingNeonWidth" min="1" max="6" step="1" value="2" style="width:100%;">
+          </div>
+
+          <div class="form-group" style="margin-top:4px; border-top:1px solid #e2e8f0; padding-top:8px;">
+            <label class="form-label">Pilihan Warna Username</label>
+            <select id="settingAuthorColorMode" class="form-select">
+              <option value="custom">Satu Warna Kustom (Global)</option>
+              <option value="platform">Mengikuti Warna Platform (Twitch, YT, TikTok)</option>
+            </select>
+          </div>
+
+          <div id="rowAuthorPlatformColors" style="display:none; flex-direction:column; gap:8px;">
+            <div class="form-label" style="font-size:0.75rem; color:#64748b;">Warna Username Per-Platform:</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+              <div>
+                <div style="font-size:0.72rem; font-weight:700; color:#9146ff; margin-bottom:2px;">Twitch</div>
+                <input type="color" id="settingAuthorTwitchColor" value="#a855f7" class="color-swatch-input" style="width:100%;">
+              </div>
+              <div>
+                <div style="font-size:0.72rem; font-weight:700; color:#ef4444; margin-bottom:2px;">YouTube</div>
+                <input type="color" id="settingAuthorYtColor" value="#ef4444" class="color-swatch-input" style="width:100%;">
+              </div>
+              <div>
+                <div style="font-size:0.72rem; font-weight:700; color:#000000; margin-bottom:2px;">TikTok</div>
+                <input type="color" id="settingAuthorTiktokColor" value="#ffffff" class="color-swatch-input" style="width:100%;">
+              </div>
             </div>
           </div>
         </div>
@@ -1078,7 +1167,7 @@
           <div class="form-group">
             <div class="form-label">
               <span>Warna Box Container</span>
-              <span id="labelContainerBgColorHex" style="color:#67e8f9; font-family:var(--font-mono);">#0a0e17</span>
+              <span id="labelContainerBgColorHex" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">#0a0e17</span>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
               <input type="color" id="settingContainerBgColor" value="#0a0e17" style="width:40px; height:32px; padding:2px; background:transparent; border:1px solid var(--border-color); border-radius:6px; cursor:pointer;">
@@ -1089,7 +1178,7 @@
           <div class="form-group">
             <div class="form-label">
               <span>Transparansi Box Container</span>
-              <span id="labelContainerBgOpacity" style="color:#67e8f9; font-family:var(--font-mono);">0% (Transparan)</span>
+              <span id="labelContainerBgOpacity" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">0% (Transparan)</span>
             </div>
             <input type="range" id="settingContainerBgOpacity" min="0" max="100" step="5" value="0" style="width:100%;">
             <div style="font-size:0.68rem; color:var(--text-tertiary);">
@@ -1102,7 +1191,7 @@
         <div class="form-group">
           <div class="form-label">
             <span data-i18n="sec_font_size">Ukuran Font</span>
-            <span id="labelFontSize" style="color:#67e8f9; font-family:var(--font-mono);">15px</span>
+            <span id="labelFontSize" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">15px</span>
           </div>
           <input type="range" id="settingFontSize" min="12" max="28" value="15" style="width:100%;">
         </div>
@@ -1110,7 +1199,7 @@
         <div class="form-group">
           <div class="form-label">
             <span data-i18n="sec_hide_delay">Durasi Pesan Menghilang (Auto-Hide)</span>
-            <span id="labelHideDelay" style="color:#67e8f9; font-family:var(--font-mono);">Selalu Tampil (0s)</span>
+            <span id="labelHideDelay" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">Selalu Tampil (0s)</span>
           </div>
           <input type="range" id="settingHideDelay" min="0" max="60" step="5" value="0" style="width:100%;">
         </div>
@@ -1118,7 +1207,7 @@
         <div class="form-group">
           <div class="form-label">
             <span data-i18n="sec_max_messages">Batas Maksimal Bubble Chat di Layar OBS</span>
-            <span id="labelMaxMessages" style="color:#67e8f9; font-family:var(--font-mono);">15 Pesan</span>
+            <span id="labelMaxMessages" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">15 Pesan</span>
           </div>
           <input type="range" id="settingMaxMessages" min="3" max="50" step="1" value="15" style="width:100%;">
         </div>
@@ -1136,7 +1225,7 @@
           <div style="padding: 6px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
               <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_chat_direction">↕️ Arah Aliran Chat (Posisi Pesan Baru)</span>
-              <span id="labelChatDirection" style="font-size:0.75rem; color:#67e8f9; font-family:var(--font-mono);">Bawah (Default)</span>
+              <span id="labelChatDirection" style="font-size:0.75rem; color:#0f172a; font-family:var(--font-mono);">Bawah (Default)</span>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px;">
               <label class="radio-option-card">
@@ -1161,13 +1250,13 @@
           <div style="padding: 6px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <span style="font-size:0.85rem; font-weight:700;" data-i18n="sec_chat_fade">🌫️ Efek Transparansi Chat Lama (Fade Out)</span>
-              <span id="labelChatFade" style="font-size:0.75rem; color:#67e8f9; font-family:var(--font-mono); font-weight:700;">Mati (Solid)</span>
+              <span id="labelChatFade" style="font-size:0.75rem; color:#0f172a; font-family:var(--font-mono); font-weight:700;">Mati (Solid)</span>
             </div>
 
             <!-- Manual Intensity Slider -->
             <div style="display:flex; align-items:center; gap:10px; margin: 8px 0 6px 0;">
               <input type="range" id="settingChatFadeRange" min="0" max="95" step="5" value="0" class="form-range" style="flex:1;">
-              <span id="labelChatFadePercent" style="font-size:0.85rem; font-family:var(--font-mono); font-weight:800; color:#67e8f9; min-width:44px; text-align:right;">0%</span>
+              <span id="labelChatFadePercent" style="font-size:0.85rem; font-family:var(--font-mono); font-weight:800; color:#0f172a; min-width:44px; text-align:right;">0%</span>
             </div>
 
             <!-- Quick Presets -->
@@ -1638,6 +1727,8 @@
           <button id="btnTestChat" class="btn-icon" style="font-size:0.75rem;" title="Test Chat Biasa">💬 Chat</button>
           <button id="btnTestLinkChat" class="btn-icon" style="font-size:0.75rem;" title="Test Chat Link Masking">🔗 Link</button>
           <button id="btnTestTwitchVip" class="btn-icon" style="font-size:0.75rem;" title="Test Chat Badge VIP">💎 VIP</button>
+          <button id="btnTestTwitchFollow" class="btn-icon" style="font-size:0.75rem; border-color:rgba(147,51,234,0.5);" title="Test Follower Baru Twitch">💜 Follow Twitch</button>
+          <button id="btnTestRedeemHighlight" class="btn-icon" style="font-size:0.75rem; border-color:rgba(234,179,8,0.5);" title="Test Highlight Chat Pesan Redeem">✨ Redeem Highlight</button>
 
           <!-- Alert & Event Tests -->
           <button id="btnTestAlert" class="btn-icon" style="font-size:0.75rem; border-color:rgba(245,158,11,0.5);" title="Test Alert Sub Twitch">🎉 Alert Sub</button>
@@ -1679,7 +1770,7 @@
           <button type="button" class="btn-icon btn-preview-preset" data-w="350" data-h="600" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 350 x 600 px (Ultra Sempit)">350×600</button>
           <button type="button" class="btn-icon btn-preview-preset" data-w="500" data-h="700" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 500 x 700 px">500×700</button>
           <button type="button" class="btn-icon btn-preview-preset" data-w="600" data-h="800" style="padding:2px 7px; font-size:0.7rem;" title="Simulasi Lebar 600 x 800 px (OBS Standar)">600×800</button>
-          <button type="button" class="btn-icon btn-preview-preset" data-w="100%" data-h="650" style="padding:2px 7px; font-size:0.7rem; color:#67e8f9; border-color:rgba(6,182,212,0.4);" title="Lebar Penuh Otomatis">Fit 100%</button>
+          <button type="button" class="btn-icon btn-preview-preset" data-w="100%" data-h="650" style="padding:2px 7px; font-size:0.7rem; color:#0f172a; border-color:rgba(6,182,212,0.4);" title="Lebar Penuh Otomatis">Fit 100%</button>
         </div>
       </div>
 
@@ -1726,7 +1817,7 @@
               <span data-i18n="auth_send_code_btn">Kirim Kode 📨</span>
             </button>
           </div>
-          <div id="emailNotice" style="font-size:0.72rem; color:#67e8f9; margin-top:4px; display:none;"></div>
+          <div id="emailNotice" style="font-size:0.72rem; color:#0f172a; margin-top:4px; display:none;"></div>
         </div>
 
         <!-- Kode Verifikasi 6-Digit (Hanya muncul saat Daftar Baru) -->
@@ -2037,7 +2128,7 @@
             el.style.opacity = '0.85';
           });
           if (channelModeNotice) {
-            channelModeNotice.innerHTML = `🔒 <strong style="color:#67e8f9;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.`;
+            channelModeNotice.innerHTML = `🔒 <strong style="color:#0f172a; font-weight:700;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.`;
           }
           if (channelSyncStatus) {
             channelSyncStatus.style.display = 'inline';
@@ -2653,6 +2744,16 @@
           youtube: yt,
           tiktok: tt,
           theme: settingTheme.value,
+          neonOutlineMode: settingNeonOutlineMode ? settingNeonOutlineMode.value : 'single',
+          neonOutlineColor: settingNeonOutlineColor ? settingNeonOutlineColor.value : '#00f2fe',
+          neonTwitchColor: settingNeonTwitchColor ? settingNeonTwitchColor.value : '#9146ff',
+          neonYtColor: settingNeonYtColor ? settingNeonYtColor.value : '#ef4444',
+          neonTiktokColor: settingNeonTiktokColor ? settingNeonTiktokColor.value : '#ffffff',
+          neonWidth: settingNeonWidth ? parseInt(settingNeonWidth.value, 10) : 2,
+          authorColorMode: settingAuthorColorMode ? settingAuthorColorMode.value : 'custom',
+          authorTwitchColor: settingAuthorTwitchColor ? settingAuthorTwitchColor.value : '#a855f7',
+          authorYtColor: settingAuthorYtColor ? settingAuthorYtColor.value : '#ef4444',
+          authorTiktokColor: settingAuthorTiktokColor ? settingAuthorTiktokColor.value : '#ffffff',
           chatAlign: settingChatAlign ? settingChatAlign.value : 'left',
           chatDirection: getSelectedChatDirection(),
           chatFade: getSelectedChatFade(),
@@ -3255,16 +3356,117 @@
       let testChatIdx = 0;
 
       
+      
+      // Neon & Platform Settings Elements
+      const settingNeonOutlineMode = document.getElementById('settingNeonOutlineMode');
+      const settingNeonOutlineColor = document.getElementById('settingNeonOutlineColor');
+      const settingNeonOutlineColorHex = document.getElementById('settingNeonOutlineColorHex');
+      const settingNeonTwitchColor = document.getElementById('settingNeonTwitchColor');
+      const settingNeonYtColor = document.getElementById('settingNeonYtColor');
+      const settingNeonTiktokColor = document.getElementById('settingNeonTiktokColor');
+      const settingNeonWidth = document.getElementById('settingNeonWidth');
+      const labelNeonWidth = document.getElementById('labelNeonWidth');
+      const rowNeonSingleColor = document.getElementById('rowNeonSingleColor');
+      const rowNeonPlatformColors = document.getElementById('rowNeonPlatformColors');
+      const settingAuthorColorMode = document.getElementById('settingAuthorColorMode');
+      const rowAuthorPlatformColors = document.getElementById('rowAuthorPlatformColors');
+      const settingAuthorTwitchColor = document.getElementById('settingAuthorTwitchColor');
+      const settingAuthorYtColor = document.getElementById('settingAuthorYtColor');
+      const settingAuthorTiktokColor = document.getElementById('settingAuthorTiktokColor');
+
+      if (settingNeonOutlineMode) {
+        settingNeonOutlineMode.addEventListener('change', () => {
+          if (rowNeonSingleColor) rowNeonSingleColor.style.display = settingNeonOutlineMode.value === 'single' ? 'flex' : 'none';
+          if (rowNeonPlatformColors) rowNeonPlatformColors.style.display = settingNeonOutlineMode.value === 'platform' ? 'flex' : 'none';
+          refreshPreview();
+        });
+      }
+
+      if (settingNeonWidth && labelNeonWidth) {
+        settingNeonWidth.addEventListener('input', () => {
+          labelNeonWidth.textContent = settingNeonWidth.value + 'px';
+          refreshPreview();
+        });
+      }
+
+      if (settingNeonOutlineColor && settingNeonOutlineColorHex) {
+        settingNeonOutlineColor.addEventListener('input', () => {
+          settingNeonOutlineColorHex.value = settingNeonOutlineColor.value.toUpperCase();
+          refreshPreview();
+        });
+      }
+
+      if (settingAuthorColorMode) {
+        settingAuthorColorMode.addEventListener('change', () => {
+          if (rowAuthorPlatformColors) rowAuthorPlatformColors.style.display = settingAuthorColorMode.value === 'platform' ? 'flex' : 'none';
+          refreshPreview();
+        });
+      }
+
+      [settingNeonTwitchColor, settingNeonYtColor, settingNeonTiktokColor, settingAuthorTwitchColor, settingAuthorYtColor, settingAuthorTiktokColor].forEach(el => {
+        if (el) el.addEventListener('input', () => refreshPreview());
+      });
+
+      // Simulation Test: Twitch Follow
+      const btnTestTwitchFollow = document.getElementById('btnTestTwitchFollow');
+      if (btnTestTwitchFollow) {
+        btnTestTwitchFollow.addEventListener('click', () => {
+          if (!previewIframe || !previewIframe.contentWindow) return;
+          previewIframe.contentWindow.postMessage({
+            type: 'socket_sim',
+            subType: 'event',
+            data: {
+              id: 'sim_evt_' + Date.now(),
+              isSim: true,
+              platform: 'twitch',
+              eventType: 'follow',
+              title: 'Twitch New Follower!',
+              author: 'GamerSejati',
+              detail: 'Mulai mengikuti live stream Anda! 💜'
+            }
+          }, '*');
+        });
+      }
+
+      // Simulation Test: Redeem Highlight Text
+      const btnTestRedeemHighlight = document.getElementById('btnTestRedeemHighlight');
+      if (btnTestRedeemHighlight) {
+        btnTestRedeemHighlight.addEventListener('click', () => {
+          if (!previewIframe || !previewIframe.contentWindow) return;
+          previewIframe.contentWindow.postMessage({
+            type: 'socket_sim',
+            subType: 'chat',
+            data: {
+              id: 'sim_msg_' + Date.now(),
+              isSim: true,
+              isHighlight: true,
+              platform: 'twitch',
+              author: {
+                name: 'SultanGamer',
+                color: '#a855f7',
+                badges: { subscriber: '6' }
+              },
+              text: 'Pesan Highlight Channel Points! Teks tampil lebih jelas dan menonjol di OBS! ✨',
+              timestamp: Date.now()
+            }
+          }, '*');
+        });
+      }
+
       // =========================================================================
       // THEMES SIDEBAR INTERACTION
       // =========================================================================
       const themeNavItems = document.querySelectorAll('#themesList .theme-nav-item:not(.disabled)');
+      function normalizeThemeKey(k) {
+        let n = (k || 'classic').toLowerCase().replace(/_/g, '-');
+        if (n === 'light') return 'paper';
+        if (n === 'cyberpunk') return 'neon';
+        if (n === 'minimal') return 'minimal-outline';
+        return n;
+      }
+
       function setActiveThemeNav(themeKey) {
-        let normKey = themeKey;
-        if (normKey === 'simple') normKey = 'classic';
-        if (normKey === 'light') normKey = 'paper';
-        if (normKey === 'cyberpunk' || normKey === 'glitch') normKey = 'neon';
-        if (normKey === 'minimal') normKey = 'minimal-outline';
+        const normKey = normalizeThemeKey(themeKey);
 
         themeNavItems.forEach(btn => {
           if (btn.dataset.theme === normKey) {
@@ -3273,6 +3475,42 @@
             btn.classList.remove('active');
           }
         });
+
+        if (settingTheme && settingTheme.value !== normKey) {
+          const opt = Array.from(settingTheme.options).find(o => o.value === normKey);
+          if (opt) settingTheme.value = normKey;
+        }
+
+        // Cyber Glitch rules:
+        // - disable username color (tema selalu hitam)
+        // - disable avatar viewer (tema tanpa avatar)
+        if (settingAuthorColor) {
+          if (normKey === 'glitch') {
+            settingAuthorColor.disabled = true;
+            settingAuthorColor.title = 'Warna username pada tema Cyber Glitch selalu hitam pekat di tag';
+            if (settingAuthorColor.parentElement) settingAuthorColor.parentElement.style.opacity = '0.4';
+          } else {
+            settingAuthorColor.disabled = false;
+            settingAuthorColor.title = '';
+            if (settingAuthorColor.parentElement) settingAuthorColor.parentElement.style.opacity = '1';
+          }
+        }
+
+        if (settingShowAvatars) {
+          if (normKey === 'glitch') {
+            settingShowAvatars.disabled = true;
+            if (settingShowAvatars.closest('.toggle-row')) settingShowAvatars.closest('.toggle-row').style.opacity = '0.4';
+          } else {
+            settingShowAvatars.disabled = false;
+            if (settingShowAvatars.closest('.toggle-row')) settingShowAvatars.closest('.toggle-row').style.opacity = '1';
+          }
+        }
+
+        // Show/hide Neon configuration card
+        const neonCard = document.getElementById('neonConfigCard');
+        if (neonCard) {
+          neonCard.style.display = (normKey === 'neon') ? 'flex' : 'none';
+        }
       }
 
       themeNavItems.forEach(btn => {
@@ -3342,24 +3580,13 @@
           timestamp: Date.now()
         };
 
-        // PostMessage (Standard across all browser contexts)
+        // Send simulation strictly via postMessage to prevent duplicate bubble rendering
         try {
           iframeWin.postMessage({
             type: 'socket_sim',
             subType: 'chat',
             data: simData
           }, '*');
-        } catch (_) {}
-
-        // CustomEvent (Fallback for local iframe document)
-        try {
-          const simEvent = new CustomEvent('socket_sim', {
-            detail: {
-              type: 'chat',
-              data: simData
-            }
-          });
-          iframeWin.dispatchEvent(simEvent);
         } catch (_) {}
       }
 
