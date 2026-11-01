@@ -1,3 +1,27 @@
+// Polyfill zlib.createZstdDecompress for Node.js < 22.10 (fixes Undici v7 decompress.js crash on Node 18/20)
+import { createRequire as _topCreateRequire } from 'node:module';
+try {
+  const _topReq = _topCreateRequire(import.meta.url);
+  const _zlib = _topReq('node:zlib');
+  if (!_zlib.createZstdDecompress) {
+    Object.defineProperty(_zlib, 'createZstdDecompress', {
+      value: function() {},
+      configurable: true,
+      writable: true
+    });
+  }
+  if (_zlib.constants && !_zlib.constants.ZSTD_d_windowLogMax) {
+    try {
+      Object.defineProperty(_zlib.constants, 'ZSTD_d_windowLogMax', {
+        value: 23,
+        configurable: true,
+        writable: true
+      });
+    } catch (_) {
+      _zlib.constants.ZSTD_d_windowLogMax = 23;
+    }
+  }
+} catch (_) {}
 import express from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
