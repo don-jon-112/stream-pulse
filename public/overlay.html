@@ -814,17 +814,17 @@
       align-items: flex-start !important;
       justify-content: flex-start !important;
       text-align: left !important;
-      gap: 3px !important;
+      gap: 2px !important;
       width: fit-content !important;
-      max-width: calc(100% - 28px) !important;
+      max-width: calc(100% - 30px) !important;
       background: var(--bg-bubble, #ffffff) !important;
-      border: 1px solid rgba(0, 0, 0, 0.06) !important;
-      border-radius: 20px 20px 20px 5px !important; /* Asymmetric corners matching user reference */
-      padding: 8px 18px 8px 22px !important;
-      margin: 6px 0 8px 22px !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      border-radius: 20px 20px 20px 6px !important; /* Asymmetric corners matching user reference */
+      padding: 9px 20px 9px 24px !important;
+      margin: 6px 0 8px 24px !important;
       position: relative !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
-      color: var(--text-custom, #0f172a) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1) !important;
+      color: var(--text-custom, #18181b) !important;
       box-sizing: border-box !important;
     }
 
@@ -843,12 +843,12 @@
       left: -18px !important;
       top: 50% !important;
       transform: translateY(-50%) !important;
-      width: 32px !important;
-      height: 32px !important;
-      min-width: 32px !important;
-      min-height: 32px !important;
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      min-height: 36px !important;
       border-radius: 50% !important;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22) !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18) !important;
       z-index: 10 !important;
       margin: 0 !important;
       padding: 0 !important;
@@ -857,8 +857,8 @@
 
     body.theme-bubbles-v2 .overlay-platform-tag svg,
     body.theme-bubbles_v2 .overlay-platform-tag svg {
-      width: 17px !important;
-      height: 17px !important;
+      width: 18px !important;
+      height: 18px !important;
     }
 
     body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
@@ -899,7 +899,7 @@
       align-items: flex-start !important;
       justify-content: flex-start !important;
       text-align: left !important;
-      gap: 3px !important;
+      gap: 2px !important;
       width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
@@ -917,70 +917,105 @@
       width: auto !important;
     }
 
+    body.theme-bubbles-v2 .overlay-badges-container,
+    body.theme-bubbles_v2 .overlay-badges-container {
+      display: inline-flex !important;
+      align-items: center !important;
+      margin-right: 6px !important;
+    }
+
     body.theme-bubbles-v2 .overlay-author-name,
     body.theme-bubbles_v2 .overlay-author-name {
       color: var(--author-custom, var(--author-color, #9146ff)) !important;
       font-weight: 700 !important;
-      font-size: 14px !important;
+      font-size: 14.5px !important;
+      line-height: 1.25 !important;
       margin: 0 !important;
       padding: 0 !important;
       text-align: left !important;
       text-shadow: none !important;
     }
 
-    /* Role badges matching image (e.g. MOD in pink/purple outline) */
+    /* Platform-specific author colors matching reference image */
+    body.theme-bubbles-v2 .overlay-item.platform-twitch .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-item.platform-twitch .overlay-author-name {
+      color: var(--author-custom, #9146ff) !important;
+    }
+    body.theme-bubbles-v2 .overlay-item.platform-youtube .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-item.platform-youtube .overlay-author-name,
+    body.theme-bubbles-v2 .overlay-item.platform-yt .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-item.platform-yt .overlay-author-name {
+      color: var(--author-custom, #ef4444) !important;
+    }
+    body.theme-bubbles-v2 .overlay-item.platform-tiktok .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-item.platform-tiktok .overlay-author-name {
+      color: var(--author-custom, #0f172a) !important;
+    }
+
+    /* Role badges matching image (e.g. MOD in pink outline, VIP, MEMBER, SUB) */
     body.theme-bubbles-v2 .badge-icon,
     body.theme-bubbles_v2 .badge-icon {
-      background: rgba(244, 63, 94, 0.08) !important;
-      border: 1px solid rgba(244, 63, 94, 0.6) !important;
-      color: #f43f5e !important;
+      background: rgba(255, 51, 102, 0.08) !important;
+      border: 1.5px solid #ff3366 !important;
+      color: #ff3366 !important;
       border-radius: 4px !important;
       font-size: 10px !important;
-      font-weight: 700 !important;
-      padding: 1px 4px !important;
-      margin-right: 5px !important;
+      font-weight: 800 !important;
+      padding: 1px 5px !important;
+      margin-right: 6px !important;
       height: auto !important;
       line-height: 1.2 !important;
+      letter-spacing: 0.5px !important;
       text-transform: uppercase !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     body.theme-bubbles-v2 .badge-icon.mod,
     body.theme-bubbles_v2 .badge-icon.mod {
-      border-color: rgba(244, 63, 94, 0.6) !important;
-      color: #f43f5e !important;
-      background: rgba(244, 63, 94, 0.08) !important;
+      border-color: #ff3366 !important;
+      color: #ff3366 !important;
+      background: rgba(255, 51, 102, 0.08) !important;
+    }
+
+    body.theme-bubbles-v2 .badge-icon.vip,
+    body.theme-bubbles_v2 .badge-icon.vip {
+      border-color: #e11d48 !important;
+      color: #e11d48 !important;
+      background: rgba(225, 29, 72, 0.08) !important;
     }
 
     body.theme-bubbles-v2 .badge-icon.sub,
     body.theme-bubbles_v2 .badge-icon.sub {
-      border-color: rgba(147, 51, 234, 0.6) !important;
-      color: #9333ea !important;
-      background: rgba(147, 51, 234, 0.08) !important;
+      border-color: #9146ff !important;
+      color: #9146ff !important;
+      background: rgba(145, 70, 255, 0.08) !important;
     }
 
     body.theme-bubbles-v2 .badge-icon.member,
     body.theme-bubbles_v2 .badge-icon.member {
-      border-color: rgba(225, 29, 72, 0.6) !important;
-      color: #e11d48 !important;
-      background: rgba(225, 29, 72, 0.08) !important;
+      border-color: #06b6d4 !important;
+      color: #06b6d4 !important;
+      background: rgba(6, 182, 212, 0.08) !important;
     }
 
     body.theme-bubbles-v2 .overlay-text,
     body.theme-bubbles_v2 .overlay-text {
       display: block !important;
       text-align: left !important;
-      color: var(--text-custom, #0f172a) !important;
+      color: var(--text-custom, #18181b) !important;
       font-weight: 500 !important;
       font-size: 14px !important;
       line-height: 1.4 !important;
-      margin: 0 !important;
+      margin-top: 2px !important;
       padding: 0 !important;
       width: 100% !important;
     }
 
     body.theme-bubbles-v2 .overlay-message-content,
     body.theme-bubbles_v2 .overlay-message-content {
-      color: var(--text-custom, #0f172a) !important;
+      color: var(--text-custom, #18181b) !important;
       text-align: left !important;
     }
 
@@ -2435,17 +2470,30 @@
       }
 
       function getAuthorColor(author, platform) {
-        if (!author) return config.authorColor || '#67e8f9';
+        const isLight = document.body.classList.contains('theme-light') || !document.body.classList.contains('theme-dark');
+        if (!author) return config.authorColor || (isLight ? '#0f172a' : '#67e8f9');
 
-        // Jika platform Twitch
-        // Opsi warna pengirim mengikuti platform
-        if (config.authorColorMode === 'platform') {
-          if (platform === 'twitch') return config.authorTwitchColor || '#a855f7';
-          if (platform === 'youtube') return config.authorYtColor || '#ef4444';
-          if (platform === 'tiktok') return config.authorTiktokColor || (isLight ? '#0f172a' : '#ffffff');
+        const p = String(platform || '').toLowerCase();
+        const isBubblesV2 = document.body.classList.contains('theme-bubbles-v2') || 
+                            document.body.classList.contains('theme-bubbles_v2') || 
+                            ['bubbles-v2', 'bubbles_v2'].includes(config.theme);
+
+        // Khusus tema Bubbles v2: warna author otomatis presisi sesuai identitas platform
+        // Twitch = Ungu (#9146ff), YouTube = Merah (#ef4444), TikTok = Dark slate (#0f172a)
+        if (isBubblesV2) {
+          if (p === 'twitch') return config.authorTwitchColor || '#9146ff';
+          if (p === 'youtube' || p === 'yt') return config.authorYtColor || '#ef4444';
+          if (p === 'tiktok') return config.authorTiktokColor || '#0f172a';
         }
 
-        if (platform === 'twitch') {
+        // Opsi warna pengirim mengikuti platform
+        if (config.authorColorMode === 'platform') {
+          if (p === 'twitch') return config.authorTwitchColor || '#a855f7';
+          if (p === 'youtube' || p === 'yt') return config.authorYtColor || '#ef4444';
+          if (p === 'tiktok') return config.authorTiktokColor || (isLight ? '#0f172a' : '#ffffff');
+        }
+
+        if (p === 'twitch') {
           // Opsi toggle apakah ingin menggunakan warna masing-masing user Twitch (default true)
           if (config.useTwitchColors !== false) {
             if (author.color) {
@@ -2478,7 +2526,7 @@
           return ensureReadableColor(author.color);
         }
 
-        return '#67e8f9';
+        return isLight ? '#0f172a' : '#67e8f9';
       }
 
       // Cache ID pesan untuk mencegah tampilan duplikat di OBS overlay
