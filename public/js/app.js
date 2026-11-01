@@ -216,6 +216,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUser.channels.hasTwitchToken = true;
       }
 
+      if (userToken) {
+        fetch('/api/user/channels', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+          body: JSON.stringify({
+            twitch,
+            youtube: inputYouTube.value.trim(),
+            tiktok: inputTikTok.value.trim(),
+            twitchToken: token
+          })
+        }).catch(() => {});
+      }
+
       socket.emit('update_channels', {
         twitch: twitch,
         twitchToken: token,
@@ -244,6 +257,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUser.channels.youtubeAvatar = avatar;
         currentUser.channels.youtubeChannelId = channelId;
         currentUser.channels.hasYouTubeToken = true;
+      }
+
+      if (userToken) {
+        fetch('/api/user/channels', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+          body: JSON.stringify({
+            twitch: inputTwitch.value.trim(),
+            youtube: target,
+            tiktok: inputTikTok.value.trim(),
+            twitchToken: inputTwitchToken ? inputTwitchToken.value.trim() : ''
+          })
+        }).catch(() => {});
       }
 
       socket.emit('update_channels', {

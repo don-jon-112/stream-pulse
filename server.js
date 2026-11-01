@@ -151,25 +151,44 @@ io.on('connection', (socket) => {
   // Update channels yang dipantau oleh client ini
   const handleUpdateChannels = async (data, callback) => {
     let token = data?.twitchToken;
-    const cleanTwitch = (data?.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
+    let cleanTwitch = (data?.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
+    let cleanYouTube = (data?.youtube || '').trim();
+    let cleanTikTok = (data?.tiktok || '').trim().replace(/^@/, '');
 
+    // Fallback dari userToken jika client mengirim token user
     if (data?.userToken) {
       const users = readJsonFile(USERS_FILE, {});
       const u = Object.values(users).find(x => x.token === data.userToken);
-      if (u && (!token || token.includes('***') || token.includes('Tersimpan') || token.includes('••••'))) {
-        token = decryptToken(u.channels?.twitchTokenEncrypted);
+      if (u) {
+        if (!token || token.includes('***') || token.includes('Tersimpan') || token.includes('••••')) {
+          token = decryptToken(u.channels?.twitchTokenEncrypted);
+        }
+        if (!cleanTwitch && u.channels?.twitch) cleanTwitch = u.channels.twitch.toLowerCase().replace(/^[#@]/, '');
+        if (!cleanYouTube && u.channels?.youtube) cleanYouTube = u.channels.youtube;
+        if (!cleanTikTok && u.channels?.tiktok) cleanTikTok = u.channels.tiktok.replace(/^@/, '');
       }
     }
 
-    // Jika tidak ada token (misal dari OBS overlay), cari dari owner overlay atau dari pool yang sudah berjalan
-    if (!token && data?.overlayId) {
+    // Jika channels kosong atau token tidak ada (misal dari OBS overlay atau preview), cari dari owner overlay
+    if (data?.overlayId) {
       const overlays = readJsonFile(OVERLAYS_FILE, {});
       const ovl = overlays[data.overlayId];
-      if (ovl && ovl.owner) {
-        const users = readJsonFile(USERS_FILE, {});
-        const u = users[ovl.owner];
-        if (u?.channels?.twitchTokenEncrypted) {
-          token = decryptToken(u.channels.twitchTokenEncrypted);
+      if (ovl) {
+        if (!cleanTwitch && ovl.twitch) cleanTwitch = ovl.twitch.toLowerCase().replace(/^[#@]/, '');
+        if (!cleanYouTube && ovl.youtube) cleanYouTube = ovl.youtube;
+        if (!cleanTikTok && ovl.tiktok) cleanTikTok = ovl.tiktok.replace(/^@/, '');
+
+        if (ovl.owner) {
+          const users = readJsonFile(USERS_FILE, {});
+          const u = users[ovl.owner];
+          if (u) {
+            if (!cleanTwitch && u.channels?.twitch) cleanTwitch = u.channels.twitch.toLowerCase().replace(/^[#@]/, '');
+            if (!cleanYouTube && u.channels?.youtube) cleanYouTube = u.channels.youtube;
+            if (!cleanTikTok && u.channels?.tiktok) cleanTikTok = u.channels.tiktok.replace(/^@/, '');
+            if (!token && u.channels?.twitchTokenEncrypted) {
+              token = decryptToken(u.channels.twitchTokenEncrypted);
+            }
+          }
         }
       }
     }
@@ -193,7 +212,13 @@ io.on('connection', (socket) => {
       }
     }
 
-    await streamManager.updateClientChannels(socket, { ...data, twitchToken: token });
+    await streamManager.updateClientChannels(socket, {
+      ...data,
+      twitch: cleanTwitch,
+      youtube: cleanYouTube,
+      tiktok: cleanTikTok,
+      twitchToken: token
+    });
 
     const authStatus = {
       hasTwitchAuth: !!token,
@@ -993,6 +1018,22 @@ app.post('/api/user/channels', (req, res) => {
 
   users[currentUser.username] = currentUser;
   writeJsonFile(USERS_FILE, users);
+
+  // Auto-sync channels to user's saved overlay slots
+  if (Array.isArray(currentUser.overlayIds) && currentUser.overlayIds.length > 0) {
+    const overlays = readJsonFile(OVERLAYS_FILE, {});
+    let ovlUpdated = false;
+    for (const ovlId of currentUser.overlayIds) {
+      if (overlays[ovlId]) {
+        if (twitch !== undefined) overlays[ovlId].twitch = currentUser.channels.twitch || '';
+        if (youtube !== undefined) overlays[ovlId].youtube = currentUser.channels.youtube || '';
+        if (tiktok !== undefined) overlays[ovlId].tiktok = currentUser.channels.tiktok || '';
+        overlays[ovlId].updatedAt = Date.now();
+        ovlUpdated = true;
+      }
+    }
+    if (ovlUpdated) writeJsonFile(OVERLAYS_FILE, overlays);
+  }
 
   res.json({
     success: true,
@@ -1827,8 +1868,21 @@ app.get('/api/overlays', (req, res) => {
 app.get('/api/overlays/:id', (req, res) => {
   const { id } = req.params;
   const overlays = readJsonFile(OVERLAYS_FILE, {});
-  const profile = overlays[id] || overlays['default'] || null;
-  res.json(profile || { id, theme: 'glass', fontSize: 15, hideDelay: 0, customCss: '', customJs: '' });
+  const profile = overlays[id] || (id === 'default' ? overlays['default'] : null);
+  if (profile) {
+    const clone = { ...profile };
+    if (clone.owner) {
+      const users = readJsonFile(USERS_FILE, {});
+      const u = users[clone.owner];
+      if (u && u.channels) {
+        if (!clone.twitch && u.channels.twitch) clone.twitch = u.channels.twitch;
+        if (!clone.youtube && u.channels.youtube) clone.youtube = u.channels.youtube;
+        if (!clone.tiktok && u.channels.tiktok) clone.tiktok = u.channels.tiktok;
+      }
+    }
+    return res.json(clone);
+  }
+  res.json({ id, theme: 'glass', fontSize: 15, hideDelay: 0, customCss: '', customJs: '' });
 });
 
 app.post('/api/overlays', (req, res) => {

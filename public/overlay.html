@@ -2567,6 +2567,10 @@
         }
 
         // Role detection for data attributes & styling
+        const isV2Theme = document.body.classList.contains('theme-glass-v2') || 
+                          document.body.classList.contains('theme-bubbles-v2') || 
+                          document.body.classList.contains('theme-paper-v2') || 
+                          ['glass-v2', 'bubbles-v2', 'paper-v2'].includes(config.theme);
         const authorColor = getAuthorColor(author, item.platform);
         const badges = author.badges || {};
         const isMod = !!(author.isMod || badges.moderator || (item.platform === 'youtube' && author.isMod));

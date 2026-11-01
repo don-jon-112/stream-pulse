@@ -2687,6 +2687,7 @@
               if (!isPreviewTestingMode) {
                 syncInputsWithOfficialChannels();
               }
+              updateUrl();
               refreshPreview(true);
             }
             // Auto-load user overlay into editor and preview iframe
@@ -2889,10 +2890,17 @@
           if (res.ok) {
             const data = await res.json();
             if (!isPreviewTestingMode) {
-              if (data.twitch && !officialChannels.twitch) officialChannels.twitch = data.twitch;
-              if (data.youtube && !officialChannels.youtube) officialChannels.youtube = data.youtube;
-              if (data.tiktok && !officialChannels.tiktok) officialChannels.tiktok = data.tiktok;
+              if (currentUser && currentUser.channels) {
+                if (currentUser.channels.twitch) officialChannels.twitch = currentUser.channels.twitch;
+                if (currentUser.channels.youtube) officialChannels.youtube = currentUser.channels.youtube;
+                if (currentUser.channels.tiktok) officialChannels.tiktok = currentUser.channels.tiktok;
+              } else {
+                if (data.twitch) officialChannels.twitch = data.twitch;
+                if (data.youtube) officialChannels.youtube = data.youtube;
+                if (data.tiktok) officialChannels.tiktok = data.tiktok;
+              }
               syncInputsWithOfficialChannels();
+              updateUrl();
             }
 
             if (data.theme !== undefined) {
@@ -3097,6 +3105,12 @@
           return;
         }
         let fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
+        const tw = officialChannels.twitch || (settingTwitch ? settingTwitch.value.trim() : '');
+        const yt = officialChannels.youtube || (settingYouTube ? settingYouTube.value.trim() : '');
+        const tt = officialChannels.tiktok || (settingTikTok ? settingTikTok.value.trim() : '');
+        if (tw) fullUrl += `&twitch=${encodeURIComponent(tw)}`;
+        if (yt) fullUrl += `&youtube=${encodeURIComponent(yt)}`;
+        if (tt) fullUrl += `&tiktok=${encodeURIComponent(tt)}`;
         if (settingChatAlign && settingChatAlign.value === 'right') fullUrl += '&align=right';
         if (getSelectedChatDirection() === 'top') fullUrl += '&direction=top';
         if (getSelectedChatDirection() === 'horizontal') fullUrl += '&direction=horizontal';

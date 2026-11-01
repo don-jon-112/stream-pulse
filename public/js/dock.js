@@ -164,12 +164,23 @@
       });
       if (res.ok) {
         const u = await res.json();
+        if (u?.channels) {
+          if (u.channels.twitch) {
+            currentChannels.twitch = u.channels.twitch.toLowerCase().replace(/^[#@]/, '');
+          }
+          if (u.channels.youtube) {
+            currentChannels.youtube = u.channels.youtube;
+          }
+          if (u.channels.tiktok) {
+            currentChannels.tiktok = u.channels.tiktok.replace(/^@/, '');
+          }
+          localStorage.setItem(STORAGE_KEY_USER_CHANNELS, JSON.stringify(u.channels));
+          localStorage.setItem(STORAGE_KEY_MY_CHANNELS, JSON.stringify(u.channels));
+          updateChannelUI();
+          syncChannelsWithSocket();
+        }
         const hasToken = !!(u?.channels?.hasTwitchToken && u?.channels?.twitch);
         if (hasToken) {
-          if (!currentChannels.twitch && u.channels.twitch) {
-            currentChannels.twitch = u.channels.twitch.toLowerCase();
-            updateChannelUI();
-          }
           setChatSendPermission(true);
         } else {
           setChatSendPermission(false, '🔒 Akun Twitch belum terhubung (Buka Homepage > Atur Channel > Login Twitch)');
