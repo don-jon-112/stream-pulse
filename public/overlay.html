@@ -748,7 +748,7 @@
       margin: 0 !important;
     }
 
-    /* Bubbles v2: Clean White Pill Bubble */
+    /* Bubbles v2: Clean White Pill Bubble with Circular Platform Badge and Asymmetric Corners */
     body.theme-bubbles-v2 .overlay-item,
     body.theme-bubbles_v2 .overlay-item {
       display: flex !important;
@@ -758,12 +758,12 @@
       text-align: left !important;
       gap: 3px !important;
       width: fit-content !important;
-      max-width: 100% !important;
+      max-width: calc(100% - 28px) !important;
       background: var(--bg-bubble, #ffffff) !important;
-      border: 1px solid rgba(0, 0, 0, 0.05) !important;
-      border-radius: 18px !important;
-      padding: 8px 16px !important;
-      margin: 4px 0 8px 0 !important;
+      border: 1px solid rgba(0, 0, 0, 0.06) !important;
+      border-radius: 20px 20px 20px 5px !important; /* Asymmetric corners matching user reference */
+      padding: 8px 18px 8px 22px !important;
+      margin: 6px 0 8px 22px !important;
       position: relative !important;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
       color: var(--text-custom, #0f172a) !important;
@@ -773,6 +773,65 @@
     body.theme-bubbles-v2 .overlay-avatar,
     body.theme-bubbles_v2 .overlay-avatar {
       display: none !important;
+    }
+
+    /* Circular platform emblem anchored on left edge */
+    body.theme-bubbles-v2 .overlay-platform-tag,
+    body.theme-bubbles_v2 .overlay-platform-tag {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: absolute !important;
+      left: -18px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      min-height: 32px !important;
+      border-radius: 50% !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22) !important;
+      z-index: 10 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      flex-shrink: 0 !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag svg,
+    body.theme-bubbles_v2 .overlay-platform-tag svg {
+      width: 17px !important;
+      height: 17px !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch {
+      background: #9146ff !important;
+      color: #ffffff !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch svg {
+      fill: #ffffff !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube {
+      background: #ff0000 !important;
+      color: #ffffff !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube svg {
+      fill: #ffffff !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok {
+      background: #000000 !important;
+      color: #00f2fe !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok svg {
+      fill: #00f2fe !important;
     }
 
     body.theme-bubbles-v2 .overlay-body,
@@ -800,49 +859,6 @@
       width: auto !important;
     }
 
-    body.theme-bubbles-v2 .overlay-platform-tag,
-    body.theme-bubbles_v2 .overlay-platform-tag {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 18px !important;
-      height: 18px !important;
-      min-width: 18px !important;
-      min-height: 18px !important;
-      border-radius: 4px !important;
-      margin: 0 5px 0 0 !important;
-      padding: 0 !important;
-      position: static !important;
-      transform: none !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-      flex-shrink: 0 !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag svg,
-    body.theme-bubbles_v2 .overlay-platform-tag svg {
-      width: 12px !important;
-      height: 12px !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch {
-      background: #9146ff !important;
-      color: #ffffff !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube {
-      background: #ff0000 !important;
-      color: #ffffff !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok {
-      background: #000000 !important;
-      color: #00f2fe !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
-    }
-
     body.theme-bubbles-v2 .overlay-author-name,
     body.theme-bubbles_v2 .overlay-author-name {
       color: var(--author-custom, var(--author-color, #9146ff)) !important;
@@ -852,6 +868,43 @@
       padding: 0 !important;
       text-align: left !important;
       text-shadow: none !important;
+    }
+
+    /* Role badges matching image (e.g. MOD in pink/purple outline) */
+    body.theme-bubbles-v2 .badge-icon,
+    body.theme-bubbles_v2 .badge-icon {
+      background: rgba(244, 63, 94, 0.08) !important;
+      border: 1px solid rgba(244, 63, 94, 0.6) !important;
+      color: #f43f5e !important;
+      border-radius: 4px !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      padding: 1px 4px !important;
+      margin-right: 5px !important;
+      height: auto !important;
+      line-height: 1.2 !important;
+      text-transform: uppercase !important;
+    }
+
+    body.theme-bubbles-v2 .badge-icon.mod,
+    body.theme-bubbles_v2 .badge-icon.mod {
+      border-color: rgba(244, 63, 94, 0.6) !important;
+      color: #f43f5e !important;
+      background: rgba(244, 63, 94, 0.08) !important;
+    }
+
+    body.theme-bubbles-v2 .badge-icon.sub,
+    body.theme-bubbles_v2 .badge-icon.sub {
+      border-color: rgba(147, 51, 234, 0.6) !important;
+      color: #9333ea !important;
+      background: rgba(147, 51, 234, 0.08) !important;
+    }
+
+    body.theme-bubbles-v2 .badge-icon.member,
+    body.theme-bubbles_v2 .badge-icon.member {
+      border-color: rgba(225, 29, 72, 0.6) !important;
+      color: #e11d48 !important;
+      background: rgba(225, 29, 72, 0.08) !important;
     }
 
     body.theme-bubbles-v2 .overlay-text,
@@ -873,7 +926,7 @@
       text-align: left !important;
     }
 
-    /* Bubbles v2 Alert */
+    /* Bubbles v2 Alert (Solid Hot Pink/Coral Pill with Asymmetric Corners) */
     body.theme-bubbles-v2 .overlay-item.overlay-event,
     body.theme-bubbles_v2 .overlay-item.overlay-event {
       display: inline-flex !important;
@@ -884,9 +937,9 @@
       gap: 0 !important;
       background: #ff5277 !important;
       border: none !important;
-      border-radius: 18px !important;
-      padding: 9px 18px !important;
-      margin: 4px 0 8px 0 !important;
+      border-radius: 20px 20px 20px 5px !important;
+      padding: 9px 18px 9px 24px !important;
+      margin: 6px 0 8px 22px !important;
       position: relative !important;
       box-shadow: 0 4px 14px rgba(255, 82, 119, 0.4) !important;
       color: #000000 !important;
@@ -902,7 +955,7 @@
 
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-text,
-    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-title,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-title,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-title {
       color: #000000 !important;
       font-weight: 800 !important;
@@ -2070,13 +2123,28 @@
       function renderBadges(chat) {
         if (!config.showBadges) return '';
 
-        // V2 Themes: Hilangkan tag html MEMBER, MOD, SUB sepenuhnya
-        const isV2Theme = document.body.classList.contains('theme-glass-v2') || 
-                          document.body.classList.contains('theme-bubbles-v2') || 
-                          document.body.classList.contains('theme-paper-v2') || 
-                          ['glass-v2', 'bubbles-v2', 'paper-v2'].includes(config.theme);
+        // V2 Themes: Glass v2 & Paper v2 hide badges; Bubbles v2 shows clean outline badge matching reference
+        const isBubblesV2 = document.body.classList.contains('theme-bubbles-v2') || config.theme === 'bubbles-v2';
+        if (isBubblesV2) {
+          const author = chat.author || {};
+          const badges = author.badges || {};
+          if (badges.moderator || author.isMod) {
+            return '<span class="badge-icon mod">MOD</span>';
+          }
+          if (badges.member || author.memberBadge || author.isMember) {
+            return '<span class="badge-icon member">MEMBER</span>';
+          }
+          if (badges.subscriber || author.isSub) {
+            return '<span class="badge-icon sub">SUB</span>';
+          }
+          return '';
+        }
 
-        if (isV2Theme) {
+        const isOtherV2 = document.body.classList.contains('theme-glass-v2') || 
+                          document.body.classList.contains('theme-paper-v2') || 
+                          ['glass-v2', 'paper-v2'].includes(config.theme);
+
+        if (isOtherV2) {
           return '';
         }
 
