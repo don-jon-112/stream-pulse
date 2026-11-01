@@ -350,6 +350,67 @@
         grid-template-columns: 1fr;
       }
     }
+  
+    /* Dark Mode Overrides for Features / Roadmap Kanban */
+    :root[data-theme="dark"],
+    body.dark-mode {
+      --bg-canvas: #09090b !important;
+      --surface-soft: #18181b !important;
+      --hairline: #27272a !important;
+      --hairline-strong: #3f3f46 !important;
+      --ink: #f8fafc !important;
+      --body: #94a3b8 !important;
+    }
+
+    :root[data-theme="dark"] .roadmap-header-wrapper {
+      background: var(--bg-canvas) !important;
+      border-bottom-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .roadmap-column {
+      background: var(--surface-soft) !important;
+      border-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .kanban-card {
+      background: #18181b !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .kanban-card:hover {
+      background: #202025 !important;
+      border-color: var(--hairline-strong) !important;
+    }
+
+    :root[data-theme="dark"] .kanban-card-title {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .kanban-card-desc {
+      color: var(--body) !important;
+    }
+
+    :root[data-theme="dark"] .vote-btn {
+      background: var(--surface-soft) !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .modal-content {
+      background: #18181b !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .modal-content input,
+    :root[data-theme="dark"] .modal-content textarea,
+    :root[data-theme="dark"] .modal-content select {
+      background: #121216 !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
   </style>
 
   <script>
@@ -382,6 +443,13 @@
 
       <div style="display:flex; align-items:center; gap:8px;">
         <!-- Language Switcher -->
+        
+        <!-- Dark / Light Mode Toggle Button -->
+        <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
+          <span class="theme-icon">☀️</span>
+          <span class="theme-text">Light</span>
+        </button>
+
         <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
           <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
           <span>ID</span>
@@ -705,5 +773,37 @@
       fetchFeedback();
     });
   </script>
+
+  <script>
+    (function() {
+      const btn = document.getElementById('btnThemeToggle');
+      function updateBtn(theme) {
+        if (!btn) return;
+        btn.innerHTML = theme === 'dark'
+          ? '<span class="theme-icon">☀️</span> <span class="theme-text">Light</span>'
+          : '<span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>';
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+          const next = cur === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          document.body.classList.toggle('dark-mode', next === 'dark');
+          localStorage.setItem('streampulse_theme', next);
+          updateBtn(next);
+        });
+        const initial = document.documentElement.getAttribute('data-theme') || localStorage.getItem('streampulse_theme') || 'dark';
+        updateBtn(initial);
+      }
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'streampulse_theme' && e.newValue) {
+          document.documentElement.setAttribute('data-theme', e.newValue);
+          document.body.classList.toggle('dark-mode', e.newValue === 'dark');
+          updateBtn(e.newValue);
+        }
+      });
+    })();
+  </script>
+
 </body>
 </html>

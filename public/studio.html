@@ -14,8 +14,13 @@
       color-scheme: light;
     }
 
+    :root[data-theme="dark"],
+    body.dark-mode {
+      color-scheme: dark;
+    }
+
     body {
-      background: #ffffff;
+      background: var(--bg-canvas);
       color: var(--ink);
       min-height: 100vh;
       display: flex;
@@ -26,7 +31,7 @@
       min-height: 56px;
       height: auto;
       padding: 8px 24px;
-      background: #ffffff;
+      background: var(--bg-canvas);
       border-bottom: 1px solid var(--hairline);
       display: flex;
       align-items: center;
@@ -776,6 +781,221 @@
     input[type="range"] {
       accent-color: #000000;
     }
+  
+    /* =====================================================================
+       STUDIO CONTROL PANEL DARK MODE SYSTEM OVERRIDES
+       ===================================================================== */
+    :root[data-theme="dark"] .studio-header {
+      background: var(--bg-canvas) !important;
+      border-bottom: 1px solid var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .studio-brand-title {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .studio-brand-badge {
+      background: var(--primary) !important;
+      color: var(--on-primary) !important;
+    }
+
+    :root[data-theme="dark"] .studio-back-btn {
+      background: var(--surface-soft) !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] #btnSaveOverlay {
+      background: var(--primary) !important;
+      color: var(--on-primary) !important;
+      border-color: var(--primary) !important;
+    }
+
+    :root[data-theme="dark"] .themes-sidebar {
+      background: var(--bg-canvas) !important;
+      border-right: 1px solid var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .themes-sidebar-header {
+      color: var(--mute) !important;
+    }
+
+    :root[data-theme="dark"] .theme-nav-item:hover:not(.disabled) {
+      background: var(--bg-card-hover) !important;
+      border-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .theme-nav-item.active {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: var(--hairline-strong) !important;
+    }
+
+    :root[data-theme="dark"] .theme-nav-name {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .theme-nav-sub {
+      color: var(--mute) !important;
+    }
+
+    :root[data-theme="dark"] .theme-nav-badge-soon {
+      background: var(--surface-soft) !important;
+      color: var(--mute) !important;
+      border-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .controls-panel {
+      background: var(--bg-canvas) !important;
+    }
+
+    :root[data-theme="dark"] .controls-panel::-webkit-scrollbar-thumb {
+      background: var(--hairline-strong) !important;
+    }
+
+    :root[data-theme="dark"] .studio-card {
+      background: var(--bg-card) !important;
+      border-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .section-title {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .form-label {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .form-input,
+    :root[data-theme="dark"] .form-select,
+    :root[data-theme="dark"] .form-textarea,
+    :root[data-theme="dark"] .color-hex-field,
+    :root[data-theme="dark"] .obs-link-input {
+      background: var(--bg-input) !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .form-input:focus,
+    :root[data-theme="dark"] .form-select:focus,
+    :root[data-theme="dark"] .form-textarea:focus,
+    :root[data-theme="dark"] .color-hex-field:focus,
+    :root[data-theme="dark"] .obs-link-input:focus {
+      border-color: var(--hairline-strong) !important;
+      box-shadow: 0 0 0 1px var(--hairline-strong) !important;
+    }
+
+    :root[data-theme="dark"] .form-select option,
+    :root[data-theme="dark"] .form-select optgroup {
+      background-color: var(--bg-card) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .toggle-row > div,
+    :root[data-theme="dark"] .toggle-row > span:first-child {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .toggle-slider {
+      background-color: #3f3f46 !important;
+    }
+
+    :root[data-theme="dark"] input:checked + .toggle-slider {
+      background-color: #ffffff !important;
+    }
+
+    :root[data-theme="dark"] input:checked + .toggle-slider:before {
+      background-color: #000000 !important;
+    }
+
+    :root[data-theme="dark"] .color-picker-dual {
+      background: var(--bg-input) !important;
+      border-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .overlay-manager-card,
+    :root[data-theme="dark"] .slot-item,
+    :root[data-theme="dark"] .modal-card,
+    :root[data-theme="dark"] .obs-link-card {
+      background: var(--bg-card) !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .slot-item:hover {
+      background: var(--bg-card-hover) !important;
+      border-color: var(--hairline-strong) !important;
+    }
+
+    :root[data-theme="dark"] .slot-item.active {
+      background: rgba(251, 191, 36, 0.08) !important;
+      border-color: #fbbf24 !important;
+    }
+
+    :root[data-theme="dark"] .radio-option-card {
+      background: var(--surface-soft) !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .radio-option-card:hover {
+      background: var(--bg-card-hover) !important;
+      border-color: var(--hairline-strong) !important;
+    }
+
+    :root[data-theme="dark"] .radio-option-card:has(input[type="radio"]:checked) {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border-color: #ffffff !important;
+    }
+
+    :root[data-theme="dark"] .box-title {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] input[type="range"] {
+      accent-color: var(--primary) !important;
+    }
+
+    /* Studio Preview Window Dark Checkerboard */
+    :root[data-theme="dark"] .preview-panel {
+      background: var(--bg-canvas) !important;
+    }
+
+    :root[data-theme="dark"] .preview-window {
+      background:
+        linear-gradient(45deg, #1c1c21 25%, transparent 25%),
+        linear-gradient(-45deg, #1c1c21 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1c1c21 75%),
+        linear-gradient(-45deg, transparent 75%, #1c1c21 75%),
+        #111115 !important;
+      background-size: 20px 20px !important;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px !important;
+      border-color: var(--hairline) !important;
+    }
+
+    /* Control Panel Badges & Inner Rows Adaptability */
+    :root[data-theme="dark"] .controls-panel [style*="color:#0f172a"],
+    :root[data-theme="dark"] .controls-panel [style*="color: #0f172a"],
+    :root[data-theme="dark"] .controls-panel [style*="color:#000000"],
+    :root[data-theme="dark"] .controls-panel [style*="color: #000000"],
+    :root[data-theme="dark"] .controls-panel [style*="color:#000"] {
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .controls-panel [style*="background:#f1f5f9"],
+    :root[data-theme="dark"] .controls-panel [style*="background: #f1f5f9"],
+    :root[data-theme="dark"] .controls-panel [style*="background:#f8fafc"],
+    :root[data-theme="dark"] .controls-panel [style*="background: #f8fafc"] {
+      background: var(--surface-soft) !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .controls-panel div[style*="background:var(--surface-soft)"] {
+      background: var(--bg-card) !important;
+      border-color: var(--hairline) !important;
+    }
+
   </style>
 
   <script>
@@ -4142,6 +4362,15 @@
           updateThemeBtn();
         });
         updateThemeBtn();
+
+        // Cross-tab real-time theme synchronization
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'streampulse_theme' && e.newValue) {
+            document.documentElement.setAttribute('data-theme', e.newValue);
+            document.body.classList.toggle('dark-mode', e.newValue === 'dark');
+            updateThemeBtn();
+          }
+        });
       }
     })();
 </script>

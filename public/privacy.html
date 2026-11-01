@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -242,7 +242,42 @@
         font-size: 26px;
       }
     }
+  
+    /* Dark Mode Overrides for Privacy Policy */
+    :root[data-theme="dark"],
+    body.dark-mode {
+      --bg-canvas: #09090b !important;
+      --surface-soft: #18181b !important;
+      --hairline: #27272a !important;
+      --hairline-strong: #3f3f46 !important;
+      --ink: #f8fafc !important;
+      --body: #94a3b8 !important;
+    }
+
+    :root[data-theme="dark"] .privacy-header {
+      background: var(--bg-canvas) !important;
+      border-bottom-color: var(--hairline) !important;
+    }
+
+    :root[data-theme="dark"] .privacy-card {
+      background: #18181b !important;
+      border-color: var(--hairline) !important;
+      color: var(--ink) !important;
+    }
+
+    :root[data-theme="dark"] .brand-title {
+      color: var(--ink) !important;
+    }
+
   </style>
+
+  <script>
+    (function() {
+      var saved = localStorage.getItem('streampulse_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+
 </head>
 <body>
 

@@ -53,6 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initTheme();
 
+    // Cross-tab real-time theme synchronization
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'streampulse_theme' && e.newValue) {
+        setTheme(e.newValue, false);
+      }
+    });
+
+
   const socket = io({ transports: ['websocket', 'polling'] });
 
   // Header Elements
