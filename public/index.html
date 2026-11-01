@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
@@ -29,6 +29,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+
+  <script>
+    (function() {
+      var saved = localStorage.getItem('streampulse_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+
 </head>
 
 <body>
@@ -152,6 +160,13 @@
         <div style="width:1px; height:24px; background:var(--border-subtle); margin:0 4px;"></div>
 
         <!-- Language Switcher (Flag Button ID / EN) -->
+        
+        <!-- Dark / Light Mode Toggle Button -->
+        <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
+          <span class="theme-icon">☀️</span>
+          <span class="theme-text">Light</span>
+        </button>
+
         <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
           <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
           <span>ID</span>

@@ -472,22 +472,27 @@
   // ==========================================
   
   // Pastikan warna teks / author selalu kontras dan jelas terbaca di atas latar belakang putih/terang
-  function ensureContrastForLightBg(colorHex, defaultDark = '#0f172a') {
-    if (!colorHex || typeof colorHex !== 'string') return defaultDark;
+  function isDarkModeActive() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ||
+           document.body.classList.contains('dark-mode') ||
+           document.body.classList.contains('dark-theme');
+  }
+
+  function getContrastAuthorColor(colorHex, isDark = false) {
+    if (!colorHex || typeof colorHex !== 'string') {
+      return isDark ? '#38bdf8' : '#0f172a';
+    }
     let hex = colorHex.trim();
     if (!hex.startsWith('#')) return hex;
     if (hex.length === 4) {
       hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
     }
-    if (hex.length !== 7) return defaultDark;
+    if (hex.length !== 7) return isDark ? '#38bdf8' : '#0f172a';
 
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
-    if (isNaN(r) || isNaN(g) || isNaN(b)) return defaultDark;
-
-    // Jika warna terlalu dekat dengan putih / abu-abu terang, gunakan defaultDark
-    if (r > 190 && g > 190 && b > 190) return defaultDark;
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return isDark ? '#38bdf8' : '#0f172a';
 
     const sR = r / 255, sG = g / 255, sB = b / 255;
     const R = sR <= 0.03928 ? sR / 12.92 : Math.pow((sR + 0.055) / 1.055, 2.4);
@@ -495,15 +500,30 @@
     const B = sB <= 0.03928 ? sB / 12.92 : Math.pow((sB + 0.055) / 1.055, 2.4);
     const L = 0.2126 * R + 0.7152 * G + 0.0722 * B;
 
-    // Jika terlalu terang (luminansi tinggi), turunkan kecerahan agar kontras WCAG tinggi pada kartu putih
-    if (L > 0.35) {
-      const factor = Math.min(0.52, 0.28 / L);
-      const darkR = Math.min(255, Math.floor(r * factor));
-      const darkG = Math.min(255, Math.floor(g * factor));
-      const darkB = Math.min(255, Math.floor(b * factor));
-      return '#' + darkR.toString(16).padStart(2, '0') + darkG.toString(16).padStart(2, '0') + darkB.toString(16).padStart(2, '0');
+    if (isDark) {
+      if (r < 70 && g < 70 && b < 70) return '#38bdf8';
+      if (L < 0.18) {
+        const boost = 0.55;
+        const lightR = Math.min(255, Math.floor(r + (255 - r) * boost));
+        const lightG = Math.min(255, Math.floor(g + (255 - g) * boost));
+        const lightB = Math.min(255, Math.floor(b + (255 - b) * boost));
+        return '#' + lightR.toString(16).padStart(2, '0') + lightG.toString(16).padStart(2, '0') + lightB.toString(16).padStart(2, '0');
+      }
+    } else {
+      if (r > 190 && g > 190 && b > 190) return '#0f172a';
+      if (L > 0.35) {
+        const factor = Math.min(0.52, 0.28 / L);
+        const darkR = Math.min(255, Math.floor(r * factor));
+        const darkG = Math.min(255, Math.floor(g * factor));
+        const darkB = Math.min(255, Math.floor(b * factor));
+        return '#' + darkR.toString(16).padStart(2, '0') + darkG.toString(16).padStart(2, '0') + darkB.toString(16).padStart(2, '0');
+      }
     }
     return hex;
+  }
+
+  function ensureContrastForLightBg(colorHex, defaultDark = '#0f172a') {
+    return getContrastAuthorColor(colorHex, isDarkModeActive());
   }
 
   function renderChatItem(chat, shouldScroll = true) {
@@ -859,3 +879,30 @@
   initSocket();
 
 })();
+
+
+  // ==========================================
+  // DOCK THEME TOGGLE
+  // ==========================================
+  const btnDockTheme = document.getElementById('btn-dock-theme');
+  const dockThemeIcon = document.getElementById('dock-theme-icon');
+
+  function updateDockThemeUI(theme) {
+    if (dockThemeIcon) {
+      dockThemeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+  }
+
+  if (btnDockTheme) {
+    btnDockTheme.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      document.body.classList.toggle('dark-mode', next === 'dark');
+      localStorage.setItem('streampulse_theme', next);
+      updateDockThemeUI(next);
+    });
+
+    const initialTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('streampulse_theme') || 'dark';
+    updateDockThemeUI(initialTheme);
+  }

@@ -777,6 +777,14 @@
       accent-color: #000000;
     }
   </style>
+
+  <script>
+    (function() {
+      var saved = localStorage.getItem('streampulse_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+
 </head>
 <body>
 
@@ -801,6 +809,13 @@
 
     <div class="studio-header-right">
       <!-- Language Switcher (Flag ID / EN) -->
+      
+      <!-- Dark / Light Mode Toggle Button -->
+      <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
+        <span class="theme-icon">☀️</span>
+        <span class="theme-text">Light</span>
+      </button>
+
       <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
         <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
         <span>ID</span>
@@ -4107,5 +4122,28 @@
       bootStudio();
     });
   </script>
+<script>
+    // Studio Theme Toggle
+    (function() {
+      const btnThemeToggle = document.getElementById('btnThemeToggle');
+      if (btnThemeToggle) {
+        function updateThemeBtn() {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          btnThemeToggle.innerHTML = isDark
+            ? '<span class="theme-icon">☀️</span> <span class="theme-text">Light</span>'
+            : '<span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>';
+        }
+        btnThemeToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          const next = isDark ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          document.body.classList.toggle('dark-mode', next === 'dark');
+          localStorage.setItem('streampulse_theme', next);
+          updateThemeBtn();
+        });
+        updateThemeBtn();
+      }
+    })();
+</script>
 </body>
 </html>

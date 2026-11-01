@@ -2420,3 +2420,178 @@ body.obs-mode #exitObsBtn {
 .event-highlight-text span {
   color: inherit;
 }
+
+
+/* ==========================================================================
+   STREAM PULSE DARK MODE SYSTEM TOKENS & COMPONENTS
+   ========================================================================== */
+:root[data-theme="dark"],
+html[data-theme="dark"],
+body.dark-mode {
+  color-scheme: dark;
+
+  /* Brand & Accent */
+  --primary: #ffffff;
+  --on-primary: #000000;
+  --ink: #f8fafc;
+  --ink-deep: #ffffff;
+  --charcoal: #cbd5e1;
+  --body: #94a3b8;
+  --mute: #64748b;
+
+  /* Surfaces & Canvas (OLED & Charcoal Slate) */
+  --bg-canvas: #09090b;
+  --bg-panel: #111115;
+  --bg-card: #18181b;
+  --bg-card-hover: #202025;
+  --bg-elevated: #1e1e24;
+  --bg-input: #121216;
+  --surface-soft: #18181b;
+  --surface-card: #141417;
+  --surface-dark: #000000;
+  --on-dark: #ffffff;
+  --on-dark-mute: rgba(255, 255, 255, 0.7);
+
+  /* Hairlines & Borders */
+  --hairline: #27272a;
+  --hairline-strong: #3f3f46;
+  --border-subtle: #27272a;
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(255, 255, 255, 0.04);
+
+  /* Typography */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-inverse: #09090b;
+
+  /* Brand / Action Pill */
+  --accent-primary: #ffffff;
+  --accent-primary-hover: #e2e8f0;
+  --accent-glow: transparent;
+  --primary-gradient: #ffffff;
+
+  /* Platform Tints in Dark Mode */
+  --twitch-glass: #171226;
+  --twitch-border: #3b2866;
+
+  --youtube-glass: #241113;
+  --youtube-border: #5c1d22;
+
+  --tiktok-glass: #0e151e;
+  --tiktok-border: #1e293b;
+}
+
+/* Theme Toggle Button Style */
+.btn-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.btn-theme-toggle:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--hairline-strong);
+}
+
+/* Dark Mode Overrides for Hardcoded Components */
+:root[data-theme="dark"] .modal-content,
+:root[data-theme="dark"] .input-with-icon input,
+:root[data-theme="dark"] .demo-group-badge,
+:root[data-theme="dark"] .mobile-bottom-nav,
+:root[data-theme="dark"] .sp-popup-card {
+  background: var(--bg-card) !important;
+  color: var(--ink) !important;
+  border-color: var(--hairline) !important;
+}
+
+:root[data-theme="dark"] .input-with-icon input {
+  background: var(--bg-input) !important;
+}
+
+:root[data-theme="dark"] .chat-item {
+  background: var(--bg-card) !important;
+  border-color: var(--hairline) !important;
+}
+:root[data-theme="dark"] .chat-item:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+:root[data-theme="dark"] .chat-item .chat-text {
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item {
+  background: var(--bg-card) !important;
+  border-color: var(--hairline) !important;
+  border-left-color: var(--primary) !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item.youtube-superchat {
+  background: rgba(255, 0, 51, 0.1) !important;
+  border-color: rgba(255, 0, 51, 0.3) !important;
+  border-left: 3px solid #ff0033 !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item.tiktok-gift {
+  background: rgba(254, 44, 85, 0.1) !important;
+  border-color: rgba(254, 44, 85, 0.3) !important;
+  border-left: 3px solid var(--tiktok-pink) !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item.twitch-sub {
+  background: rgba(145, 70, 255, 0.1) !important;
+  border-color: rgba(145, 70, 255, 0.3) !important;
+  border-left: 3px solid var(--twitch) !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item.twitch-redeem {
+  background: rgba(168, 85, 247, 0.1) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+  border-left: 3px solid #a855f7 !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item.twitch-streak {
+  background: rgba(249, 115, 22, 0.1) !important;
+  border-color: rgba(249, 115, 22, 0.3) !important;
+  border-left: 3px solid #f97316 !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item.youtube-supersticker,
+:root[data-theme="dark"] .chat-item.event-item.youtube-member,
+:root[data-theme="dark"] .chat-item.event-item.youtube-gift-member {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+  border-left: 3px solid #22c55e !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item .chat-text {
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] .event-highlight-text {
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] .event-highlight-text span {
+  color: inherit !important;
+}
+
+:root[data-theme="dark"] .empty-state {
+  color: var(--body);
+}
+
+:root[data-theme="dark"] .stats-card,
+:root[data-theme="dark"] .recorder-card {
+  background: var(--bg-card) !important;
+  border-color: var(--hairline) !important;
+}

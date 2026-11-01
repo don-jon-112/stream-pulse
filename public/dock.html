@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -547,7 +547,75 @@
     .dock-status-msg.success { color: var(--success); }
     .dock-status-msg.error { color: var(--danger); }
     .dock-status-msg.info { color: var(--text-dim); }
+  
+    /* Dark Mode Tokens for OBS Dock */
+    :root[data-theme="dark"],
+    body.dark-mode {
+      --bg-base: #09090b;
+      --bg-panel: #111115;
+      --bg-card: #18181b;
+      --bg-hover: #222227;
+      --border-subtle: #27272a;
+      --border-focus: #ffffff;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #ffffff;
+      --primary-hover: #e2e8f0;
+    }
+
+    :root[data-theme="dark"] .dock-chat-item {
+      background: #18181b !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+
+    :root[data-theme="dark"] .dock-chat-text {
+      color: #f8fafc !important;
+    }
+
+    :root[data-theme="dark"] .dock-author-name {
+      color: #f8fafc;
+    }
+
+    :root[data-theme="dark"] .dock-event-item {
+      background: #18181b !important;
+      border-color: #27272a !important;
+      border-left-color: #ffffff !important;
+      color: #f8fafc !important;
+    }
+
+    :root[data-theme="dark"] .dock-event-header {
+      color: #f8fafc !important;
+    }
+
+    :root[data-theme="dark"] .dock-event-detail {
+      color: #cbd5e1 !important;
+    }
+
+    :root[data-theme="dark"] .dock-chat-input {
+      background: #18181b !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+
+    :root[data-theme="dark"] .dock-header-bar,
+    :root[data-theme="dark"] .dock-stream-status-row,
+    :root[data-theme="dark"] .dock-filter-bar,
+    :root[data-theme="dark"] .dock-input-bar {
+      background: #111115 !important;
+      border-color: #27272a !important;
+    }
+
   </style>
+
+  <script>
+    (function() {
+      var saved = localStorage.getItem('streampulse_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+
 </head>
 <body>
 
@@ -562,6 +630,11 @@
         </div>
       </div>
       <div class="dock-header-actions">
+        
+        <button class="dock-btn-icon" id="btn-dock-theme" title="Ganti Mode Gelap / Terang">
+          <span id="dock-theme-icon">☀️</span>
+        </button>
+
         <button class="dock-btn-icon" id="btn-clear-chat" title="Bersihkan Tampilan Chat">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Clear

@@ -5,6 +5,54 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // ==========================================
+  // THEME MANAGEMENT (DARK MODE / LIGHT MODE)
+  // ==========================================
+  function initTheme() {
+    const savedTheme = localStorage.getItem('streampulse_theme') || 'dark'; // Default to dark mode
+    setTheme(savedTheme, false);
+
+    const btnThemeToggle = document.getElementById('btnThemeToggle');
+    if (btnThemeToggle) {
+      btnThemeToggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        setTheme(next, true);
+      });
+    }
+  }
+
+  function setTheme(theme, save = true) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.body.classList.remove('dark-mode');
+      document.body.classList.add('light-mode');
+    }
+    if (save) {
+      localStorage.setItem('streampulse_theme', theme);
+    }
+    updateThemeToggleBtn(theme);
+  }
+
+  function updateThemeToggleBtn(theme) {
+    const btn = document.getElementById('btnThemeToggle');
+    if (!btn) return;
+    if (theme === 'dark') {
+      btn.innerHTML = '<span class="theme-icon">☀️</span> <span class="theme-text">Light</span>';
+      btn.setAttribute('title', 'Beralih ke Mode Terang (Light Mode)');
+    } else {
+      btn.innerHTML = '<span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>';
+      btn.setAttribute('title', 'Beralih ke Mode Gelap (Dark Mode)');
+    }
+  }
+
+  initTheme();
+
   const socket = io({ transports: ['websocket', 'polling'] });
 
   // Header Elements
@@ -1213,6 +1261,67 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cache ID pesan untuk mencegah tampilan duplikat di homepage
   const processedChatMessageIds = new Set();
 
+  
+  // ==========================================
+  // ADAPTIVE AUTHOR & TEXT CONTRAST ENGINE
+  // ==========================================
+  function isDarkModeActive() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ||
+           document.body.classList.contains('dark-mode') ||
+           document.body.classList.contains('dark-theme');
+  }
+
+  function getContrastAuthorColor(colorHex, isDark = false) {
+    if (!colorHex || typeof colorHex !== 'string') {
+      return isDark ? '#38bdf8' : '#0f172a';
+    }
+    let hex = colorHex.trim();
+    if (!hex.startsWith('#')) return hex;
+    if (hex.length === 4) {
+      hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    }
+    if (hex.length !== 7) return isDark ? '#38bdf8' : '#0f172a';
+
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return isDark ? '#38bdf8' : '#0f172a';
+
+    const sR = r / 255, sG = g / 255, sB = b / 255;
+    const R = sR <= 0.03928 ? sR / 12.92 : Math.pow((sR + 0.055) / 1.055, 2.4);
+    const G = sG <= 0.03928 ? sG / 12.92 : Math.pow((sG + 0.055) / 1.055, 2.4);
+    const B = sB <= 0.03928 ? sB / 12.92 : Math.pow((sB + 0.055) / 1.055, 2.4);
+    const L = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+
+    if (isDark) {
+      // In Dark Mode: dark colors (< 0.18) blend into the dark canvas, so boost brightness
+      if (r < 70 && g < 70 && b < 70) return '#38bdf8';
+      if (L < 0.18) {
+        const boost = 0.55;
+        const lightR = Math.min(255, Math.floor(r + (255 - r) * boost));
+        const lightG = Math.min(255, Math.floor(g + (255 - g) * boost));
+        const lightB = Math.min(255, Math.floor(b + (255 - b) * boost));
+        return '#' + lightR.toString(16).padStart(2, '0') + lightG.toString(16).padStart(2, '0') + lightB.toString(16).padStart(2, '0');
+      }
+    } else {
+      // In Light Mode: light colors (> 0.35) blend into white cards, so darken them
+      if (r > 190 && g > 190 && b > 190) return '#0f172a';
+      if (L > 0.35) {
+        const factor = Math.min(0.52, 0.28 / L);
+        const darkR = Math.min(255, Math.floor(r * factor));
+        const darkG = Math.min(255, Math.floor(g * factor));
+        const darkB = Math.min(255, Math.floor(b * factor));
+        return '#' + darkR.toString(16).padStart(2, '0') + darkG.toString(16).padStart(2, '0') + darkB.toString(16).padStart(2, '0');
+      }
+    }
+    return hex;
+  }
+
+  function ensureContrastForLightBg(colorHex, defaultDark = '#0f172a') {
+    const isDark = isDarkModeActive();
+    return getContrastAuthorColor(colorHex, isDark);
+  }
+
   function addChatMessage(chat) {
     if (!chat) return;
 
@@ -1349,11 +1458,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="event-highlight-text">
           <span>${escapeHtml(evt.title)}</span>
           <span>•</span>
-          <span style="color: #334155; font-weight: 600;">${escapeHtml(evt.detail || '')}</span>
+          <span class="event-detail-badge" style="color: var(--charcoal); font-weight: 600;">${escapeHtml(evt.detail || '')}</span>
         </div>
         ${stickerHtml}
         ${iconHtml}
-        ${evt.message ? `<div class="chat-text" style="margin-top: 5px; color: #0f172a; font-weight: 500;">"${evt.platform === 'twitch' ? formatTwitchMessageWithEmotes(evt.message, evt.emotes) : parse7tvTextTokens(evt.message, state.twitchEmotes)}"</div>` : ''}
+        ${evt.message ? `<div class="chat-text" style="margin-top: 5px; color: var(--ink); font-weight: 500;">"${evt.platform === 'twitch' ? formatTwitchMessageWithEmotes(evt.message, evt.emotes) : parse7tvTextTokens(evt.message, state.twitchEmotes)}"</div>` : ''}
       </div>
     `;
 
