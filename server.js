@@ -1,7 +1,15 @@
-// Polyfill zlib.createZstdDecompress for Node.js < 22.10 (fixes Undici v7/v8 decompress.js crash on Node 18/20)
+// Polyfill zlib & worker_threads for Node.js < 22 (fixes Undici v7/v8 crashes on Node 18/20)
 import { createRequire as _topCreateRequire } from 'node:module';
 try {
   const _topReq = _topCreateRequire(import.meta.url);
+  for (const modName of ['node:worker_threads', 'worker_threads']) {
+    try {
+      const _wt = _topReq(modName);
+      if (_wt && !_wt.markAsUncloneable) {
+        _wt.markAsUncloneable = function(obj) { return obj; };
+      }
+    } catch (_) {}
+  }
   for (const modName of ['node:zlib', 'zlib']) {
     try {
       const _zlib = _topReq(modName);
