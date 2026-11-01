@@ -169,30 +169,30 @@
       }
 
       .studio-layout {
-        grid-template-columns: 1fr;
-        padding: 12px;
-        gap: 16px;
-      }
-
-      .controls-panel {
-        padding: 14px;
-        position: static;
-        max-height: none;
-        overflow-y: visible;
-      }
-    }
-
-    .studio-layout {
       flex: 1;
       display: grid;
-      grid-template-columns: 480px 1fr;
+      grid-template-columns: 210px 480px 1fr;
       gap: 20px;
       padding: 20px 24px;
-      max-width: 1600px;
+      max-width: 1720px;
       width: 100%;
       margin: 0 auto;
       box-sizing: border-box;
       align-items: start;
+    }
+
+    @media (max-width: 1280px) {
+      .studio-layout {
+        grid-template-columns: 190px 420px 1fr;
+        gap: 14px;
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .studio-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 1024px) {
@@ -200,18 +200,9 @@
         grid-template-columns: 1fr;
       }
       .controls-panel {
-        position: static !important;
-        max-height: none !important;
-        overflow-y: visible !important;
-        top: auto !important;
-      }
-    }
-
-    /* Left Control Panel - Sticky on Web / Desktop view */
-    .controls-panel {
-      background: rgba(13, 17, 27, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: var(--radius-lg);
+      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -221,7 +212,7 @@
       top: 76px;
       align-self: start;
       max-height: calc(100vh - 96px);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: none;
       z-index: 20;
     }
 
@@ -240,14 +231,15 @@
     }
 
     .studio-card {
-      background: rgba(18, 24, 38, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: var(--radius-md);
+      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
       padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: none;
+      transition: border-color 0.2s;
     }
     .studio-card:hover {
       border-color: rgba(99, 102, 241, 0.3);
@@ -255,14 +247,15 @@
 
     .section-title {
       font-size: 0.92rem;
-      font-weight: 800;
-      color: #fff;
+      font-weight: 600;
+      font-family: var(--font-heading);
+      color: #000000;
       display: flex;
       align-items: center;
       gap: 8px;
       margin: 0;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      border-bottom: 1px solid var(--hairline);
     }
 
     .form-group {
@@ -273,14 +266,14 @@
 
     .form-label {
       font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-secondary);
+      font-weight: 600;
+      color: #000000;
       display: flex;
       justify-content: space-between;
     }
 
     :root {
-      color-scheme: dark;
+      color-scheme: light;
     }
 
     .form-input, .form-select {
@@ -292,12 +285,12 @@
       color: #fff;
       font-size: 0.85rem;
       box-sizing: border-box;
-      color-scheme: dark;
+      color-scheme: light;
     }
 
     .form-select option, .form-select optgroup {
-      background-color: #0f172a !important;
-      color: #f8fafc !important;
+      background-color: #ffffff !important;
+      color: #000000 !important;
       padding: 8px 12px;
     }
 
@@ -305,16 +298,17 @@
       width: 100%;
       min-height: 240px;
       padding: 12px 14px;
-      background: #090c15;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      color: #a5b4fc;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      color: #000000;
       font-size: 0.85rem;
       font-family: var(--font-mono);
       resize: vertical;
       box-sizing: border-box;
       line-height: 1.5;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      transition: border-color 0.15s ease;
     }
 
     .form-textarea:focus {
@@ -473,26 +467,20 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 10px 12px;
-      border-radius: var(--radius-xs);
-      font-size: 0.8rem;
+      padding: 8px 12px;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
+      transition: all 0.15s ease;
     }
-
     .slot-item:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.22);
-      transform: translateY(-1px);
+      background: #f5f5f5;
+      border-color: var(--hairline-strong);
     }
-
     .slot-item.active {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.12);
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+      background: #faf6f0;
+      border-color: #8c5b36;
     }
 
     /* Modal Overlay (Centered) */
@@ -539,22 +527,22 @@
     .preview-window {
       min-height: 320px;
       background:
-        linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
-        linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
-        #070a12;
-      background-size: 24px 24px;
-      background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
-      border: 2px dashed rgba(99, 102, 241, 0.4);
-      border-radius: var(--radius-lg);
+        linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%),
+        #ffffff;
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       padding: 0;
-      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.85);
+      box-shadow: none;
       box-sizing: border-box;
       margin: 0 auto;
     }
@@ -572,12 +560,13 @@
       position: absolute;
       top: 14px;
       right: 14px;
-      background: rgba(0,0,0,0.6);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 999px;
+      background: #000000;
+      border: 1px solid #000000;
+      border-radius: 9999px;
       font-size: 0.72rem;
       padding: 4px 12px;
-      color: #94a3b8;
+      color: #ffffff;
+      font-weight: 500;
     }
 
     .radio-option-card {
@@ -678,8 +667,72 @@
 
   <!-- Studio Layout -->
   <main class="studio-layout">
+    <!-- THEMES SIDEBAR (SECTION BARU DI SEBELAH KIRI CONTROL PANEL) -->
+    <aside class="themes-sidebar" id="themesSidebar">
+      <div class="themes-sidebar-header">THEMES</div>
+      <div class="themes-list" id="themesList">
+        <button type="button" class="theme-nav-item" data-theme="bubbles">
+          <span class="theme-nav-name">Bubbles</span>
+          <span class="theme-nav-sub">built-in</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="classic">
+          <span class="theme-nav-name">Classic</span>
+          <span class="theme-nav-sub">built-in · default</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="compact">
+          <span class="theme-nav-name">Compact</span>
+          <span class="theme-nav-sub">built-in</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="high-contrast">
+          <span class="theme-nav-name">High contrast</span>
+          <span class="theme-nav-sub">built-in</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="glass">
+          <span class="theme-nav-name">Glass</span>
+          <span class="theme-nav-sub">built-in</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="minimal-outline">
+          <span class="theme-nav-name">Minimal outline</span>
+          <span class="theme-nav-sub">built-in</span>
+        </button>
+        <button type="button" class="theme-nav-item" data-theme="neon">
+          <span class="theme-nav-name">Neon</span>
+          <span class="theme-nav-sub">built-in</span>
+        </button>
+        <button type="button" class="theme-nav-item active" data-theme="paper">
+          <span class="theme-nav-name">Paper</span>
+          <span class="theme-nav-sub">built-in</span>
+        </button>
 
-    <!-- LEFT: Customizer Controls -->
+        <div style="margin: 10px 4px 4px 4px; border-top: 1px solid var(--hairline); padding-top: 8px; font-size: 10px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.08em;">
+          UPCOMING
+        </div>
+
+        <button type="button" class="theme-nav-item disabled" title="Segera Hadir">
+          <span class="theme-nav-name">
+            <span>Retro 8-bit</span>
+            <span class="theme-nav-badge-soon">Soon</span>
+          </span>
+          <span class="theme-nav-sub">arcade pixel style</span>
+        </button>
+        <button type="button" class="theme-nav-item disabled" title="Segera Hadir">
+          <span class="theme-nav-name">
+            <span>Manga / Comic</span>
+            <span class="theme-nav-badge-soon">Soon</span>
+          </span>
+          <span class="theme-nav-sub">halftone screentone</span>
+        </button>
+        <button type="button" class="theme-nav-item disabled" title="Segera Hadir">
+          <span class="theme-nav-name">
+            <span>Sakura Glow</span>
+            <span class="theme-nav-badge-soon">Soon</span>
+          </span>
+          <span class="theme-nav-sub">pastel aesthetic</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MIDDLE: Customizer Controls -->
     <div class="controls-panel">
       
       <!-- 0. GUEST LOCKED BANNER (Ditampilkan saat pengguna belum login) -->
@@ -687,8 +740,8 @@
         <div class="box-title" style="color:#f87171;" data-i18n="studio_guest_lock_title">
           🔒 OBS Overlay Cloud Manager Terkunci
         </div>
-        <p class="box-desc" style="color:#cbd5e1; margin-top:6px; line-height:1.5;" data-i18n-html="studio_guest_lock_desc">
-          Anda saat ini berada dalam mode <strong>Tamu (Guest)</strong>. Anda dapat mencoba kustomisasi visual & live preview, namun untuk <strong>menyimpan konfigurasi</strong>, <strong>mengelola 3 slot cloud</strong>, dan <strong>menyalin URL OBS</strong>, silakan masuk ke akun Anda.
+        <p class="box-desc" style="color:var(--ink); margin-top:6px; line-height:1.5;" data-i18n-html="studio_guest_lock_desc">
+          Anda saat ini berada dalam mode <strong>Tamu (Guest)</strong>. Anda dapat mencoba kustomisasi visual & live preview, namun untuk <strong>menyimpan konfigurasi</strong>, <strong>mengelola 5 slot cloud</strong>, dan <strong>menyalin URL OBS</strong>, silakan masuk ke akun Anda.
         </p>
         <button id="btnGuestUnlock" type="button" class="btn-icon btn-primary" style="width:100%; justify-content:center; padding:9px; font-weight:800; margin-top:8px;">
           <span data-i18n="studio_guest_lock_btn">🔐 Login / Daftar Akun Sekarang</span>
@@ -699,12 +752,12 @@
       <div id="overlayManagerCard" class="overlay-manager-card">
         
         <!-- Slot Management (Quota Limited 3 Slots) -->
-        <div style="background:rgba(13,17,27,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:12px;">
+        <div style="background:var(--surface-soft); border:1px solid var(--hairline); border-radius:var(--radius-sm); padding:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <div class="box-title" data-i18n="studio_slots_title">✨ Slot OBS Overlay Cloud</div>
               <div style="font-size:0.75rem; color:var(--text-tertiary);">
-                <span data-i18n="studio_quota_label">Kuota Pengguna:</span> <strong id="slotCounter" style="color:#67e8f9;">0 / 3 Slot Terpakai</strong>
+                <span data-i18n="studio_quota_label">Kuota Pengguna:</span> <strong id="slotCounter" style="color:#67e8f9;">0 / 5 Slot Terpakai</strong>
               </div>
             </div>
             <button id="btnGenerateOverlay" type="button" class="btn-icon btn-primary" style="font-size:0.8rem; padding:8px 14px; font-weight:800;">
@@ -719,7 +772,7 @@
         </div>
 
         <!-- Currently Active Overlay Banner -->
-        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.4); padding:8px 12px; border-radius:var(--radius-xs); border:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-soft); padding:8px 12px; border-radius:var(--radius-xs); border:1px solid rgba(255,255,255,0.06);">
           <span style="font-size:0.75rem; color:var(--text-secondary);" data-i18n="studio_editing_badge">Sedang Mengedit ID:</span>
           <span id="activeOverlayIdBadge" style="font-family:var(--font-mono); font-size:0.85rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:4px;">default</span>
         </div>
@@ -728,10 +781,10 @@
 
       <!-- 1. Channel Linking Card -->
       <div class="studio-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.07); padding-bottom:8px; margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--hairline); padding-bottom:8px; margin-bottom:8px;">
           <div class="section-title" style="border-bottom:none; padding-bottom:0; margin-bottom:0;" data-i18n="sec_channels">📡 Saluran Live Stream</div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:0.75rem; color:#cbd5e1; font-weight:700;">🧪 Mode Uji Coba Preview</span>
+            <span style="font-size:0.75rem; color:var(--ink); font-weight:700;">🧪 Mode Uji Coba Preview</span>
             <label class="toggle-switch" title="Aktifkan untuk mencoba testing live chat dengan username lain di preview tanpa mengubah pengaturan OBS Anda">
               <input type="checkbox" id="switchPreviewMode">
               <span class="toggle-slider"></span>
@@ -766,7 +819,7 @@
 
       <!-- 2. Visual Style & Theme Card -->
       <div class="studio-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.07); padding-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--hairline); padding-bottom:8px;">
           <div class="section-title" style="border-bottom:none; padding-bottom:0;" data-i18n="sec_visual">🎨 Gaya & Tampilan Chat</div>
           <button type="button" id="btnResetVisualsSection" class="btn-icon" style="font-size:0.72rem; padding:4px 8px; border-color:rgba(239, 68, 68, 0.4); color:#fca5a5;" title="Kembalikan tampilan visual ke nilai bawaan">
             <span data-i18n="studio_btn_reset">🔄 Reset</span>
@@ -774,15 +827,21 @@
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div class="form-group">
-            <label class="form-label" for="settingTheme" data-i18n="sec_theme">Tema Overlay</label>
-            <select id="settingTheme" class="form-select">
-              <option value="simple" data-i18n="opt_theme_simple" selected>⚡ Simple Single-Line (Default)</option>
-              <option value="glitch" data-i18n="opt_theme_glitch">⚡ Cyber Glitch / Angled Tag</option>
-              <option value="glass" data-i18n="opt_theme_glass">💎 Glassmorphism Dark</option>
-              <option value="minimal" data-i18n="opt_theme_minimal">⬛ Minimalist Semi-Transparent</option>
-              <option value="cyberpunk" data-i18n="opt_theme_cyberpunk">⚡ Cyberpunk Neon Glow</option>
-              <option value="light" data-i18n="opt_theme_light">⚪ Clean Light Paper</option>
+          <div class="form-group" style="display:none;">
+            <select id="settingTheme">
+              <option value="bubbles">Bubbles</option>
+              <option value="classic">Classic</option>
+              <option value="compact">Compact</option>
+              <option value="high-contrast">High contrast</option>
+              <option value="glass">Glass</option>
+              <option value="minimal-outline">Minimal outline</option>
+              <option value="neon">Neon</option>
+              <option value="paper" selected>Paper</option>
+              <option value="simple">Simple Single-Line</option>
+              <option value="glitch">Glitch</option>
+              <option value="minimal">Minimal</option>
+              <option value="cyberpunk">Cyberpunk</option>
+              <option value="light">Clean Light Paper</option>
             </select>
           </div>
 
@@ -796,8 +855,8 @@
         </div>
 
         <!-- Bubble Background & Opacity -->
-        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
-          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">💬 Bubble Chat Background</div>
+        <div style="background:var(--surface-soft); border:1px solid var(--hairline); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:var(--ink); text-transform:uppercase; letter-spacing:0.5px;">💬 Bubble Chat Background</div>
           
           <div class="form-group">
             <div class="form-label">
@@ -820,8 +879,8 @@
         </div>
 
         <!-- Text & Author Colors -->
-        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
-          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">✍️ Warna Teks & Pengirim</div>
+        <div style="background:var(--surface-soft); border:1px solid var(--hairline); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:var(--ink); text-transform:uppercase; letter-spacing:0.5px;">✍️ Warna Teks & Pengirim</div>
 
           <div class="form-group">
             <div class="form-label">
@@ -847,8 +906,8 @@
         </div>
 
         <!-- NEW: Container Background & Opacity -->
-        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
-          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">📦 Background Box Container Chat</div>
+        <div style="background:var(--surface-soft); border:1px solid var(--hairline); border-radius:var(--radius-sm); padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:0.75rem; font-weight:800; color:var(--ink); text-transform:uppercase; letter-spacing:0.5px;">📦 Background Box Container Chat</div>
           <div style="font-size:0.72rem; color:var(--text-tertiary); line-height:1.4;">
             Atur warna dan transparansi latar belakang box wadah seluruh chat (cocok jika ingin container chat dock semi-transparan).
           </div>
@@ -908,7 +967,7 @@
         
         <!-- General / Moderation -->
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
-          <div style="font-size:0.75rem; font-weight:800; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.5px;">🌐 Tampilan Umum & Sensor</div>
+          <div style="font-size:0.75rem; font-weight:800; color:var(--ink); text-transform:uppercase; letter-spacing:0.5px;">🌐 Tampilan Umum & Sensor</div>
           
           <!-- ARAH ALIRAN CHAT (RADIO BUTTON) -->
           <div style="padding: 6px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
@@ -1403,8 +1462,13 @@
 
       <!-- Live Preview Controls -->
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-        <div style="font-size:0.9rem; font-weight:800; color:#cbd5e1;" data-i18n="live_preview_title">
-          👁️ Live Preview (Transparan di OBS)
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="font-size:0.92rem; font-weight:700; color:#000000;" data-i18n="live_preview_title">
+            👁️ Live Preview
+          </div>
+          <button type="button" id="btnToggleSimLoop" class="btn-icon" style="padding:3px 10px; font-size:0.72rem; border-radius:9999px; background:#000000; color:#ffffff; border:1px solid #000000; font-weight:500;" title="Jeda atau lanjutkan simulasi chat otomatis">
+            <span id="simLoopStatus">⏸️ Jeda Simulasi</span>
+          </button>
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
           <!-- Chat Tests -->
@@ -1427,9 +1491,9 @@
       </div>
 
       <!-- Canvas Dimensions Simulation Toolbar (Preview Only) -->
-      <div class="preview-dimension-toolbar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:rgba(13, 20, 36, 0.7); border:1px solid rgba(255, 255, 255, 0.08); border-radius:var(--radius-sm); padding:8px 12px; margin-top:4px;">
+      <div class="preview-dimension-toolbar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:var(--surface-soft); border:1px solid var(--hairline); border-radius:var(--radius-sm); padding:8px 12px; margin-top:4px;">
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <span style="font-size:0.75rem; font-weight:700; color:#cbd5e1; display:flex; align-items:center; gap:4px;">
+          <span style="font-size:0.75rem; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:4px;">
             📐 <span data-i18n="preview_size_label">Ukuran Preview Canvas:</span>
           </span>
           <div style="display:inline-flex; align-items:center; gap:4px;">
@@ -1836,7 +1900,7 @@
           accountPillContainer.innerHTML = `
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="font-size:0.8rem; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:4px 10px; border-radius:999px; color:#a5b4fc; font-weight:700;">
-                👤 ${currentUser.username} (${count}/3 ${window.t ? window.t('studio_slots_used_text') : 'Slot'})
+                👤 ${currentUser.username} (${count}/5 ${window.t ? window.t('studio_slots_used_text') : 'Slot'})
               </span>
               <button id="btnLogoutUser" class="btn-icon" style="font-size:0.75rem; padding:4px 8px;" title="Keluar dari akun">
                 ${window.t ? window.t('studio_logout_btn') : 'Logout'}
@@ -1861,7 +1925,7 @@
           obsUrlStatusBadge.style.color = '#10b981';
           obsUrlHelpText.innerHTML = window.t ? window.t('obs_help_text') : '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>';
 
-          slotCounter.textContent = `${count} / 3 ${window.t ? window.t('studio_slots_used_text') : 'Slot Terpakai'}`;
+          slotCounter.textContent = `${count} / 5 ${window.t ? window.t('studio_slots_used_text') : 'Slot Terpakai'}`;
           renderSlotsList(currentUser.overlays || currentUser.overlayIds || []);
           updateUrl();
         } else {
@@ -2236,8 +2300,8 @@
       btnGenerateOverlay.addEventListener('click', async () => {
         if (!userToken || !currentUser) {
           spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
-            ? 'Please log in or register first so your overlay presets are saved securely (Maximum 3 slots per account).'
-            : 'Silakan login atau daftar akun terlebih dahulu agar overlay Anda tersimpan aman (Maksimal 3 slot per akun).',
+            ? 'Please log in or register first so your overlay presets are saved securely (Maximum 5 slots per account).'
+            : 'Silakan login atau daftar akun terlebih dahulu agar overlay Anda tersimpan aman (Maksimal 5 slot per akun).',
             window.t ? window.t('dialog_warning') : 'Perhatian', 'warning');
           openAuthModal();
           return;
@@ -2265,6 +2329,9 @@
       });
 
       function switchProfile(newId) {
+        setTimeout(() => {
+          if (settingTheme) setActiveThemeNav(settingTheme.value);
+        }, 300);
         profileId = newId;
         localStorage.setItem('streampulse_overlay_profile_id', profileId);
         activeOverlayIdBadge.textContent = profileId;
@@ -3020,6 +3087,131 @@
         }
       ];
       let testChatIdx = 0;
+
+      
+      // =========================================================================
+      // THEMES SIDEBAR INTERACTION
+      // =========================================================================
+      const themeNavItems = document.querySelectorAll('#themesList .theme-nav-item:not(.disabled)');
+      function setActiveThemeNav(themeKey) {
+        let normKey = themeKey;
+        if (normKey === 'simple') normKey = 'classic';
+        if (normKey === 'light') normKey = 'paper';
+        if (normKey === 'cyberpunk' || normKey === 'glitch') normKey = 'neon';
+        if (normKey === 'minimal') normKey = 'minimal-outline';
+
+        themeNavItems.forEach(btn => {
+          if (btn.dataset.theme === normKey) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+
+      themeNavItems.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const chosenTheme = btn.dataset.theme;
+          setActiveThemeNav(chosenTheme);
+          if (settingTheme) {
+            settingTheme.value = chosenTheme;
+            settingTheme.dispatchEvent(new Event('change'));
+          }
+          if (previewIframe && previewIframe.contentWindow) {
+            previewIframe.contentWindow.postMessage({
+              type: 'update_preview_config',
+              config: { theme: chosenTheme }
+            }, '*');
+          }
+          spToast('Tema aktif: ' + btn.querySelector('.theme-nav-name').textContent.trim(), 'info');
+        });
+      });
+
+      // Synchronize initial theme selection
+      if (settingTheme) {
+        setActiveThemeNav(settingTheme.value || 'paper');
+      }
+
+      // =========================================================================
+      // AUTOMATIC LIVE CHAT SIMULATION LOOP (WITH MEMORY PRUNING)
+      // =========================================================================
+      let previewSimInterval = null;
+      let isPreviewSimPlaying = true;
+      const btnToggleSimLoop = document.getElementById('btnToggleSimLoop');
+      const simLoopStatus = document.getElementById('simLoopStatus');
+
+      function sendNextSimMessage() {
+        if (!isPreviewSimPlaying || !previewIframe || !previewIframe.contentWindow) return;
+        const iframeWin = previewIframe.contentWindow;
+        if (!iframeWin.document) return;
+
+        // Auto-Prune old DOM chat items inside preview iframe to ensure flat memory usage
+        try {
+          const chatCont = iframeWin.document.getElementById('overlayChatContainer');
+          if (chatCont && chatCont.children && chatCont.children.length > 10) {
+            while (chatCont.children.length > 8) {
+              chatCont.removeChild(chatCont.firstChild);
+            }
+          }
+        } catch (_) {}
+
+        const sample = testChatUsers[testChatIdx % testChatUsers.length];
+        testChatIdx++;
+
+        const simEvent = new CustomEvent('socket_sim', {
+          detail: {
+            type: 'chat',
+            data: {
+              platform: sample.platform || 'twitch',
+              author: {
+                name: sample.name,
+                color: sample.color || '',
+                badges: sample.badges || {},
+                isMod: !!sample.isMod,
+                isSub: !!sample.isSub,
+                isOwner: !!sample.isOwner,
+                isBroadcaster: !!sample.isBroadcaster,
+                memberBadge: sample.memberBadge || ''
+              },
+              text: sample.text,
+              timestamp: Date.now()
+            }
+          }
+        });
+        iframeWin.dispatchEvent(simEvent);
+      }
+
+      function startPreviewSimulationLoop() {
+        if (previewSimInterval) clearInterval(previewSimInterval);
+        // Start pumping message immediately
+        setTimeout(sendNextSimMessage, 400);
+        previewSimInterval = setInterval(sendNextSimMessage, 2400);
+      }
+
+      if (btnToggleSimLoop && simLoopStatus) {
+        btnToggleSimLoop.addEventListener('click', () => {
+          isPreviewSimPlaying = !isPreviewSimPlaying;
+          if (isPreviewSimPlaying) {
+            simLoopStatus.textContent = '⏸️ Jeda Simulasi';
+            btnToggleSimLoop.style.background = '#000000';
+            btnToggleSimLoop.style.color = '#ffffff';
+            sendNextSimMessage();
+          } else {
+            simLoopStatus.textContent = '▶️ Putar Simulasi';
+            btnToggleSimLoop.style.background = 'var(--surface-soft)';
+            btnToggleSimLoop.style.color = 'var(--ink)';
+          }
+        });
+      }
+
+      // Start loop when iframe is loaded or reloaded
+      previewIframe.addEventListener('load', () => {
+        startPreviewSimulationLoop();
+      });
+
+      // Start loop initially on page load
+      startPreviewSimulationLoop();
+
 
       btnTestChat.addEventListener('click', () => {
         const iframeDoc = previewIframe.contentWindow;

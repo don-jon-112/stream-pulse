@@ -383,25 +383,115 @@
     }
 
     /* THEMES */
-    body.theme-minimal .overlay-item {
-      background: rgba(0, 0, 0, 0.75);
-      border: none;
-      backdrop-filter: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    /* 1. Bubbles Theme */
+    body.theme-bubbles .overlay-item {
+      border-radius: 20px;
+      padding: 10px 16px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
-    body.theme-light .overlay-item {
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    body.theme-bubbles .overlay-avatar {
+      border-radius: 50%;
     }
-    body.theme-light .overlay-author-name { color: #1e293b; text-shadow: none; }
-    body.theme-light .overlay-text { color: #0f172a; text-shadow: none; }
 
+    /* 2. Classic Theme */
+    body.theme-classic .overlay-item {
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    }
+
+    /* 3. Compact Theme */
+    body.theme-compact .overlay-item {
+      border-radius: 6px;
+      padding: 4px 8px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88em;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    body.theme-compact .overlay-avatar {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* 4. High Contrast Theme */
+    body.theme-high-contrast .overlay-item,
+    body.theme-high_contrast .overlay-item {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+      border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.85);
+    }
+    body.theme-high-contrast .overlay-author-name,
+    body.theme-high_contrast .overlay-author-name {
+      color: #facc15 !important;
+      font-weight: 800;
+      text-shadow: none;
+    }
+    body.theme-high-contrast .overlay-text,
+    body.theme-high_contrast .overlay-text {
+      color: #ffffff !important;
+      font-weight: 600;
+      text-shadow: none;
+    }
+
+    /* 5. Glass Theme */
+    body.theme-glass .overlay-item {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 6. Minimal Outline Theme */
+    body.theme-minimal-outline .overlay-item,
+    body.theme-minimal_outline .overlay-item,
+    body.theme-minimal .overlay-item {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    /* 7. Neon Theme */
+    body.theme-neon .overlay-item,
     body.theme-cyberpunk .overlay-item {
-      background: rgba(10, 10, 25, 0.9);
-      border: 1px solid #00f2fe;
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
-      border-radius: 2px;
+      background: rgba(8, 12, 24, 0.9);
+      border: 1.5px solid #00f2fe;
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.45), inset 0 0 8px rgba(0, 242, 254, 0.2);
+      border-radius: 4px;
+    }
+    body.theme-neon .overlay-author-name,
+    body.theme-cyberpunk .overlay-author-name {
+      color: #00f2fe !important;
+      text-shadow: 0 0 8px #00f2fe;
+    }
+
+    /* 8. Paper Theme */
+    body.theme-paper .overlay-item,
+    body.theme-light .overlay-item {
+      background: #faf6f0 !important;
+      border: 1px solid #e7e5e4 !important;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    body.theme-paper .overlay-author-name,
+    body.theme-light .overlay-author-name {
+      color: #292524 !important;
+      font-weight: 700;
+      text-shadow: none;
+    }
+    body.theme-paper .overlay-text,
+    body.theme-light .overlay-text {
+      color: #1c1917 !important;
+      text-shadow: none;
     }
 
     /* Platform Tag / Icon */

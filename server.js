@@ -1586,9 +1586,9 @@ app.post('/api/user/overlays/generate', (req, res) => {
   const currentUser = users[user.username] || user;
   if (!currentUser.overlayIds) currentUser.overlayIds = [];
 
-  if (currentUser.overlayIds.length >= 3) {
+  if (currentUser.overlayIds.length >= 5) {
     return res.status(400).json({
-      error: 'Batas kuota 3 Overlay per akun telah tercapai! Anda dapat mengedit salah satu dari 3 overlay yang ada atau menghapusnya untuk membuat yang baru.'
+      error: 'Batas kuota 5 Overlay per akun telah tercapai! Anda dapat mengedit salah satu dari 5 overlay yang ada atau menghapusnya untuk membuat yang baru.'
     });
   }
 
@@ -1625,7 +1625,7 @@ app.post('/api/user/overlays/generate', (req, res) => {
     id: newId,
     overlay: overlays[newId],
     count: currentUser.overlayIds.length,
-    maxLimit: 3
+    maxLimit: 5
   });
 });
 
@@ -1662,9 +1662,9 @@ app.post('/api/user/overlays/claim', (req, res) => {
     }
     if (!currentUser.overlayIds) currentUser.overlayIds = [];
     if (!currentUser.overlayIds.includes(targetId)) {
-      if (currentUser.overlayIds.length >= 3) {
+      if (currentUser.overlayIds.length >= 5) {
         return res.status(400).json({
-          error: 'Slot overlay Anda penuh (maksimal 3). Hapus salah satu terlebih dahulu untuk menautkan ID ini.'
+          error: 'Slot overlay Anda penuh (maksimal 5). Hapus salah satu terlebih dahulu untuk menautkan ID ini.'
         });
       }
       currentUser.overlayIds.push(targetId);
@@ -1729,9 +1729,9 @@ app.post('/api/user/overlays/duplicate', (req, res) => {
   const currentUser = users[user.username] || user;
   if (!currentUser.overlayIds) currentUser.overlayIds = [];
 
-  if (currentUser.overlayIds.length >= 3) {
+  if (currentUser.overlayIds.length >= 5) {
     return res.status(400).json({
-      error: 'Batas kuota 3 Overlay per akun telah tercapai! Hapus salah satu slot terlebih dahulu untuk menduplikat.'
+      error: 'Batas kuota 5 Overlay per akun telah tercapai! Hapus salah satu slot terlebih dahulu untuk menduplikat.'
     });
   }
 
@@ -1761,7 +1761,7 @@ app.post('/api/user/overlays/duplicate', (req, res) => {
     id: newId,
     overlay: overlays[newId],
     count: currentUser.overlayIds.length,
-    maxLimit: 3
+    maxLimit: 5
   });
 });
 
@@ -1854,10 +1854,10 @@ app.post('/api/overlays', (req, res) => {
       });
     }
   } else {
-    // ID baru yang belum ada di database, verifikasi kuota 3 slot per akun
+    // ID baru yang belum ada di database, verifikasi kuota 5 slot per akun
     if (!currentUser.overlayIds.includes(id)) {
-      if (currentUser.overlayIds.length >= 3) {
-        return res.status(400).json({ error: 'Batas kuota 3 slot overlay telah tercapai. Anda dapat memilih salah satu slot yang ada untuk di-overwrite atau hapus slot yang tidak digunakan.' });
+      if (currentUser.overlayIds.length >= 5) {
+        return res.status(400).json({ error: 'Batas kuota 5 slot overlay telah tercapai. Anda dapat memilih salah satu slot yang ada untuk di-overwrite atau hapus slot yang tidak digunakan.' });
       }
       currentUser.overlayIds.push(id);
       users[user.username] = currentUser;

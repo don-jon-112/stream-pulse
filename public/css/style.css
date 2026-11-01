@@ -154,9 +154,9 @@ body {
   z-index: 60;
   background: var(--bg-canvas);
   border-bottom: 1px solid var(--hairline);
-  padding: 0 24px;
+  padding: 8px 24px;
   min-height: 56px;
-  height: 56px;
+  height: auto;
   display: flex;
   align-items: center;
   box-shadow: none;
