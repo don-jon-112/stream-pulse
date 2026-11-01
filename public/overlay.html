@@ -593,56 +593,53 @@
       flex-wrap: wrap !important;
       width: fit-content !important;
       max-width: 100% !important;
-      background: var(--bg-bubble, rgba(16, 24, 40, 0.38)) !important;
+      background: var(--bg-bubble, rgba(18, 25, 40, 0.55)) !important;
       backdrop-filter: blur(16px) saturate(160%) !important;
       -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.16) !important;
-      border-radius: 14px !important;
-      padding: 7px 15px !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 12px !important;
+      padding: 8px 14px !important;
       margin: 3px 0 6px 0 !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3) !important;
       color: #ffffff !important;
-      gap: 6px !important;
+      gap: 8px !important;
       box-sizing: border-box !important;
-      line-height: 1.45 !important;
+      line-height: 1.4 !important;
     }
 
-    /* Hide avatar photo in Glass v2 */
     body.theme-glass-v2 .overlay-avatar,
     body.theme-glass_v2 .overlay-avatar {
       display: none !important;
     }
 
-    /* Inline flow body and header */
     body.theme-glass-v2 .overlay-body,
     body.theme-glass_v2 .overlay-body {
-      display: inline !important;
-      vertical-align: middle !important;
-      flex: 1 1 auto !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
     }
 
     body.theme-glass-v2 .overlay-header,
     body.theme-glass_v2 .overlay-header {
       display: inline-flex !important;
       align-items: center !important;
-      vertical-align: middle !important;
       gap: 6px !important;
-      margin-right: 6px !important;
+      margin: 0 !important;
     }
 
-    /* Platform icon inside Glass v2: Clean bare glyph icon */
     body.theme-glass-v2 .overlay-platform-tag,
     body.theme-glass_v2 .overlay-platform-tag {
       display: inline-flex !important;
       background: transparent !important;
+      border: none !important;
       width: 18px !important;
       height: 18px !important;
       min-width: 18px !important;
       min-height: 18px !important;
-      vertical-align: middle !important;
       padding: 0 !important;
       margin: 0 !important;
-      border-radius: 0 !important;
+      box-shadow: none !important;
     }
 
     body.theme-glass-v2 .overlay-platform-tag svg,
@@ -653,7 +650,7 @@
 
     body.theme-glass-v2 .overlay-platform-tag.platform-twitch svg,
     body.theme-glass_v2 .overlay-platform-tag.platform-twitch svg {
-      fill: #9146ff !important;
+      fill: #a855f7 !important;
     }
 
     body.theme-glass-v2 .overlay-platform-tag.platform-youtube svg,
@@ -666,116 +663,109 @@
       fill: #00f2fe !important;
     }
 
-    /* Outline badges matching image: MEMBER, MOD, SUB */
+    body.theme-glass-v2 .overlay-platform-tag.platform-x svg,
+    body.theme-glass_v2 .overlay-platform-tag.platform-x svg,
+    body.theme-glass-v2 .overlay-platform-tag.platform-twitter svg,
+    body.theme-glass_v2 .overlay-platform-tag.platform-twitter svg {
+      fill: #ffffff !important;
+    }
+
+    body.theme-glass-v2 .overlay-platform-tag.platform-kick svg,
+    body.theme-glass_v2 .overlay-platform-tag.platform-kick svg {
+      fill: #4ade80 !important;
+    }
+
     body.theme-glass-v2 .badge-icon,
     body.theme-glass_v2 .badge-icon {
       background: rgba(56, 189, 248, 0.12) !important;
-      border: 1px solid rgba(56, 189, 248, 0.6) !important;
+      border: 1px solid rgba(56, 189, 248, 0.7) !important;
       color: #38bdf8 !important;
       border-radius: 4px !important;
-      font-size: 0.62rem !important;
+      font-size: 10px !important;
       font-weight: 700 !important;
-      padding: 0 4px !important;
-      height: 16px !important;
-      vertical-align: middle !important;
+      padding: 1px 5px !important;
+      height: auto !important;
+      line-height: 1.2 !important;
       text-transform: uppercase !important;
     }
 
-    body.theme-glass-v2 .badge-icon.mod,
-    body.theme-glass_v2 .badge-icon.mod {
-      border-color: rgba(56, 189, 248, 0.7) !important;
-      color: #38bdf8 !important;
-      background: rgba(56, 189, 248, 0.14) !important;
-    }
-
-    body.theme-glass-v2 .badge-icon.sub,
-    body.theme-glass_v2 .badge-icon.sub {
-      border-color: rgba(52, 211, 153, 0.7) !important;
-      color: #34d399 !important;
-      background: rgba(52, 211, 153, 0.14) !important;
-    }
-
-    /* Author Name */
     body.theme-glass-v2 .overlay-author-name,
     body.theme-glass_v2 .overlay-author-name {
-      display: inline !important;
       font-weight: 700 !important;
-      font-size: 0.95em !important;
-      vertical-align: middle !important;
+      font-size: 14px !important;
       text-shadow: none !important;
-      margin-right: 5px !important;
     }
 
-    /* Message Text: flows right after author name on same line */
     body.theme-glass-v2 .overlay-text,
     body.theme-glass_v2 .overlay-text {
       display: inline !important;
-      vertical-align: middle !important;
-      font-size: 0.95em !important;
-      font-weight: 600 !important;
       color: #ffffff !important;
-      text-shadow: none !important;
-      line-height: 1.45 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
     body.theme-glass-v2 .overlay-message-content,
     body.theme-glass_v2 .overlay-message-content {
       display: inline !important;
+      color: #ffffff !important;
       vertical-align: middle !important;
-      word-break: break-word !important;
     }
 
-    /* Alert Banner (Bottom Item in Reference Image) */
+    /* Glass v2 Alert Banner (Cyan Glowing Card matching kiwi_codes reference) */
     body.theme-glass-v2 .overlay-item.overlay-event,
     body.theme-glass_v2 .overlay-item.overlay-event {
-      background: rgba(14, 165, 233, 0.16) !important;
-      border: 1.5px solid #38bdf8 !important;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35), inset 0 0 8px rgba(56, 189, 248, 0.12) !important;
       display: inline-flex !important;
-      align-items: center !important;
       flex-direction: row !important;
+      align-items: center !important;
       gap: 8px !important;
+      border: 1.5px solid #38bdf8 !important;
+      background: rgba(14, 165, 233, 0.22) !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.28) !important;
+      border-radius: 12px !important;
+      padding: 8px 16px !important;
+      color: #38bdf8 !important;
+      font-weight: 700 !important;
     }
 
     body.theme-glass-v2 .overlay-item.overlay-event .overlay-author-name,
     body.theme-glass_v2 .overlay-item.overlay-event .overlay-author-name,
-    body.theme-glass-v2 .overlay-item.overlay-event .overlay-text,
-    body.theme-glass_v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-text,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-title,
     body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-title {
       color: #38bdf8 !important;
       font-weight: 700 !important;
-      text-shadow: none !important;
       display: inline !important;
+      margin: 0 !important;
     }
 
-    /* Bubbles v2: Clean White Pill Bubble with Circular Platform Badge (Matching reference) */
+    /* Bubbles v2: Clean White Pill Bubble with Floating Circular Platform Emblem */
     body.theme-bubbles-v2 .overlay-item,
     body.theme-bubbles_v2 .overlay-item {
       display: flex !important;
       flex-direction: column !important;
       align-items: flex-start !important;
-      gap: 3px !important;
+      gap: 2px !important;
       width: fit-content !important;
       max-width: calc(100% - 32px) !important;
       background: var(--bg-bubble, #ffffff) !important;
-      border: 1px solid rgba(0, 0, 0, 0.06) !important;
-      border-radius: 16px !important;
+      border: 1px solid rgba(0, 0, 0, 0.05) !important;
+      border-radius: 18px !important;
       padding: 8px 18px 8px 24px !important;
-      margin: 4px 0 8px 24px !important;
+      margin: 4px 0 8px 22px !important;
       position: relative !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
       color: #0f172a !important;
       box-sizing: border-box !important;
     }
 
-    /* Hide avatar photo in Bubbles v2 (uses platform badge circle instead) */
     body.theme-bubbles-v2 .overlay-avatar,
     body.theme-bubbles_v2 .overlay-avatar {
       display: none !important;
     }
 
-    /* Circular platform emblem on the left edge */
     body.theme-bubbles-v2 .overlay-platform-tag,
     body.theme-bubbles_v2 .overlay-platform-tag {
       display: flex !important;
@@ -798,8 +788,8 @@
 
     body.theme-bubbles-v2 .overlay-platform-tag svg,
     body.theme-bubbles_v2 .overlay-platform-tag svg {
-      width: 17px !important;
-      height: 17px !important;
+      width: 16px !important;
+      height: 16px !important;
     }
 
     body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
@@ -832,27 +822,65 @@
       fill: #00f2fe !important;
     }
 
-    /* Header inside bubble: author name & role badges */
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-x,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-x,
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitter,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitter {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-x svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-x svg,
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitter svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitter svg {
+      fill: #ffffff !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-kick,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-kick {
+      background: #53fc18 !important;
+      color: #000000 !important;
+    }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-kick svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-kick svg {
+      fill: #000000 !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-body,
+    body.theme-bubbles_v2 .overlay-body {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 2px !important;
+      width: 100% !important;
+    }
+
     body.theme-bubbles-v2 .overlay-header,
     body.theme-bubbles_v2 .overlay-header {
       display: flex !important;
       align-items: center !important;
       gap: 6px !important;
-      margin-bottom: 1px !important;
+      margin: 0 0 2px 0 !important;
     }
 
-    /* Badges matching screenshot: subtle outline pill */
+    body.theme-bubbles-v2 .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-author-name {
+      font-weight: 700 !important;
+      font-size: 14px !important;
+      text-shadow: none !important;
+    }
+
     body.theme-bubbles-v2 .badge-icon,
     body.theme-bubbles_v2 .badge-icon {
-      background: rgba(244, 63, 94, 0.08) !important;
-      border: 1px solid rgba(244, 63, 94, 0.6) !important;
-      color: #f43f5e !important;
+      background: rgba(225, 29, 72, 0.08) !important;
+      border: 1px solid rgba(225, 29, 72, 0.6) !important;
+      color: #e11d48 !important;
       border-radius: 4px !important;
-      font-size: 0.62rem !important;
+      font-size: 10px !important;
       font-weight: 700 !important;
-      padding: 0 4px !important;
-      height: 16px !important;
-      vertical-align: middle !important;
+      padding: 1px 4px !important;
+      height: auto !important;
+      line-height: 1.2 !important;
       text-transform: uppercase !important;
     }
 
@@ -865,106 +893,249 @@
 
     body.theme-bubbles-v2 .badge-icon.sub,
     body.theme-bubbles_v2 .badge-icon.sub {
-      border-color: rgba(244, 63, 94, 0.6) !important;
-      color: #f43f5e !important;
-      background: rgba(244, 63, 94, 0.08) !important;
+      border-color: rgba(225, 29, 72, 0.6) !important;
+      color: #e11d48 !important;
+      background: rgba(225, 29, 72, 0.08) !important;
     }
 
-    /* Author Name: colored & bold */
-    body.theme-bubbles-v2 .overlay-author-name,
-    body.theme-bubbles_v2 .overlay-author-name {
-      font-weight: 700 !important;
-      font-size: 0.92em !important;
-      text-shadow: none !important;
-    }
-
-    /* Message Text: dark charcoal */
     body.theme-bubbles-v2 .overlay-text,
     body.theme-bubbles_v2 .overlay-text {
-      font-size: 0.95em !important;
+      display: block !important;
       color: #0f172a !important;
       font-weight: 500 !important;
-      line-height: 1.45 !important;
-      text-shadow: none !important;
+      font-size: 14px !important;
+      line-height: 1.4 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
-    /* Alert Card in Bubbles v2: Solid Hot Pink / Coral Pill Bubble with dark text (bottom item in reference image) */
+    body.theme-bubbles-v2 .overlay-message-content,
+    body.theme-bubbles_v2 .overlay-message-content {
+      color: #0f172a !important;
+    }
+
+    /* Bubbles v2 Alert (Solid Hot Pink/Coral Pill with Black Text matching reference) */
     body.theme-bubbles-v2 .overlay-item.overlay-event,
     body.theme-bubbles_v2 .overlay-item.overlay-event {
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 8px !important;
       background: #ff5277 !important;
-      color: #000000 !important;
       border: none !important;
-      box-shadow: 0 4px 18px rgba(255, 82, 119, 0.35) !important;
+      border-radius: 18px !important;
+      padding: 10px 20px 10px 26px !important;
+      margin: 4px 0 8px 22px !important;
+      position: relative !important;
+      box-shadow: 0 4px 14px rgba(255, 82, 119, 0.4) !important;
+      color: #000000 !important;
     }
 
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-author-name,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-author-name,
-    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-text,
-    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-text,
-    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-title,
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-text,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-text,
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-title,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-title {
       color: #000000 !important;
-      font-weight: 700 !important;
-      text-shadow: none !important;
+      font-weight: 800 !important;
+      font-size: 14px !important;
+      display: inline !important;
+      margin: 0 !important;
     }
 
-    /* Paper v2: Clean White Card with Platform Accent Border Strip */
+    /* Paper v2: Clean Off-White Card with Platform Left Border Accent */
     body.theme-paper-v2 .overlay-item,
     body.theme-paper_v2 .overlay-item {
-      background: var(--bg-bubble, #ffffff) !important;
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      width: fit-content !important;
+      max-width: 100% !important;
+      background: var(--bg-bubble, #faf8f5) !important;
       border: 1px solid #e2e8f0 !important;
-      border-left: 4.5px solid #6366f1 !important;
+      border-left: 5px solid #6366f1 !important;
       border-radius: 10px !important;
       padding: 8px 14px !important;
       margin-bottom: 6px !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-      color: #1c1917 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+      color: #111827 !important;
+      gap: 8px !important;
+      box-sizing: border-box !important;
+      line-height: 1.4 !important;
     }
+
     body.theme-paper-v2 .overlay-item.platform-twitch,
     body.theme-paper_v2 .overlay-item.platform-twitch {
       border-left-color: #9146ff !important;
     }
+
     body.theme-paper-v2 .overlay-item.platform-youtube,
     body.theme-paper_v2 .overlay-item.platform-youtube {
-      border-left-color: #ff0000 !important;
+      border-left-color: #ef4444 !important;
     }
+
     body.theme-paper-v2 .overlay-item.platform-tiktok,
     body.theme-paper_v2 .overlay-item.platform-tiktok {
       border-left-color: #06b6d4 !important;
     }
+
+    body.theme-paper-v2 .overlay-item.platform-x,
+    body.theme-paper_v2 .overlay-item.platform-x,
+    body.theme-paper-v2 .overlay-item.platform-twitter,
+    body.theme-paper_v2 .overlay-item.platform-twitter {
+      border-left-color: #1e293b !important;
+    }
+
+    body.theme-paper-v2 .overlay-item.platform-kick,
+    body.theme-paper_v2 .overlay-item.platform-kick {
+      border-left-color: #22c55e !important;
+    }
+
+    body.theme-paper-v2 .overlay-avatar,
+    body.theme-paper_v2 .overlay-avatar {
+      display: none !important;
+    }
+
     body.theme-paper-v2 .overlay-platform-tag,
     body.theme-paper_v2 .overlay-platform-tag {
       display: inline-flex !important;
+      background: transparent !important;
+      border: none !important;
       width: 18px !important;
       height: 18px !important;
-      border-radius: 3px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      box-shadow: none !important;
     }
+
+    body.theme-paper-v2 .overlay-platform-tag svg,
+    body.theme-paper_v2 .overlay-platform-tag svg {
+      width: 16px !important;
+      height: 16px !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-twitch svg,
+    body.theme-paper_v2 .overlay-platform-tag.platform-twitch svg {
+      fill: #9146ff !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-youtube svg,
+    body.theme-paper_v2 .overlay-platform-tag.platform-youtube svg {
+      fill: #ef4444 !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-tiktok svg,
+    body.theme-paper_v2 .overlay-platform-tag.platform-tiktok svg {
+      fill: #06b6d4 !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-x svg,
+    body.theme-paper_v2 .overlay-platform-tag.platform-x svg,
+    body.theme-paper-v2 .overlay-platform-tag.platform-twitter svg,
+    body.theme-paper_v2 .overlay-platform-tag.platform-twitter svg {
+      fill: #000000 !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-kick svg,
+    body.theme-paper_v2 .overlay-platform-tag.platform-kick svg {
+      fill: #22c55e !important;
+    }
+
+    body.theme-paper-v2 .badge-icon,
+    body.theme-paper_v2 .badge-icon {
+      background: transparent !important;
+      border: 1px solid rgba(225, 29, 72, 0.7) !important;
+      color: #e11d48 !important;
+      border-radius: 4px !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      padding: 1px 4px !important;
+      height: auto !important;
+      line-height: 1.2 !important;
+      text-transform: uppercase !important;
+    }
+
+    body.theme-paper-v2 .badge-icon.mod,
+    body.theme-paper_v2 .badge-icon.mod {
+      border-color: rgba(147, 51, 234, 0.7) !important;
+      color: #9333ea !important;
+    }
+
+    body.theme-paper-v2 .badge-icon.sub,
+    body.theme-paper_v2 .badge-icon.sub {
+      border-color: rgba(225, 29, 72, 0.7) !important;
+      color: #e11d48 !important;
+    }
+
+    body.theme-paper-v2 .overlay-body,
+    body.theme-paper_v2 .overlay-body {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+    }
+
+    body.theme-paper-v2 .overlay-header,
+    body.theme-paper_v2 .overlay-header {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      margin: 0 !important;
+    }
+
     body.theme-paper-v2 .overlay-author-name,
     body.theme-paper_v2 .overlay-author-name {
-      color: #0f172a !important;
       font-weight: 700 !important;
+      font-size: 14px !important;
       text-shadow: none !important;
     }
+
     body.theme-paper-v2 .overlay-text,
     body.theme-paper_v2 .overlay-text {
-      color: #1c1917 !important;
-      text-shadow: none !important;
+      display: inline !important;
+      color: #111827 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
+
+    body.theme-paper-v2 .overlay-message-content,
+    body.theme-paper_v2 .overlay-message-content {
+      color: #111827 !important;
+    }
+
+    /* Paper v2 Alert (Warm Peach Card with Orange Left Border matching reference) */
     body.theme-paper-v2 .overlay-item.overlay-event,
     body.theme-paper_v2 .overlay-item.overlay-event {
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 8px !important;
       background: #ffedd5 !important;
       border: 1px solid #fed7aa !important;
-      border-left: 4.5px solid #f97316 !important;
+      border-left: 5px solid #ea580c !important;
+      border-radius: 10px !important;
+      padding: 8px 16px !important;
+      margin-bottom: 6px !important;
+      color: #9a3412 !important;
+      font-weight: 700 !important;
     }
+
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-text,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-title,
     body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-title {
-      color: #c2410c !important;
-      text-shadow: none !important;
-    }
-    body.theme-paper-v2 .overlay-item.overlay-event .overlay-text,
-    body.theme-paper_v2 .overlay-item.overlay-event .overlay-text {
-      color: #7c2d12 !important;
-      text-shadow: none !important;
+      color: #9a3412 !important;
+      font-weight: 700 !important;
+      display: inline !important;
+      margin: 0 !important;
     }
 
     /* Platform Tag / Icon */
@@ -1953,6 +2124,32 @@
         if (!config.showBadges) return '';
         let html = '';
         const author = chat.author || {};
+        const badges = author.badges || {};
+
+        // V2 Themes use clean text pill badges matching reference pictures
+        const isV2Theme = document.body.classList.contains('theme-glass-v2') || 
+                          document.body.classList.contains('theme-bubbles-v2') || 
+                          document.body.classList.contains('theme-paper-v2') || 
+                          ['glass-v2', 'bubbles-v2', 'paper-v2'].includes(config.theme);
+
+        if (isV2Theme) {
+          if (badges.member || author.memberBadge || author.isMember || (chat.platform === 'youtube' && author.isSub)) {
+            html += `<span class="badge-icon member">MEMBER</span>`;
+          }
+          if (badges.moderator || author.isMod) {
+            html += `<span class="badge-icon mod">MOD</span>`;
+          }
+          if (badges.subscriber || author.isSub) {
+            html += `<span class="badge-icon sub">SUB</span>`;
+          }
+          if (badges.vip) {
+            html += `<span class="badge-icon vip">VIP</span>`;
+          }
+          if (badges.broadcaster || author.isBroadcaster || author.isOwner) {
+            html += `<span class="badge-icon broadcaster">HOST</span>`;
+          }
+          return html;
+        }
 
         if (chat.platform === 'twitch') {
           if (config.showTwitchBadges === false) return '';
@@ -1966,7 +2163,6 @@
             return html;
           }
 
-          const badges = author.badges || {};
           if (badges.broadcaster || author.isBroadcaster) {
             const b = TWITCH_OFFICIAL_BADGES.broadcaster;
             html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
@@ -1993,7 +2189,6 @@
           }
         } else if (chat.platform === 'youtube') {
           if (config.showYtBadges === false) return '';
-          // 1. YouTube Official Owner Badge
           if (author.isOwner) {
             html += `
               <span class="yt-official-badge yt-owner-badge" title="Channel Owner / Host">
@@ -2001,14 +2196,12 @@
                 <span>Owner</span>
               </span>`;
           }
-          // 2. YouTube Official Moderator Blue Wrench
           if (author.isMod) {
             html += `
               <span class="yt-official-badge yt-mod-badge" title="Moderator">
                 <svg viewBox="0 0 16 16" width="14" height="14" fill="#5e84f1" aria-hidden="true"><path d="M9.64 5.64l-1.28-1.28a3.16 3.16 0 0 0-4.41.22 3.16 3.16 0 0 0 .22 4.41l1.28 1.28 7.37 7.37a1.05 1.05 0 0 0 1.49 0l1.49-1.49a1.05 1.05 0 0 0 0-1.49L9.64 5.64zM3.48 4.97a1.77 1.77 0 0 1 2.5 0l.75.75-1.5 1.5-.75-.75a1.77 1.77 0 0 1 0-2.5z"/></svg>
               </span>`;
           }
-          // 3. YouTube Member Custom Badge / Icon
           if (author.memberBadge) {
             html += `<img src="${escapeHtml(author.memberBadge)}" class="platform-official-badge yt-member-badge" alt="Member" title="Channel Member" referrerpolicy="no-referrer" loading="lazy">`;
           } else if (author.isSub) {
@@ -2019,25 +2212,27 @@
           }
         }
 
-        if (chat.isRedeem) {
-          html += ``;
-        }
-
         return html;
       }
 
-      // Platform Icon / Tag Renderer (Twitch, YouTube, TikTok)
+      // Platform Icon / Tag Renderer (Twitch, YouTube, TikTok, X, Kick)
       function renderPlatformTag(platform) {
         if (config.showPlatformIcons === false) return '';
         const p = String(platform || '').toLowerCase();
         if (p === 'twitch') {
           return `<span class="overlay-platform-tag platform-twitch" title="Twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.429h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></span>`;
         }
-        if (p === 'youtube') {
+        if (p === 'youtube' || p === 'yt') {
           return `<span class="overlay-platform-tag platform-youtube" title="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>`;
         }
         if (p === 'tiktok') {
           return `<span class="overlay-platform-tag platform-tiktok" title="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.3 6.3 0 0 0 1.84-4.48V8.78a8.28 8.28 0 0 0 4.93 1.62V6.95a4.85 4.85 0 0 1-1-.26z"/></svg></span>`;
+        }
+        if (p === 'x' || p === 'twitter') {
+          return `<span class="overlay-platform-tag platform-x" title="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>`;
+        }
+        if (p === 'kick') {
+          return `<span class="overlay-platform-tag platform-kick" title="Kick"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h4.8v6.6l4.2-6.6h5.4l-5.6 8.4 6.2 9.6h-5.4l-4.8-7.8v7.8H3V3z"/></svg></span>`;
         }
         return '';
       }
@@ -2527,12 +2722,25 @@
           `;
         }
 
-        el.innerHTML = `
-          ${avatarHtml}
-          <div class="overlay-body">
-            ${bodyContent}
-          </div>
-        `;
+        const isV2Event = document.body.classList.contains('theme-glass-v2') || 
+                          document.body.classList.contains('theme-bubbles-v2') || 
+                          document.body.classList.contains('theme-paper-v2') || 
+                          ['glass-v2', 'bubbles-v2', 'paper-v2'].includes(config.theme);
+
+        if (isV2Event) {
+          el.innerHTML = `
+            ${platformTagHtml}
+            <span class="overlay-author-name">${escapeHtml(authorName)}</span>
+            <span class="overlay-event-text">${escapeHtml(customTitle)}${customDetail ? ' • ' + escapeHtml(customDetail) : ''}${displayMsg ? ' ' + escapeHtml(displayMsg) : ''}</span>
+          `;
+        } else {
+          el.innerHTML = `
+            ${avatarHtml}
+            <div class="overlay-body">
+              ${bodyContent}
+            </div>
+          `;
+        }
 
         container.appendChild(el);
 

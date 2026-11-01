@@ -1004,6 +1004,9 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div class="form-group" style="display:none;">
             <select id="settingTheme">
+              <option value="glass-v2">Glass v2</option>
+              <option value="bubbles-v2">Bubbles v2</option>
+              <option value="paper-v2">Paper v2</option>
               <option value="bubbles">Bubbles</option>
               <option value="classic">Classic</option>
               <option value="compact">Compact</option>
@@ -3299,171 +3302,10 @@
       });
 
       // Simulation Test Users: Mencakup Twitch Custom Colors, Random Colors, Mod, Sub, Member, VIP, Host
-      const testChatUsers = [
-        {
-          name: 'Sarah_Mod',
-          platform: 'twitch',
-          color: '#E91E63', // Twitch Custom Hot Pink
-          badges: { moderator: '1' },
-          isMod: true,
-          text: 'Halo streamers! Chat berjalan tertib ya 🛡️ Semangat live-nya!'
-        },
-        {
-          name: 'Ninja_Sub',
-          platform: 'twitch',
-          color: '#00FF7F', // Twitch Custom Spring Green
-          badges: { subscriber: '1' },
-          isSub: true,
-          text: 'Tier 1 Sub hype! Setup audio & overlay bersih banget ⭐'
-        },
-        {
-          name: 'Duta_Member',
-          platform: 'youtube',
-          color: '', // YouTube (tanpa profil color -> WARNA RANDOM!)
-          isSub: true,
-          memberBadge: 'https://cdn-icons-png.flaticon.com/128/1828/1828884.png',
-          text: 'Hadir bang member setia YouTube! Konten gameplaynya mantap 👍'
-        },
-        {
-          name: 'KopiTubruk',
-          platform: 'tiktok',
-          color: '', // TikTok (tanpa profil color -> WARNA RANDOM!)
-          text: 'Halo bang! Nyimak sambil ngopi sore nih santai ☕'
-        },
-        {
-          name: 'ProGamerVIP',
-          platform: 'twitch',
-          color: '#00e5ff', // Twitch Custom Cyan
-          badges: { vip: '1' },
-          text: 'GGWP! Menang streak berapa ini bang? Seru parah 💎'
-        },
-        {
-          name: 'QueenHost',
-          platform: 'twitch',
-          color: '#9c27b0', // Twitch Custom Purple
-          badges: { broadcaster: '1' },
-          isBroadcaster: true,
-          isOwner: true,
-          text: 'Selamat datang semuanya yang baru join live stream! 👑'
-        },
-        {
-          name: 'ChatterPolos',
-          platform: 'twitch',
-          color: '', // Twitch chatter tanpa warna custom -> WARNA RANDOM!
-          text: 'Lanjut game berikutnya seru parah PogChamp !'
-        }
-      ];
-      let testChatIdx = 0;
-
-      
-      
-      // Neon & Platform Settings Elements
-      const settingNeonOutlineMode = document.getElementById('settingNeonOutlineMode');
-      const settingNeonOutlineColor = document.getElementById('settingNeonOutlineColor');
-      const settingNeonOutlineColorHex = document.getElementById('settingNeonOutlineColorHex');
-      const settingNeonTwitchColor = document.getElementById('settingNeonTwitchColor');
-      const settingNeonYtColor = document.getElementById('settingNeonYtColor');
-      const settingNeonTiktokColor = document.getElementById('settingNeonTiktokColor');
-      const settingNeonWidth = document.getElementById('settingNeonWidth');
-      const labelNeonWidth = document.getElementById('labelNeonWidth');
-      const rowNeonSingleColor = document.getElementById('rowNeonSingleColor');
-      const rowNeonPlatformColors = document.getElementById('rowNeonPlatformColors');
-      const settingAuthorColorMode = document.getElementById('settingAuthorColorMode');
-      const rowAuthorPlatformColors = document.getElementById('rowAuthorPlatformColors');
-      const settingAuthorTwitchColor = document.getElementById('settingAuthorTwitchColor');
-      const settingAuthorYtColor = document.getElementById('settingAuthorYtColor');
-      const settingAuthorTiktokColor = document.getElementById('settingAuthorTiktokColor');
-
-      if (settingNeonOutlineMode) {
-        settingNeonOutlineMode.addEventListener('change', () => {
-          if (rowNeonSingleColor) rowNeonSingleColor.style.display = settingNeonOutlineMode.value === 'single' ? 'flex' : 'none';
-          if (rowNeonPlatformColors) rowNeonPlatformColors.style.display = settingNeonOutlineMode.value === 'platform' ? 'flex' : 'none';
-          refreshPreview();
-        });
-      }
-
-      if (settingNeonWidth && labelNeonWidth) {
-        settingNeonWidth.addEventListener('input', () => {
-          labelNeonWidth.textContent = settingNeonWidth.value + 'px';
-          refreshPreview();
-        });
-      }
-
-      if (settingNeonOutlineColor && settingNeonOutlineColorHex) {
-        settingNeonOutlineColor.addEventListener('input', () => {
-          settingNeonOutlineColorHex.value = settingNeonOutlineColor.value.toUpperCase();
-          refreshPreview();
-        });
-      }
-
-      if (settingAuthorColorMode) {
-        settingAuthorColorMode.addEventListener('change', () => {
-          if (rowAuthorPlatformColors) rowAuthorPlatformColors.style.display = settingAuthorColorMode.value === 'platform' ? 'flex' : 'none';
-          refreshPreview();
-        });
-      }
-
-      [settingNeonTwitchColor, settingNeonYtColor, settingNeonTiktokColor, settingAuthorTwitchColor, settingAuthorYtColor, settingAuthorTiktokColor].forEach(el => {
-        if (el) el.addEventListener('input', () => refreshPreview());
-      });
-
-      // Simulation Test: Twitch Follow
-      const btnTestTwitchFollow = document.getElementById('btnTestTwitchFollow');
-      if (btnTestTwitchFollow) {
-        btnTestTwitchFollow.addEventListener('click', () => {
-          if (!previewIframe || !previewIframe.contentWindow) return;
-          previewIframe.contentWindow.postMessage({
-            type: 'socket_sim',
-            subType: 'event',
-            data: {
-              id: 'sim_evt_' + Date.now(),
-              isSim: true,
-              platform: 'twitch',
-              eventType: 'follow',
-              title: 'Twitch New Follower!',
-              author: 'GamerSejati',
-              detail: 'Mulai mengikuti live stream Anda! 💜'
-            }
-          }, '*');
-        });
-      }
-
-      // Simulation Test: Redeem Highlight Text
-      const btnTestRedeemHighlight = document.getElementById('btnTestRedeemHighlight');
-      if (btnTestRedeemHighlight) {
-        btnTestRedeemHighlight.addEventListener('click', () => {
-          if (!previewIframe || !previewIframe.contentWindow) return;
-          previewIframe.contentWindow.postMessage({
-            type: 'socket_sim',
-            subType: 'chat',
-            data: {
-              id: 'sim_msg_' + Date.now(),
-              isSim: true,
-              isHighlight: true,
-              platform: 'twitch',
-              author: {
-                name: 'SultanGamer',
-                color: '#a855f7',
-                badges: { subscriber: '6' }
-              },
-              text: 'Pesan Highlight Channel Points! Teks tampil lebih jelas dan menonjol di OBS! ✨',
-              timestamp: Date.now()
-            }
-          }, '*');
-        });
-      }
-
-      // =========================================================================
-      // THEMES SIDEBAR INTERACTION
-      // =========================================================================
-      
-      // =========================================================================
-      // THEME PRESETS: AUTO-RESET DEFAULT PARAMETERS ON THEME CHANGE
-      // =========================================================================
       const THEME_DEFAULTS = {
         'glass-v2': {
           bgColor: '#101828',
-          bgOpacity: 35,
+          bgOpacity: 55,
           textColor: '#ffffff',
           authorColor: '#38bdf8',
           showAvatars: false
@@ -3476,9 +3318,9 @@
           showAvatars: false
         },
         'paper-v2': {
-          bgColor: '#ffffff',
+          bgColor: '#faf8f5',
           bgOpacity: 100,
-          textColor: '#1c1917',
+          textColor: '#111827',
           authorColor: '#0f172a',
           showAvatars: false
         },
@@ -3544,6 +3386,13 @@
           textColor: '#ffffff',
           authorColor: '#ffffff',
           showAvatars: true
+        },
+        'bubbles': {
+          bgColor: '#ffffff',
+          bgOpacity: 100,
+          textColor: '#0f172a',
+          authorColor: '#9146ff',
+          showAvatars: true
         }
       };
 
@@ -3570,6 +3419,16 @@
         }
         if (def.showAvatars !== undefined && settingShowAvatars) {
           settingShowAvatars.checked = def.showAvatars;
+        }
+
+        // Reset background box container
+        if (settingContainerBgColor) {
+          settingContainerBgColor.value = '#0a0e17';
+          if (labelContainerBgColorHex) labelContainerBgColorHex.textContent = '#0a0e17';
+        }
+        if (settingContainerBgOpacity) {
+          settingContainerBgOpacity.value = 0;
+          if (labelContainerBgOpacity) labelContainerBgOpacity.textContent = '0% (Transparan)';
         }
       }
 
@@ -3633,19 +3492,37 @@
       themeNavItems.forEach(btn => {
         btn.addEventListener('click', () => {
           const chosenTheme = btn.dataset.theme;
-          setActiveThemeNav(chosenTheme);
-          applyThemeDefaults(chosenTheme);
+          const normKey = normalizeThemeKey(chosenTheme);
 
+          // 1. Sinkronkan nilai select theme
           if (settingTheme) {
-            settingTheme.value = chosenTheme;
+            settingTheme.value = normKey;
           }
 
+          // 2. Tandai tema aktif & set status form glitch/neon
+          setActiveThemeNav(normKey);
+
+          // 3. Reset konfigurasi visual ke default bawaan tema
+          applyThemeDefaults(normKey);
+
+          // 4. Bersihkan chat kontainer di preview iframe agar tidak ada bubble lama yang tertinggal
+          try {
+            if (previewIframe && previewIframe.contentWindow && previewIframe.contentWindow.document) {
+              const chatCont = previewIframe.contentWindow.document.getElementById('overlayChatContainer');
+              if (chatCont) chatCont.innerHTML = '';
+            }
+          } catch (_) {}
+
+          // 5. Perbarui URL dan kirim update ke live preview
           updateUrl();
           refreshPreview();
 
+          // 6. Segera kirim sample pesan baru sesuai tema
+          setTimeout(sendNextSimMessage, 150);
+
           const themeNameEl = btn.querySelector('.theme-nav-name');
           const titleText = themeNameEl ? themeNameEl.textContent.trim() : chosenTheme;
-          spToast('Tema aktif: ' + titleText + ' (Preset bawaan diterapkan)', 'info');
+          spToast(`Tema beralih ke "${titleText}" (Pengaturan direset ke default tema)`, 'success');
         });
       });
 
@@ -3653,6 +3530,85 @@
       if (settingTheme) {
         setActiveThemeNav(settingTheme.value || 'paper');
       }
+
+      // Neon & Platform Settings Elements
+      const settingNeonOutlineMode = document.getElementById('settingNeonOutlineMode');
+      const settingNeonOutlineColor = document.getElementById('settingNeonOutlineColor');
+      const settingNeonOutlineColorHex = document.getElementById('settingNeonOutlineColorHex');
+      const settingNeonTwitchColor = document.getElementById('settingNeonTwitchColor');
+      const settingNeonYtColor = document.getElementById('settingNeonYtColor');
+      const settingNeonTiktokColor = document.getElementById('settingNeonTiktokColor');
+      const settingNeonWidth = document.getElementById('settingNeonWidth');
+      const labelNeonWidth = document.getElementById('labelNeonWidth');
+      const settingAuthorColorMode = document.getElementById('settingAuthorColorMode');
+      const settingAuthorTwitchColor = document.getElementById('settingAuthorTwitchColor');
+      const settingAuthorYtColor = document.getElementById('settingAuthorYtColor');
+      const settingAuthorTiktokColor = document.getElementById('settingAuthorTiktokColor');
+
+      // Simulation Test Users: Matching Reference Images
+      const testChatUsers = [
+        {
+          name: 'pixel_pirate',
+          platform: 'twitch',
+          color: '#f97316',
+          badges: {},
+          text: 'first time catching this live! 👋'
+        },
+        {
+          name: 'Maya Chen',
+          platform: 'youtube',
+          color: '#ef4444',
+          badges: { member: '1' },
+          memberBadge: 'member',
+          isMember: true,
+          text: 'hello from Lisbon 👏 the overlay looks so clean'
+        },
+        {
+          name: 'Dev Daily',
+          platform: 'x',
+          color: '#ffffff',
+          badges: {},
+          text: 'one chat for every platform, finally'
+        },
+        {
+          name: 'turbo_kat',
+          platform: 'kick',
+          color: '#4ade80',
+          badges: {},
+          text: 'W stream, the audio sounds great'
+        },
+        {
+          name: 'nightowl_42',
+          platform: 'twitch',
+          color: '#38bdf8',
+          badges: { moderator: '1' },
+          isMod: true,
+          text: 'welcome in everyone, be nice in chat'
+        },
+        {
+          name: 'Sam Ortiz',
+          platform: 'youtube',
+          color: '#ef4444',
+          badges: {},
+          text: 'can you explain that last part again?'
+        },
+        {
+          name: 'Lena Park',
+          platform: 'x',
+          color: '#ffffff',
+          badges: {},
+          text: 'lurking but loving it'
+        },
+        {
+          name: 'kiwi_codes',
+          platform: 'twitch',
+          color: '#a3e635',
+          badges: { subscriber: '1' },
+          isSub: true,
+          text: 'that boss fight PogChamp'
+        }
+      ];
+      let testChatIdx = 0;
 
       // =========================================================================
       // AUTOMATIC LIVE CHAT SIMULATION LOOP (WITH MEMORY PRUNING)
@@ -3677,8 +3633,34 @@
           }
         } catch (_) {}
 
-        const sample = testChatUsers[testChatIdx % testChatUsers.length];
+        const step = testChatIdx % 9;
         testChatIdx++;
+
+        if (step === 8) {
+          // Send simulation subscription alert matching the reference image bottom banner
+          try {
+            iframeWin.postMessage({
+              type: 'socket_sim',
+              subType: 'event',
+              data: {
+                id: 'sim_evt_' + Date.now(),
+                isSim: true,
+                platform: 'twitch',
+                eventType: 'subscription',
+                author: {
+                  name: 'kiwi_codes',
+                  color: '#a3e635'
+                },
+                title: 'subscribed for 6 months!',
+                detail: '',
+                message: ''
+              }
+            }, '*');
+          } catch (_) {}
+          return;
+        }
+
+        const sample = testChatUsers[step % testChatUsers.length];
 
         const simData = {
           id: 'sim_msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
