@@ -230,6 +230,11 @@ io.on('connection', (socket) => {
     }
   };
 
+  // Layer 2: Client-Assisted Stream Relay (OBS CEF / Browser Home IP fallback)
+  socket.on('client_stream_relay', (data) => {
+    streamManager.handleClientRelay(socket, data);
+  });
+
   socket.on('update_channels', handleUpdateChannels);
   socket.on('set_channels', handleUpdateChannels);
 
