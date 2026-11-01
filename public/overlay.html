@@ -383,9 +383,14 @@
     body.theme-bubbles .overlay-item {
       border-radius: 20px;
       padding: 10px 16px;
-      background: rgba(15, 23, 42, 0.88);
+      background: var(--bg-bubble, rgba(15, 23, 42, 0.88));
       border: 1.5px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      color: var(--text-custom, #ffffff) !important;
+    }
+    body.theme-bubbles .overlay-text,
+    body.theme-bubbles .overlay-message-content {
+      color: var(--text-custom, #ffffff) !important;
     }
     body.theme-bubbles .overlay-avatar {
       border-radius: 50%;
@@ -584,7 +589,7 @@
        NEW THEMES (V2: Glass v2, Bubbles v2, Paper v2)
        ========================================================================= */
 
-    /* Glass v2: Ultra Translucent Frosted Glass HUD (Matching reference) */
+    /* Glass v2: Ultra Translucent Frosted Glass HUD */
     body.theme-glass-v2 .overlay-item,
     body.theme-glass_v2 .overlay-item {
       display: inline-flex !important;
@@ -598,11 +603,11 @@
       -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
       border: 1px solid rgba(255, 255, 255, 0.14) !important;
       border-radius: 12px !important;
-      padding: 8px 14px !important;
+      padding: 7px 14px !important;
       margin: 3px 0 6px 0 !important;
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3) !important;
-      color: #ffffff !important;
-      gap: 8px !important;
+      color: var(--text-custom, #ffffff) !important;
+      gap: 0 !important;
       box-sizing: border-box !important;
       line-height: 1.4 !important;
     }
@@ -616,7 +621,7 @@
     body.theme-glass_v2 .overlay-body {
       display: inline-flex !important;
       align-items: center !important;
-      gap: 8px !important;
+      gap: 0 !important;
       flex-wrap: wrap !important;
     }
 
@@ -624,82 +629,65 @@
     body.theme-glass_v2 .overlay-header {
       display: inline-flex !important;
       align-items: center !important;
-      gap: 6px !important;
+      gap: 0 !important;
       margin: 0 !important;
     }
 
     body.theme-glass-v2 .overlay-platform-tag,
     body.theme-glass_v2 .overlay-platform-tag {
       display: inline-flex !important;
-      background: transparent !important;
-      border: none !important;
+      align-items: center !important;
+      justify-content: center !important;
       width: 18px !important;
       height: 18px !important;
       min-width: 18px !important;
       min-height: 18px !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      box-shadow: none !important;
+      border-radius: 4px !important;
+      margin-right: 5px !important;
+      margin-left: 0 !important;
+      flex-shrink: 0 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
     }
 
     body.theme-glass-v2 .overlay-platform-tag svg,
     body.theme-glass_v2 .overlay-platform-tag svg {
-      width: 16px !important;
-      height: 16px !important;
+      width: 12px !important;
+      height: 12px !important;
     }
 
-    body.theme-glass-v2 .overlay-platform-tag.platform-twitch svg,
-    body.theme-glass_v2 .overlay-platform-tag.platform-twitch svg {
-      fill: #a855f7 !important;
+    body.theme-glass-v2 .overlay-platform-tag.platform-twitch,
+    body.theme-glass_v2 .overlay-platform-tag.platform-twitch {
+      background: #9146ff !important;
+      color: #ffffff !important;
     }
 
-    body.theme-glass-v2 .overlay-platform-tag.platform-youtube svg,
-    body.theme-glass_v2 .overlay-platform-tag.platform-youtube svg {
-      fill: #ef4444 !important;
+    body.theme-glass-v2 .overlay-platform-tag.platform-youtube,
+    body.theme-glass_v2 .overlay-platform-tag.platform-youtube {
+      background: #ff0000 !important;
+      color: #ffffff !important;
     }
 
-    body.theme-glass-v2 .overlay-platform-tag.platform-tiktok svg,
-    body.theme-glass_v2 .overlay-platform-tag.platform-tiktok svg {
-      fill: #00f2fe !important;
-    }
-
-    body.theme-glass-v2 .overlay-platform-tag.platform-x svg,
-    body.theme-glass_v2 .overlay-platform-tag.platform-x svg,
-    body.theme-glass-v2 .overlay-platform-tag.platform-twitter svg,
-    body.theme-glass_v2 .overlay-platform-tag.platform-twitter svg {
-      fill: #ffffff !important;
-    }
-
-    body.theme-glass-v2 .overlay-platform-tag.platform-kick svg,
-    body.theme-glass_v2 .overlay-platform-tag.platform-kick svg {
-      fill: #4ade80 !important;
-    }
-
-    body.theme-glass-v2 .badge-icon,
-    body.theme-glass_v2 .badge-icon {
-      background: rgba(56, 189, 248, 0.12) !important;
-      border: 1px solid rgba(56, 189, 248, 0.7) !important;
-      color: #38bdf8 !important;
-      border-radius: 4px !important;
-      font-size: 10px !important;
-      font-weight: 700 !important;
-      padding: 1px 5px !important;
-      height: auto !important;
-      line-height: 1.2 !important;
-      text-transform: uppercase !important;
+    body.theme-glass-v2 .overlay-platform-tag.platform-tiktok,
+    body.theme-glass_v2 .overlay-platform-tag.platform-tiktok {
+      background: #000000 !important;
+      color: #00f2fe !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
     }
 
     body.theme-glass-v2 .overlay-author-name,
     body.theme-glass_v2 .overlay-author-name {
+      color: var(--author-custom, var(--author-color, #38bdf8)) !important;
       font-weight: 700 !important;
       font-size: 14px !important;
+      margin-right: 6px !important;
+      margin-left: 0 !important;
       text-shadow: none !important;
     }
 
     body.theme-glass-v2 .overlay-text,
     body.theme-glass_v2 .overlay-text {
       display: inline !important;
-      color: #ffffff !important;
+      color: var(--text-custom, #ffffff) !important;
       font-size: 14px !important;
       font-weight: 500 !important;
       margin: 0 !important;
@@ -709,17 +697,17 @@
     body.theme-glass-v2 .overlay-message-content,
     body.theme-glass_v2 .overlay-message-content {
       display: inline !important;
-      color: #ffffff !important;
+      color: var(--text-custom, #ffffff) !important;
       vertical-align: middle !important;
     }
 
-    /* Glass v2 Alert Banner (Cyan Glowing Card matching kiwi_codes reference) */
+    /* Glass v2 Alert Banner */
     body.theme-glass-v2 .overlay-item.overlay-event,
     body.theme-glass_v2 .overlay-item.overlay-event {
       display: inline-flex !important;
       flex-direction: row !important;
       align-items: center !important;
-      gap: 8px !important;
+      gap: 0 !important;
       border: 1.5px solid #38bdf8 !important;
       background: rgba(14, 165, 233, 0.22) !important;
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.28) !important;
@@ -730,7 +718,12 @@
     }
 
     body.theme-glass-v2 .overlay-item.overlay-event .overlay-author-name,
-    body.theme-glass_v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-author-name {
+      color: #38bdf8 !important;
+      font-weight: 700 !important;
+      margin-right: 6px !important;
+    }
+
     body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-title,
@@ -741,23 +734,23 @@
       margin: 0 !important;
     }
 
-    /* Bubbles v2: Clean White Pill Bubble with Floating Circular Platform Emblem */
+    /* Bubbles v2: Clean White Pill Bubble */
     body.theme-bubbles-v2 .overlay-item,
     body.theme-bubbles_v2 .overlay-item {
       display: flex !important;
       flex-direction: column !important;
       align-items: flex-start !important;
-      gap: 2px !important;
+      gap: 3px !important;
       width: fit-content !important;
-      max-width: calc(100% - 32px) !important;
+      max-width: 100% !important;
       background: var(--bg-bubble, #ffffff) !important;
       border: 1px solid rgba(0, 0, 0, 0.05) !important;
       border-radius: 18px !important;
-      padding: 8px 18px 8px 24px !important;
-      margin: 4px 0 8px 22px !important;
+      padding: 8px 16px !important;
+      margin: 4px 0 8px 0 !important;
       position: relative !important;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
-      color: #0f172a !important;
+      color: var(--text-custom, #0f172a) !important;
       box-sizing: border-box !important;
     }
 
@@ -766,92 +759,12 @@
       display: none !important;
     }
 
-    body.theme-bubbles-v2 .overlay-platform-tag,
-    body.theme-bubbles_v2 .overlay-platform-tag {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      position: absolute !important;
-      left: -18px !important;
-      top: 50% !important;
-      transform: translateY(-50%) !important;
-      width: 32px !important;
-      height: 32px !important;
-      min-width: 32px !important;
-      min-height: 32px !important;
-      border-radius: 50% !important;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22) !important;
-      z-index: 10 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag svg,
-    body.theme-bubbles_v2 .overlay-platform-tag svg {
-      width: 16px !important;
-      height: 16px !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch {
-      background: #9146ff !important;
-      color: #ffffff !important;
-    }
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch svg,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch svg {
-      fill: #ffffff !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube {
-      background: #ff0000 !important;
-      color: #ffffff !important;
-    }
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube svg,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube svg {
-      fill: #ffffff !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok {
-      background: #000000 !important;
-      color: #00f2fe !important;
-    }
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok svg,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok svg {
-      fill: #00f2fe !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-x,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-x,
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitter,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitter {
-      background: #000000 !important;
-      color: #ffffff !important;
-    }
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-x svg,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-x svg,
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitter svg,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitter svg {
-      fill: #ffffff !important;
-    }
-
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-kick,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-kick {
-      background: #53fc18 !important;
-      color: #000000 !important;
-    }
-    body.theme-bubbles-v2 .overlay-platform-tag.platform-kick svg,
-    body.theme-bubbles_v2 .overlay-platform-tag.platform-kick svg {
-      fill: #000000 !important;
-    }
-
     body.theme-bubbles-v2 .overlay-body,
     body.theme-bubbles_v2 .overlay-body {
       display: flex !important;
       flex-direction: column !important;
       align-items: flex-start !important;
-      gap: 2px !important;
+      gap: 3px !important;
       width: 100% !important;
     }
 
@@ -859,49 +772,66 @@
     body.theme-bubbles_v2 .overlay-header {
       display: flex !important;
       align-items: center !important;
-      gap: 6px !important;
-      margin: 0 0 2px 0 !important;
+      gap: 0 !important;
+      margin: 0 !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag,
+    body.theme-bubbles_v2 .overlay-platform-tag {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+      border-radius: 4px !important;
+      margin-right: 5px !important;
+      margin-left: 0 !important;
+      position: static !important;
+      transform: none !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+      flex-shrink: 0 !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag svg,
+    body.theme-bubbles_v2 .overlay-platform-tag svg {
+      width: 12px !important;
+      height: 12px !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch {
+      background: #9146ff !important;
+      color: #ffffff !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube {
+      background: #ff0000 !important;
+      color: #ffffff !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok {
+      background: #000000 !important;
+      color: #00f2fe !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
     }
 
     body.theme-bubbles-v2 .overlay-author-name,
     body.theme-bubbles_v2 .overlay-author-name {
+      color: var(--author-custom, var(--author-color, #9146ff)) !important;
       font-weight: 700 !important;
       font-size: 14px !important;
+      margin: 0 !important;
       text-shadow: none !important;
-    }
-
-    body.theme-bubbles-v2 .badge-icon,
-    body.theme-bubbles_v2 .badge-icon {
-      background: rgba(225, 29, 72, 0.08) !important;
-      border: 1px solid rgba(225, 29, 72, 0.6) !important;
-      color: #e11d48 !important;
-      border-radius: 4px !important;
-      font-size: 10px !important;
-      font-weight: 700 !important;
-      padding: 1px 4px !important;
-      height: auto !important;
-      line-height: 1.2 !important;
-      text-transform: uppercase !important;
-    }
-
-    body.theme-bubbles-v2 .badge-icon.mod,
-    body.theme-bubbles_v2 .badge-icon.mod {
-      border-color: rgba(147, 51, 234, 0.6) !important;
-      color: #9333ea !important;
-      background: rgba(147, 51, 234, 0.08) !important;
-    }
-
-    body.theme-bubbles-v2 .badge-icon.sub,
-    body.theme-bubbles_v2 .badge-icon.sub {
-      border-color: rgba(225, 29, 72, 0.6) !important;
-      color: #e11d48 !important;
-      background: rgba(225, 29, 72, 0.08) !important;
     }
 
     body.theme-bubbles-v2 .overlay-text,
     body.theme-bubbles_v2 .overlay-text {
       display: block !important;
-      color: #0f172a !important;
+      color: var(--text-custom, #0f172a) !important;
       font-weight: 500 !important;
       font-size: 14px !important;
       line-height: 1.4 !important;
@@ -911,28 +841,34 @@
 
     body.theme-bubbles-v2 .overlay-message-content,
     body.theme-bubbles_v2 .overlay-message-content {
-      color: #0f172a !important;
+      color: var(--text-custom, #0f172a) !important;
     }
 
-    /* Bubbles v2 Alert (Solid Hot Pink/Coral Pill with Black Text matching reference) */
+    /* Bubbles v2 Alert */
     body.theme-bubbles-v2 .overlay-item.overlay-event,
     body.theme-bubbles_v2 .overlay-item.overlay-event {
       display: inline-flex !important;
       flex-direction: row !important;
       align-items: center !important;
-      gap: 8px !important;
+      gap: 0 !important;
       background: #ff5277 !important;
       border: none !important;
       border-radius: 18px !important;
-      padding: 10px 20px 10px 26px !important;
-      margin: 4px 0 8px 22px !important;
+      padding: 9px 18px !important;
+      margin: 4px 0 8px 0 !important;
       position: relative !important;
       box-shadow: 0 4px 14px rgba(255, 82, 119, 0.4) !important;
       color: #000000 !important;
     }
 
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-author-name,
-    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-author-name {
+      color: #000000 !important;
+      font-weight: 800 !important;
+      font-size: 14px !important;
+      margin-right: 6px !important;
+    }
+
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-title,
@@ -955,13 +891,13 @@
       max-width: 100% !important;
       background: var(--bg-bubble, #faf8f5) !important;
       border: 1px solid #e2e8f0 !important;
-      border-left: 5px solid #6366f1 !important;
+      border-left: 5px solid #9146ff !important;
       border-radius: 10px !important;
       padding: 8px 14px !important;
       margin-bottom: 6px !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-      color: #111827 !important;
-      gap: 8px !important;
+      color: var(--text-custom, #1c1917) !important;
+      gap: 0 !important;
       box-sizing: border-box !important;
       line-height: 1.4 !important;
     }
@@ -981,101 +917,16 @@
       border-left-color: #06b6d4 !important;
     }
 
-    body.theme-paper-v2 .overlay-item.platform-x,
-    body.theme-paper_v2 .overlay-item.platform-x,
-    body.theme-paper-v2 .overlay-item.platform-twitter,
-    body.theme-paper_v2 .overlay-item.platform-twitter {
-      border-left-color: #1e293b !important;
-    }
-
-    body.theme-paper-v2 .overlay-item.platform-kick,
-    body.theme-paper_v2 .overlay-item.platform-kick {
-      border-left-color: #22c55e !important;
-    }
-
     body.theme-paper-v2 .overlay-avatar,
     body.theme-paper_v2 .overlay-avatar {
       display: none !important;
-    }
-
-    body.theme-paper-v2 .overlay-platform-tag,
-    body.theme-paper_v2 .overlay-platform-tag {
-      display: inline-flex !important;
-      background: transparent !important;
-      border: none !important;
-      width: 18px !important;
-      height: 18px !important;
-      min-width: 18px !important;
-      min-height: 18px !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      box-shadow: none !important;
-    }
-
-    body.theme-paper-v2 .overlay-platform-tag svg,
-    body.theme-paper_v2 .overlay-platform-tag svg {
-      width: 16px !important;
-      height: 16px !important;
-    }
-
-    body.theme-paper-v2 .overlay-platform-tag.platform-twitch svg,
-    body.theme-paper_v2 .overlay-platform-tag.platform-twitch svg {
-      fill: #9146ff !important;
-    }
-
-    body.theme-paper-v2 .overlay-platform-tag.platform-youtube svg,
-    body.theme-paper_v2 .overlay-platform-tag.platform-youtube svg {
-      fill: #ef4444 !important;
-    }
-
-    body.theme-paper-v2 .overlay-platform-tag.platform-tiktok svg,
-    body.theme-paper_v2 .overlay-platform-tag.platform-tiktok svg {
-      fill: #06b6d4 !important;
-    }
-
-    body.theme-paper-v2 .overlay-platform-tag.platform-x svg,
-    body.theme-paper_v2 .overlay-platform-tag.platform-x svg,
-    body.theme-paper-v2 .overlay-platform-tag.platform-twitter svg,
-    body.theme-paper_v2 .overlay-platform-tag.platform-twitter svg {
-      fill: #000000 !important;
-    }
-
-    body.theme-paper-v2 .overlay-platform-tag.platform-kick svg,
-    body.theme-paper_v2 .overlay-platform-tag.platform-kick svg {
-      fill: #22c55e !important;
-    }
-
-    body.theme-paper-v2 .badge-icon,
-    body.theme-paper_v2 .badge-icon {
-      background: transparent !important;
-      border: 1px solid rgba(225, 29, 72, 0.7) !important;
-      color: #e11d48 !important;
-      border-radius: 4px !important;
-      font-size: 10px !important;
-      font-weight: 700 !important;
-      padding: 1px 4px !important;
-      height: auto !important;
-      line-height: 1.2 !important;
-      text-transform: uppercase !important;
-    }
-
-    body.theme-paper-v2 .badge-icon.mod,
-    body.theme-paper_v2 .badge-icon.mod {
-      border-color: rgba(147, 51, 234, 0.7) !important;
-      color: #9333ea !important;
-    }
-
-    body.theme-paper-v2 .badge-icon.sub,
-    body.theme-paper_v2 .badge-icon.sub {
-      border-color: rgba(225, 29, 72, 0.7) !important;
-      color: #e11d48 !important;
     }
 
     body.theme-paper-v2 .overlay-body,
     body.theme-paper_v2 .overlay-body {
       display: inline-flex !important;
       align-items: center !important;
-      gap: 8px !important;
+      gap: 0 !important;
       flex-wrap: wrap !important;
     }
 
@@ -1083,21 +934,65 @@
     body.theme-paper_v2 .overlay-header {
       display: inline-flex !important;
       align-items: center !important;
-      gap: 6px !important;
+      gap: 0 !important;
       margin: 0 !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag,
+    body.theme-paper_v2 .overlay-platform-tag {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+      border-radius: 4px !important;
+      margin-right: 5px !important;
+      margin-left: 0 !important;
+      flex-shrink: 0 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag svg,
+    body.theme-paper_v2 .overlay-platform-tag svg {
+      width: 12px !important;
+      height: 12px !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-twitch,
+    body.theme-paper_v2 .overlay-platform-tag.platform-twitch {
+      background: #9146ff !important;
+      color: #ffffff !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-youtube,
+    body.theme-paper_v2 .overlay-platform-tag.platform-youtube {
+      background: #ff0000 !important;
+      color: #ffffff !important;
+    }
+
+    body.theme-paper-v2 .overlay-platform-tag.platform-tiktok,
+    body.theme-paper_v2 .overlay-platform-tag.platform-tiktok {
+      background: #000000 !important;
+      color: #00f2fe !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
     }
 
     body.theme-paper-v2 .overlay-author-name,
     body.theme-paper_v2 .overlay-author-name {
+      color: var(--author-custom, var(--author-color, #0f172a)) !important;
       font-weight: 700 !important;
       font-size: 14px !important;
+      margin-right: 6px !important;
+      margin-left: 0 !important;
       text-shadow: none !important;
     }
 
     body.theme-paper-v2 .overlay-text,
     body.theme-paper_v2 .overlay-text {
       display: inline !important;
-      color: #111827 !important;
+      color: var(--text-custom, #1c1917) !important;
       font-size: 14px !important;
       font-weight: 500 !important;
       margin: 0 !important;
@@ -1106,16 +1001,16 @@
 
     body.theme-paper-v2 .overlay-message-content,
     body.theme-paper_v2 .overlay-message-content {
-      color: #111827 !important;
+      color: var(--text-custom, #1c1917) !important;
     }
 
-    /* Paper v2 Alert (Warm Peach Card with Orange Left Border matching reference) */
+    /* Paper v2 Alert */
     body.theme-paper-v2 .overlay-item.overlay-event,
     body.theme-paper_v2 .overlay-item.overlay-event {
       display: inline-flex !important;
       flex-direction: row !important;
       align-items: center !important;
-      gap: 8px !important;
+      gap: 0 !important;
       background: #ffedd5 !important;
       border: 1px solid #fed7aa !important;
       border-left: 5px solid #ea580c !important;
@@ -1127,7 +1022,12 @@
     }
 
     body.theme-paper-v2 .overlay-item.overlay-event .overlay-author-name,
-    body.theme-paper_v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-author-name {
+      color: #9a3412 !important;
+      font-weight: 700 !important;
+      margin-right: 6px !important;
+    }
+
     body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-text,
     body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-title,
@@ -2122,38 +2022,23 @@
       // Official Platform Badges Renderer
       function renderBadges(chat) {
         if (!config.showBadges) return '';
-        let html = '';
-        const author = chat.author || {};
-        const badges = author.badges || {};
 
-        // V2 Themes use clean text pill badges matching reference pictures
+        // V2 Themes: Hilangkan tag html MEMBER, MOD, SUB sepenuhnya
         const isV2Theme = document.body.classList.contains('theme-glass-v2') || 
                           document.body.classList.contains('theme-bubbles-v2') || 
                           document.body.classList.contains('theme-paper-v2') || 
                           ['glass-v2', 'bubbles-v2', 'paper-v2'].includes(config.theme);
 
         if (isV2Theme) {
-          if (badges.member || author.memberBadge || author.isMember || (chat.platform === 'youtube' && author.isSub)) {
-            html += `<span class="badge-icon member">MEMBER</span>`;
-          }
-          if (badges.moderator || author.isMod) {
-            html += `<span class="badge-icon mod">MOD</span>`;
-          }
-          if (badges.subscriber || author.isSub) {
-            html += `<span class="badge-icon sub">SUB</span>`;
-          }
-          if (badges.vip) {
-            html += `<span class="badge-icon vip">VIP</span>`;
-          }
-          if (badges.broadcaster || author.isBroadcaster || author.isOwner) {
-            html += `<span class="badge-icon broadcaster">HOST</span>`;
-          }
-          return html;
+          return '';
         }
+
+        let html = '';
+        const author = chat.author || {};
+        const badges = author.badges || {};
 
         if (chat.platform === 'twitch') {
           if (config.showTwitchBadges === false) return '';
-          // Prioritaskan custom badges dari channel Twitch (max 3 badges)
           if (Array.isArray(author.badgesList) && author.badgesList.length > 0) {
             author.badgesList.slice(0, 3).forEach(b => {
               if (b && b.url) {
@@ -2227,12 +2112,6 @@
         }
         if (p === 'tiktok') {
           return `<span class="overlay-platform-tag platform-tiktok" title="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.3 6.3 0 0 0 1.84-4.48V8.78a8.28 8.28 0 0 0 4.93 1.62V6.95a4.85 4.85 0 0 1-1-.26z"/></svg></span>`;
-        }
-        if (p === 'x' || p === 'twitter') {
-          return `<span class="overlay-platform-tag platform-x" title="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>`;
-        }
-        if (p === 'kick') {
-          return `<span class="overlay-platform-tag platform-kick" title="Kick"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h4.8v6.6l4.2-6.6h5.4l-5.6 8.4 6.2 9.6h-5.4l-4.8-7.8v7.8H3V3z"/></svg></span>`;
         }
         return '';
       }
@@ -2487,7 +2366,7 @@
             <div class="overlay-header">
               ${platformTagHtml}
               ${badgesHtml ? `<span class="overlay-badges-container">${badgesHtml}</span>` : ''}
-              <span class="overlay-author-name" style="color: ${escapeHtml(authorColor)} ${item.platform === 'twitch' && config.useTwitchColors !== false ? '!important' : ''};">${escapeHtml(authorName)}</span>
+              <span class="overlay-author-name" style="color: var(--author-custom, ${escapeHtml(authorColor)});${item.platform === 'twitch' && config.useTwitchColors !== false && !isV2Theme ? ' color: ' + escapeHtml(authorColor) + ' !important;' : ''}">${escapeHtml(authorName)}</span>
               ${item.isRedeem ? '' : ''}
             </div>
             <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
