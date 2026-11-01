@@ -1815,13 +1815,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Gagal menyimpan saluran ke akun user:', err);
       }
 
-      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken });
+      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken, force: true });
     } else {
       // Mode Tamu: Sambungkan untuk sesi ini dan simpan di cache lokal
       if (twitchToken) {
         sessionStorage.setItem('streampulse_guest_twitch_token', twitchToken);
       }
-      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok });
+      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, force: true });
     }
 
     closeModal(setupModal);
