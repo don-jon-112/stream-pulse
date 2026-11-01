@@ -3456,6 +3456,123 @@
       // =========================================================================
       // THEMES SIDEBAR INTERACTION
       // =========================================================================
+      
+      // =========================================================================
+      // THEME PRESETS: AUTO-RESET DEFAULT PARAMETERS ON THEME CHANGE
+      // =========================================================================
+      const THEME_DEFAULTS = {
+        'glass-v2': {
+          bgColor: '#101828',
+          bgOpacity: 35,
+          textColor: '#ffffff',
+          authorColor: '#38bdf8',
+          showAvatars: false
+        },
+        'bubbles-v2': {
+          bgColor: '#ffffff',
+          bgOpacity: 100,
+          textColor: '#0f172a',
+          authorColor: '#9146ff',
+          showAvatars: false
+        },
+        'paper-v2': {
+          bgColor: '#ffffff',
+          bgOpacity: 100,
+          textColor: '#1c1917',
+          authorColor: '#0f172a',
+          showAvatars: false
+        },
+        'paper': {
+          bgColor: '#faf6f0',
+          bgOpacity: 100,
+          textColor: '#1c1917',
+          authorColor: '#292524',
+          showAvatars: true
+        },
+        'neon': {
+          bgColor: '#080c18',
+          bgOpacity: 88,
+          textColor: '#ffffff',
+          authorColor: '#00f2fe',
+          showAvatars: true
+        },
+        'glitch': {
+          bgColor: '#000000',
+          bgOpacity: 0,
+          textColor: '#ffffff',
+          authorColor: '#000000',
+          showAvatars: false
+        },
+        'simple': {
+          bgColor: '#0d111b',
+          bgOpacity: 88,
+          textColor: '#ffffff',
+          authorColor: '#67e8f9',
+          showAvatars: true
+        },
+        'classic': {
+          bgColor: '#0f172a',
+          bgOpacity: 88,
+          textColor: '#ffffff',
+          authorColor: '#67e8f9',
+          showAvatars: true
+        },
+        'compact': {
+          bgColor: '#000000',
+          bgOpacity: 70,
+          textColor: '#ffffff',
+          authorColor: '#67e8f9',
+          showAvatars: false
+        },
+        'high-contrast': {
+          bgColor: '#000000',
+          bgOpacity: 100,
+          textColor: '#ffffff',
+          authorColor: '#facc15',
+          showAvatars: true
+        },
+        'glass': {
+          bgColor: '#ffffff',
+          bgOpacity: 12,
+          textColor: '#ffffff',
+          authorColor: '#67e8f9',
+          showAvatars: true
+        },
+        'minimal-outline': {
+          bgColor: '#000000',
+          bgOpacity: 35,
+          textColor: '#ffffff',
+          authorColor: '#ffffff',
+          showAvatars: true
+        }
+      };
+
+      function applyThemeDefaults(themeKey) {
+        const norm = normalizeThemeKey(themeKey);
+        const def = THEME_DEFAULTS[norm];
+        if (!def) return;
+
+        if (def.bgColor !== undefined && settingBgColor) {
+          settingBgColor.value = def.bgColor;
+          if (labelBgColorHex) labelBgColorHex.textContent = def.bgColor;
+        }
+        if (def.bgOpacity !== undefined && settingBgOpacity) {
+          settingBgOpacity.value = def.bgOpacity;
+          if (labelBgOpacity) labelBgOpacity.textContent = def.bgOpacity + '%';
+        }
+        if (def.textColor !== undefined && settingTextColor) {
+          settingTextColor.value = def.textColor;
+          if (labelTextColorHex) labelTextColorHex.textContent = def.textColor;
+        }
+        if (def.authorColor !== undefined && settingAuthorColor) {
+          settingAuthorColor.value = def.authorColor;
+          if (labelAuthorColorHex) labelAuthorColorHex.textContent = def.authorColor;
+        }
+        if (def.showAvatars !== undefined && settingShowAvatars) {
+          settingShowAvatars.checked = def.showAvatars;
+        }
+      }
+
       const themeNavItems = document.querySelectorAll('#themesList .theme-nav-item:not(.disabled)');
       function normalizeThemeKey(k) {
         let n = (k || 'classic').toLowerCase().replace(/_/g, '-');
@@ -3517,17 +3634,18 @@
         btn.addEventListener('click', () => {
           const chosenTheme = btn.dataset.theme;
           setActiveThemeNav(chosenTheme);
+          applyThemeDefaults(chosenTheme);
+
           if (settingTheme) {
             settingTheme.value = chosenTheme;
-            settingTheme.dispatchEvent(new Event('change'));
           }
-          if (previewIframe && previewIframe.contentWindow) {
-            previewIframe.contentWindow.postMessage({
-              type: 'update_preview_config',
-              config: { theme: chosenTheme }
-            }, '*');
-          }
-          spToast('Tema aktif: ' + btn.querySelector('.theme-nav-name').textContent.trim(), 'info');
+
+          updateUrl();
+          refreshPreview();
+
+          const themeNameEl = btn.querySelector('.theme-nav-name');
+          const titleText = themeNameEl ? themeNameEl.textContent.trim() : chosenTheme;
+          spToast('Tema aktif: ' + titleText + ' (Preset bawaan diterapkan)', 'info');
         });
       });
 

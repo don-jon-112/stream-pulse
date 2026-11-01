@@ -584,7 +584,7 @@
        NEW THEMES (V2: Glass v2, Bubbles v2, Paper v2)
        ========================================================================= */
 
-    /* Glass v2: Exactly matching reference image (Inline Single Flow HUD) */
+    /* Glass v2: Ultra Translucent Frosted Glass HUD (Matching reference) */
     body.theme-glass-v2 .overlay-item,
     body.theme-glass_v2 .overlay-item {
       display: inline-flex !important;
@@ -593,14 +593,14 @@
       flex-wrap: wrap !important;
       width: fit-content !important;
       max-width: 100% !important;
-      background: var(--bg-bubble, rgba(20, 27, 43, 0.74)) !important;
-      backdrop-filter: blur(16px) !important;
-      -webkit-backdrop-filter: blur(16px) !important;
-      border: 1px solid rgba(255, 255, 255, 0.13) !important;
-      border-radius: 12px !important;
-      padding: 7px 14px !important;
-      margin: 3px 0 5px 0 !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+      background: var(--bg-bubble, rgba(16, 24, 40, 0.38)) !important;
+      backdrop-filter: blur(16px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      border-radius: 14px !important;
+      padding: 7px 15px !important;
+      margin: 3px 0 6px 0 !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
       color: #ffffff !important;
       gap: 6px !important;
       box-sizing: border-box !important;
@@ -749,71 +749,162 @@
       display: inline !important;
     }
 
-    /* Bubbles v2: Clean White Pill Bubble with Circular Platform Badge */
+    /* Bubbles v2: Clean White Pill Bubble with Circular Platform Badge (Matching reference) */
     body.theme-bubbles-v2 .overlay-item,
     body.theme-bubbles_v2 .overlay-item {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 3px !important;
+      width: fit-content !important;
+      max-width: calc(100% - 32px) !important;
       background: var(--bg-bubble, #ffffff) !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      border: 1px solid rgba(0, 0, 0, 0.06) !important;
       border-radius: 16px !important;
-      padding: 8px 16px 8px 22px !important;
-      margin-left: 18px !important;
-      margin-bottom: 8px !important;
+      padding: 8px 18px 8px 24px !important;
+      margin: 4px 0 8px 24px !important;
       position: relative !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
       color: #0f172a !important;
+      box-sizing: border-box !important;
     }
+
+    /* Hide avatar photo in Bubbles v2 (uses platform badge circle instead) */
+    body.theme-bubbles-v2 .overlay-avatar,
+    body.theme-bubbles_v2 .overlay-avatar {
+      display: none !important;
+    }
+
+    /* Circular platform emblem on the left edge */
     body.theme-bubbles-v2 .overlay-platform-tag,
     body.theme-bubbles_v2 .overlay-platform-tag {
       display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       position: absolute !important;
-      left: -16px !important;
+      left: -18px !important;
       top: 50% !important;
       transform: translateY(-50%) !important;
       width: 32px !important;
       height: 32px !important;
+      min-width: 32px !important;
+      min-height: 32px !important;
       border-radius: 50% !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
-      z-index: 5 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22) !important;
+      z-index: 10 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
+
+    body.theme-bubbles-v2 .overlay-platform-tag svg,
+    body.theme-bubbles_v2 .overlay-platform-tag svg {
+      width: 17px !important;
+      height: 17px !important;
+    }
+
     body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch,
     body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch {
       background: #9146ff !important;
       color: #ffffff !important;
     }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-twitch svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-twitch svg {
+      fill: #ffffff !important;
+    }
+
     body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube,
     body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube {
       background: #ff0000 !important;
       color: #ffffff !important;
     }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-youtube svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-youtube svg {
+      fill: #ffffff !important;
+    }
+
     body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok,
     body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok {
       background: #000000 !important;
       color: #00f2fe !important;
     }
+    body.theme-bubbles-v2 .overlay-platform-tag.platform-tiktok svg,
+    body.theme-bubbles_v2 .overlay-platform-tag.platform-tiktok svg {
+      fill: #00f2fe !important;
+    }
+
+    /* Header inside bubble: author name & role badges */
+    body.theme-bubbles-v2 .overlay-header,
+    body.theme-bubbles_v2 .overlay-header {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      margin-bottom: 1px !important;
+    }
+
+    /* Badges matching screenshot: subtle outline pill */
+    body.theme-bubbles-v2 .badge-icon,
+    body.theme-bubbles_v2 .badge-icon {
+      background: rgba(244, 63, 94, 0.08) !important;
+      border: 1px solid rgba(244, 63, 94, 0.6) !important;
+      color: #f43f5e !important;
+      border-radius: 4px !important;
+      font-size: 0.62rem !important;
+      font-weight: 700 !important;
+      padding: 0 4px !important;
+      height: 16px !important;
+      vertical-align: middle !important;
+      text-transform: uppercase !important;
+    }
+
+    body.theme-bubbles-v2 .badge-icon.mod,
+    body.theme-bubbles_v2 .badge-icon.mod {
+      border-color: rgba(147, 51, 234, 0.6) !important;
+      color: #9333ea !important;
+      background: rgba(147, 51, 234, 0.08) !important;
+    }
+
+    body.theme-bubbles-v2 .badge-icon.sub,
+    body.theme-bubbles_v2 .badge-icon.sub {
+      border-color: rgba(244, 63, 94, 0.6) !important;
+      color: #f43f5e !important;
+      background: rgba(244, 63, 94, 0.08) !important;
+    }
+
+    /* Author Name: colored & bold */
     body.theme-bubbles-v2 .overlay-author-name,
     body.theme-bubbles_v2 .overlay-author-name {
-      color: #0f172a !important;
       font-weight: 700 !important;
+      font-size: 0.92em !important;
       text-shadow: none !important;
     }
+
+    /* Message Text: dark charcoal */
     body.theme-bubbles-v2 .overlay-text,
     body.theme-bubbles_v2 .overlay-text {
-      color: #1e293b !important;
+      font-size: 0.95em !important;
+      color: #0f172a !important;
+      font-weight: 500 !important;
+      line-height: 1.45 !important;
       text-shadow: none !important;
     }
+
+    /* Alert Card in Bubbles v2: Solid Hot Pink / Coral Pill Bubble with dark text (bottom item in reference image) */
     body.theme-bubbles-v2 .overlay-item.overlay-event,
     body.theme-bubbles_v2 .overlay-item.overlay-event {
-      background: #f43f5e !important;
-      color: #ffffff !important;
+      background: #ff5277 !important;
+      color: #000000 !important;
       border: none !important;
+      box-shadow: 0 4px 18px rgba(255, 82, 119, 0.35) !important;
     }
+
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-author-name,
-    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-text,
-    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-title,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-author-name,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-title,
     body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-title {
-      color: #ffffff !important;
+      color: #000000 !important;
+      font-weight: 700 !important;
       text-shadow: none !important;
     }
 
