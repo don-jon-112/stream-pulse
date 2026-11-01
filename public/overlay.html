@@ -716,26 +716,64 @@
     /* Glass v2 Alert Banner */
     body.theme-glass-v2 .overlay-item.overlay-event,
     body.theme-glass_v2 .overlay-item.overlay-event {
-      display: inline-flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
       justify-content: flex-start !important;
       text-align: left !important;
-      gap: 0 !important;
+      width: fit-content !important;
+      max-width: 100% !important;
       border: 1.5px solid #38bdf8 !important;
-      background: rgba(14, 165, 233, 0.22) !important;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.28) !important;
+      background: rgba(16, 24, 40, 0.55) !important;
+      backdrop-filter: blur(16px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35) !important;
       border-radius: 12px !important;
       padding: 8px 16px !important;
+      margin-bottom: 6px !important;
       color: #38bdf8 !important;
       font-weight: 700 !important;
+      box-sizing: border-box !important;
+    }
+
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-inner,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-inner {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      width: 100% !important;
+    }
+
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-main,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-main {
+      display: inline-flex !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      width: 100% !important;
+    }
+
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-platform-tag,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-platform-tag {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: static !important;
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+      border-radius: 4px !important;
+      margin: 0 !important;
+      flex-shrink: 0 !important;
     }
 
     body.theme-glass-v2 .overlay-item.overlay-event .overlay-author-name,
     body.theme-glass_v2 .overlay-item.overlay-event .overlay-author-name {
       color: #38bdf8 !important;
-      font-weight: 700 !important;
-      margin: 0 6px 0 0 !important;
+      font-weight: 800 !important;
+      font-size: 14px !important;
+      margin: 0 !important;
     }
 
     body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-text,
@@ -744,8 +782,28 @@
     body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-title {
       color: #38bdf8 !important;
       font-weight: 700 !important;
+      font-size: 14px !important;
       display: inline !important;
       margin: 0 !important;
+    }
+
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-msg,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-msg {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-style: italic !important;
+      font-size: 13px !important;
+      margin-top: 3px !important;
+      padding-left: 24px !important;
+    }
+
+    /* Glass v2 Twitch Highlight & Channel Points Redeem Chat */
+    body.theme-glass-v2 .overlay-item.highlighted,
+    body.theme-glass-v2 .overlay-item.is-redeem,
+    body.theme-glass_v2 .overlay-item.highlighted,
+    body.theme-glass_v2 .overlay-item.is-redeem {
+      border: 1.5px solid #a855f7 !important;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.35) !important;
+      background: rgba(88, 28, 135, 0.35) !important;
     }
 
     /* Bubbles v2: Clean White Pill Bubble with Circular Platform Badge and Asymmetric Corners */
@@ -929,20 +987,60 @@
     /* Bubbles v2 Alert (Solid Hot Pink/Coral Pill with Asymmetric Corners) */
     body.theme-bubbles-v2 .overlay-item.overlay-event,
     body.theme-bubbles_v2 .overlay-item.overlay-event {
-      display: inline-flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
       justify-content: flex-start !important;
       text-align: left !important;
-      gap: 0 !important;
+      width: fit-content !important;
+      max-width: calc(100% - 28px) !important;
       background: #ff5277 !important;
       border: none !important;
       border-radius: 20px 20px 20px 5px !important;
-      padding: 9px 18px 9px 24px !important;
+      padding: 8px 18px 8px 22px !important;
       margin: 6px 0 8px 22px !important;
       position: relative !important;
       box-shadow: 0 4px 14px rgba(255, 82, 119, 0.4) !important;
       color: #000000 !important;
+      box-sizing: border-box !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-inner,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-inner {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      width: 100% !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-main,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-main {
+      display: inline-flex !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      width: 100% !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-platform-tag,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-platform-tag {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: absolute !important;
+      left: -18px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      min-height: 32px !important;
+      border-radius: 50% !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22) !important;
+      z-index: 10 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      flex-shrink: 0 !important;
     }
 
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-author-name,
@@ -950,7 +1048,7 @@
       color: #000000 !important;
       font-weight: 800 !important;
       font-size: 14px !important;
-      margin: 0 6px 0 0 !important;
+      margin: 0 !important;
     }
 
     body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-text,
@@ -962,6 +1060,25 @@
       font-size: 14px !important;
       display: inline !important;
       margin: 0 !important;
+    }
+
+    body.theme-bubbles-v2 .overlay-item.overlay-event .overlay-event-msg,
+    body.theme-bubbles_v2 .overlay-item.overlay-event .overlay-event-msg {
+      color: rgba(0, 0, 0, 0.85) !important;
+      font-style: italic !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      margin-top: 3px !important;
+    }
+
+    /* Bubbles v2 Twitch Highlight & Channel Points Redeem Chat */
+    body.theme-bubbles-v2 .overlay-item.highlighted,
+    body.theme-bubbles-v2 .overlay-item.is-redeem,
+    body.theme-bubbles_v2 .overlay-item.highlighted,
+    body.theme-bubbles_v2 .overlay-item.is-redeem {
+      border: 2px solid #a855f7 !important;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.28) !important;
+      background: #faf5ff !important;
     }
 
     /* Paper v2: Clean Off-White Card with Platform Left Border Accent */
@@ -1105,13 +1222,14 @@
     /* Paper v2 Alert */
     body.theme-paper-v2 .overlay-item.overlay-event,
     body.theme-paper_v2 .overlay-item.overlay-event {
-      display: inline-flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
       justify-content: flex-start !important;
       text-align: left !important;
-      gap: 0 !important;
-      background: #ffedd5 !important;
+      width: fit-content !important;
+      max-width: 100% !important;
+      background: #ffeedd !important;
       border: 1px solid #fed7aa !important;
       border-left: 5px solid #ea580c !important;
       border-radius: 10px !important;
@@ -1119,13 +1237,48 @@
       margin-bottom: 6px !important;
       color: #9a3412 !important;
       font-weight: 700 !important;
+      box-shadow: 0 2px 8px rgba(234, 88, 12, 0.12) !important;
+      box-sizing: border-box !important;
+    }
+
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-inner,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-inner {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      width: 100% !important;
+    }
+
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-main,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-main {
+      display: inline-flex !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      width: 100% !important;
+    }
+
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-platform-tag,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-platform-tag {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: static !important;
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+      border-radius: 4px !important;
+      margin: 0 !important;
+      flex-shrink: 0 !important;
     }
 
     body.theme-paper-v2 .overlay-item.overlay-event .overlay-author-name,
     body.theme-paper_v2 .overlay-item.overlay-event .overlay-author-name {
       color: #9a3412 !important;
-      font-weight: 700 !important;
-      margin: 0 6px 0 0 !important;
+      font-weight: 800 !important;
+      font-size: 14px !important;
+      margin: 0 !important;
     }
 
     body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-text,
@@ -1134,8 +1287,28 @@
     body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-title {
       color: #9a3412 !important;
       font-weight: 700 !important;
+      font-size: 14px !important;
       display: inline !important;
       margin: 0 !important;
+    }
+
+    body.theme-paper-v2 .overlay-item.overlay-event .overlay-event-msg,
+    body.theme-paper_v2 .overlay-item.overlay-event .overlay-event-msg {
+      color: #7c2d12 !important;
+      font-style: italic !important;
+      font-size: 13px !important;
+      margin-top: 3px !important;
+      padding-left: 24px !important;
+    }
+
+    /* Paper v2 Twitch Highlight & Channel Points Redeem Chat */
+    body.theme-paper-v2 .overlay-item.highlighted,
+    body.theme-paper-v2 .overlay-item.is-redeem,
+    body.theme-paper_v2 .overlay-item.highlighted,
+    body.theme-paper_v2 .overlay-item.is-redeem {
+      border-left: 5px solid #a855f7 !important;
+      background: #faf5ff !important;
+      border-color: #e9d5ff !important;
     }
 
     /* Platform Tag / Icon */
@@ -2376,8 +2549,10 @@
           neonColor = neonColors[Math.floor(Math.random() * neonColors.length)];
         }
 
+        const isSimMsg = item.isSim || (item.id && String(item.id).startsWith('sim_'));
+
         // Jika showAlerts aktif di OBS, abaikan bubble chat biasa yang bersumber dari alert (Bits, Superchat, Gifts, dll)
-        if (config.showAlerts !== false) {
+        if (!isSimMsg && config.showAlerts !== false) {
           if (item.isBits || author.isBits || item.superchat || item.isGift || item.isGiftMembership || item.isMembership) {
             return;
           }
@@ -2387,7 +2562,7 @@
         }
 
         // Cegah duplikasi Channel Points Redeem yang sama dari new_event
-        if (item.isRedeem && isDuplicateRedeem(authorName, item.text)) {
+        if (!isSimMsg && item.isRedeem && isDuplicateRedeem(authorName, item.text)) {
           return;
         }
 
@@ -2456,12 +2631,17 @@
         }
 
         const isTwitchRedeem = (item.platform === 'twitch') && item.isRedeem;
+        let redeemPrefix = '';
         if (isTwitchRedeem) {
-          const detail = item.redeemDetail || 'Channel Points';
-          const cleanText = (item.text || '').trim();
-          textHtml = cleanText.length > 0
-            ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: <i class="redeem-msg">${textHtml}</i>`
-            : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
+          if (item.isHighlight || item.redeemDetail === 'Highlight My Message') {
+            redeemPrefix = `<span class="redeem-highlight-tag" style="display:inline-flex; align-items:center; gap:3px; background:rgba(168,85,247,0.18); color:#a855f7; font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; margin-right:6px; border:1px solid rgba(168,85,247,0.35); vertical-align:middle;">✨ HIGHLIGHT</span>`;
+          } else {
+            const detail = item.redeemDetail || 'Channel Points';
+            const cleanText = (item.text || '').trim();
+            textHtml = cleanText.length > 0
+              ? `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}: <i class="redeem-msg">${textHtml}</i>`
+              : `💠 ${escapeHtml(authorName)} redeemed ${escapeHtml(detail)}`;
+          }
         }
 
         let replyHtml = '';
@@ -2484,7 +2664,7 @@
               <span class="overlay-author-name" style="color: var(--author-custom, ${escapeHtml(authorColor)});${item.platform === 'twitch' && config.useTwitchColors !== false && !isV2Theme ? ' color: ' + escapeHtml(authorColor) + ' !important;' : ''}">${escapeHtml(authorName)}</span>
               ${item.isRedeem ? '' : ''}
             </div>
-            <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}<span class="overlay-message-content">${textHtml}</span></div>
+            <div class="overlay-text ${item.isRedeem ? 'is-redeem bubble-pink' : ''}">${replyHtml}${redeemPrefix}<span class="overlay-message-content">${textHtml}</span></div>
           </div>
         `;
 
@@ -2552,13 +2732,13 @@
         const authorName = (typeof evt.author === 'object' ? evt.author.name : evt.author) || 'Viewer';
 
         // Cegah duplikasi Channel Points Redeem yang sama dari new_chat
-        if (isTwitchRedeem && evt.message && isDuplicateRedeem(authorName, evt.message)) {
+        if (!isSimEvt && isTwitchRedeem && evt.message && isDuplicateRedeem(authorName, evt.message)) {
           return;
         }
 
         // Catat teks alert untuk mencegah duplikasi jika pesan chat serupa masuk
-        if (evt.message) recordRecentAlert(authorName, evt.message);
-        if (evt.detail) recordRecentAlert(authorName, evt.detail);
+        if (!isSimEvt && evt.message) recordRecentAlert(authorName, evt.message);
+        if (!isSimEvt && evt.detail) recordRecentAlert(authorName, evt.detail);
 
         const el = document.createElement('div');
         el.className = `overlay-item overlay-event platform-${evt.platform || 'twitch'}${config.showAvatars ? ' has-avatar' : ' no-avatar'}`;
@@ -2693,19 +2873,56 @@
             <div class="overlay-event-title" ${customAlertTextColor ? `style="color:${escapeHtml(customAlertTextColor)};"` : ''}>${escapeHtml(customTitle)}${customDetail ? ` • ${escapeHtml(customDetail)}` : ''}</div>
             <div class="overlay-text is-redeem bubble-pink" style="font-style: italic; ${customAlertTextColor ? `color:${escapeHtml(customAlertTextColor)};` : ''}">${formattedText}</div>
           `;
-        } else {
-          // Bersihkan token bits seperti "cheer300" jika pesan hanya berisi instruksi cheer tanpa komentar tambahan
-          let displayMsg = (evt.message || '').trim();
-          if (evt.eventType === 'cheer') {
-            displayMsg = displayMsg.replace(/\b[a-zA-Z]+\d+\b/gi, '').trim();
-          }
-          if (evt.platform === 'tiktok' && displayMsg) {
-            displayMsg = displayMsg.replace(/\s*\([^)]*(?:diamond|💎)[^)]*\)/gi, '').trim();
-          }
-          if (displayMsg.toLowerCase() === String(evt.detail || '').toLowerCase() || displayMsg.toLowerCase() === String(evt.title || '').toLowerCase()) {
-            displayMsg = '';
-          }
+        }
 
+        // Bersihkan token bits seperti "cheer300" jika pesan hanya berisi instruksi cheer tanpa komentar tambahan
+        let displayMsg = (evt.message || '').trim();
+        if (evt.eventType === 'cheer') {
+          displayMsg = displayMsg.replace(/\b[a-zA-Z]+\d+\b/gi, '').trim();
+        }
+        if (evt.platform === 'tiktok' && displayMsg) {
+          displayMsg = displayMsg.replace(/\s*\([^)]*(?:diamond|💎)[^)]*\)/gi, '').trim();
+        }
+        if (displayMsg.toLowerCase() === String(evt.detail || '').toLowerCase() || displayMsg.toLowerCase() === String(evt.title || '').toLowerCase()) {
+          displayMsg = '';
+        }
+
+        // Teks aksi ringkas khusus untuk tema V2 (Glass v2, Bubbles v2, Paper v2)
+        let v2ActionText = '';
+        const evType = evt.eventType;
+        if (evType === 'subscription' || evType === 'resub') {
+          if (evt.title && evt.title.toLowerCase().includes('subscribed')) {
+            v2ActionText = evt.title;
+          } else if (customDetail) {
+            const cleanDetail = customDetail.replace(/^Berlangganan\s*/i, '').trim();
+            v2ActionText = `subscribed ${cleanDetail}!`;
+          } else {
+            v2ActionText = 'subscribed!';
+          }
+        } else if (evType === 'subgift') {
+          v2ActionText = `gifted a sub${customDetail ? ' • ' + customDetail : ''}!`;
+        } else if (evType === 'follow') {
+          v2ActionText = 'is now following!';
+        } else if (evType === 'cheer') {
+          v2ActionText = `cheered ${customDetail || 'Bits'}!`;
+        } else if (evType === 'raid') {
+          v2ActionText = `raided ${customDetail ? '• ' + customDetail : ''}!`;
+        } else if (evType === 'superchat') {
+          v2ActionText = `Super Chat ${customDetail || ''}!`;
+        } else if (evType === 'member') {
+          v2ActionText = `joined as Member ${customDetail ? '• ' + customDetail : ''}!`;
+        } else if (evType === 'gift') {
+          v2ActionText = `sent ${customDetail || 'a Gift'}!`;
+        } else if (evType === 'like') {
+          v2ActionText = `sent ${customDetail || 'likes'}!`;
+        } else if (isTwitchRedeem) {
+          const detail = customDetail || evt.title || 'Channel Points';
+          v2ActionText = `redeemed ${detail}!`;
+        } else {
+          v2ActionText = customTitle ? `${customTitle}${customDetail ? ' • ' + customDetail : ''}` : (customDetail || 'Event!');
+        }
+
+        if (!isTwitchRedeem) {
           bodyContent = `
             <div class="overlay-header">
               ${platformTagHtml}
@@ -2724,8 +2941,13 @@
         if (isV2Event) {
           el.innerHTML = `
             ${platformTagHtml}
-            <span class="overlay-author-name">${escapeHtml(authorName)}</span>
-            <span class="overlay-event-text">${escapeHtml(customTitle)}${customDetail ? ' • ' + escapeHtml(customDetail) : ''}${displayMsg ? ' ' + escapeHtml(displayMsg) : ''}</span>
+            <div class="overlay-event-inner">
+              <div class="overlay-event-main">
+                <span class="overlay-author-name">${escapeHtml(authorName)}</span>
+                <span class="overlay-event-text">${escapeHtml(v2ActionText)}</span>
+              </div>
+              ${displayMsg ? `<div class="overlay-event-msg">"${escapeHtml(displayMsg)}"</div>` : ''}
+            </div>
           `;
         } else {
           el.innerHTML = `

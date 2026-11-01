@@ -2268,6 +2268,8 @@
       const btnTestChat = document.getElementById('btnTestChat');
       const btnTestLinkChat = document.getElementById('btnTestLinkChat');
       const btnTestTwitchVip = document.getElementById('btnTestTwitchVip');
+      const btnTestTwitchFollow = document.getElementById('btnTestTwitchFollow');
+      const btnTestRedeemHighlight = document.getElementById('btnTestRedeemHighlight');
       const btnTestAlert = document.getElementById('btnTestAlert');
       const btnTestCheer = document.getElementById('btnTestCheer');
       const btnTestRaid = document.getElementById('btnTestRaid');
@@ -4068,6 +4070,59 @@
         }
       });
 
+      if (btnTestTwitchFollow) {
+        btnTestTwitchFollow.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'event',
+                data: {
+                  id: `sim_follow_twitch_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
+                  platform: 'twitch',
+                  eventType: 'follow',
+                  title: 'Twitch Follower Baru!',
+                  author: 'TwitchFan_ID',
+                  detail: 'Baru saja mengikuti stream! 💜',
+                  badge: '💜 FOLLOW'
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
+      if (btnTestRedeemHighlight) {
+        btnTestRedeemHighlight.addEventListener('click', () => {
+          const iframeDoc = previewIframe.contentWindow;
+          if (iframeDoc && iframeDoc.document) {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'chat',
+                data: {
+                  id: `sim_highlight_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
+                  platform: 'twitch',
+                  isRedeem: true,
+                  isHighlight: true,
+                  redeemDetail: 'Highlight My Message',
+                  author: {
+                    name: 'VipChatter',
+                    color: '#a855f7',
+                    badges: { vip: '1' }
+                  },
+                  text: 'Pesan ini di-highlight dengan Twitch Channel Points! 🔥',
+                  timestamp: Date.now()
+                }
+              }
+            });
+            iframeDoc.dispatchEvent(event);
+          }
+        });
+      }
+
       btnTestAlert.addEventListener('click', () => {
         const iframeDoc = previewIframe.contentWindow;
         if (iframeDoc && iframeDoc.document) {
@@ -4098,7 +4153,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_cheer_${Date.now()}`,
+                  id: `sim_cheer_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'twitch',
                   eventType: 'cheer',
                   title: 'Twitch Bits Cheer!',
@@ -4122,7 +4178,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_raid_${Date.now()}`,
+                  id: `sim_raid_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'twitch',
                   eventType: 'raid',
                   title: 'Twitch Incoming Raid!',
@@ -4145,7 +4202,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_superchat_${Date.now()}`,
+                  id: `sim_superchat_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'youtube',
                   eventType: 'superchat',
                   title: 'YouTube Super Chat!',
@@ -4170,7 +4228,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_member_${Date.now()}`,
+                  id: `sim_member_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'youtube',
                   eventType: 'member',
                   title: 'YouTube Member Milestone / Join!',
@@ -4193,7 +4252,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_gift_${Date.now()}`,
+                  id: `sim_gift_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'tiktok',
                   eventType: 'gift',
                   title: 'TikTok Gift!',
@@ -4217,7 +4277,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_likes_${Date.now()}`,
+                  id: `sim_likes_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'tiktok',
                   eventType: 'like',
                   title: 'TikTok Likes!',
@@ -4240,7 +4301,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_follow_${Date.now()}`,
+                  id: `sim_follow_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'tiktok',
                   eventType: 'follow',
                   title: 'TikTok Follow!',
@@ -4263,7 +4325,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_redeem_${Date.now()}`,
+                  id: `sim_redeem_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'twitch',
                   eventType: 'redeem',
                   title: 'Twitch Channel Points Redeem!',
@@ -4286,7 +4349,8 @@
               detail: {
                 type: 'event',
                 data: {
-                  id: `sim_redeem_notext_${Date.now()}`,
+                  id: `sim_redeem_notext_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+                  isSim: true,
                   platform: 'twitch',
                   eventType: 'redeem',
                   title: 'Twitch Channel Points Redeem!',
