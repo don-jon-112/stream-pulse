@@ -584,43 +584,169 @@
        NEW THEMES (V2: Glass v2, Bubbles v2, Paper v2)
        ========================================================================= */
 
-    /* Glass v2: Modern Frosted Glass HUD */
+    /* Glass v2: Exactly matching reference image (Inline Single Flow HUD) */
     body.theme-glass-v2 .overlay-item,
     body.theme-glass_v2 .overlay-item {
-      background: var(--bg-bubble, rgba(15, 23, 42, 0.78)) !important;
-      backdrop-filter: blur(14px) !important;
-      -webkit-backdrop-filter: blur(14px) !important;
-      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      width: fit-content !important;
+      max-width: 100% !important;
+      background: var(--bg-bubble, rgba(20, 27, 43, 0.74)) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.13) !important;
       border-radius: 12px !important;
-      padding: 8px 14px !important;
-      margin-bottom: 6px !important;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+      padding: 7px 14px !important;
+      margin: 3px 0 5px 0 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
       color: #ffffff !important;
+      gap: 6px !important;
+      box-sizing: border-box !important;
+      line-height: 1.45 !important;
     }
+
+    /* Hide avatar photo in Glass v2 */
+    body.theme-glass-v2 .overlay-avatar,
+    body.theme-glass_v2 .overlay-avatar {
+      display: none !important;
+    }
+
+    /* Inline flow body and header */
+    body.theme-glass-v2 .overlay-body,
+    body.theme-glass_v2 .overlay-body {
+      display: inline !important;
+      vertical-align: middle !important;
+      flex: 1 1 auto !important;
+    }
+
+    body.theme-glass-v2 .overlay-header,
+    body.theme-glass_v2 .overlay-header {
+      display: inline-flex !important;
+      align-items: center !important;
+      vertical-align: middle !important;
+      gap: 6px !important;
+      margin-right: 6px !important;
+    }
+
+    /* Platform icon inside Glass v2: Clean bare glyph icon */
     body.theme-glass-v2 .overlay-platform-tag,
     body.theme-glass_v2 .overlay-platform-tag {
       display: inline-flex !important;
+      background: transparent !important;
       width: 18px !important;
       height: 18px !important;
-      border-radius: 4px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+      vertical-align: middle !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
     }
+
+    body.theme-glass-v2 .overlay-platform-tag svg,
+    body.theme-glass_v2 .overlay-platform-tag svg {
+      width: 16px !important;
+      height: 16px !important;
+    }
+
+    body.theme-glass-v2 .overlay-platform-tag.platform-twitch svg,
+    body.theme-glass_v2 .overlay-platform-tag.platform-twitch svg {
+      fill: #9146ff !important;
+    }
+
+    body.theme-glass-v2 .overlay-platform-tag.platform-youtube svg,
+    body.theme-glass_v2 .overlay-platform-tag.platform-youtube svg {
+      fill: #ef4444 !important;
+    }
+
+    body.theme-glass-v2 .overlay-platform-tag.platform-tiktok svg,
+    body.theme-glass_v2 .overlay-platform-tag.platform-tiktok svg {
+      fill: #00f2fe !important;
+    }
+
+    /* Outline badges matching image: MEMBER, MOD, SUB */
+    body.theme-glass-v2 .badge-icon,
+    body.theme-glass_v2 .badge-icon {
+      background: rgba(56, 189, 248, 0.12) !important;
+      border: 1px solid rgba(56, 189, 248, 0.6) !important;
+      color: #38bdf8 !important;
+      border-radius: 4px !important;
+      font-size: 0.62rem !important;
+      font-weight: 700 !important;
+      padding: 0 4px !important;
+      height: 16px !important;
+      vertical-align: middle !important;
+      text-transform: uppercase !important;
+    }
+
+    body.theme-glass-v2 .badge-icon.mod,
+    body.theme-glass_v2 .badge-icon.mod {
+      border-color: rgba(56, 189, 248, 0.7) !important;
+      color: #38bdf8 !important;
+      background: rgba(56, 189, 248, 0.14) !important;
+    }
+
+    body.theme-glass-v2 .badge-icon.sub,
+    body.theme-glass_v2 .badge-icon.sub {
+      border-color: rgba(52, 211, 153, 0.7) !important;
+      color: #34d399 !important;
+      background: rgba(52, 211, 153, 0.14) !important;
+    }
+
+    /* Author Name */
     body.theme-glass-v2 .overlay-author-name,
     body.theme-glass_v2 .overlay-author-name {
+      display: inline !important;
       font-weight: 700 !important;
       font-size: 0.95em !important;
+      vertical-align: middle !important;
       text-shadow: none !important;
+      margin-right: 5px !important;
     }
+
+    /* Message Text: flows right after author name on same line */
     body.theme-glass-v2 .overlay-text,
     body.theme-glass_v2 .overlay-text {
+      display: inline !important;
+      vertical-align: middle !important;
+      font-size: 0.95em !important;
+      font-weight: 600 !important;
       color: #ffffff !important;
-      font-weight: 500 !important;
       text-shadow: none !important;
+      line-height: 1.45 !important;
     }
+
+    body.theme-glass-v2 .overlay-message-content,
+    body.theme-glass_v2 .overlay-message-content {
+      display: inline !important;
+      vertical-align: middle !important;
+      word-break: break-word !important;
+    }
+
+    /* Alert Banner (Bottom Item in Reference Image) */
     body.theme-glass-v2 .overlay-item.overlay-event,
     body.theme-glass_v2 .overlay-item.overlay-event {
-      background: rgba(14, 165, 233, 0.25) !important;
-      border: 1px solid rgba(56, 189, 248, 0.6) !important;
-      box-shadow: 0 0 16px rgba(14, 165, 233, 0.35) !important;
+      background: rgba(14, 165, 233, 0.16) !important;
+      border: 1.5px solid #38bdf8 !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35), inset 0 0 8px rgba(56, 189, 248, 0.12) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      flex-direction: row !important;
+      gap: 8px !important;
+    }
+
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-author-name,
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-text,
+    body.theme-glass-v2 .overlay-item.overlay-event .overlay-event-title,
+    body.theme-glass_v2 .overlay-item.overlay-event .overlay-event-title {
+      color: #38bdf8 !important;
+      font-weight: 700 !important;
+      text-shadow: none !important;
+      display: inline !important;
     }
 
     /* Bubbles v2: Clean White Pill Bubble with Circular Platform Badge */
