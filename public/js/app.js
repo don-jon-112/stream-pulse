@@ -884,6 +884,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderAuthNotice() {
+    const drawerUserName = document.getElementById('drawerUserName');
+    const drawerUserRole = document.getElementById('drawerUserRole');
+    const drawerUserAvatar = document.getElementById('drawerUserAvatar');
+
+    if (drawerUserName && drawerUserRole) {
+      if (currentUser && userToken) {
+        drawerUserName.textContent = currentUser.username || 'Streamer';
+        drawerUserRole.textContent = 'Streamer Terdaftar • Cloud Sync';
+        if (drawerUserAvatar) {
+          drawerUserAvatar.innerHTML = currentUser.channels?.twitchAvatar
+            ? `<img src="${currentUser.channels.twitchAvatar}" alt="${currentUser.username}">`
+            : (currentUser.username.charAt(0).toUpperCase() || '👤');
+        }
+      } else {
+        drawerUserName.textContent = 'Streamer Tamu';
+        drawerUserRole.textContent = 'Mode Tamu • Klik untuk Login';
+        if (drawerUserAvatar) drawerUserAvatar.innerHTML = '👤';
+      }
+    }
+
     if (headerUserWidget) {
       if (currentUser && userToken) {
         headerUserWidget.innerHTML = `<span>👤 ${currentUser.username}</span>`;
@@ -1860,15 +1880,63 @@ document.addEventListener('DOMContentLoaded', () => {
     chip.addEventListener('click', () => openModal(setupModal));
   });
 
-  btnDemoModal.addEventListener('click', () => openModal(demoModal));
-  closeDemoModal.addEventListener('click', () => closeModal(demoModal));
-  btnFinishDemo.addEventListener('click', () => closeModal(demoModal));
+  if (btnDemoModal) btnDemoModal.addEventListener('click', () => openModal(demoModal));
+  if (closeDemoModal) closeDemoModal.addEventListener('click', () => closeModal(demoModal));
+  if (btnFinishDemo) btnFinishDemo.addEventListener('click', () => closeModal(demoModal));
 
   // Donate Modal Listeners
   if (btnDonateModal) btnDonateModal.addEventListener('click', () => openModal(donateModal));
   if (closeDonateModal) closeDonateModal.addEventListener('click', () => closeModal(donateModal));
   if (btnCancelDonate) btnCancelDonate.addEventListener('click', () => closeModal(donateModal));
   if (mobNavDonate) mobNavDonate.addEventListener('click', () => openModal(donateModal));
+
+  // ==========================================
+  // SLIDING SIDE DRAWER CONTROLS
+  // ==========================================
+  const btnSideDrawerOpen = document.getElementById('btnSideDrawerOpen');
+  const btnCloseSideDrawer = document.getElementById('btnCloseSideDrawer');
+  const sideDrawerBackdrop = document.getElementById('sideDrawerBackdrop');
+  const sideDrawer = document.getElementById('sideDrawer');
+  const drawerBtnSetup = document.getElementById('drawerBtnSetup');
+  const drawerBtnDemo = document.getElementById('drawerBtnDemo');
+  const drawerBtnDonate = document.getElementById('drawerBtnDonate');
+
+  function openSideDrawer() {
+    if (sideDrawer) sideDrawer.classList.add('active');
+    if (sideDrawerBackdrop) sideDrawerBackdrop.classList.add('active');
+    if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSideDrawer() {
+    if (sideDrawer) sideDrawer.classList.remove('active');
+    if (sideDrawerBackdrop) sideDrawerBackdrop.classList.remove('active');
+    if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'true');
+  }
+
+  if (btnSideDrawerOpen) btnSideDrawerOpen.addEventListener('click', openSideDrawer);
+  if (btnCloseSideDrawer) btnCloseSideDrawer.addEventListener('click', closeSideDrawer);
+  if (sideDrawerBackdrop) sideDrawerBackdrop.addEventListener('click', closeSideDrawer);
+
+  if (drawerBtnSetup) {
+    drawerBtnSetup.addEventListener('click', () => {
+      closeSideDrawer();
+      openModal(setupModal);
+    });
+  }
+
+  if (drawerBtnDemo) {
+    drawerBtnDemo.addEventListener('click', () => {
+      closeSideDrawer();
+      openModal(demoModal);
+    });
+  }
+
+  if (drawerBtnDonate) {
+    drawerBtnDonate.addEventListener('click', () => {
+      closeSideDrawer();
+      if (donateModal) openModal(donateModal);
+    });
+  }
 
   // Dismiss modal on background click
   [setupModal, demoModal, donateModal].forEach(modal => {
@@ -1879,13 +1947,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ESC key listener
+  // ESC & Shortcut key listener (M to toggle menu)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (state.obsMode) toggleObsMode();
       closeModal(setupModal);
       closeModal(demoModal);
       if (donateModal) closeModal(donateModal);
+      closeSideDrawer();
+    } else if ((e.key === 'm' || e.key === 'M') && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+      if (sideDrawer && sideDrawer.classList.contains('active')) {
+        closeSideDrawer();
+      } else {
+        openSideDrawer();
+      }
     }
   });
 
