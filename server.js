@@ -399,6 +399,14 @@ app.get(['/overlay-studio', '/studio'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'studio.html'));
 });
 
+app.get(['/viewers', '/viewers-counter', '/obs-viewers'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'viewers.html'));
+});
+
+app.get(['/viewers-overlay', '/viewers-widget'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'viewers-overlay.html'));
+});
+
 app.get(['/admin', '/features-admin', '/admin-features'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });

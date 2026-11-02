@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Viewers Counter Overlay - StreamPulse OBS Tools</title>
+  <meta name="description" content="Kustomisasi widget penghitung penonton siaran langsung (Live Viewers) untuk OBS Studio. Dukung Twitch, YouTube, dan TikTok secara real-time.">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    :root {
+      color-scheme: light;
+    }
+    :root[data-theme="dark"], body.dark-mode {
+      color-scheme: dark;
+    }
+
+    body {
+      background: var(--bg-canvas);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .viewers-nav-header {
+      min-height: 56px;
+      height: 56px;
+      padding: 0 20px;
+      background: var(--bg-canvas);
+      border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .viewers-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .viewers-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Main Container */
+    .viewers-page-wrapper {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px 20px;
+      flex: 1;
+    }
+
+    /* Page Intro */
+    .viewers-hero {
+      margin-bottom: 24px;
+    }
+    .viewers-hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      background: rgba(56, 189, 248, 0.12);
+      color: #0284c7;
+      margin-bottom: 8px;
+    }
+    [data-theme="dark"] .viewers-hero-tag {
+      color: #38bdf8;
+    }
+    .viewers-hero-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .viewers-hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--body);
+      max-width: 720px;
+      line-height: 1.5;
+    }
+
+    /* Grid Layout */
+    .viewers-grid {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .viewers-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Section Cards */
+    .config-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-xl, 16px);
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .config-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .config-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Visual Selector Pills / Cards */
+    .selector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 10px;
+    }
+    .choice-card {
+      cursor: pointer;
+      border: 1.5px solid var(--hairline);
+      border-radius: var(--radius-md, 10px);
+      padding: 12px 14px;
+      background: var(--surface-soft);
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      user-select: none;
+    }
+    .choice-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .choice-card.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.08);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    .choice-card-name {
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+    .choice-card-desc {
+      font-size: 0.72rem;
+      color: var(--body);
+      line-height: 1.3;
+    }
+
+    /* Form rows */
+    .form-group-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 640px) {
+      .form-group-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .form-control {
+      padding: 9px 12px;
+      border-radius: var(--radius-md, 8px);
+      border: 1px solid var(--hairline);
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+    }
+
+    /* Switch Toggles */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .toggle-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .toggle-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .toggle-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .toggle-desc {
+      font-size: 0.74rem;
+      color: var(--body);
+    }
+
+    /* Switch checkbox */
+    .switch-wrap {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .switch-wrap input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .switch-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--hairline);
+      transition: .25s;
+      border-radius: 9999px;
+    }
+    .switch-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s;
+      border-radius: 50%;
+    }
+    .switch-wrap input:checked + .switch-slider {
+      background-color: var(--primary);
+    }
+    .switch-wrap input:checked + .switch-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Right Preview Column (Sticky) */
+    .preview-sticky-wrap {
+      position: sticky;
+      top: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .preview-box {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-xl, 16px);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+    }
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--hairline);
+      background: var(--surface-soft);
+    }
+    .preview-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Live Preview Screen Container */
+    .preview-stage {
+      position: relative;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: background 0.2s ease;
+    }
+    .stage-bg-dark {
+      background: #0f172a;
+      background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .stage-bg-grid {
+      background-color: #1e293b;
+      background-image: linear-gradient(45deg, #0f172a 25%, transparent 25%),
+                        linear-gradient(-45deg, #0f172a 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #0f172a 75%),
+                        linear-gradient(-45deg, transparent 75%, #0f172a 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    .stage-bg-light {
+      background: #f8fafc;
+      background-image: radial-gradient(rgba(0,0,0,0.08) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent !important;
+    }
+
+    /* Simulator toolbar */
+    .sim-bar {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--surface-soft);
+      border-top: 1px solid var(--hairline);
+    }
+    .btn-sim {
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--hairline);
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .btn-sim:hover {
+      background: var(--hairline);
+    }
+
+    /* OBS Browser Source URL Card */
+    .obs-url-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-xl, 16px);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .obs-url-input-wrap {
+      display: flex;
+      gap: 8px;
+    }
+    .obs-url-input {
+      flex: 1;
+      padding: 9px 12px;
+      font-family: var(--font-mono, monospace);
+      font-size: 0.78rem;
+      border-radius: var(--radius-md, 8px);
+      border: 1px solid var(--hairline);
+      background: var(--surface-soft);
+      color: var(--ink);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .btn-copy-url {
+      padding: 9px 18px;
+      border-radius: var(--radius-md, 8px);
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .btn-copy-url:hover {
+      opacity: 0.9;
+    }
+
+    .obs-instructions {
+      font-size: 0.78rem;
+      color: var(--body);
+      line-height: 1.5;
+      padding-top: 8px;
+      border-top: 1px solid var(--hairline);
+    }
+    .obs-instructions ol {
+      padding-left: 18px;
+      margin-top: 4px;
+    }
+
+    /* Detected Channels banner */
+    .channels-pill-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .chan-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+    }
+    .chan-tag.twitch { color: #a855f7; border-color: rgba(168,85,247,0.3); }
+    .chan-tag.youtube { color: #ef4444; border-color: rgba(239,68,68,0.3); }
+    .chan-tag.tiktok { color: #06b6d4; border-color: rgba(6,182,212,0.3); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="viewers-nav-header">
+    <div class="viewers-header-left">
+      <!-- Hamburger Menu Button -->
+      <button id="btnSideDrawerOpen" class="btn-side-drawer-open" aria-label="Buka Menu Samping" title="Buka Menu Samping (Tekan 'M')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Brand -->
+      <a href="/" style="display:flex; align-items:center; gap:8px; text-decoration:none;">
+        <div class="brand-logo" style="width:30px; height:30px;">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div style="font-weight:700; font-size:1.1rem; color:var(--ink); display:flex; align-items:center; gap:6px;">
+          <span>StreamPulse</span>
+          <span style="font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:9999px; background:rgba(56,189,248,0.15); color:#0284c7;">OBS TOOLS</span>
+        </div>
+      </a>
+
+      <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:5px 12px; border-radius:9999px; background:var(--surface-soft); border:1px solid var(--hairline); color:var(--ink);">
+        <span>← Live Chat</span>
+      </a>
+      <a href="/dock" target="_blank" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:5px 12px; border-radius:9999px; background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); color:#06b6d4;">
+        <span>OBS Dock ↗</span>
+      </a>
+    </div>
+
+    <div class="viewers-header-right">
+      <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
+        <span class="theme-icon">☀️</span>
+      </button>
+      <a href="/studio" class="btn-icon btn-primary" style="text-decoration:none; padding:6px 14px; font-weight:700; font-size:0.84rem; border-radius:var(--radius-pill);">
+        <span>Chat Studio</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- SLIDING SIDE DRAWER & BACKDROP -->
+  <div id="sideDrawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="sideDrawer" class="side-drawer" aria-label="Menu Navigasi Samping" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="drawer-title-group">
+          <span class="drawer-title">StreamPulse</span>
+          <span class="drawer-badge">PRO MAX</span>
+        </div>
+      </div>
+      <button id="btnCloseSideDrawer" class="btn-drawer-close" aria-label="Tutup Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- User Hero -->
+    <a href="/studio" class="drawer-user-hero" id="drawerUserHero" title="Buka Panel Profil & OBS Studio">
+      <div class="drawer-user-avatar" id="drawerUserAvatar">👤</div>
+      <div class="drawer-user-meta">
+        <div class="drawer-user-name" id="drawerUserName">Streamer Tamu</div>
+        <div class="drawer-user-role" id="drawerUserRole">Mode Tamu • Klik untuk Login</div>
+      </div>
+      <div class="drawer-user-arrow">→</div>
+    </a>
+
+    <!-- Drawer Navigation Content -->
+    <div class="drawer-scroll-body">
+      <!-- Section 1: Saluran Monitor -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">SALURAN MONITOR</div>
+        <button id="drawerBtnSetup" class="drawer-nav-item" type="button">
+          <div class="drawer-icon-wrap" style="color:var(--primary); background:rgba(99,102,241,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Atur Saluran Monitor</span>
+            <span class="drawer-nav-desc">Hubungkan Twitch, YouTube & TikTok</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Section 2: OBS Tools -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">OBS TOOLS</div>
+
+        <a href="/dock" target="_blank" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#06b6d4; background:rgba(6,182,212,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">OBS Custom Dock</span>
+            <span class="drawer-nav-desc">Panel chat interaktif untuk OBS Studio</span>
+          </div>
+        </a>
+
+        <a href="/viewers" class="drawer-nav-item active">
+          <div class="drawer-icon-wrap" style="color:#38bdf8; background:rgba(56,189,248,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Live Viewers Counter</span>
+            <span class="drawer-nav-desc">Widget penghitung penonton siaran untuk OBS</span>
+          </div>
+        </a>
+
+        <a href="/studio" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#ec4899; background:rgba(236,72,153,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.27 19.57 10.58 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-1.38 0-2.63-.47-3.64-1.26l2.35-2.35c.78.39 1.66.61 2.59.61 3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6c0 .93.22 1.81.61 2.59L5.56 19.94C4.59 18.73 4 17.2 4 15.5c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z" />
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Overlay Studio & CSS</span>
+            <span class="drawer-nav-desc">Kustomisasi tema & animasi browser source</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Section 3: Komunitas -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">KOMUNITAS & BANTUAN</div>
+        <a href="/features" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#8b5cf6; background:rgba(139,92,246,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Roadmap & Usulan Fitur</span>
+            <span class="drawer-nav-desc">Papan ide & voting fitur komunitas</span>
+          </div>
+        </a>
+
+        <button id="btnDonateModal" class="drawer-nav-item" type="button">
+          <div class="drawer-icon-wrap" style="color:#f97316; background:rgba(249,115,22,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Dukung Pengembang</span>
+            <span class="drawer-nav-desc">Traktir kopi via SociaBuzz / QRIS</span>
+          </div>
+        </button>
+
+        <a href="/privacy" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#10b981; background:rgba(16,185,129,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Kebijakan Privasi</span>
+            <span class="drawer-nav-desc">Keamanan data & ketentuan layanan</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Page Content -->
+  <main class="viewers-page-wrapper">
+
+    <!-- Hero Intro -->
+    <div class="viewers-hero">
+      <span class="viewers-hero-tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        OBS BROWSER SOURCE OVERLAY
+      </span>
+      <h1 class="viewers-hero-title">Live Viewers Counter Overlay</h1>
+      <p class="viewers-hero-subtitle">
+        Tampilkan jumlah penonton siaran gabungan (Twitch, YouTube, dan TikTok) secara langsung dan real-time di atas layar OBS Studio Anda dengan berbagai pilihan gaya visual dan layout yang dapat disesuaikan.
+      </p>
+
+      <!-- Active Channels Detection Bar -->
+      <div class="channels-pill-bar" id="detectedChannelsBar">
+        <span style="font-size:0.8rem; font-weight:600; color:var(--body);">Saluran Terhubung:</span>
+        <span id="tagTwitch" class="chan-tag twitch">Twitch: -</span>
+        <span id="tagYouTube" class="chan-tag youtube">YouTube: -</span>
+        <span id="tagTikTok" class="chan-tag tiktok">TikTok: -</span>
+      </div>
+    </div>
+
+    <!-- Main Two-Column Grid -->
+    <div class="viewers-grid">
+
+      <!-- LEFT: CUSTOMIZER SETTINGS -->
+      <div class="viewers-config-col">
+
+        <!-- 1. Layout Selection -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span>1. Bentuk / Layout Tampilan</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--body);">5 Pilihan Bentuk</span>
+          </div>
+
+          <div class="selector-grid" id="layoutSelector">
+            <div class="choice-card active" data-layout="total">
+              <span class="choice-card-name">👁️ Combined Total</span>
+              <span class="choice-card-desc">Total penonton besar + indikator live dot</span>
+            </div>
+            <div class="choice-card" data-layout="pills">
+              <span class="choice-card-name">💊 Multi Pills</span>
+              <span class="choice-card-desc">Badge terpisah per platform & total</span>
+            </div>
+            <div class="choice-card" data-layout="badge">
+              <span class="choice-card-name">🏷️ Split Badge</span>
+              <span class="choice-card-desc">Kotak badge merah LIVE + angka penonton</span>
+            </div>
+            <div class="choice-card" data-layout="card">
+              <span class="choice-card-name">🎛️ HUD Card</span>
+              <span class="choice-card-desc">Kartu HUD streaming + rincian tiap platform</span>
+            </div>
+            <div class="choice-card" data-layout="minimal">
+              <span class="choice-card-name">✨ Minimal Clean</span>
+              <span class="choice-card-desc">Teks polos tanpa bingkai kartu (ultra clean)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Theme / Visual Style -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span>2. Tema Visual & Warna</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--body);">5 Pilihan Tema</span>
+          </div>
+
+          <div class="selector-grid" id="themeSelector">
+            <div class="choice-card active" data-theme="frost">
+              <span class="choice-card-name">❄️ Frost Glass</span>
+              <span class="choice-card-desc">Kaca blur elegan dengan border halus</span>
+            </div>
+            <div class="choice-card" data-theme="neon">
+              <span class="choice-card-name">⚡ Cyber Neon</span>
+              <span class="choice-card-desc">Cahaya neon cyan & magenta berkilau</span>
+            </div>
+            <div class="choice-card" data-theme="flat-dark">
+              <span class="choice-card-name">🌑 Matte Dark</span>
+              <span class="choice-card-desc">Hitam pekat kontras tinggi</span>
+            </div>
+            <div class="choice-card" data-theme="flat-light">
+              <span class="choice-card-name">☀️ Clean Light</span>
+              <span class="choice-card-desc">Putih bersih untuk gameplay gelap</span>
+            </div>
+            <div class="choice-card" data-theme="translucent">
+              <span class="choice-card-name">🌫️ Translucent</span>
+              <span class="choice-card-desc">Semi-transparan gelap tipis</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Details & Typography -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span>3. Detail & Ukuran (Skala)</span>
+            </div>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="inputScale">Skala / Ukuran Widget</label>
+              <select id="inputScale" class="form-control">
+                <option value="sm">Kecil (85%)</option>
+                <option value="md" selected>Normal (100% - Default)</option>
+                <option value="lg">Besar (125%)</option>
+                <option value="xl">Ekstra Besar (150%)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputAlign">Perataan Posisi (Alignment)</label>
+              <select id="inputAlign" class="form-control">
+                <option value="left" selected>Rata Kiri (Align Left)</option>
+                <option value="center">Rata Tengah (Align Center)</option>
+                <option value="right">Rata Kanan (Align Right)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="inputLabel">Teks Label</label>
+              <input type="text" id="inputLabel" class="form-control" value="VIEWERS" placeholder="Contoh: VIEWERS / PENONTON">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputFont">Gaya Huruf (Font)</label>
+              <select id="inputFont" class="form-control">
+                <option value="inter" selected>Inter (Modern & Clean)</option>
+                <option value="jet">JetBrains Mono (Angka Digital)</option>
+                <option value="nunito">Nunito (Rounded Friendly)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Switches -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Sembunyikan Saluran 0 Penonton</span>
+              <span class="toggle-desc">Otomatis sembunyikan platform yang sedang tidak live / nol penonton</span>
+            </div>
+            <label class="switch-wrap">
+              <input type="checkbox" id="checkHideZero">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Tampilkan Total Gabungan</span>
+              <span class="toggle-desc">Tampilkan angka gabungan penonton seluruh platform aktif</span>
+            </div>
+            <label class="switch-wrap">
+              <input type="checkbox" id="checkShowTotal" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT: LIVE PREVIEW & OBS LINK (STICKY) -->
+      <div class="viewers-preview-col">
+        <div class="preview-sticky-wrap">
+
+          <!-- Live Preview Screen -->
+          <div class="preview-box">
+            <div class="preview-header">
+              <div class="preview-title">
+                <span class="pulse-dot" style="width:8px; height:8px;"></span>
+                <span>Live Preview Tampilan</span>
+              </div>
+              <!-- Preview Background Toggle -->
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn-sim" id="btnBgDark" title="Latar Game Gelap">Gelap</button>
+                <button type="button" class="btn-sim" id="btnBgGrid" title="Latar Transparan / Grid">Grid</button>
+                <button type="button" class="btn-sim" id="btnBgLight" title="Latar Terang">Terang</button>
+              </div>
+            </div>
+
+            <div class="preview-stage stage-bg-dark" id="previewStage">
+              <iframe id="previewIframe" class="preview-iframe" src="/viewers-overlay?layout=total&theme=frost&scale=md"></iframe>
+            </div>
+
+            <!-- Simulation Controls -->
+            <div class="sim-bar">
+              <span style="font-size:0.72rem; font-weight:700; color:var(--body);">Uji Simulasi:</span>
+              <button type="button" class="btn-sim" id="simTwitch">+25 Twitch</button>
+              <button type="button" class="btn-sim" id="simYouTube">+50 YouTube</button>
+              <button type="button" class="btn-sim" id="simTikTok">+100 TikTok</button>
+              <button type="button" class="btn-sim" id="simRaid" style="color:#f59e0b;">🔥 Simulasi Raid</button>
+              <button type="button" class="btn-sim" id="simReset" style="color:#ef4444;">Reset</button>
+            </div>
+          </div>
+
+          <!-- OBS Browser Source Link Card -->
+          <div class="obs-url-card">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:0.9rem; font-weight:800; display:flex; align-items:center; gap:6px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                URL OBS Browser Source
+              </span>
+              <span style="font-size:0.72rem; font-weight:700; color:var(--primary);">Auto-Sync Saluran</span>
+            </div>
+
+            <div class="obs-url-input-wrap">
+              <input type="text" id="obsOverlayUrl" class="obs-url-input" readonly value="">
+              <button type="button" id="btnCopyOverlayUrl" class="btn-copy-url">
+                Salin URL
+              </button>
+            </div>
+
+            <div class="obs-instructions">
+              <strong>Cara Pasang di OBS Studio:</strong>
+              <ol>
+                <li>Buka OBS Studio, klik tanda <strong>+</strong> pada panel <strong>Sources</strong>.</li>
+                <li>Pilih <strong>Browser Source</strong> dan beri nama (misal: <em>Stream Viewers</em>).</li>
+                <li>Paste URL di atas ke dalam kolom <strong>URL</strong>.</li>
+                <li>Atur ukuran resolusi rekomendasi: <strong>Width: 500</strong>, <strong>Height: 140</strong> (atau disesuaikan).</li>
+                <li>Centang <em>"Shutdown source when not visible"</em> untuk hemat resource GPU streamer.</li>
+              </ol>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="spToastContainer" class="toast-container" style="position:fixed; bottom:24px; right:24px; z-index:9999;"></div>
+
+  <!-- Shared Drawer Script -->
+  <script src="/js/drawer.js"></script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Elements
+      const layoutSelector = document.getElementById('layoutSelector');
+      const themeSelector = document.getElementById('themeSelector');
+      const inputScale = document.getElementById('inputScale');
+      const inputAlign = document.getElementById('inputAlign');
+      const inputLabel = document.getElementById('inputLabel');
+      const inputFont = document.getElementById('inputFont');
+      const checkHideZero = document.getElementById('checkHideZero');
+      const checkShowTotal = document.getElementById('checkShowTotal');
+
+      const previewIframe = document.getElementById('previewIframe');
+      const previewStage = document.getElementById('previewStage');
+      const obsOverlayUrl = document.getElementById('obsOverlayUrl');
+      const btnCopyOverlayUrl = document.getElementById('btnCopyOverlayUrl');
+
+      const tagTwitch = document.getElementById('tagTwitch');
+      const tagYouTube = document.getElementById('tagYouTube');
+      const tagTikTok = document.getElementById('tagTikTok');
+
+      // State
+      let state = {
+        layout: 'total',
+        theme: 'frost',
+        scale: 'md',
+        align: 'left',
+        label: 'VIEWERS',
+        font: 'inter',
+        hideZero: false,
+        showTotal: true
+      };
+
+      // Simulated counts for testing
+      let simCounts = {
+        twitch: 14,
+        youtube: 42,
+        tiktok: 110
+      };
+
+      // Toast Notification
+      function showToast(text, type = 'info') {
+        const container = document.getElementById('spToastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+          color: white;
+          padding: 10px 18px;
+          border-radius: 8px;
+          margin-top: 8px;
+          font-size: 0.86rem;
+          font-weight: 600;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+          transition: opacity 0.3s ease;
+        `;
+        toast.textContent = text;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // Read channels from localStorage
+      function loadChannels() {
+        try {
+          const raw = localStorage.getItem('streampulse_user_channels') ||
+                      localStorage.getItem('streampulse_my_channels') ||
+                      localStorage.getItem('streampulse_guest_channels');
+          const ch = raw ? JSON.parse(raw) : {};
+          if (tagTwitch) tagTwitch.textContent = ch.twitch ? `Twitch: #${ch.twitch}` : 'Twitch: -';
+          if (tagYouTube) tagYouTube.textContent = ch.youtube ? `YouTube: ${ch.youtube}` : 'YouTube: -';
+          if (tagTikTok) tagTikTok.textContent = ch.tiktok ? `TikTok: @${ch.tiktok}` : 'TikTok: -';
+          return ch;
+        } catch (e) {
+          return {};
+        }
+      }
+
+      // Generate OBS URL
+      function buildOverlayUrl() {
+        const origin = window.location.origin;
+        const q = new URLSearchParams();
+        if (state.layout !== 'total') q.set('layout', state.layout);
+        if (state.theme !== 'frost') q.set('theme', state.theme);
+        if (state.scale !== 'md') q.set('scale', state.scale);
+        if (state.align !== 'left') q.set('align', state.align);
+        if (state.label !== 'VIEWERS') q.set('label', state.label);
+        if (state.font !== 'inter') q.set('font', state.font);
+        if (state.hideZero) q.set('hideZero', '1');
+        if (!state.showTotal) q.set('showTotal', '0');
+
+        const qs = q.toString();
+        return `${origin}/viewers-overlay${qs ? '?' + qs : ''}`;
+      }
+
+      function updatePreview() {
+        const url = buildOverlayUrl();
+        if (obsOverlayUrl) obsOverlayUrl.value = url;
+        if (previewIframe) {
+          previewIframe.src = url;
+          // Send simulated count after iframe loads
+          previewIframe.onload = () => {
+            sendSimulation();
+          };
+        }
+      }
+
+      function sendSimulation() {
+        if (!previewIframe || !previewIframe.contentWindow) return;
+        previewIframe.contentWindow.postMessage({
+          type: 'SIMULATE_VIEWERS',
+          counts: simCounts
+        }, '*');
+      }
+
+      // Layout selector event
+      if (layoutSelector) {
+        layoutSelector.querySelectorAll('.choice-card').forEach(card => {
+          card.addEventListener('click', () => {
+            layoutSelector.querySelectorAll('.choice-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            state.layout = card.dataset.layout;
+            updatePreview();
+          });
+        });
+      }
+
+      // Theme selector event
+      if (themeSelector) {
+        themeSelector.querySelectorAll('.choice-card').forEach(card => {
+          card.addEventListener('click', () => {
+            themeSelector.querySelectorAll('.choice-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            state.theme = card.dataset.theme;
+            updatePreview();
+          });
+        });
+      }
+
+      // Form inputs
+      if (inputScale) inputScale.addEventListener('change', (e) => {
+        state.scale = e.target.value;
+        updatePreview();
+      });
+      if (inputAlign) inputAlign.addEventListener('change', (e) => {
+        state.align = e.target.value;
+        updatePreview();
+      });
+      if (inputLabel) inputLabel.addEventListener('input', (e) => {
+        state.label = e.target.value.trim();
+        updatePreview();
+      });
+      if (inputFont) inputFont.addEventListener('change', (e) => {
+        state.font = e.target.value;
+        updatePreview();
+      });
+      if (checkHideZero) checkHideZero.addEventListener('change', (e) => {
+        state.hideZero = e.target.checked;
+        updatePreview();
+      });
+      if (checkShowTotal) checkShowTotal.addEventListener('change', (e) => {
+        state.showTotal = e.target.checked;
+        updatePreview();
+      });
+
+      // Background switches
+      const btnBgDark = document.getElementById('btnBgDark');
+      const btnBgGrid = document.getElementById('btnBgGrid');
+      const btnBgLight = document.getElementById('btnBgLight');
+      if (btnBgDark && previewStage) btnBgDark.addEventListener('click', () => {
+        previewStage.className = 'preview-stage stage-bg-dark';
+      });
+      if (btnBgGrid && previewStage) btnBgGrid.addEventListener('click', () => {
+        previewStage.className = 'preview-stage stage-bg-grid';
+      });
+      if (btnBgLight && previewStage) btnBgLight.addEventListener('click', () => {
+        previewStage.className = 'preview-stage stage-bg-light';
+      });
+
+      // Simulation buttons
+      const simTwitch = document.getElementById('simTwitch');
+      const simYouTube = document.getElementById('simYouTube');
+      const simTikTok = document.getElementById('simTikTok');
+      const simRaid = document.getElementById('simRaid');
+      const simReset = document.getElementById('simReset');
+
+      if (simTwitch) simTwitch.addEventListener('click', () => {
+        simCounts.twitch += 25;
+        sendSimulation();
+        showToast('+25 Penonton Twitch!', 'info');
+      });
+      if (simYouTube) simYouTube.addEventListener('click', () => {
+        simCounts.youtube += 50;
+        sendSimulation();
+        showToast('+50 Penonton YouTube!', 'info');
+      });
+      if (simTikTok) simTikTok.addEventListener('click', () => {
+        simCounts.tiktok += 100;
+        sendSimulation();
+        showToast('+100 Penonton TikTok!', 'info');
+      });
+      if (simRaid) simRaid.addEventListener('click', () => {
+        simCounts.twitch += 350;
+        simCounts.youtube += 150;
+        sendSimulation();
+        showToast('🔥 SIMULASI RAID: +500 Penonton masuk!', 'success');
+      });
+      if (simReset) simReset.addEventListener('click', () => {
+        simCounts = { twitch: 0, youtube: 0, tiktok: 0 };
+        sendSimulation();
+        showToast('Simulasi direset ke 0', 'info');
+      });
+
+      // Copy URL Button
+      if (btnCopyOverlayUrl && obsOverlayUrl) {
+        btnCopyOverlayUrl.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(obsOverlayUrl.value);
+            btnCopyOverlayUrl.textContent = '✓ Tersalin!';
+            btnCopyOverlayUrl.style.background = '#10b981';
+            showToast('✓ URL Overlay tersalin ke clipboard! Siap dipaste ke OBS Browser Source.', 'success');
+            setTimeout(() => {
+              btnCopyOverlayUrl.textContent = 'Salin URL';
+              btnCopyOverlayUrl.style.background = '';
+            }, 2500);
+          } catch (e) {
+            obsOverlayUrl.select();
+            document.execCommand('copy');
+            showToast('✓ URL Overlay tersalin!', 'success');
+          }
+        });
+      }
+
+      // Theme toggle for page
+      const btnThemeToggle = document.getElementById('btnThemeToggle');
+      if (btnThemeToggle) {
+        btnThemeToggle.addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme') || 'dark';
+          const next = current === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          document.body.classList.toggle('dark-mode', next === 'dark');
+          localStorage.setItem('streampulse_theme', next);
+          btnThemeToggle.querySelector('.theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+        const savedTheme = localStorage.getItem('streampulse_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.body.classList.toggle('dark-mode', savedTheme === 'dark');
+        btnThemeToggle.querySelector('.theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      }
+
+      loadChannels();
+      updatePreview();
+    })();
+  </script>
+</body>
+</html>

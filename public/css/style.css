@@ -194,7 +194,8 @@ body {
 }
 
 /* Hamburger Drawer Button */
-.btn-drawer-toggle {
+.btn-drawer-toggle,
+.btn-side-drawer-open {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
@@ -208,7 +209,8 @@ body {
   transition: all var(--transition-fast);
 }
 
-.btn-drawer-toggle:hover {
+.btn-drawer-toggle:hover,
+.btn-side-drawer-open:hover {
   background: var(--surface-hover);
   border-color: var(--hairline-strong);
   color: var(--primary);
