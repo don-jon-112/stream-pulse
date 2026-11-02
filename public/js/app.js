@@ -1898,7 +1898,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const sideDrawerBackdrop = document.getElementById('sideDrawerBackdrop');
   const sideDrawer = document.getElementById('sideDrawer');
   const drawerBtnSetup = document.getElementById('drawerBtnSetup');
-  const drawerBtnDemo = document.getElementById('drawerBtnDemo');
   const drawerBtnDonate = document.getElementById('drawerBtnDonate');
 
   function openSideDrawer() {
@@ -1921,13 +1920,6 @@ document.addEventListener('DOMContentLoaded', () => {
     drawerBtnSetup.addEventListener('click', () => {
       closeSideDrawer();
       openModal(setupModal);
-    });
-  }
-
-  if (drawerBtnDemo) {
-    drawerBtnDemo.addEventListener('click', () => {
-      closeSideDrawer();
-      openModal(demoModal);
     });
   }
 
