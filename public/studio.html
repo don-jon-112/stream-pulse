@@ -211,6 +211,29 @@
     @media (max-width: 1080px) {
       .studio-layout {
         grid-template-columns: 1fr;
+        padding: 12px;
+      }
+      .themes-sidebar {
+        position: static;
+        max-height: none;
+        overflow: visible;
+      }
+      .themes-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+      }
+      .themes-list::-webkit-scrollbar {
+        display: none;
+      }
+      .theme-nav-item {
+        min-width: 140px;
+        flex-shrink: 0;
+      }
+      .preview-panel {
+        position: static;
+        order: -1;
       }
     }
 
@@ -1056,58 +1079,65 @@
 <body>
 
   <!-- Header -->
-  <header class="studio-header">
-    <div class="studio-header-left">
-      <!-- Hamburger Menu Button -->
-      <button id="btnSideDrawerOpen" class="btn-side-drawer-open" aria-label="Buka Menu Samping" title="Buka Menu Samping (Tekan 'M')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-
-      <a href="/" class="studio-brand-link">
-        <div class="brand-logo" style="width:30px; height:30px;">
-          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        </div>
-        <div class="studio-brand-title">
-          StreamPulse <span class="brand-badge studio-brand-badge" style="background:#f59e0b; color:#000;">OVERLAY STUDIO</span>
-        </div>
-      </a>
-      <a href="/" class="btn-icon studio-back-btn">
-        <span data-i18n="nav_dashboard">← Dashboard Chat</span>
-      </a>
-      <a href="/dock" target="_blank" class="btn-icon studio-back-btn" style="background:rgba(99,102,241,0.15); border-color:rgba(99,102,241,0.4); color:#a5b4fc; text-decoration:none;" title="OBS Custom Browser Dock: Panel Chat & Viewer Counter untuk OBS Studio">
-        <span>OBS Dock 🖥️</span>
-      </a>
-    </div>
-
-    <div class="studio-header-right">
-      <!-- Language Switcher (Flag ID / EN) -->
-      
-      <!-- Dark / Light Mode Toggle Button -->
-      <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
-        <span class="theme-icon">☀️</span>
-        <span class="theme-text">Light</span>
-      </button>
-
-      <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
-        <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
-        <span>ID</span>
-      </button>
-
-      <!-- Account Info / Login Button -->
-      <div id="accountPillContainer">
-        <button id="btnOpenAuth" class="btn-icon">
-          <span data-i18n="studio_login_btn">🔐 Login / Daftar Akun</span>
+  <header class="app-header">
+    <div class="header-container">
+      <div class="header-left">
+        <!-- Hamburger Menu Button -->
+        <button id="btnSideDrawerOpen" class="btn-drawer-toggle" aria-label="Buka Menu Samping" title="Buka Menu Samping (Tekan 'M')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
         </button>
+
+        <a href="/" class="brand-section" id="brandSection" style="text-decoration:none;">
+          <div class="brand-logo" title="StreamPulse MultiChat">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="brand-info">
+            <div class="brand-title-row">
+              <span class="brand-title">StreamPulse</span>
+              <span class="brand-badge badge-studio">OVERLAY STUDIO</span>
+            </div>
+          </div>
+        </a>
       </div>
 
+      <div class="header-center">
+        <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:var(--surface-soft); border:1px solid var(--hairline); color:var(--ink);" title="Kembali ke Dashboard Chat Utama">
+          <span data-i18n="nav_dashboard">← Live Chat</span>
+        </a>
+        <a href="/dock" target="_blank" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); color:#06b6d4;" title="OBS Custom Browser Dock">
+          <span>OBS Dock ↗</span>
+        </a>
+        <a href="/viewers" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#0284c7;" title="Live Viewers Counter Overlay">
+          <span>Viewers Counter ↗</span>
+        </a>
+      </div>
 
-      <button id="btnSaveOverlay" class="btn-icon btn-primary">
-        <span data-i18n="studio_save">💾 Simpan Pengaturan</span>
-      </button>
+      <div class="header-right">
+        <!-- Dark / Light Mode Toggle Button -->
+        <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
+          <span class="theme-icon">☀️</span>
+        </button>
+
+        <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
+          <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
+          <span>ID</span>
+        </button>
+
+        <!-- Account Info / Login Button -->
+        <div id="accountPillContainer">
+          <button id="btnOpenAuth" class="btn-icon" style="border-radius:9999px; padding:6px 14px;">
+            <span data-i18n="studio_login_btn">🔐 Login / Akun</span>
+          </button>
+        </div>
+
+        <button id="btnSaveOverlay" class="btn-icon btn-primary" style="border-radius:9999px; padding:7px 18px; font-weight:700;">
+          <span data-i18n="studio_save">💾 Simpan</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -1544,7 +1574,7 @@
                 <input type="color" id="settingNeonYtColor" value="#ef4444" class="color-swatch-input" style="width:100%;">
               </div>
               <div>
-                <div style="font-size:0.72rem; font-weight:700; color:#000000; margin-bottom:2px;">TikTok</div>
+                <div style="font-size:0.72rem; font-weight:700; color:#06b6d4; margin-bottom:2px;">TikTok</div>
                 <input type="color" id="settingNeonTiktokColor" value="#ffffff" class="color-swatch-input" style="width:100%;">
               </div>
             </div>
@@ -1553,12 +1583,12 @@
           <div class="form-group">
             <div class="form-label">
               <span>Ketebalan Garis Neon</span>
-              <span id="labelNeonWidth" style="font-family:var(--font-mono); font-weight:700; color:#0f172a; background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">2px</span>
+              <span id="labelNeonWidth" style="font-family:var(--font-mono); font-weight:700; color:var(--ink); background:var(--surface-soft); padding:2px 8px; border-radius:6px; border:1px solid var(--hairline);">2px</span>
             </div>
             <input type="range" id="settingNeonWidth" min="1" max="6" step="1" value="2" style="width:100%;">
           </div>
 
-          <div class="form-group" style="margin-top:4px; border-top:1px solid #e2e8f0; padding-top:8px;">
+          <div class="form-group" style="margin-top:4px; border-top:1px solid var(--hairline); padding-top:8px;">
             <label class="form-label">Pilihan Warna Username</label>
             <select id="settingAuthorColorMode" class="form-select">
               <option value="custom">Satu Warna Kustom (Global)</option>
@@ -1578,7 +1608,7 @@
                 <input type="color" id="settingAuthorYtColor" value="#ef4444" class="color-swatch-input" style="width:100%;">
               </div>
               <div>
-                <div style="font-size:0.72rem; font-weight:700; color:#000000; margin-bottom:2px;">TikTok</div>
+                <div style="font-size:0.72rem; font-weight:700; color:#06b6d4; margin-bottom:2px;">TikTok</div>
                 <input type="color" id="settingAuthorTiktokColor" value="#ffffff" class="color-swatch-input" style="width:100%;">
               </div>
             </div>
@@ -2100,7 +2130,7 @@
         </p>
         <textarea id="settingCustomCss" class="form-textarea" rows="10" placeholder="/* Masukkan CSS kustom Anda di sini */&#10;.overlay-item {&#10;  border-radius: 12px;&#10;}" data-i18n-ph="ph_custom_css"></textarea>
 
-        <div style="font-size:0.8rem; font-weight:700; color:#000000; margin-top:4px;" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
+        <div style="font-size:0.8rem; font-weight:700; color:var(--ink); margin-top:4px;" data-i18n="sec_custom_js">⚡ Custom JavaScript (Opsional)</div>
         <textarea id="settingCustomJs" class="form-textarea" rows="6" placeholder="// Kode JS kustom yang dieksekusi saat overlay dimuat" data-i18n-ph="ph_custom_js"></textarea>
 
         <!-- Single Save Reminder for Custom CSS & JS -->
@@ -2146,7 +2176,7 @@
           <div style="font-size:0.92rem; font-weight:700; color:var(--ink);" data-i18n="live_preview_title">
             👁️ Live Preview
           </div>
-          <button type="button" id="btnToggleSimLoop" class="btn-icon" style="padding:3px 10px; font-size:0.72rem; border-radius:9999px; background:#000000; color:#ffffff; border:1px solid #000000; font-weight:500;" title="Jeda atau lanjutkan simulasi chat otomatis">
+          <button type="button" id="btnToggleSimLoop" class="btn-icon" style="padding:3px 10px; font-size:0.72rem; border-radius:9999px; background:var(--surface-soft); color:var(--ink); border:1px solid var(--hairline); font-weight:500;" title="Jeda atau lanjutkan simulasi chat otomatis">
             <span id="simLoopStatus">⏸️ Jeda Simulasi</span>
           </button>
         </div>
@@ -2218,7 +2248,7 @@
   <div id="authModal" class="modal-overlay">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 id="authModalTitle" style="margin:0; font-size:1.15rem; color:#000000; font-weight:800;" data-i18n="auth_title_login">Masuk Akun Streamer</h3>
+        <h3 id="authModalTitle" style="margin:0; font-size:1.15rem; color:var(--ink); font-weight:800;" data-i18n="auth_title_login">Masuk Akun Streamer</h3>
         <button id="closeAuthModal" class="btn-icon" style="padding:4px 8px;">✕</button>
       </div>
       <p id="authModalDesc" style="font-size:0.8rem; color:var(--text-tertiary); margin:6px 0 14px 0;" data-i18n="auth_desc">
@@ -4650,6 +4680,31 @@
       }
     })();
 </script>
+
+  <!-- Ollama Minimal Footer -->
+  <footer class="ollama-footer">
+    <div class="ollama-footer-links">
+      <a href="/">Live Monitor</a>
+      <span class="footer-dot">•</span>
+      <a href="/dock" target="_blank">OBS Dock</a>
+      <span class="footer-dot">•</span>
+      <a href="/viewers">Viewers Counter</a>
+      <span class="footer-dot">•</span>
+      <a href="/studio">Overlay Studio</a>
+      <span class="footer-dot">•</span>
+      <a href="/features">Roadmap</a>
+      <span class="footer-dot">•</span>
+      <a href="/privacy">Privacy</a>
+      <span class="footer-dot">•</span>
+      <a href="https://github.com/don-jon-112/stream-pulse" target="_blank" rel="noopener">GitHub</a>
+      <span class="footer-dot">•</span>
+      <a href="https://discord.gg/GMrBUgwNFu" target="_blank" rel="noopener">Discord</a>
+    </div>
+    <div class="ollama-footer-copy">
+      © 2026 StreamPulse • Minimal Documentation Design
+    </div>
+  </footer>
+
 <script src="/js/drawer.js"></script>
 </body>
 </html>
