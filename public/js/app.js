@@ -122,6 +122,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputTwitchToken = document.getElementById('inputTwitchToken');
   const inputYouTube = document.getElementById('inputYouTube');
   const inputTikTok = document.getElementById('inputTikTok');
+  const inputTikTokSession = document.getElementById('inputTikTokSession');
+  const btnToggleTikTokGuide = document.getElementById('btnToggleTikTokGuide');
+  const tiktokSessionGuide = document.getElementById('tiktokSessionGuide');
+
+  if (btnToggleTikTokGuide && tiktokSessionGuide) {
+    btnToggleTikTokGuide.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isHidden = tiktokSessionGuide.style.display === 'none';
+      tiktokSessionGuide.style.display = isHidden ? 'block' : 'none';
+      btnToggleTikTokGuide.textContent = isHidden ? 'Tutup Panduan' : 'Panduan Ambil?';
+    });
+  }
   const headerUserWidget = document.getElementById('headerUserWidget');
   const channelAuthNotice = document.getElementById('channelAuthNotice');
   const btnConnectTwitch = document.getElementById('btnConnectTwitch');
@@ -685,6 +697,10 @@ document.addEventListener('DOMContentLoaded', () => {
           inputTikTok.value = ch.tiktok;
           changed = true;
         }
+        if (ch.tiktokSessionId !== undefined && inputTikTokSession && inputTikTokSession.value !== ch.tiktokSessionId) {
+          inputTikTokSession.value = ch.tiktokSessionId;
+          changed = true;
+        }
         if (changed) {
           const guestToken = sessionStorage.getItem('streampulse_guest_twitch_token') || '';
           socket.emit('update_channels', {
@@ -692,6 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
             twitchToken: guestToken,
             youtube: inputYouTube.value.trim(),
             tiktok: inputTikTok.value.trim(),
+            tiktokSessionId: inputTikTokSession ? inputTikTokSession.value.trim() : '',
             userToken: userToken || undefined
           });
         }
@@ -805,14 +822,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 3. TikTok state
       const activeTiktok = saved?.tiktok || '';
+      const activeTiktokSession = saved?.tiktokSessionId || localStorage.getItem('streampulse_tiktok_session') || '';
       inputTikTok.value = activeTiktok;
+      if (inputTikTokSession) inputTikTokSession.value = activeTiktokSession;
 
       if (activeTwitch || activeYoutube || activeTiktok) {
         socket.emit('update_channels', {
           twitch: activeTwitch,
           twitchToken: activeTwitchToken,
           youtube: activeYoutube,
-          tiktok: activeTiktok
+          tiktok: activeTiktok,
+          tiktokSessionId: activeTiktokSession
         });
       }
 
@@ -828,6 +848,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUser = await res.json();
         if (currentUser.channels) {
           inputTikTok.value = currentUser.channels.tiktok || '';
+          if (inputTikTokSession && currentUser.channels.tiktokSessionId) {
+            inputTikTokSession.value = currentUser.channels.tiktokSessionId;
+          }
           saveStoredUserChannels(currentUser.channels);
 
           // 1. Twitch restore
@@ -1812,9 +1835,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
     const youtube = inputYouTube.value.trim();
     const tiktok = inputTikTok.value.trim();
+    const tiktokSessionId = inputTikTokSession ? inputTikTokSession.value.trim() : '';
 
-    const chData = { twitch, youtube, tiktok };
+    const chData = { twitch, youtube, tiktok, tiktokSessionId };
     saveStoredUserChannels(chData);
+    if (tiktokSessionId) {
+      localStorage.setItem('streampulse_tiktok_session', tiktokSessionId);
+    } else {
+      localStorage.removeItem('streampulse_tiktok_session');
+    }
 
     if (currentUser && userToken) {
       // Streamer Terdaftar: Simpan ke cloud akun dan enkripsi Twitch Token di server
@@ -1825,7 +1854,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'Content-Type': 'application/json',
             'x-user-token': userToken
           },
-          body: JSON.stringify({ twitch, youtube, tiktok, twitchToken })
+          body: JSON.stringify({ twitch, youtube, tiktok, tiktokSessionId, twitchToken })
         });
         const data = await res.json();
         if (data.channels && data.channels.hasTwitchToken && inputTwitchToken) {
@@ -1835,13 +1864,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Gagal menyimpan saluran ke akun user:', err);
       }
 
-      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken, force: true });
+      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, userToken, force: true });
     } else {
       // Mode Tamu: Sambungkan untuk sesi ini dan simpan di cache lokal
       if (twitchToken) {
         sessionStorage.setItem('streampulse_guest_twitch_token', twitchToken);
       }
-      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, force: true });
+      socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, force: true });
     }
 
     closeModal(setupModal);
@@ -1854,18 +1883,22 @@ document.addEventListener('DOMContentLoaded', () => {
       let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
       const youtube = inputYouTube.value.trim();
       const tiktok = inputTikTok.value.trim();
+      const tiktokSessionId = inputTikTokSession ? inputTikTokSession.value.trim() : '';
 
       const origHtml = btnRefreshChannels.innerHTML;
       btnRefreshChannels.disabled = true;
       btnRefreshChannels.innerHTML = `<span>⏳ Menyambungkan Ulang...</span>`;
 
       // Simpan lokal terlebih dahulu
-      saveStoredUserChannels({ twitch, youtube, tiktok });
+      saveStoredUserChannels({ twitch, youtube, tiktok, tiktokSessionId });
+      if (tiktokSessionId) {
+        localStorage.setItem('streampulse_tiktok_session', tiktokSessionId);
+      }
 
       if (currentUser && userToken) {
-        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, userToken, force: true });
+        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, userToken, force: true });
       } else {
-        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, force: true });
+        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, force: true });
       }
 
       setTimeout(() => {

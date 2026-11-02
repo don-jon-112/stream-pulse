@@ -779,10 +779,12 @@
 
   function syncChannelsWithSocket() {
     if (!socket || !socket.connected) return;
+    const homepageChannels = readHomepageChannels();
     const payload = {
       twitch: currentChannels.twitch,
       youtube: currentChannels.youtube,
       tiktok: currentChannels.tiktok,
+      tiktokSessionId: homepageChannels.tiktokSessionId || localStorage.getItem('streampulse_tiktok_session') || '',
       userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || ''
     };
     // Kirim event update_channels dan set_channels untuk kompatibilitas penuh

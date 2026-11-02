@@ -190,6 +190,7 @@ io.on('connection', (socket) => {
     let cleanTwitch = (data?.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
     let cleanYouTube = (data?.youtube || '').trim();
     let cleanTikTok = streamManager.parseTikTokInput ? streamManager.parseTikTokInput(data?.tiktok) : (data?.tiktok || '').trim().replace(/^@/, '');
+    let tiktokSessionId = data?.tiktokSessionId ? String(data.tiktokSessionId).trim() : '';
 
     // Fallback dari userToken jika client mengirim token user
     if (data?.userToken) {
@@ -202,6 +203,7 @@ io.on('connection', (socket) => {
         if (!cleanTwitch && u.channels?.twitch) cleanTwitch = u.channels.twitch.toLowerCase().replace(/^[#@]/, '');
         if (!cleanYouTube && u.channels?.youtube) cleanYouTube = u.channels.youtube;
         if (!cleanTikTok && u.channels?.tiktok) cleanTikTok = u.channels.tiktok.replace(/^@/, '');
+        if (!tiktokSessionId && u.channels?.tiktokSessionId) tiktokSessionId = u.channels.tiktokSessionId;
       }
     }
 
@@ -253,6 +255,7 @@ io.on('connection', (socket) => {
       twitch: cleanTwitch,
       youtube: cleanYouTube,
       tiktok: cleanTikTok,
+      tiktokSessionId: tiktokSessionId,
       twitchToken: token
     });
 
@@ -1004,6 +1007,7 @@ app.post('/api/auth/login', async (req, res) => {
         youtubeAvatar: user.channels?.youtubeAvatar || '',
         youtubeChannelId: user.channels?.youtubeChannelId || '',
         tiktok: user.channels?.tiktok || '',
+        tiktokSessionId: user.channels?.tiktokSessionId || '',
         hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
         hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
       }
@@ -1036,6 +1040,7 @@ app.get('/api/user/me', (req, res) => {
       youtubeAvatar: user.channels?.youtubeAvatar || '',
       youtubeChannelId: user.channels?.youtubeChannelId || '',
       tiktok: user.channels?.tiktok || '',
+      tiktokSessionId: user.channels?.tiktokSessionId || '',
       hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
       hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
     },
@@ -1048,7 +1053,7 @@ app.post('/api/user/channels', (req, res) => {
   const user = getUserFromReq(req);
   if (!user) return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk menyimpan saluran Anda.' });
 
-  const { twitch, youtube, tiktok, twitchToken } = req.body || {};
+  const { twitch, youtube, tiktok, twitchToken, tiktokSessionId } = req.body || {};
   const users = readJsonFile(USERS_FILE, {});
   const currentUser = users[user.username] || user;
 
@@ -1056,6 +1061,12 @@ app.post('/api/user/channels', (req, res) => {
   if (twitch !== undefined) currentUser.channels.twitch = String(twitch).trim();
   if (youtube !== undefined) currentUser.channels.youtube = String(youtube).trim();
   if (tiktok !== undefined) currentUser.channels.tiktok = streamManager.parseTikTokInput ? streamManager.parseTikTokInput(tiktok) : String(tiktok).trim();
+  if (tiktokSessionId !== undefined) {
+    currentUser.channels.tiktokSessionId = String(tiktokSessionId).trim();
+    if (currentUser.channels.tiktokSessionId) {
+      globalThis._activeTikTokSessionId = currentUser.channels.tiktokSessionId;
+    }
+  }
 
   // Encrypt OAuth Token if provided and not masked placeholder
   const isMaskedToken = String(twitchToken).includes('***') || String(twitchToken).includes('••••') || String(twitchToken).includes('Tersimpan');
@@ -1091,6 +1102,7 @@ app.post('/api/user/channels', (req, res) => {
       twitch: currentUser.channels.twitch || '',
       youtube: currentUser.channels.youtube || '',
       tiktok: currentUser.channels.tiktok || '',
+      tiktokSessionId: currentUser.channels.tiktokSessionId || '',
       hasTwitchToken: Boolean(currentUser.channels.twitchTokenEncrypted)
     }
   });

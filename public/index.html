@@ -653,8 +653,33 @@
           </label>
           <div class="input-with-icon">
             <span class="input-icon" style="color: var(--body);">@</span>
-            <input type="text" id="inputTikTok" placeholder="Username atau link URL TikTok live..." data-i18n-ph="ph_tiktok_input"
+            <input type="text" id="inputTikTok" placeholder="Username (@...) atau tempel link URL / Room ID..." data-i18n-ph="ph_tiktok_input"
               autocomplete="off">
+          </div>
+
+          <!-- TikTok Session ID (Opsional jika IP Cloud Terkena Blokir) -->
+          <div class="tiktok-session-box" style="margin-top: 10px; padding: 10px 12px; background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-md);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <label for="inputTikTokSession" style="font-size: 0.76rem; font-weight: 600; color: var(--ink); cursor: pointer;" title="Hanya diisi jika TikTok meminta login sesi / membatasi IP cloud">
+                🔑 TikTok Session ID (Bypass Blokir Cloud)
+              </label>
+              <button type="button" id="btnToggleTikTokGuide" style="background: none; border: none; padding: 0; font-size: 0.72rem; color: var(--primary); cursor: pointer; text-decoration: underline; font-weight: 500;">
+                Panduan Ambil?
+              </button>
+            </div>
+            <div class="input-with-icon">
+              <span class="input-icon" style="color: var(--body);">🔒</span>
+              <input type="password" id="inputTikTokSession" placeholder="Tempel sessionid dari browser (opsional)..."
+                autocomplete="off" style="font-size: 0.78rem;">
+            </div>
+            <div id="tiktokSessionGuide" style="display: none; background: var(--surface); border: 1px solid var(--hairline-strong); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 8px; font-size: 0.72rem; color: var(--body); line-height: 1.5;">
+              <strong style="color: var(--ink);">Cara Ambil Session ID (Hanya jika dibutuhkan):</strong><br>
+              1. Buka <a href="https://www.tiktok.com" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">tiktok.com</a> di browser PC dan pastikan sudah login.<br>
+              2. Tekan <code>F12</code> &rarr; tab <strong>Application</strong> (Chrome/Edge) atau <strong>Storage</strong> (Firefox).<br>
+              3. Di panel kiri, klik <strong>Cookies</strong> &rarr; <code>https://www.tiktok.com</code>.<br>
+              4. Cari baris bernama <code>sessionid</code>, salin isinya, lalu tempel di kolom di atas.<br>
+              <em>💡 Cukup pasang sekali, berlaku berbulan-bulan selama Anda tidak klik Log out di browser.</em>
+            </div>
           </div>
         </div>
 
