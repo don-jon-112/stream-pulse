@@ -2014,6 +2014,8 @@ app.post('/api/overlays', (req, res) => {
     }
   }
 
+  const existingName = (overlays[id] && overlays[id].name) ? overlays[id].name : undefined;
+
   overlays[id] = {
     ...overlays[id],
     ...data,
@@ -2021,6 +2023,13 @@ app.post('/api/overlays', (req, res) => {
     owner: currentUser.username,
     updatedAt: Date.now()
   };
+
+  // Pastikan nama kustom tidak ter-reset menjadi ID atau string kosong saat user menyimpan setting
+  if (data.name && String(data.name).trim() && String(data.name).trim() !== id) {
+    overlays[id].name = String(data.name).trim();
+  } else if (existingName) {
+    overlays[id].name = existingName;
+  }
 
   writeJsonFile(OVERLAYS_FILE, overlays);
   res.json({ success: true, id, overlay: overlays[id], overlayIds: currentUser.overlayIds });

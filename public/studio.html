@@ -640,20 +640,151 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 12px;
-      background: #ffffff;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--bg-card, #ffffff);
       border: 1px solid var(--hairline);
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .slot-item:hover {
-      background: #f8fafc;
+      background: var(--bg-card-hover, #f8fafc);
       border-color: var(--hairline-strong);
+      transform: translateY(-1px);
     }
     .slot-item.active {
-      background: #faf6f0;
-      border-color: #8c5b36;
+      background: rgba(245, 158, 11, 0.08) !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25), 0 4px 12px rgba(245, 158, 11, 0.08);
+    }
+
+    /* Slot Action Buttons Styling */
+    .slot-actions {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .btn-slot-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 5px 9px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border-radius: 8px;
+      border: 1px solid var(--hairline);
+      background: var(--surface-soft);
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+      user-select: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .btn-slot-action svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      stroke-width: 2.2;
+    }
+    .btn-slot-action:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .btn-slot-action:active {
+      transform: translateY(0);
+    }
+
+    /* Specific Button Themes */
+    .btn-slot-rename {
+      color: #64748b;
+      border-color: rgba(148, 163, 184, 0.3);
+      background: rgba(148, 163, 184, 0.08);
+    }
+    .btn-slot-rename:hover {
+      color: #6366f1;
+      border-color: rgba(99, 102, 241, 0.5);
+      background: rgba(99, 102, 241, 0.12);
+    }
+
+    .btn-slot-copy-link {
+      color: #059669;
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .btn-slot-copy-link:hover {
+      color: #10b981;
+      border-color: #34d399;
+      background: rgba(16, 185, 129, 0.16);
+    }
+
+    .btn-slot-duplicate {
+      color: #0284c7;
+      border-color: rgba(14, 165, 233, 0.3);
+      background: rgba(14, 165, 233, 0.08);
+    }
+    .btn-slot-duplicate:hover {
+      color: #0ea5e9;
+      border-color: #38bdf8;
+      background: rgba(14, 165, 233, 0.16);
+    }
+
+    .btn-slot-delete {
+      color: #dc2626;
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.08);
+      padding: 5px 7px;
+    }
+    .btn-slot-delete:hover {
+      color: #ef4444;
+      border-color: #f87171;
+      background: rgba(239, 68, 68, 0.16);
+    }
+
+    /* Dark Mode nuances */
+    :root[data-theme="dark"] .btn-slot-rename {
+      color: #cbd5e1;
+      border-color: rgba(148, 163, 184, 0.22);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    :root[data-theme="dark"] .btn-slot-rename:hover {
+      color: #c7d2fe;
+      border-color: rgba(129, 140, 248, 0.6);
+      background: rgba(99, 102, 241, 0.2);
+    }
+    :root[data-theme="dark"] .btn-slot-copy-link {
+      color: #6ee7b7;
+      border-color: rgba(52, 211, 153, 0.28);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    :root[data-theme="dark"] .btn-slot-copy-link:hover {
+      color: #a7f3d0;
+      border-color: #34d399;
+      background: rgba(16, 185, 129, 0.22);
+    }
+    :root[data-theme="dark"] .btn-slot-duplicate {
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.28);
+      background: rgba(14, 165, 233, 0.1);
+    }
+    :root[data-theme="dark"] .btn-slot-duplicate:hover {
+      color: #bae6fd;
+      border-color: #38bdf8;
+      background: rgba(14, 165, 233, 0.22);
+    }
+    :root[data-theme="dark"] .btn-slot-delete {
+      color: #fca5a5;
+      border-color: rgba(248, 113, 113, 0.28);
+      background: rgba(239, 68, 68, 0.1);
+    }
+    :root[data-theme="dark"] .btn-slot-delete:hover {
+      color: #fecaca;
+      border-color: #f87171;
+      background: rgba(239, 68, 68, 0.24);
     }
 
     /* Modal Overlay (Centered) */
@@ -1368,17 +1499,21 @@
       <!-- 0. GENERATE & MANAGE OVERLAY (MAX 3 SLOTS PER USER - LOGGED IN ONLY) -->
       <div id="overlayManagerCard" class="overlay-manager-card">
         
-        <!-- Slot Management (Quota Limited 3 Slots) -->
+        <!-- Slot Management (Quota Limited 5 Slots) -->
         <div style="background:var(--surface-soft); border:1px solid var(--hairline); border-radius:var(--radius-sm); padding:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <div class="box-title" data-i18n="studio_slots_title">✨ Slot OBS Overlay Cloud</div>
               <div style="font-size:0.75rem; color:var(--text-tertiary);">
-                <span data-i18n="studio_quota_label">Kuota Pengguna:</span> <strong id="slotCounter" style="color:#0f172a; font-weight:700;">0 / 5 Slot Terpakai</strong>
+                <span data-i18n="studio_quota_label">Kuota Pengguna:</span> <strong id="slotCounter" style="color:var(--ink); font-weight:800;">0 / 5 Slot Terpakai</strong>
               </div>
             </div>
-            <button id="btnGenerateOverlay" type="button" class="btn-icon btn-primary" style="font-size:0.8rem; padding:8px 14px; font-weight:800;">
-              <span data-i18n="studio_btn_new_slot">+ Generate URL Baru</span>
+            <button id="btnGenerateOverlay" type="button" class="btn-icon btn-primary" style="font-size:0.8rem; padding:7px 14px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span data-i18n="studio_btn_new_slot">Generate URL Baru</span>
             </button>
           </div>
 
@@ -1389,9 +1524,12 @@
         </div>
 
         <!-- Currently Active Overlay Banner -->
-        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-soft); padding:8px 12px; border-radius:var(--radius-xs); border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-size:0.75rem; color:var(--text-secondary);" data-i18n="studio_editing_badge">Sedang Mengedit ID:</span>
-          <span id="activeOverlayIdBadge" style="font-family:var(--font-mono); font-size:0.85rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:4px;">default</span>
+        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-soft); padding:8px 12px; border-radius:var(--radius-xs); border:1px solid var(--hairline);">
+          <span style="font-size:0.75rem; color:var(--text-secondary);" data-i18n="studio_editing_badge">Sedang Mengedit:</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span id="activeOverlayNameBadge" style="font-size:0.82rem; font-weight:700; color:var(--ink); display:none;"></span>
+            <span id="activeOverlayIdBadge" style="font-family:var(--font-mono); font-size:0.8rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:6px; border:1px solid rgba(245,158,11,0.3);">default</span>
+          </div>
         </div>
 
       </div>
@@ -2876,7 +3014,7 @@
         slotsContainer.innerHTML = '';
         if (!slots || slots.length === 0) {
           slotsContainer.innerHTML = `
-            <div style="font-size:0.75rem; color:var(--text-tertiary); padding:6px; text-align:center;">
+            <div style="font-size:0.75rem; color:var(--text-tertiary); padding:10px; text-align:center;">
               ${window.t ? window.t('studio_no_slots_msg') : 'Belum ada slot overlay aktif. Klik "+ Generate URL Baru" di atas!'}
             </div>
           `;
@@ -2891,15 +3029,41 @@
           item.className = `slot-item ${isActive ? 'active' : ''}`;
           item.title = 'Klik untuk memilih/mengedit slot ini';
           item.innerHTML = `
-            <div style="overflow:hidden; text-overflow:ellipsis; max-width:200px; pointer-events:none;">
-              <strong style="color:${isActive ? '#fbbf24' : '#fff'}; font-family:var(--font-mono); font-size:0.84rem;">${escapeHtml(sName)}</strong>
-              ${sName !== sId ? `<span style="font-size:0.68rem; color:var(--text-tertiary); display:block;">ID: ${sId}</span>` : ''}
-              ${isActive ? `<span style="font-size:0.65rem; color:#f59e0b; font-weight:700;">(${window.t ? window.t('active_badge_text') : 'Aktif Digunakan'})</span>` : ''}
+            <div class="slot-meta" style="overflow:hidden; text-overflow:ellipsis; max-width:210px; pointer-events:none;">
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <strong style="color:${isActive ? '#f59e0b' : 'var(--ink)'}; font-family:var(--font-mono); font-size:0.86rem; letter-spacing:-0.01em;">${escapeHtml(sName)}</strong>
+                ${isActive ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.65rem; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); color:#f59e0b; padding:1px 6px; border-radius:999px; font-weight:700;"><span style="width:5px; height:5px; border-radius:50%; background:#f59e0b; display:inline-block;"></span>${window.t ? window.t('active_badge_text') : 'Aktif'}</span>` : ''}
+              </div>
+              ${sName !== sId ? `<span style="font-size:0.68rem; color:var(--text-tertiary); display:block; margin-top:2px; font-family:var(--font-mono);">ID: ${sId}</span>` : ''}
             </div>
-            <div style="display:flex; gap:5px; align-items:center;">
-              <button class="btn-action-sm btn-rename-slot" data-id="${sId}" data-name="${escapeHtml(sName)}" title="Ganti Nama Slot">✏️ Nama</button>
-              <button class="btn-action-sm btn-duplicate-slot" data-id="${sId}" data-name="${escapeHtml(sName)}" style="background:rgba(14,165,233,0.18); border:1px solid rgba(14,165,233,0.35); color:#7dd3fc;" title="Duplikat slot overlay ini">📋 Copy</button>
-              <button class="btn-action-sm danger btn-delete-slot" data-id="${sId}" title="${window.t ? window.t('btn_delete_slot_tip') : 'Hapus slot ini'}">🗑️</button>
+            <div class="slot-actions">
+              <button type="button" class="btn-slot-action btn-slot-rename" data-id="${sId}" data-name="${escapeHtml(sName)}" title="Ganti Nama Slot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                <span>Nama</span>
+              </button>
+              <button type="button" class="btn-slot-action btn-slot-copy-link" data-id="${sId}" title="Salin URL Browser Source OBS slot ini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span>Link</span>
+              </button>
+              <button type="button" class="btn-slot-action btn-slot-duplicate" data-id="${sId}" data-name="${escapeHtml(sName)}" title="Duplikat slot overlay ini ke slot baru">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Klon</span>
+              </button>
+              <button type="button" class="btn-slot-action btn-slot-delete" data-id="${sId}" title="${window.t ? window.t('btn_delete_slot_tip') : 'Hapus slot ini'}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
             </div>
           `;
 
@@ -2911,7 +3075,8 @@
             }
           });
 
-          const renameBtn = item.querySelector('.btn-rename-slot');
+          // Rename Slot
+          const renameBtn = item.querySelector('.btn-slot-rename');
           if (renameBtn) {
             renameBtn.addEventListener('click', async (e) => {
               e.stopPropagation();
@@ -2927,7 +3092,14 @@
                   body: JSON.stringify({ name: newName.trim() })
                 });
                 if (patchRes.ok) {
-                  spToast(`Nama slot berhasil diubah menjadi "${newName.trim()}"`, 'success');
+                  const patchData = await patchRes.json();
+                  const savedName = patchData.name || newName.trim();
+                  spToast(`Nama slot berhasil diubah menjadi "${savedName}"`, 'success');
+                  if (currentUser && Array.isArray(currentUser.overlays)) {
+                    const found = currentUser.overlays.find(o => (typeof o === 'object' && o && o.id === sId));
+                    if (found) found.name = savedName;
+                  }
+                  updateEditingBadge();
                   await checkUserSession();
                 } else {
                   spToast('Gagal mengubah nama slot', 'error');
@@ -2936,7 +3108,37 @@
             });
           }
 
-          const duplicateBtn = item.querySelector('.btn-duplicate-slot');
+          // Salin URL Browser Source OBS Slot
+          const copyLinkBtn = item.querySelector('.btn-slot-copy-link');
+          if (copyLinkBtn) {
+            copyLinkBtn.addEventListener('click', async (e) => {
+              e.stopPropagation();
+              const obsUrl = `${window.location.origin}/overlay?id=${encodeURIComponent(sId)}`;
+              try {
+                await navigator.clipboard.writeText(obsUrl);
+                const originalContent = copyLinkBtn.innerHTML;
+                copyLinkBtn.innerHTML = `
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Disalin!</span>
+                `;
+                copyLinkBtn.style.color = '#10b981';
+                copyLinkBtn.style.borderColor = '#10b981';
+                setTimeout(() => {
+                  copyLinkBtn.innerHTML = originalContent;
+                  copyLinkBtn.style.color = '';
+                  copyLinkBtn.style.borderColor = '';
+                }, 1800);
+                spToast(`Link OBS slot "${sName}" tersalin!`, 'success');
+              } catch (err) {
+                spToast(`Link slot: ${obsUrl}`, 'info');
+              }
+            });
+          }
+
+          // Duplicate Slot
+          const duplicateBtn = item.querySelector('.btn-slot-duplicate');
           if (duplicateBtn) {
             duplicateBtn.addEventListener('click', async (e) => {
               e.stopPropagation();
@@ -2966,21 +3168,25 @@
             });
           }
 
-          item.querySelector('.btn-delete-slot').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const ok = await spConfirm(`Yakin ingin menghapus slot overlay "${sName}" (${sId})?`, 'Hapus Slot Overlay', 'danger');
-            if (ok) {
-              const delRes = await fetch(`/api/user/overlays/${encodeURIComponent(sId)}`, {
-                method: 'DELETE',
-                headers: { 'x-user-token': userToken }
-              });
-              if (delRes.ok) {
-                await checkUserSession();
-                if (profileId === sId) switchProfile('default');
-                spToast(`Slot "${sName}" berhasil dihapus`, 'success');
+          // Delete Slot
+          const deleteBtn = item.querySelector('.btn-slot-delete');
+          if (deleteBtn) {
+            deleteBtn.addEventListener('click', async (e) => {
+              e.stopPropagation();
+              const ok = await spConfirm(`Yakin ingin menghapus slot overlay "${sName}" (${sId})?`, 'Hapus Slot Overlay', 'danger');
+              if (ok) {
+                const delRes = await fetch(`/api/user/overlays/${encodeURIComponent(sId)}`, {
+                  method: 'DELETE',
+                  headers: { 'x-user-token': userToken }
+                });
+                if (delRes.ok) {
+                  await checkUserSession();
+                  if (profileId === sId) switchProfile('default');
+                  spToast(`Slot "${sName}" berhasil dihapus`, 'success');
+                }
               }
-            }
-          });
+            });
+          }
 
           slotsContainer.appendChild(item);
         });
@@ -3019,13 +3225,31 @@
         }
       });
 
+      function updateEditingBadge() {
+        if (activeOverlayIdBadge) activeOverlayIdBadge.textContent = profileId;
+        const activeNameEl = document.getElementById('activeOverlayNameBadge');
+        if (activeNameEl) {
+          let sName = '';
+          if (currentUser && Array.isArray(currentUser.overlays)) {
+            const found = currentUser.overlays.find(o => (typeof o === 'object' && o && o.id === profileId));
+            if (found && found.name && found.name !== profileId) sName = found.name;
+          }
+          if (sName) {
+            activeNameEl.textContent = sName;
+            activeNameEl.style.display = 'inline-block';
+          } else {
+            activeNameEl.style.display = 'none';
+          }
+        }
+      }
+
       function switchProfile(newId) {
         setTimeout(() => {
           if (settingTheme) setActiveThemeNav(settingTheme.value);
         }, 300);
         profileId = newId;
         localStorage.setItem('streampulse_overlay_profile_id', profileId);
-        activeOverlayIdBadge.textContent = profileId;
+        updateEditingBadge();
         loadProfile();
         updateUrl();
         previewIframe.src = getPreviewIframeUrl(profileId);
@@ -3034,10 +3258,15 @@
 
       async function loadProfile() {
         try {
-          activeOverlayIdBadge.textContent = profileId;
+          updateEditingBadge();
           const res = await fetch(`/api/overlays/${profileId}`);
           if (res.ok) {
             const data = await res.json();
+            if (data.name && currentUser && Array.isArray(currentUser.overlays)) {
+              const found = currentUser.overlays.find(o => (typeof o === 'object' && o && o.id === profileId));
+              if (found) found.name = data.name;
+            }
+            updateEditingBadge();
             if (!isPreviewTestingMode) {
               if (currentUser && currentUser.channels) {
                 if (currentUser.channels.twitch) officialChannels.twitch = currentUser.channels.twitch;
@@ -3181,9 +3410,16 @@
         const yt = (forSave || !isPreviewTestingMode) ? (officialChannels.youtube || '') : settingYouTube.value.trim();
         const tt = (forSave || !isPreviewTestingMode) ? (officialChannels.tiktok || '') : settingTikTok.value.trim();
 
+        // Cari nama slot yang saat ini tersimpan agar TIDAK ter-reset menjadi profileId
+        let currentSlotName = profileId;
+        if (currentUser && Array.isArray(currentUser.overlays)) {
+          const found = currentUser.overlays.find(o => (typeof o === 'object' && o && o.id === profileId));
+          if (found && found.name) currentSlotName = found.name;
+        }
+
         return {
           id: profileId,
-          name: profileId,
+          name: currentSlotName,
           twitch: tw,
           youtube: yt,
           tiktok: tt,
@@ -3434,10 +3670,11 @@
             updateUrl();
             previewIframe.src = getPreviewIframeUrl(profileId);
             await checkUserSession();
+            const slotDisplayName = (data.overlay && data.overlay.name && data.overlay.name !== data.id) ? `${data.overlay.name} (${data.id})` : data.id;
             if (showAlert) {
               spAlert(window.getCurrentLang && window.getCurrentLang() === 'en'
-                ? `✅ OBS Overlay configuration "${profileId}" saved to your cloud account!`
-                : `✅ Pengaturan OBS Overlay "${profileId}" berhasil disimpan ke akun Anda!`,
+                ? `✅ OBS Overlay configuration "${slotDisplayName}" saved to your cloud account!`
+                : `✅ Pengaturan OBS Overlay "${slotDisplayName}" berhasil disimpan ke akun Anda!`,
                 window.t ? window.t('dialog_success') : 'Berhasil', 'success');
             }
           } else {
