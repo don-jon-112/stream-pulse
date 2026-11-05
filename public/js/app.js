@@ -211,6 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const { twitch, displayName, avatar, token } = event.data;
       console.log(`[Twitch OAuth] Berhasil terhubung: ${twitch} (${displayName})`);
 
+      // Bersihkan cache dan layar chat dari saluran lama agar tidak tercampur
+      clearChatAndEventsUI();
+      const newSig = `${(twitch || '').toLowerCase().replace(/^[#@]/, '')}:${(inputYouTube ? inputYouTube.value.trim() : '')}:${(inputTikTok ? inputTikTok.value.trim() : '')}`;
+      localStorage.setItem(STORAGE_KEY_CHANNELS_SIG, newSig);
+
       const authData = { login: twitch, displayName, avatar, token };
       sessionStorage.setItem('streampulse_twitch_oauth', JSON.stringify(authData));
 
@@ -246,13 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
         twitchToken: token,
         youtube: inputYouTube.value.trim(),
         tiktok: inputTikTok.value.trim(),
-        userToken: userToken || undefined
+        userToken: userToken || undefined,
+        force: true
       });
     } else if (event.data && event.data.type === 'TWITCH_AUTH_ERROR') {
       alert(`Gagal menghubungkan akun Twitch: ${event.data.error || 'Otentikasi dibatalkan'}`);
     } else if (event.data && event.data.type === 'YOUTUBE_AUTH_SUCCESS') {
       const { channelId, title, customUrl, target, avatar, token } = event.data;
       console.log(`[YouTube OAuth] Berhasil terhubung: ${title} (${target})`);
+
+      // Bersihkan cache dan layar chat dari saluran lama
+      clearChatAndEventsUI();
+      const newSig = `${(inputTwitch ? inputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '') : '')}:${target}:${(inputTikTok ? inputTikTok.value.trim() : '')}`;
+      localStorage.setItem(STORAGE_KEY_CHANNELS_SIG, newSig);
 
       const ytData = { channelId, title, customUrl, target, avatar, token };
       sessionStorage.setItem('streampulse_youtube_oauth', JSON.stringify(ytData));
@@ -722,6 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   const STORAGE_KEY_SAVED_CHATS = 'streampulse_saved_chats_v1';
   const STORAGE_KEY_SAVED_EVENTS = 'streampulse_saved_events_v1';
+  const STORAGE_KEY_CHANNELS_SIG = 'streampulse_chat_channels_sig';
   const MAX_PERSISTED_CHATS = 60;
   const MAX_PERSISTED_EVENTS = 60;
 
@@ -769,6 +781,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function clearPersistedEvents() {
     localStorage.removeItem(STORAGE_KEY_SAVED_EVENTS);
+  }
+
+  function clearChatAndEventsUI() {
+    clearPersistedChats();
+    clearPersistedEvents();
+    if (chatMessages) {
+      chatMessages.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
+            </svg>
+          </div>
+          <h3 data-i18n="empty_chat_title">${window.t ? window.t('empty_chat_title') : 'Belum Ada Pesan'}</h3>
+          <p>${window.t ? window.t('empty_chat_desc') : 'Pesan chat dari semua platform yang terhubung akan muncul di sini secara real-time.'}</p>
+        </div>
+      `;
+    }
+    if (recorderList) {
+      recorderList.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <h3 data-i18n="empty_events_title">${window.t ? window.t('empty_events_title') : 'Belum Ada Event'}</h3>
+          <p>${window.t ? window.t('empty_events_desc') : 'Gift TikTok, Super Chat YouTube, dan Sub/Bits Twitch akan tercatat di sini.'}</p>
+        </div>
+      `;
+    }
+    if (typeof processedChatMessageIds !== 'undefined' && processedChatMessageIds.clear) {
+      processedChatMessageIds.clear();
+    }
+    if (typeof state !== 'undefined') {
+      state.totalChats = 0;
+      state.totalEvents = 0;
+      state.totalGiftsCount = 0;
+      state.autoScroll = true;
+    }
+    if (statTotalChats) statTotalChats.textContent = '0';
+    if (statTotalEvents) statTotalEvents.textContent = '0';
+    if (statTotalGifts) statTotalGifts.textContent = '0';
+    if (scrollPausePill) scrollPausePill.style.display = 'none';
   }
 
   async function checkUserSession() {
@@ -1868,11 +1924,21 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (userMatch) inputTikTok.value = userMatch[1].toLowerCase();
       else if (val.startsWith('@')) inputTikTok.value = val.slice(1).trim();
     }
-    const twitch = inputTwitch.value.trim();
+    const twitch = inputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '');
     let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
     const youtube = inputYouTube.value.trim();
     const tiktok = inputTikTok.value.trim();
     const tiktokSessionId = inputTikTokSession ? inputTikTokSession.value.trim() : '';
+
+    const prevChannels = getStoredUserChannels() || {};
+    const prevSig = `${(prevChannels.twitch || '').toLowerCase().replace(/^[#@]/, '')}:${prevChannels.youtube || ''}:${prevChannels.tiktok || ''}`;
+    const newSig = `${twitch}:${youtube}:${tiktok}`;
+
+    if (prevSig !== newSig) {
+      console.log(`[StreamPulse] Saluran dipantau berubah (${prevSig} -> ${newSig}). Menghapus riwayat chat lama.`);
+      clearChatAndEventsUI();
+    }
+    localStorage.setItem(STORAGE_KEY_CHANNELS_SIG, newSig);
 
     const chData = { twitch, youtube, tiktok, tiktokSessionId };
     saveStoredUserChannels(chData);
@@ -2191,6 +2257,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   function restoreSavedChatAndEvents() {
     try {
+      const stored = getStoredUserChannels() || {};
+      const curTwitch = (stored.twitch || (inputTwitch ? inputTwitch.value : '') || '').toLowerCase().replace(/^[#@]/, '');
+      const curYt = (stored.youtube || (inputYouTube ? inputYouTube.value : '') || '').trim();
+      const curTt = (stored.tiktok || (inputTikTok ? inputTikTok.value : '') || '').trim();
+      const curSig = `${curTwitch}:${curYt}:${curTt}`;
+      const savedSig = localStorage.getItem(STORAGE_KEY_CHANNELS_SIG);
+
+      // Jika saluran berbeda dari sesi cache sebelumnya, hapus cache lama agar tidak bocor
+      if (savedSig && savedSig !== curSig && curSig !== '::') {
+        console.log(`[StreamPulse] Saluran berbeda dari cache sebelumnya (${savedSig} vs ${curSig}). Membersihkan cache chat lama.`);
+        clearPersistedChats();
+        clearPersistedEvents();
+        localStorage.setItem(STORAGE_KEY_CHANNELS_SIG, curSig);
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY_CHANNELS_SIG, curSig);
+
       const savedEvents = getPersistedEvents();
       if (Array.isArray(savedEvents) && savedEvents.length > 0) {
         savedEvents.forEach(evt => {

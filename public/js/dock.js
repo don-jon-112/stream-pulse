@@ -13,6 +13,7 @@
   // CONFIG & STATE
   // ==========================================
   const STORAGE_KEY_HISTORY = 'streampulse_dock_history_v1';
+  const STORAGE_KEY_HISTORY_SIG = 'streampulse_dock_history_sig_v1';
   const STORAGE_KEY_USER_TOKEN = 'streampulse_user_token';
   const STORAGE_KEY_USER_CHANNELS = 'streampulse_user_channels';
   const STORAGE_KEY_GUEST_CHANNELS = 'streampulse_guest_channels';
@@ -314,6 +315,8 @@
       btnSaveDockSettings.disabled = true;
       btnSaveDockSettings.textContent = 'Menyimpan...';
 
+      const prevSig = `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`;
+
       const twitch = dockInputTwitch ? dockInputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '') : '';
       const youtube = dockInputYouTube ? dockInputYouTube.value.trim() : '';
       const tiktok = dockInputTikTok ? dockInputTikTok.value.trim().replace(/^@/, '') : '';
@@ -348,6 +351,17 @@
         }
       }
 
+      const newSig = `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`;
+      if (prevSig !== newSig && prevSig !== '::') {
+        console.log(`[Dock] Saluran berubah (${prevSig} -> ${newSig}), membersihkan riwayat chat lama.`);
+        clearHistoryStorage();
+        if (chatContainer) {
+          chatContainer.innerHTML = '';
+          if (emptyState) chatContainer.appendChild(emptyState);
+        }
+      }
+      localStorage.setItem(STORAGE_KEY_HISTORY_SIG, newSig);
+
       updateChannelUI();
       syncChannelsWithSocket();
       verifyTwitchAuthWithServer();
@@ -373,12 +387,28 @@
   }
 
   async function initChannels() {
+    const prevSig = `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`;
     const params = new URLSearchParams(window.location.search);
     const qToken = params.get('token');
     const qUser = params.get('user') || params.get('username');
     const qTwitch = params.get('twitch');
     const qYt = params.get('youtube');
     const qTikTok = params.get('tiktok');
+
+    const finishInit = () => {
+      const newSig = `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`;
+      const savedSig = localStorage.getItem(STORAGE_KEY_HISTORY_SIG);
+      if (savedSig && savedSig !== newSig && newSig !== '::') {
+        console.log(`[Dock] Saluran berbeda dari riwayat (${savedSig} vs ${newSig}), membersihkan riwayat lama.`);
+        clearHistoryStorage();
+        if (chatContainer) {
+          chatContainer.innerHTML = '';
+          if (emptyState) chatContainer.appendChild(emptyState);
+        }
+      }
+      localStorage.setItem(STORAGE_KEY_HISTORY_SIG, newSig);
+      updateChannelUI();
+    };
 
     // 1. Prioritas Utama: Konfigurasi Akun dari Server jika parameter token / user ada di URL
     if (qToken || qUser) {
@@ -398,7 +428,7 @@
             currentChannels.youtube = (qYt || cfg.channels.youtube || '').trim();
             currentChannels.tiktok = (qTikTok || cfg.channels.tiktok || '').trim().replace(/^@/, '');
 
-            updateChannelUI();
+            finishInit();
             syncChannelsWithSocket();
             verifyTwitchAuthWithServer();
             showFeedback(`✓ Terhubung ke akun @${cfg.username}`, 'success', 3000);
@@ -415,7 +445,7 @@
       if (qTwitch !== null) currentChannels.twitch = qTwitch.trim().toLowerCase().replace(/^[#@]/, '');
       if (qYt !== null) currentChannels.youtube = qYt.trim();
       if (qTikTok !== null) currentChannels.tiktok = qTikTok.trim().replace(/^@/, '');
-      updateChannelUI();
+      finishInit();
       return;
     }
 
@@ -424,7 +454,7 @@
     currentChannels.twitch = (homepageChannels.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
     currentChannels.youtube = (homepageChannels.youtube || '').trim();
     currentChannels.tiktok = (homepageChannels.tiktok || '').trim().replace(/^@/, '');
-    updateChannelUI();
+    finishInit();
   }
 
   function updateChannelUI() {
@@ -892,6 +922,16 @@
   // INITIALIZE SOCKET & RESTORE STORAGE
   // ==========================================
   function restorePersistedHistory() {
+    const curSig = `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`;
+    const savedSig = localStorage.getItem(STORAGE_KEY_HISTORY_SIG);
+    if (savedSig && savedSig !== curSig && curSig !== '::') {
+      console.log(`[Dock] Saluran berbeda dari riwayat tersimpan (${savedSig} vs ${curSig}), mengosongkan cache lama.`);
+      clearHistoryStorage();
+      localStorage.setItem(STORAGE_KEY_HISTORY_SIG, curSig);
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY_HISTORY_SIG, curSig);
+
     const list = getStoredHistory();
     if (list.length > 0 && emptyState && emptyState.parentElement) {
       emptyState.remove();
@@ -984,7 +1024,11 @@
           currentChannels.tiktok = data.channels.tiktok;
           changed = true;
         }
-        if (changed) updateChannelUI();
+        if (changed) {
+          const newSig = `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`;
+          localStorage.setItem(STORAGE_KEY_HISTORY_SIG, newSig);
+          updateChannelUI();
+        }
       }
 
       if (data && data.viewerCounts) {
