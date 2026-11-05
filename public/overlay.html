@@ -2010,6 +2010,7 @@
         chatAlign: urlParams.get('align') || 'left',
         chatDirection: urlParams.get('direction') || 'bottom',
         chatFade: urlParams.get('fade') || 'none',
+        fontFamily: urlParams.get('font') || urlParams.get('fontFamily') || '',
         fontSize: parseInt(urlParams.get('fontSize') || '15', 10),
         hideDelay: parseInt(urlParams.get('hideDelay') || '0', 10),
         showBadges: urlParams.get('badges') !== '0',
@@ -2083,14 +2084,31 @@
             // Override with URL query params if explicitly present
             twitch: _previewChannelsOverridden ? (urlParams.get('twitch') || config.twitch || profile.twitch) : (urlParams.get('twitch') || profile.twitch || config.twitch),
             youtube: _previewChannelsOverridden ? (urlParams.get('youtube') || config.youtube || profile.youtube) : (urlParams.get('youtube') || profile.youtube || config.youtube),
-            tiktok: _previewChannelsOverridden ? (urlParams.get('tiktok') || config.tiktok || profile.tiktok) : (urlParams.get('tiktok') || profile.tiktok || config.tiktok)
+            tiktok: _previewChannelsOverridden ? (urlParams.get('tiktok') || config.tiktok || profile.tiktok) : (urlParams.get('tiktok') || profile.tiktok || config.tiktok),
+            fontFamily: urlParams.get('font') || urlParams.get('fontFamily') || profile.fontFamily || config.fontFamily || ''
           };
         }
       } catch (e) {
         console.warn('[Overlay] Using query params config');
       }
 
-      // Apply Theme & Font Size
+      function applyFontFamily(fontName) {
+        if (!fontName || fontName === 'default' || fontName === 'system') {
+          document.body.style.fontFamily = '';
+          return;
+        }
+        const fontId = 'gfont_' + fontName.replace(/[^a-zA-Z0-9]/g, '_');
+        if (!document.getElementById(fontId)) {
+          const link = document.createElement('link');
+          link.id = fontId;
+          link.rel = 'stylesheet';
+          link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName).replace(/%20/g, '+')}:wght@400;600;700;800;900&display=swap`;
+          document.head.appendChild(link);
+        }
+        document.body.style.fontFamily = `'${fontName}', system-ui, -apple-system, sans-serif`;
+      }
+
+      // Apply Theme & Font Size & Font Family
       const activeTheme = config.theme || 'simple';
       if (activeTheme !== 'glass') {
         document.body.classList.add(`theme-${activeTheme}`);
@@ -2100,6 +2118,9 @@
       }
       if (config.fontSize) {
         document.documentElement.style.fontSize = `${config.fontSize}px`;
+      }
+      if (config.fontFamily) {
+        applyFontFamily(config.fontFamily);
       }
 
       function hexToRgba(hex, alpha = 0.88) {
@@ -3072,6 +3093,11 @@
       // Listen for preview test simulations from Overlay Studio (Allows spamming & bypasses dedupe)
       window.addEventListener('socket_sim', (e) => {
         const { type, data } = e.detail || {};
+        if (type === 'clear_messages') {
+          if (container) container.innerHTML = '';
+          if (typeof processedOverlayMsgIds !== 'undefined' && processedOverlayMsgIds.clear) processedOverlayMsgIds.clear();
+          return;
+        }
         if (data) {
           data.isSim = true;
           data.id = 'sim_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -3083,6 +3109,11 @@
       // Listen for live preview simulations and config updates from Overlay Studio
       window.addEventListener('message', (e) => {
         if (!e.data) return;
+        if (e.data.type === 'clear_messages') {
+          if (container) container.innerHTML = '';
+          if (typeof processedOverlayMsgIds !== 'undefined' && processedOverlayMsgIds.clear) processedOverlayMsgIds.clear();
+          return;
+        }
         if (e.data.type === 'socket_sim') {
           const { subType, data } = e.data;
           if (data) {
@@ -3121,6 +3152,10 @@
           }
           if (newCfg.fontSize) {
             document.documentElement.style.fontSize = `${newCfg.fontSize}px`;
+          }
+          if (newCfg.fontFamily !== undefined) {
+            config.fontFamily = newCfg.fontFamily;
+            applyFontFamily(config.fontFamily);
           }
           if (newCfg.customCss !== undefined && customCssEl) {
             customCssEl.textContent = newCfg.customCss;

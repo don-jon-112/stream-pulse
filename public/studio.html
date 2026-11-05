@@ -7,6 +7,9 @@
   <title>OBS Overlay Studio & Customizer - StreamPulse</title>
   <meta name="description" content="Kustomisasi tampilan OBS Browser Source Chat Overlay Anda dengan tema, ukuran font, batas bubble chat, sensor link, custom CSS dan JS.">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Comfortaa:wght@700&family=Fredoka:wght@600;700&family=Luckiest+Guy&family=Nunito:wght@700;800&family=Outfit:wght@600;700&family=Poppins:wght@600;700&family=Press+Start+2P&family=Righteous&family=Russo+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/sp-popup.js?v=fresh_6"></script>
     <style>
@@ -785,6 +788,34 @@
       color: #fecaca;
       border-color: #f87171;
       background: rgba(239, 68, 68, 0.24);
+    }
+
+    /* Sandbox Chat Tester Styles */
+    .sandbox-tester-card {
+      transition: all 0.2s ease;
+      background: var(--bg-card);
+      border: 1px solid var(--hairline);
+    }
+    .btn-sandbox-platform {
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .btn-sandbox-platform:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .btn-sandbox-platform:active {
+      transform: translateY(0);
+    }
+    .btn-sandbox-tag {
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .btn-sandbox-tag:hover {
+      background: rgba(99,102,241,0.15) !important;
+      border-color: var(--primary) !important;
+      color: var(--primary) !important;
+      transform: translateY(-1px);
     }
 
     /* Modal Overlay (Centered) */
@@ -1770,6 +1801,31 @@
           </div>
         </div>
 
+        <!-- Google Fonts Picker -->
+        <div class="form-group">
+          <div class="form-label">
+            <span data-i18n="sec_font_family">Gaya Huruf (Google Fonts)</span>
+            <span id="labelFontFamilyBadge" style="color:var(--primary); font-weight:700; font-family:var(--font-mono); font-size:0.75rem; background:rgba(99,102,241,0.1); padding:2px 8px; border-radius:6px; border:1px solid rgba(99,102,241,0.25);">Default System</span>
+          </div>
+          <select id="settingFontFamily" class="form-select" style="width:100%; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--hairline); background:var(--bg-canvas); color:var(--ink); font-size:0.85rem; font-weight:600; cursor:pointer;">
+            <option value="default" style="font-family:system-ui, sans-serif;">Default System (Inter / Clean)</option>
+            <option value="Poppins" style="font-family:'Poppins', sans-serif;">Poppins (Modern, Bulat, Elegan)</option>
+            <option value="Fredoka" style="font-family:'Fredoka', sans-serif;">Fredoka (Cute, Bubble, Ramah)</option>
+            <option value="Outfit" style="font-family:'Outfit', sans-serif;">Outfit (Futuristik, Sleek Tech)</option>
+            <option value="Press Start 2P" style="font-family:'Press Start 2P', monospace;">Press Start 2P (Retro 8-Bit Pixel)</option>
+            <option value="Luckiest Guy" style="font-family:'Luckiest Guy', cursive;">Luckiest Guy (Bold Comic, Enerjik)</option>
+            <option value="Nunito" style="font-family:'Nunito', sans-serif;">Nunito (Friendly, Soft Rounded)</option>
+            <option value="Bungee" style="font-family:'Bungee', cursive;">Bungee (Arcade Chunky, Tegas)</option>
+            <option value="Righteous" style="font-family:'Righteous', cursive;">Righteous (Cyberpunk, Synthwave)</option>
+            <option value="Comfortaa" style="font-family:'Comfortaa', cursive;">Comfortaa (Lo-Fi Cozy, Aesthetic)</option>
+            <option value="Russo One" style="font-family:'Russo One', sans-serif;">Russo One (Bold FPS, Heavy Action)</option>
+            <option value="JetBrains Mono" style="font-family:'JetBrains Mono', monospace;">JetBrains Mono (Coding, Cyber Tech)</option>
+          </select>
+          <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:4px;">
+            💡 Font otomatis diunduh dan dirender langsung di OBS Studio tanpa perlu instal font di Windows.
+          </div>
+        </div>
+
         <!-- Sliders: Font, Hide, Max -->
         <div class="form-group">
           <div class="form-label">
@@ -2365,6 +2421,98 @@
         </div>
       </div>
 
+      <!-- INTERACTIVE SANDBOX CHAT TESTER -->
+      <div class="sandbox-tester-card" style="margin-top:14px; border-radius:var(--radius-sm); padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:28px; height:28px; border-radius:8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); display:flex; align-items:center; justify-content:center; color:#6366f1; font-size:0.9rem;">
+              🧪
+            </div>
+            <div>
+              <div style="font-size:0.88rem; font-weight:800; color:var(--ink);">Interactive Sandbox Chat Tester</div>
+              <div style="font-size:0.7rem; color:var(--text-tertiary);">Ketik pesan kustom dan uji coba tampilannya secara langsung di preview OBS di atas</div>
+            </div>
+          </div>
+          <button type="button" id="btnSandboxClearPreview" class="btn-slot-action btn-slot-delete" style="padding:5px 10px; font-size:0.72rem;" title="Hapus semua chat di canvas preview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>Bersihkan Layar</span>
+          </button>
+        </div>
+
+        <!-- Row 1: Platform & Role Controls -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+          <!-- Platform Choice -->
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">Platform Chat</label>
+            <div class="sandbox-platform-selector" style="display:flex; gap:6px;">
+              <button type="button" class="btn-sandbox-platform active" data-platform="twitch" style="flex:1; padding:6px 6px; border-radius:8px; font-size:0.74rem; font-weight:700; border:1px solid #9146ff; background:rgba(145,70,255,0.15); color:#a855f7; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                🟣 Twitch
+              </button>
+              <button type="button" class="btn-sandbox-platform" data-platform="youtube" style="flex:1; padding:6px 6px; border-radius:8px; font-size:0.74rem; font-weight:700; border:1px solid var(--hairline); background:var(--surface-soft); color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                🔴 YouTube
+              </button>
+              <button type="button" class="btn-sandbox-platform" data-platform="tiktok" style="flex:1; padding:6px 6px; border-radius:8px; font-size:0.74rem; font-weight:700; border:1px solid var(--hairline); background:var(--surface-soft); color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                ⚫ TikTok
+              </button>
+            </div>
+          </div>
+
+          <!-- Role / Badge Choice -->
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">Role / Lencana Chatter</label>
+            <select id="sandboxUserRole" class="form-select" style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid var(--hairline); background:var(--bg-canvas); color:var(--ink); font-size:0.78rem; font-weight:600; height:34px; cursor:pointer;">
+              <option value="normal">👤 Penonton Biasa (Normal)</option>
+              <option value="sub">⭐ Subscriber / Member</option>
+              <option value="vip">💎 VIP</option>
+              <option value="mod">🛡️ Moderator</option>
+              <option value="owner">👑 Streamer / Pemilik Saluran</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: Author Name & Custom Hex Color -->
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:10px;">
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">Nama Pengirim (Username)</label>
+            <input type="text" id="sandboxAuthorName" class="form-input" value="ViewerSetia_ID" placeholder="Masukkan nama pengirim..." style="width:100%; padding:7px 10px; font-size:0.8rem; border-radius:8px; border:1px solid var(--hairline); background:var(--bg-canvas); color:var(--ink);">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">Warna Nama</label>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input type="color" id="sandboxAuthorColor" value="#38bdf8" style="width:36px; height:32px; padding:2px; background:transparent; border:1px solid var(--hairline); border-radius:6px; cursor:pointer;">
+              <button type="button" id="btnSandboxRandomColor" class="btn-slot-action" style="padding:6px 8px; font-size:0.72rem;" title="Pilih warna acak">🎲 Acak</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Message Text Input & Quick Tags -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:4px;">
+            <label style="font-size:0.72rem; font-weight:700; color:var(--text-secondary);">Isi Pesan Chat</label>
+            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+              <button type="button" class="btn-sandbox-tag" data-tag="GGWP! 🔥" style="font-size:0.68rem; padding:2px 6px; border-radius:4px; border:1px solid var(--hairline); background:var(--surface-soft); color:var(--ink); cursor:pointer;">GGWP!</button>
+              <button type="button" class="btn-sandbox-tag" data-tag="PogChamp" style="font-size:0.68rem; padding:2px 6px; border-radius:4px; border:1px solid var(--hairline); background:var(--surface-soft); color:var(--ink); cursor:pointer;">PogChamp</button>
+              <button type="button" class="btn-sandbox-tag" data-tag="LUL 😂" style="font-size:0.68rem; padding:2px 6px; border-radius:4px; border:1px solid var(--hairline); background:var(--surface-soft); color:var(--ink); cursor:pointer;">LUL</button>
+              <button type="button" class="btn-sandbox-tag" data-tag="Semangat live-nya bang streamer, kontennya selalu seru dan menghibur! 🔥" style="font-size:0.68rem; padding:2px 6px; border-radius:4px; border:1px solid var(--hairline); background:var(--surface-soft); color:var(--ink); cursor:pointer;">Pesan Panjang</button>
+              <button type="button" class="btn-sandbox-tag" data-tag="https://streampulse.io cek link ini ya!" style="font-size:0.68rem; padding:2px 6px; border-radius:4px; border:1px solid var(--hairline); background:var(--surface-soft); color:var(--ink); cursor:pointer;">Link URL</button>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="sandboxChatMessage" class="form-input" value="Halo streamer! Salam kenal ya, overlay-nya keren banget 🔥" placeholder="Ketik pesan apa saja lalu tekan Enter..." style="flex:1; padding:8px 12px; font-size:0.84rem; border-radius:8px; border:1px solid var(--hairline); background:var(--bg-canvas); color:var(--ink);">
+            <button type="button" id="btnSandboxSend" class="btn-icon btn-primary" style="padding:8px 16px; font-size:0.82rem; font-weight:800; border-radius:8px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              <span>Kirim Chat</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </main>
@@ -2437,6 +2585,8 @@
       const settingYouTube = document.getElementById('settingYouTube');
       const settingTikTok = document.getElementById('settingTikTok');
       const settingTheme = document.getElementById('settingTheme');
+      const settingFontFamily = document.getElementById('settingFontFamily');
+      const labelFontFamilyBadge = document.getElementById('labelFontFamilyBadge');
       const settingFontSize = document.getElementById('settingFontSize');
       const labelFontSize = document.getElementById('labelFontSize');
       const settingHideDelay = document.getElementById('settingHideDelay');
@@ -2457,6 +2607,17 @@
       const settingCustomCss = document.getElementById('settingCustomCss');
       const settingCustomJs = document.getElementById('settingCustomJs');
       const btnSaveCustomCode = document.getElementById('btnSaveCustomCode');
+
+      // Sandbox Elements
+      const btnSandboxPlatformBtns = document.querySelectorAll('.btn-sandbox-platform');
+      const sandboxUserRole = document.getElementById('sandboxUserRole');
+      const sandboxAuthorName = document.getElementById('sandboxAuthorName');
+      const sandboxAuthorColor = document.getElementById('sandboxAuthorColor');
+      const btnSandboxRandomColor = document.getElementById('btnSandboxRandomColor');
+      const sandboxChatMessage = document.getElementById('sandboxChatMessage');
+      const btnSandboxSend = document.getElementById('btnSandboxSend');
+      const btnSandboxClearPreview = document.getElementById('btnSandboxClearPreview');
+      const sandboxTagBtns = document.querySelectorAll('.btn-sandbox-tag');
 
       // Orientation, & Generic Visual Settings
       const settingChatAlign = document.getElementById('settingChatAlign');
@@ -2670,6 +2831,9 @@
           if (tw) url += `&twitch=${encodeURIComponent(tw)}`;
           if (yt) url += `&youtube=${encodeURIComponent(yt)}`;
           if (tt) url += `&tiktok=${encodeURIComponent(tt)}`;
+        }
+        if (settingFontFamily && settingFontFamily.value && settingFontFamily.value !== 'default') {
+          url += `&font=${encodeURIComponent(settingFontFamily.value)}`;
         }
         return url;
       }
@@ -3317,6 +3481,9 @@
               if (labelContainerBgOpacity) labelContainerBgOpacity.textContent = `${cOpVal}% ${cOpVal === 0 ? '(Transparan)' : ''}`;
             }
 
+            if (data.fontFamily !== undefined && settingFontFamily) {
+              settingFontFamily.value = data.fontFamily;
+            }
             if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
             if (data.maxMessages !== undefined) settingMaxMessages.value = data.maxMessages;
@@ -3403,6 +3570,10 @@
         const delay = parseInt(settingHideDelay.value, 10);
         labelHideDelay.textContent = delay === 0 ? (window.t ? window.t('slider_always_visible') : 'Selalu Tampil (0s)') : `${delay} ${window.t ? window.t('slider_seconds') : 'detik'}`;
         labelMaxMessages.textContent = `${settingMaxMessages.value} ${window.t ? window.t('slider_messages') : 'Pesan'}`;
+        if (labelFontFamilyBadge && settingFontFamily) {
+          const opt = settingFontFamily.options[settingFontFamily.selectedIndex];
+          labelFontFamilyBadge.textContent = opt ? opt.text.split('(')[0].trim() : settingFontFamily.value;
+        }
       }
 
       function getOverlayConfig(forSave = false) {
@@ -3424,6 +3595,7 @@
           youtube: yt,
           tiktok: tt,
           theme: settingTheme.value,
+          fontFamily: settingFontFamily ? settingFontFamily.value : 'default',
           neonOutlineMode: settingNeonOutlineMode ? settingNeonOutlineMode.value : 'single',
           neonOutlineColor: settingNeonOutlineColor ? settingNeonOutlineColor.value : '#00f2fe',
           neonTwitchColor: settingNeonTwitchColor ? settingNeonTwitchColor.value : '#9146ff',
@@ -3514,6 +3686,9 @@
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
         if (!settingShowYtBadges.checked) fullUrl += '&ytBadges=0';
         if (settingShowPlatformIcons && !settingShowPlatformIcons.checked) fullUrl += '&platformIcons=0';
+        if (settingFontFamily && settingFontFamily.value && settingFontFamily.value !== 'default') {
+          fullUrl += `&font=${encodeURIComponent(settingFontFamily.value)}`;
+        }
         obsFinalUrl.value = fullUrl;
 
         if (obsUrlHelpText && currentUser) {
@@ -3691,7 +3866,7 @@
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowPlatformIcons, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
+      [settingTheme, settingFontFamily, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowPlatformIcons, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
         if (el) {
           el.addEventListener('change', () => {
             updateLabels();
@@ -4765,6 +4940,161 @@
         });
       }
 
+      // ==========================================
+      // INTERACTIVE SANDBOX CHAT TESTER LOGIC
+      // ==========================================
+      const sandboxVibrantColors = [
+        '#38bdf8', '#ec4899', '#a855f7', '#22c55e', '#eab308',
+        '#f97316', '#06b6d4', '#e11d48', '#8b5cf6', '#10b981'
+      ];
+
+      // 1. Platform Switcher Buttons
+      btnSandboxPlatformBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btnSandboxPlatformBtns.forEach(b => {
+            b.classList.remove('active');
+            b.style.borderColor = 'var(--hairline)';
+            b.style.background = 'var(--surface-soft)';
+            b.style.color = 'var(--ink)';
+          });
+          btn.classList.add('active');
+          const plat = btn.dataset.platform;
+          if (plat === 'twitch') {
+            btn.style.borderColor = '#9146ff';
+            btn.style.background = 'rgba(145, 70, 255, 0.18)';
+            btn.style.color = '#a855f7';
+          } else if (plat === 'youtube') {
+            btn.style.borderColor = '#ef4444';
+            btn.style.background = 'rgba(239, 68, 68, 0.18)';
+            btn.style.color = '#f87171';
+          } else if (plat === 'tiktok') {
+            btn.style.borderColor = '#06b6d4';
+            btn.style.background = 'rgba(6, 182, 212, 0.18)';
+            btn.style.color = '#22d3ee';
+          }
+        });
+      });
+
+      // 2. Random Author Color
+      if (btnSandboxRandomColor && sandboxAuthorColor) {
+        btnSandboxRandomColor.addEventListener('click', () => {
+          const rand = sandboxVibrantColors[Math.floor(Math.random() * sandboxVibrantColors.length)];
+          sandboxAuthorColor.value = rand;
+        });
+      }
+
+      // 3. Quick Emotes / Tags Insertion
+      sandboxTagBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tag = btn.dataset.tag || '';
+          if (!tag || !sandboxChatMessage) return;
+          if (sandboxChatMessage.value) {
+            sandboxChatMessage.value += ' ' + tag;
+          } else {
+            sandboxChatMessage.value = tag;
+          }
+          sandboxChatMessage.focus();
+        });
+      });
+
+      // 4. Send Custom Chat to Preview Iframe
+      function sendSandboxCustomChat() {
+        if (!sandboxChatMessage) return;
+        const text = sandboxChatMessage.value.trim();
+        if (!text) {
+          sandboxChatMessage.focus();
+          return;
+        }
+
+        const activePlatBtn = document.querySelector('.btn-sandbox-platform.active');
+        const platform = activePlatBtn ? activePlatBtn.dataset.platform : 'twitch';
+        const authorName = (sandboxAuthorName ? sandboxAuthorName.value : 'ViewerSetia_ID').trim() || 'Viewer_ID';
+        const authorColor = sandboxAuthorColor ? sandboxAuthorColor.value : '#38bdf8';
+        const role = sandboxUserRole ? sandboxUserRole.value : 'normal';
+
+        const isMod = role === 'mod';
+        const isSub = role === 'sub';
+        const isVip = role === 'vip';
+        const isOwner = role === 'owner';
+
+        const badges = [];
+        if (isMod) badges.push({ type: 'moderator', title: 'Moderator', icon: '🛡️' });
+        if (isSub) badges.push({ type: 'subscriber', title: 'Subscriber', icon: '⭐' });
+        if (isVip) badges.push({ type: 'vip', title: 'VIP', icon: '💎' });
+        if (isOwner) badges.push({ type: 'broadcaster', title: 'Broadcaster', icon: '👑' });
+
+        const simData = {
+          id: `sim_chat_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+          isSim: true,
+          platform,
+          author: {
+            name: authorName,
+            color: authorColor,
+            isMod,
+            isSub,
+            isVip,
+            isOwner,
+            badges
+          },
+          text
+        };
+
+        // Deliver to Preview Iframe
+        if (previewIframe && previewIframe.contentWindow) {
+          // PostMessage delivery
+          previewIframe.contentWindow.postMessage({
+            type: 'socket_sim',
+            subType: 'chat',
+            data: simData
+          }, '*');
+
+          // CustomEvent direct fallback
+          try {
+            const event = new CustomEvent('socket_sim', {
+              detail: {
+                type: 'chat',
+                data: simData
+              }
+            });
+            previewIframe.contentWindow.dispatchEvent(event);
+          } catch (err) {}
+        }
+
+        if (btnSandboxSend) {
+          btnSandboxSend.style.transform = 'scale(0.96)';
+          setTimeout(() => { btnSandboxSend.style.transform = ''; }, 150);
+        }
+        spToast(`Pesan (${platform.toUpperCase()}) terkirim ke preview!`, 'success');
+        sandboxChatMessage.select();
+        sandboxChatMessage.focus();
+      }
+
+      if (btnSandboxSend) {
+        btnSandboxSend.addEventListener('click', sendSandboxCustomChat);
+      }
+      if (sandboxChatMessage) {
+        sandboxChatMessage.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            sendSandboxCustomChat();
+          }
+        });
+      }
+
+      // 5. Clear Preview Screen
+      if (btnSandboxClearPreview) {
+        btnSandboxClearPreview.addEventListener('click', () => {
+          if (previewIframe && previewIframe.contentWindow) {
+            previewIframe.contentWindow.postMessage({ type: 'clear_messages' }, '*');
+            try {
+              const event = new CustomEvent('socket_sim', { detail: { type: 'clear_messages' } });
+              previewIframe.contentWindow.dispatchEvent(event);
+            } catch (e) {}
+          }
+          spToast('Layar preview OBS telah dibersihkan', 'info');
+        });
+      }
+
       // Preview Canvas Dimension Toolbar (Width & Height Simulation Only)
       const previewCustomWidth = document.getElementById('previewCustomWidth');
       const previewCustomHeight = document.getElementById('previewCustomHeight');
@@ -4857,6 +5187,7 @@
             previewIframe.src = getPreviewIframeUrl(profileId);
           }
         }
+        updateLabels();
       }
       bootStudio();
     });
