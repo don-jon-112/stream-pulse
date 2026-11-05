@@ -307,30 +307,21 @@
         </a>
       </div>
 
-      <div class="header-center">
-        <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:var(--surface-soft); border:1px solid var(--hairline); color:var(--ink);">
-          <span>← Live Chat</span>
-        </a>
-        <a href="/dock" target="_blank" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); color:#06b6d4;">
-          <span>OBS Dock ↗</span>
-        </a>
-        <a href="/viewers" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#0284c7;">
-          <span>Viewers Counter ↗</span>
-        </a>
-      </div>
-
       <div class="header-right">
         <!-- Dark / Light Mode Toggle Button -->
         <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
           <span class="theme-icon">☀️</span>
         </button>
 
+        <!-- Language Switcher -->
         <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
           <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
         </button>
 
-        <a href="/studio" class="btn-icon btn-primary" style="text-decoration:none; border-radius:9999px; padding:7px 18px; font-weight:700;">
-          <span>Overlay Studio</span>
+        <!-- User Account / Login Button -->
+        <a id="headerUserWidget" href="/studio" class="btn-icon btn-primary" title="Akun Pengguna & OBS Studio"
+          style="text-decoration:none; padding:6px 14px; font-weight:700; border-radius:var(--radius-pill);">
+          <span data-i18n="nav_login">🔐 Login / Akun</span>
         </a>
       </div>
     </div>

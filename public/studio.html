@@ -1104,18 +1104,6 @@
         </a>
       </div>
 
-      <div class="header-center">
-        <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:var(--surface-soft); border:1px solid var(--hairline); color:var(--ink);" title="Kembali ke Dashboard Chat Utama">
-          <span data-i18n="nav_dashboard">← Live Chat</span>
-        </a>
-        <a href="/dock" target="_blank" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); color:#06b6d4;" title="OBS Custom Browser Dock">
-          <span>OBS Dock ↗</span>
-        </a>
-        <a href="/viewers" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#0284c7;" title="Live Viewers Counter Overlay">
-          <span>Viewers Counter ↗</span>
-        </a>
-      </div>
-
       <div class="header-right">
         <!-- Dark / Light Mode Toggle Button -->
         <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
@@ -2615,19 +2603,8 @@
               <span style="font-size:0.8rem; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:4px 10px; border-radius:999px; color:#a5b4fc; font-weight:700;">
                 👤 ${currentUser.username} (${count}/5 ${window.t ? window.t('studio_slots_used_text') : 'Slot'})
               </span>
-              <button id="btnLogoutUser" class="btn-icon" style="font-size:0.75rem; padding:4px 8px;" title="Keluar dari akun">
-                ${window.t ? window.t('studio_logout_btn') : 'Logout'}
-              </button>
             </div>
           `;
-          document.getElementById('btnLogoutUser').addEventListener('click', () => {
-            userToken = '';
-            currentUser = null;
-            localStorage.removeItem('streampulse_user_token');
-            renderUserStatus();
-            renderSlotsList([]);
-            spToast(window.t ? window.t('toast_logged_out_guest') : 'Telah keluar dari akun. Mode Tamu aktif.', 'info');
-          });
 
           // Unlocked UI for Logged-In User
           if (guestOverlayLockedCard) guestOverlayLockedCard.style.display = 'none';
