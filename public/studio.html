@@ -1804,7 +1804,7 @@
         <!-- Google Fonts Picker -->
         <div class="form-group">
           <div class="form-label">
-            <span data-i18n="sec_font_family">Gaya Huruf (Google Fonts)</span>
+            <span style="font-weight:700; color:var(--ink);">Gaya Huruf (Google Fonts)</span>
             <span id="labelFontFamilyBadge" style="color:var(--primary); font-weight:700; font-family:var(--font-mono); font-size:0.75rem; background:rgba(99,102,241,0.1); padding:2px 8px; border-radius:6px; border:1px solid rgba(99,102,241,0.25);">Default System</span>
           </div>
           <select id="settingFontFamily" class="form-select" style="width:100%; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--hairline); background:var(--bg-canvas); color:var(--ink); font-size:0.85rem; font-weight:600; cursor:pointer;">
@@ -5039,25 +5039,13 @@
           text
         };
 
-        // Deliver to Preview Iframe
+        // Deliver to Preview Iframe strictly via postMessage (Single Dispatch)
         if (previewIframe && previewIframe.contentWindow) {
-          // PostMessage delivery
           previewIframe.contentWindow.postMessage({
             type: 'socket_sim',
             subType: 'chat',
             data: simData
           }, '*');
-
-          // CustomEvent direct fallback
-          try {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'chat',
-                data: simData
-              }
-            });
-            previewIframe.contentWindow.dispatchEvent(event);
-          } catch (err) {}
         }
 
         if (btnSandboxSend) {

@@ -181,6 +181,9 @@
       word-break: break-word;
       opacity: var(--chat-fade-opacity, 1);
       transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s ease;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      transform: translateZ(0);
     }
 
     @keyframes overlaySlideIn {
@@ -2588,18 +2591,35 @@
         return recentAlertKeys.has(key);
       }
 
+      // Safe Element Removal & Memory Cleanup Helper for OBS Browser Source
+      function safelyRemoveNode(node) {
+        if (!node) return;
+        if (node._hideTimer) {
+          clearTimeout(node._hideTimer);
+          node._hideTimer = null;
+        }
+        if (node._removeTimer) {
+          clearTimeout(node._removeTimer);
+          node._removeTimer = null;
+        }
+        if (node._animTimer) {
+          clearTimeout(node._animTimer);
+          node._animTimer = null;
+        }
+        if (node.parentNode) {
+          node.parentNode.removeChild(node);
+        }
+      }
+
       // Add Chat Item to Overlay
       function addOverlayMessage(item) {
         if (!item) return;
 
-        // Cegah duplikasi pesan chat (Kecuali simulasi preview)
-        const isSim = item.isSim || (item.id && String(item.id).startsWith('sim_'));
+        // Cegah duplikasi pesan chat
         const dedupeKey = item.id || `${item.platform || ''}_${item.author?.name || ''}_${item.text || ''}`;
-        if (!isSim) {
-          if (processedOverlayMsgIds.has(dedupeKey)) return;
-          processedOverlayMsgIds.add(dedupeKey);
-        }
-        if (processedOverlayMsgIds.size > 200) {
+        if (processedOverlayMsgIds.has(dedupeKey)) return;
+        processedOverlayMsgIds.add(dedupeKey);
+        while (processedOverlayMsgIds.size > 150) {
           const first = processedOverlayMsgIds.values().next().value;
           processedOverlayMsgIds.delete(first);
         }
@@ -2743,32 +2763,30 @@
 
         container.appendChild(el);
 
-        // Batasi jumlah bubble chat di layar OBS
+        // Batasi jumlah bubble chat di layar OBS (Sliding Window Memory Cleanup)
         const maxLimit = parseInt(config.maxMessages, 10) || 15;
         while (container.children.length > maxLimit) {
-          container.removeChild(container.firstChild);
+          safelyRemoveNode(container.firstChild);
         }
 
         // Lepaskan lock animation keyframe setelah animasi masuk selesai
         el.addEventListener('animationend', () => {
           el.style.setProperty('animation', 'none', 'important');
         }, { once: true });
-        setTimeout(() => {
+        el._animTimer = setTimeout(() => {
           el.style.setProperty('animation', 'none', 'important');
         }, 400);
 
         updateChatFade();
 
-        // Auto-Hide Message after N seconds
+        // Auto-Hide Message after N seconds with timer handles for cleanup
         if (config.hideDelay && config.hideDelay > 0) {
-          setTimeout(() => {
+          el._hideTimer = setTimeout(() => {
             el.classList.add('fade-out');
             updateChatFade();
-            setTimeout(() => {
-              if (el.parentNode) {
-                el.parentNode.removeChild(el);
-                updateChatFade();
-              }
+            el._removeTimer = setTimeout(() => {
+              safelyRemoveNode(el);
+              updateChatFade();
             }, 500);
           }, config.hideDelay * 1000);
         }
@@ -2791,13 +2809,10 @@
         const isTwitchRedeem = (evt.platform === 'twitch') && evt.eventType === 'redeem';
         if (!config.showAlerts && !isTwitchRedeem) return;
 
-        const isSimEvt = evt.isSim || (evt.id && String(evt.id).startsWith('sim_'));
         const evtKey = evt.id || `${evt.platform || ''}_${evt.eventType || ''}_${evt.author || ''}_${evt.detail || ''}_${evt.message || ''}`;
-        if (!isSimEvt) {
-          if (processedOverlayEventIds.has(evtKey)) return;
-          processedOverlayEventIds.add(evtKey);
-        }
-        if (processedOverlayEventIds.size > 100) {
+        if (processedOverlayEventIds.has(evtKey)) return;
+        processedOverlayEventIds.add(evtKey);
+        while (processedOverlayEventIds.size > 150) {
           const first = processedOverlayEventIds.values().next().value;
           processedOverlayEventIds.delete(first);
         }
@@ -3035,28 +3050,26 @@
 
         const maxLimit = parseInt(config.maxMessages, 10) || 15;
         while (container.children.length > maxLimit) {
-          container.removeChild(container.firstChild);
+          safelyRemoveNode(container.firstChild);
         }
 
         // Lepaskan lock animation keyframe setelah animasi masuk selesai
         el.addEventListener('animationend', () => {
           el.style.setProperty('animation', 'none', 'important');
         }, { once: true });
-        setTimeout(() => {
+        el._animTimer = setTimeout(() => {
           el.style.setProperty('animation', 'none', 'important');
         }, 400);
 
         updateChatFade();
 
         if (config.hideDelay && config.hideDelay > 0) {
-          setTimeout(() => {
+          el._hideTimer = setTimeout(() => {
             el.classList.add('fade-out');
             updateChatFade();
-            setTimeout(() => {
-              if (el.parentNode) {
-                el.parentNode.removeChild(el);
-                updateChatFade();
-              }
+            el._removeTimer = setTimeout(() => {
+              safelyRemoveNode(el);
+              updateChatFade();
             }, 500);
           }, config.hideDelay * 1000);
         }
@@ -3090,17 +3103,19 @@
         addOverlayEvent(evt);
       });
 
-      // Listen for preview test simulations from Overlay Studio (Allows spamming & bypasses dedupe)
+      // Listen for preview test simulations from Overlay Studio
       window.addEventListener('socket_sim', (e) => {
         const { type, data } = e.detail || {};
         if (type === 'clear_messages') {
-          if (container) container.innerHTML = '';
+          if (container) {
+            while (container.firstChild) safelyRemoveNode(container.firstChild);
+          }
           if (typeof processedOverlayMsgIds !== 'undefined' && processedOverlayMsgIds.clear) processedOverlayMsgIds.clear();
           return;
         }
         if (data) {
           data.isSim = true;
-          data.id = 'sim_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          if (!data.id) data.id = 'sim_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
         if (type === 'chat') addOverlayMessage(data);
         if (type === 'event') addOverlayEvent(data);
@@ -3110,7 +3125,9 @@
       window.addEventListener('message', (e) => {
         if (!e.data) return;
         if (e.data.type === 'clear_messages') {
-          if (container) container.innerHTML = '';
+          if (container) {
+            while (container.firstChild) safelyRemoveNode(container.firstChild);
+          }
           if (typeof processedOverlayMsgIds !== 'undefined' && processedOverlayMsgIds.clear) processedOverlayMsgIds.clear();
           return;
         }
@@ -3118,7 +3135,7 @@
           const { subType, data } = e.data;
           if (data) {
             data.isSim = true;
-            data.id = 'sim_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            if (!data.id) data.id = 'sim_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
           }
           if (subType === 'chat' || !subType) addOverlayMessage(data);
           else if (subType === 'event') addOverlayEvent(data);
@@ -3191,6 +3208,40 @@
           }
         }
       });
+
+      // OBS Long Stream Stability Watchdog (Runs every 60 seconds)
+      // Prunes orphaned / stuck elements, clears leaked timers, and caps cache sets
+      setInterval(() => {
+        try {
+          if (!container) return;
+          const maxLimit = parseInt(config.maxMessages, 10) || 15;
+
+          // 1. Enforce maxLimit strictly
+          while (container.children.length > maxLimit) {
+            safelyRemoveNode(container.firstChild);
+          }
+
+          // 2. Clear any stuck fade-out elements that failed to remove
+          const fadeOutElements = container.querySelectorAll('.fade-out');
+          fadeOutElements.forEach(el => {
+            safelyRemoveNode(el);
+          });
+
+          // 3. Cap deduping Set caches to prevent memory creep during multi-hour streams
+          while (processedOverlayMsgIds.size > 150) {
+            const first = processedOverlayMsgIds.values().next().value;
+            processedOverlayMsgIds.delete(first);
+          }
+          while (processedOverlayEventIds.size > 150) {
+            const first = processedOverlayEventIds.values().next().value;
+            processedOverlayEventIds.delete(first);
+          }
+
+          updateChatFade();
+        } catch (e) {
+          // Silent catch to prevent crashing OBS browser source
+        }
+      }, 60000);
 
       // Execute Custom JS safely
       if (config.customJs) {
