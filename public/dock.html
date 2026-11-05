@@ -647,6 +647,146 @@
       color: #94a3b8 !important;
     }
 
+    /* Auth Warning Banner */
+    .dock-auth-warning {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      background: rgba(239, 68, 68, 0.12);
+      border-bottom: 1px solid rgba(239, 68, 68, 0.25);
+      color: #ef4444;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      animation: fadeIn 0.2s ease-out;
+    }
+    :root[data-theme="dark"] .dock-auth-warning {
+      background: rgba(239, 68, 68, 0.2);
+      border-bottom-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+    .dock-auth-warning .warning-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-dismiss-warning {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      opacity: 0.7;
+    }
+    .btn-dismiss-warning:hover { opacity: 1; }
+
+    /* Dock Settings Modal */
+    .dock-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      animation: fadeIn 0.15s ease-out;
+    }
+    .dock-modal-content {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .dock-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .dock-modal-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-base);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dock-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+    }
+    .dock-modal-body {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dock-form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .dock-form-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .dock-modal-input {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: var(--text-base);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .dock-modal-input:focus {
+      border-color: #6366f1;
+    }
+    .dock-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-hover);
+    }
+    .dock-btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .dock-btn-save {
+      background: #6366f1;
+      border: 1px solid #4f46e5;
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
   </style>
 
   <script>
@@ -670,7 +810,11 @@
         </div>
       </div>
       <div class="dock-header-actions">
-        
+        <button class="dock-btn-icon" id="btn-dock-settings" title="Pengaturan Saluran / Akun">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Atur
+        </button>
+
         <button class="dock-btn-icon" id="btn-dock-theme" title="Ganti Mode Gelap / Terang">
           <span id="dock-theme-icon">☀️</span>
         </button>
@@ -680,6 +824,15 @@
           Clear
         </button>
       </div>
+    </div>
+
+    <!-- AUTH WARNING BANNER (JIKA TOKEN EXPIRED ATAU BELUM LOGIN) -->
+    <div id="dock-auth-warning" class="dock-auth-warning" style="display: none;">
+      <div class="warning-content">
+        <span class="warning-icon">⚠️</span>
+        <span class="warning-text" id="dock-warning-text">Sesi Twitch kedaluwarsa. Silakan buka Dashboard web untuk menyambungkan kembali.</span>
+      </div>
+      <button type="button" class="btn-dismiss-warning" id="btn-dismiss-auth-warning" title="Tutup">&times;</button>
     </div>
 
     <!-- VIEWER COUNT BAR -->
@@ -756,7 +909,54 @@
     <div class="dock-status-msg info" id="dock-status-feedback">Siap mengirim pesan ke Twitch</div>
   </footer>
 
+  <!-- MODAL: DOCK CHANNEL SETTINGS -->
+  <div id="dock-settings-modal" class="dock-modal-backdrop" style="display: none;">
+    <div class="dock-modal-content">
+      <div class="dock-modal-header">
+        <div class="dock-modal-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Pengaturan Saluran Dock
+        </div>
+        <button type="button" class="dock-modal-close" id="btn-close-dock-settings">&times;</button>
+      </div>
+
+      <div class="dock-modal-body">
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4;">
+          Ubah channel aktif atau tautkan ke akun web StreamPulse Anda:
+        </div>
+
+        <div class="dock-form-field">
+          <label class="dock-form-label">Twitch Channel</label>
+          <input type="text" id="dock-input-twitch" class="dock-modal-input" placeholder="Username Twitch...">
+        </div>
+
+        <div class="dock-form-field">
+          <label class="dock-form-label">YouTube Live</label>
+          <input type="text" id="dock-input-youtube" class="dock-modal-input" placeholder="@Handle atau URL Live YouTube...">
+        </div>
+
+        <div class="dock-form-field">
+          <label class="dock-form-label">TikTok Live</label>
+          <input type="text" id="dock-input-tiktok" class="dock-modal-input" placeholder="Username (@...) atau Room ID TikTok...">
+        </div>
+
+        <div class="dock-form-field" style="margin-top: 6px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+          <label class="dock-form-label">Tautkan Akun Web (User Token / Username)</label>
+          <input type="text" id="dock-input-user-token" class="dock-modal-input" placeholder="Username atau Token akun Anda...">
+          <div style="font-size: 0.67rem; color: var(--text-muted); margin-top: 3px; line-height: 1.35;">
+            💡 Masukkan username web Anda untuk otomatis menarik izin kirim chat & token event Twitch.
+          </div>
+        </div>
+      </div>
+
+      <div class="dock-modal-footer">
+        <button type="button" class="dock-btn-cancel" id="btn-cancel-dock-settings">Batal</button>
+        <button type="button" class="dock-btn-save" id="btn-save-dock-settings">Simpan & Sambungkan</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/socket.io.min.js"></script>
-  <script src="/js/dock.js?v=fresh_3"></script>
+  <script src="/js/dock.js?v=fresh_4"></script>
 </body>
 </html>

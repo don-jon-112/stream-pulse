@@ -683,6 +683,26 @@
           </div>
         </div>
 
+        <!-- OBS Custom Browser Dock Integration Box -->
+        <div style="background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 12px 14px; margin-top: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <div style="font-weight: 600; font-size: 0.82rem; color: var(--ink); display: flex; align-items: center; gap: 6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="#06b6d4"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10z"/></svg>
+              <span>OBS Custom Browser Dock</span>
+            </div>
+            <a href="/dock" target="_blank" style="font-size: 0.74rem; color: var(--primary); text-decoration: none; font-weight: 500;">Buka Dock ↗</a>
+          </div>
+          <div style="font-size: 0.74rem; color: var(--body); line-height: 1.45; margin-bottom: 8px;">
+            Gunakan URL bertaut pribadi ini di OBS Studio agar otomatis sinkron dengan akun Anda dan semua event Twitch aktif 100%:
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="dockShareUrl" readonly class="input-clean" style="font-size: 0.74rem; padding: 6px 10px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--hairline); background: var(--surface); color: var(--ink); font-family: monospace;" value="https://joo-nathan.my.id/dock">
+            <button type="button" id="btnCopyDockUrl" class="btn-icon btn-primary" style="font-size: 0.75rem; padding: 6px 14px; white-space: nowrap; border-radius: var(--radius-md); cursor: pointer; background: #000000; color: #ffffff; border: 1px solid #000000;">
+              Salin URL
+            </button>
+          </div>
+        </div>
+
         <div
           style="background: var(--surface-soft); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 12px 14px; font-size: 0.8rem; line-height: 1.5; color: var(--body); margin-top: 10px;"
           data-i18n-html="setup_bottom_tip">

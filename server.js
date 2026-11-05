@@ -1048,6 +1048,40 @@ app.get('/api/user/me', (req, res) => {
   });
 });
 
+// 4b. OBS Dock Auto-Config Endpoint (Accepts ?token=... or ?user=...)
+app.get('/api/dock/config', (req, res) => {
+  const token = (req.query.token || '').trim();
+  const username = (req.query.user || req.query.username || '').trim().toLowerCase();
+
+  const users = readJsonFile(USERS_FILE, {});
+  let matchedUser = null;
+
+  if (token) {
+    matchedUser = Object.values(users).find(u => u.token === token);
+  }
+  if (!matchedUser && username) {
+    matchedUser = Object.values(users).find(u => (u.username || '').toLowerCase() === username);
+  }
+
+  if (matchedUser) {
+    return res.json({
+      success: true,
+      username: matchedUser.username,
+      userToken: matchedUser.token,
+      channels: {
+        twitch: matchedUser.channels?.twitch || '',
+        twitchDisplayName: matchedUser.channels?.twitchDisplayName || '',
+        youtube: matchedUser.channels?.youtube || '',
+        tiktok: matchedUser.channels?.tiktok || '',
+        tiktokSessionId: matchedUser.channels?.tiktokSessionId || '',
+        hasTwitchToken: Boolean(matchedUser.channels?.twitchTokenEncrypted)
+      }
+    });
+  }
+
+  res.status(404).json({ success: false, error: 'User tidak ditemukan' });
+});
+
 // 5. Save User Homepage Channels with Encrypted OAuth Token
 app.post('/api/user/channels', (req, res) => {
   const user = getUserFromReq(req);

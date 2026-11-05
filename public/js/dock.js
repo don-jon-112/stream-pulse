@@ -56,8 +56,23 @@
   const activeTwitchBadge = document.getElementById('dock-active-channel-name');
   const statusFeedback = document.getElementById('dock-status-feedback');
 
-  // Buttons
+  // Buttons & Controls
   const btnClearChat = document.getElementById('btn-clear-chat');
+  const btnDockSettings = document.getElementById('btn-dock-settings');
+  const dockSettingsModal = document.getElementById('dock-settings-modal');
+  const btnCloseDockSettings = document.getElementById('btn-close-dock-settings');
+  const btnCancelDockSettings = document.getElementById('btn-cancel-dock-settings');
+  const btnSaveDockSettings = document.getElementById('btn-save-dock-settings');
+
+  const dockInputTwitch = document.getElementById('dock-input-twitch');
+  const dockInputYouTube = document.getElementById('dock-input-youtube');
+  const dockInputTikTok = document.getElementById('dock-input-tiktok');
+  const dockInputUserToken = document.getElementById('dock-input-user-token');
+
+  // Auth warning notification banner
+  const dockAuthWarning = document.getElementById('dock-auth-warning');
+  const dockWarningText = document.getElementById('dock-warning-text');
+  const btnDismissAuthWarning = document.getElementById('btn-dismiss-auth-warning');
 
   // Filter chips
   const filterChips = document.querySelectorAll('.filter-chip');
@@ -257,8 +272,94 @@
     }
   }
 
+  function showAuthWarning(text) {
+    if (!dockAuthWarning) return;
+    if (dockWarningText) dockWarningText.textContent = text;
+    dockAuthWarning.style.display = 'flex';
+  }
+
+  function hideAuthWarning() {
+    if (dockAuthWarning) dockAuthWarning.style.display = 'none';
+  }
+
+  if (btnDismissAuthWarning) {
+    btnDismissAuthWarning.addEventListener('click', hideAuthWarning);
+  }
+
   // ==========================================
-  // CHANNELS RESOLUTION (SINKRON HOMEPAGE)
+  // OBS DOCK IN-APP SETTINGS MODAL
+  // ==========================================
+  function openDockSettings() {
+    if (!dockSettingsModal) return;
+    if (dockInputTwitch) dockInputTwitch.value = currentChannels.twitch || '';
+    if (dockInputYouTube) dockInputYouTube.value = currentChannels.youtube || '';
+    if (dockInputTikTok) dockInputTikTok.value = currentChannels.tiktok || '';
+    if (dockInputUserToken) {
+      dockInputUserToken.value = localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '';
+    }
+    dockSettingsModal.style.display = 'flex';
+  }
+
+  function closeDockSettings() {
+    if (dockSettingsModal) dockSettingsModal.style.display = 'none';
+  }
+
+  if (btnDockSettings) btnDockSettings.addEventListener('click', openDockSettings);
+  if (btnCloseDockSettings) btnCloseDockSettings.addEventListener('click', closeDockSettings);
+  if (btnCancelDockSettings) btnCancelDockSettings.addEventListener('click', closeDockSettings);
+
+  if (btnSaveDockSettings) {
+    btnSaveDockSettings.addEventListener('click', async () => {
+      const origText = btnSaveDockSettings.textContent;
+      btnSaveDockSettings.disabled = true;
+      btnSaveDockSettings.textContent = 'Menyimpan...';
+
+      const twitch = dockInputTwitch ? dockInputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '') : '';
+      const youtube = dockInputYouTube ? dockInputYouTube.value.trim() : '';
+      const tiktok = dockInputTikTok ? dockInputTikTok.value.trim().replace(/^@/, '') : '';
+      const tokenOrUser = dockInputUserToken ? dockInputUserToken.value.trim() : '';
+
+      currentChannels.twitch = twitch;
+      currentChannels.youtube = youtube;
+      currentChannels.tiktok = tiktok;
+
+      const chData = { twitch, youtube, tiktok };
+      localStorage.setItem(STORAGE_KEY_USER_CHANNELS, JSON.stringify(chData));
+      localStorage.setItem(STORAGE_KEY_MY_CHANNELS, JSON.stringify(chData));
+
+      if (tokenOrUser) {
+        if (/^[a-zA-Z0-9_\.]{3,30}$/.test(tokenOrUser) && tokenOrUser.length < 32) {
+          try {
+            const res = await fetch(`/api/dock/config?user=${encodeURIComponent(tokenOrUser)}`);
+            if (res.ok) {
+              const cfg = await res.json();
+              if (cfg.userToken) {
+                localStorage.setItem(STORAGE_KEY_USER_TOKEN, cfg.userToken);
+              }
+              if (cfg.channels) {
+                if (!twitch && cfg.channels.twitch) currentChannels.twitch = cfg.channels.twitch.toLowerCase().replace(/^[#@]/, '');
+                if (!youtube && cfg.channels.youtube) currentChannels.youtube = cfg.channels.youtube;
+                if (!tiktok && cfg.channels.tiktok) currentChannels.tiktok = cfg.channels.tiktok;
+              }
+            }
+          } catch (e) {}
+        } else {
+          localStorage.setItem(STORAGE_KEY_USER_TOKEN, tokenOrUser);
+        }
+      }
+
+      updateChannelUI();
+      syncChannelsWithSocket();
+      verifyTwitchAuthWithServer();
+      closeDockSettings();
+      btnSaveDockSettings.disabled = false;
+      btnSaveDockSettings.textContent = origText;
+      showFeedback('Saluran OBS Dock berhasil diperbarui!', 'success', 3500);
+    });
+  }
+
+  // ==========================================
+  // CHANNELS RESOLUTION (SINKRON CLOUD & HOMEPAGE)
   // ==========================================
   function readHomepageChannels() {
     try {
@@ -271,18 +372,58 @@
     }
   }
 
-  function initChannels() {
+  async function initChannels() {
     const params = new URLSearchParams(window.location.search);
+    const qToken = params.get('token');
+    const qUser = params.get('user') || params.get('username');
     const qTwitch = params.get('twitch');
     const qYt = params.get('youtube');
     const qTikTok = params.get('tiktok');
 
+    // 1. Prioritas Utama: Konfigurasi Akun dari Server jika parameter token / user ada di URL
+    if (qToken || qUser) {
+      try {
+        const queryStr = qToken ? `token=${encodeURIComponent(qToken)}` : `user=${encodeURIComponent(qUser)}`;
+        const res = await fetch(`/api/dock/config?${queryStr}`);
+        if (res.ok) {
+          const cfg = await res.json();
+          if (cfg.success && cfg.channels) {
+            if (cfg.userToken) {
+              localStorage.setItem(STORAGE_KEY_USER_TOKEN, cfg.userToken);
+            }
+            localStorage.setItem(STORAGE_KEY_USER_CHANNELS, JSON.stringify(cfg.channels));
+            localStorage.setItem(STORAGE_KEY_MY_CHANNELS, JSON.stringify(cfg.channels));
+
+            currentChannels.twitch = (qTwitch || cfg.channels.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
+            currentChannels.youtube = (qYt || cfg.channels.youtube || '').trim();
+            currentChannels.tiktok = (qTikTok || cfg.channels.tiktok || '').trim().replace(/^@/, '');
+
+            updateChannelUI();
+            syncChannelsWithSocket();
+            verifyTwitchAuthWithServer();
+            showFeedback(`✓ Terhubung ke akun @${cfg.username}`, 'success', 3000);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('[Dock] Gagal mengambil konfigurasi dock dari server:', e);
+      }
+    }
+
+    // 2. Prioritas Kedua: Query params manual di URL
+    if (qTwitch !== null || qYt !== null || qTikTok !== null) {
+      if (qTwitch !== null) currentChannels.twitch = qTwitch.trim().toLowerCase().replace(/^[#@]/, '');
+      if (qYt !== null) currentChannels.youtube = qYt.trim();
+      if (qTikTok !== null) currentChannels.tiktok = qTikTok.trim().replace(/^@/, '');
+      updateChannelUI();
+      return;
+    }
+
+    // 3. Fallback: Baca dari storage lokal OBS Dock
     const homepageChannels = readHomepageChannels();
-
-    currentChannels.twitch = (qTwitch || homepageChannels.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
-    currentChannels.youtube = (qYt || homepageChannels.youtube || '').trim();
-    currentChannels.tiktok = (qTikTok || homepageChannels.tiktok || '').trim().replace(/^@/, '');
-
+    currentChannels.twitch = (homepageChannels.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
+    currentChannels.youtube = (homepageChannels.youtube || '').trim();
+    currentChannels.tiktok = (homepageChannels.tiktok || '').trim().replace(/^@/, '');
     updateChannelUI();
   }
 
@@ -817,8 +958,12 @@
       if (data && typeof data.hasTwitchAuth === 'boolean') {
         if (data.hasTwitchAuth) {
           setChatSendPermission(true);
+          hideAuthWarning();
         } else {
           setChatSendPermission(false, '🔒 Akun Twitch belum login di Homepage (Atur Channel > Login Twitch)');
+          if (currentChannels.twitch) {
+            showAuthWarning('⚠️ Sesi otorisasi Twitch Anda kedaluwarsa atau belum terhubung. Buka Dashboard web joo-nathan.my.id > "Atur Saluran" lalu klik "Login Twitch" untuk menyambungkan kembali.');
+          }
         }
       }
     });
@@ -878,6 +1023,11 @@
     socket.on('platform_status', (data) => {
       if (data && data.message) {
         console.log(`[Dock Status ${data.platform}]`, data.message);
+        if (data.platform === 'twitch' && (data.status === 'warning' || data.status === 'error')) {
+          if (data.message.includes('kedaluwarsa') || data.message.includes('tidak valid') || data.message.includes('401')) {
+            showAuthWarning(`⚠️ Twitch: ${data.message}. Silakan buka website untuk login ulang.`);
+          }
+        }
       }
     });
   }

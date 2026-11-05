@@ -677,6 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('streampulse_user_channels', JSON.stringify(chData));
     localStorage.setItem('streampulse_guest_channels', JSON.stringify(chData));
     localStorage.setItem('streampulse_my_channels', JSON.stringify(chData));
+    if (typeof updateDockShareUrl === 'function') updateDockShareUrl();
   }
 
   // Cross-tab real-time sync with Overlay Studio
@@ -1687,10 +1688,46 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   const openModal = (m) => {
     m.classList.add('show');
+    if (m === setupModal) {
+      updateDockShareUrl();
+    }
     const firstInput = m.querySelector('input');
     if (firstInput) setTimeout(() => firstInput.focus(), 100);
   };
   const closeModal = (m) => m.classList.remove('show');
+
+  function updateDockShareUrl() {
+    const dockShareUrl = document.getElementById('dockShareUrl');
+    if (!dockShareUrl) return;
+    const origin = window.location.origin;
+    if (currentUser && currentUser.token) {
+      dockShareUrl.value = `${origin}/dock?token=${encodeURIComponent(currentUser.token)}`;
+    } else {
+      const ch = getStoredUserChannels() || {};
+      const params = new URLSearchParams();
+      if (ch.twitch) params.set('twitch', ch.twitch);
+      if (ch.youtube) params.set('youtube', ch.youtube);
+      if (ch.tiktok) params.set('tiktok', ch.tiktok);
+      const q = params.toString();
+      dockShareUrl.value = q ? `${origin}/dock?${q}` : `${origin}/dock`;
+    }
+  }
+
+  const btnCopyDockUrl = document.getElementById('btnCopyDockUrl');
+  if (btnCopyDockUrl) {
+    btnCopyDockUrl.addEventListener('click', () => {
+      const dockShareUrl = document.getElementById('dockShareUrl');
+      if (dockShareUrl && dockShareUrl.value) {
+        navigator.clipboard.writeText(dockShareUrl.value).then(() => {
+          spToast('✓ URL OBS Dock Pribadi berhasil disalin! Tempelkan ke OBS Studio > Docks > Custom Browser Docks.', 'success');
+        }).catch(() => {
+          dockShareUrl.select();
+          document.execCommand('copy');
+          spToast('✓ URL OBS Dock Pribadi berhasil disalin!', 'success');
+        });
+      }
+    });
+  }
 
   btnSetupModal.addEventListener('click', () => openModal(setupModal));
   closeSetupModal.addEventListener('click', () => closeModal(setupModal));
