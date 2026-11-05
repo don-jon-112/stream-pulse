@@ -129,7 +129,6 @@
         <!-- Language Switcher -->
         <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
           <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
-          <span>ID</span>
         </button>
 
         <!-- User Account / Studio Link -->
@@ -672,13 +671,16 @@
               <input type="password" id="inputTikTokSession" placeholder="Tempel sessionid dari browser (opsional)..."
                 autocomplete="off" style="font-size: 0.78rem;">
             </div>
-            <div id="tiktokSessionGuide" style="display: none; background: var(--surface); border: 1px solid var(--hairline-strong); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 8px; font-size: 0.72rem; color: var(--body); line-height: 1.5;">
+            <div id="tiktokSessionGuide" style="display: none; background: var(--surface); border: 1px solid var(--hairline-strong); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 8px; font-size: 0.72rem; color: var(--body); line-height: 1.5;">
               <strong style="color: var(--ink);">Cara Ambil Session ID (Hanya jika dibutuhkan):</strong><br>
-              1. Buka <a href="https://www.tiktok.com" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">tiktok.com</a> di browser PC dan pastikan sudah login.<br>
-              2. Tekan <code>F12</code> &rarr; tab <strong>Application</strong> (Chrome/Edge) atau <strong>Storage</strong> (Firefox).<br>
-              3. Di panel kiri, klik <strong>Cookies</strong> &rarr; <code>https://www.tiktok.com</code>.<br>
-              4. Cari baris bernama <code>sessionid</code>, salin isinya, lalu tempel di kolom di atas.<br>
-              <em>💡 Cukup pasang sekali, berlaku berbulan-bulan selama Anda tidak klik Log out di browser.</em>
+              1. Buka <a href="https://www.tiktok.com" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600;">tiktok.com</a> di browser PC dan pastikan sudah login akun TikTok Anda.<br>
+              2. Tekan <code>F12</code> (DevTools) &rarr; buka tab <strong>Application</strong> (Chrome/Edge) atau <strong>Penyimpanan / Storage</strong> (Firefox/Indo).<br>
+              3. Di panel kiri, buka <strong>Kuki / Cookies</strong> &rarr; pilih <code>https://www.tiktok.com</code>.<br>
+              4. Cari baris bernama <code style="color: #fe2c55; font-weight: 700;">sessionid</code>, lalu salin nilainya dan tempel di kolom di atas.<br>
+              <div style="margin-top: 8px; margin-bottom: 6px; border-radius: 6px; overflow: hidden; border: 1px solid var(--hairline); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <img src="/images/tiktok_sessionid_guide.png" alt="Panduan Ambil Session ID TikTok dari DevTools Kuki" style="width: 100%; height: auto; display: block; cursor: pointer;" title="Klik untuk memperbesar gambar" onclick="window.open(this.src, '_blank')">
+              </div>
+              <em style="color: var(--mute);">💡 Cukup pasang sekali, berlaku berbulan-bulan selama Anda tidak klik Log out di browser.</em>
             </div>
           </div>
         </div>

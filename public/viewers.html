@@ -483,25 +483,21 @@
         </a>
       </div>
 
-      <div class="header-center">
-        <a href="/" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:var(--surface-soft); border:1px solid var(--hairline); color:var(--ink);">
-          <span>← Live Chat</span>
-        </a>
-        <a href="/dock" target="_blank" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); color:#06b6d4;">
-          <span>OBS Dock ↗</span>
-        </a>
-        <a href="/studio" class="btn-icon" style="text-decoration:none; font-size:0.82rem; padding:6px 14px; border-radius:9999px; background:rgba(236,72,153,0.12); border:1px solid rgba(236,72,153,0.3); color:#ec4899;">
-          <span>Overlay Studio ↗</span>
-        </a>
-      </div>
-
       <div class="header-right">
         <!-- Dark / Light Mode Toggle Button -->
         <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
           <span class="theme-icon">☀️</span>
         </button>
-        <a href="/studio" class="btn-icon btn-primary" style="text-decoration:none; padding:7px 18px; font-weight:700; font-size:0.84rem; border-radius:var(--radius-pill);">
-          <span>Chat Studio</span>
+
+        <!-- Language Switcher -->
+        <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
+          <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
+        </button>
+
+        <!-- User Account / Login Button -->
+        <a id="headerUserWidget" href="/studio" class="btn-icon btn-primary" title="Akun Pengguna & OBS Studio"
+          style="text-decoration:none; padding:6px 14px; font-weight:700; border-radius:var(--radius-pill);">
+          <span data-i18n="nav_login">🔐 Login / Akun</span>
         </a>
       </div>
     </div>
@@ -989,7 +985,7 @@
       }
 
       // Generate OBS URL
-      function buildOverlayUrl() {
+      function buildOverlayUrl(includeAuth = true) {
         const origin = window.location.origin;
         const q = new URLSearchParams();
         if (state.layout !== 'total') q.set('layout', state.layout);
@@ -1001,15 +997,28 @@
         if (state.hideZero) q.set('hideZero', '1');
         if (!state.showTotal) q.set('showTotal', '0');
 
+        if (includeAuth) {
+          const userToken = localStorage.getItem('streampulse_user_token');
+          if (userToken) {
+            q.set('token', userToken);
+          } else {
+            const ch = loadChannels();
+            if (ch.twitch) q.set('twitch', ch.twitch.toLowerCase().replace(/^[#@]/, ''));
+            if (ch.youtube) q.set('youtube', ch.youtube);
+            if (ch.tiktok) q.set('tiktok', ch.tiktok.replace(/^@/, ''));
+          }
+        }
+
         const qs = q.toString();
         return `${origin}/viewers-overlay${qs ? '?' + qs : ''}`;
       }
 
       function updatePreview() {
-        const url = buildOverlayUrl();
-        if (obsOverlayUrl) obsOverlayUrl.value = url;
+        const obsUrl = buildOverlayUrl(true);
+        const previewUrl = buildOverlayUrl(false);
+        if (obsOverlayUrl) obsOverlayUrl.value = obsUrl;
         if (previewIframe) {
-          previewIframe.src = url;
+          previewIframe.src = previewUrl;
           // Send simulated count after iframe loads
           previewIframe.onload = () => {
             sendSimulation();

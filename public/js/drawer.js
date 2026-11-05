@@ -98,7 +98,9 @@
   function openDonateModal() {
     const modal = ensureDonateModal();
     if (modal) {
+      modal.classList.add('show');
       modal.classList.add('active');
+      modal.style.display = 'flex';
       modal.setAttribute('aria-hidden', 'false');
     }
   }
@@ -106,7 +108,9 @@
   function closeDonateModal() {
     const modal = document.getElementById('donateModal');
     if (modal) {
+      modal.classList.remove('show');
       modal.classList.remove('active');
+      modal.style.display = 'none';
       modal.setAttribute('aria-hidden', 'true');
     }
   }
@@ -179,7 +183,9 @@
       if (donateTrigger) {
         e.preventDefault();
         closeDrawer();
-        openDonateModal();
+        setTimeout(() => {
+          openDonateModal();
+        }, 10);
       }
     });
 

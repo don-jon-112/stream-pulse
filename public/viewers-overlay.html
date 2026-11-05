@@ -207,11 +207,17 @@
     .p-mini-dot.tiktok { color: #06b6d4; }
 
     /* --- LAYOUT 2: MULTI-PLATFORM PILLS --- */
-    .layout-pills .viewers-widget {
+    .layout-pills .viewers-widget,
+    .layout-minimal .viewers-widget {
       background: transparent !important;
+      background-color: transparent !important;
       border: none !important;
       box-shadow: none !important;
-      padding: 0;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      animation: none !important;
+      filter: none !important;
+      padding: 0 !important;
       gap: 10px;
       flex-wrap: wrap;
     }
@@ -229,6 +235,16 @@
       font-size: 1.05rem;
       line-height: 1;
     }
+    .theme-neon .platform-pill {
+      background: rgba(10, 10, 20, 0.92) !important;
+      border: 1.5px solid #06b6d4 !important;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.4), inset 0 0 8px rgba(168, 85, 247, 0.25) !important;
+      color: #f8fafc !important;
+    }
+    .theme-neon .platform-pill.total { border-color: #38bdf8 !important; }
+    .theme-neon .platform-pill.twitch { border-color: #a855f7 !important; box-shadow: 0 0 12px rgba(168, 85, 247, 0.4) !important; }
+    .theme-neon .platform-pill.youtube { border-color: #ef4444 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important; }
+    .theme-neon .platform-pill.tiktok { border-color: #25f4ee !important; box-shadow: 0 0 12px rgba(37, 244, 238, 0.4) !important; }
     .platform-pill svg {
       width: 17px;
       height: 17px;
@@ -548,36 +564,58 @@
         }
       }
 
-      // Channel Resolution (From URL query params or localStorage)
-      function resolveChannels() {
+      // Channel Resolution (From URL query params, user token, or localStorage)
+      async function resolveChannels() {
         let ch = { twitch: '', youtube: '', tiktok: '' };
-        try {
-          const raw = localStorage.getItem('streampulse_user_channels') ||
-                      localStorage.getItem('streampulse_my_channels') ||
-                      localStorage.getItem('streampulse_guest_channels');
-          if (raw) ch = JSON.parse(raw);
-        } catch (e) {}
+        const qToken = params.get('token') || localStorage.getItem('streampulse_user_token');
+        const qUser = params.get('user') || params.get('username');
+
+        // Jika ada token / username di URL, ambil saluran cloud dari server
+        if (qToken || qUser) {
+          try {
+            const queryStr = qToken ? `token=${encodeURIComponent(qToken)}` : `user=${encodeURIComponent(qUser)}`;
+            const res = await fetch(`/api/dock/config?${queryStr}`);
+            if (res.ok) {
+              const cfg = await res.json();
+              if (cfg.success && cfg.channels) {
+                ch = cfg.channels;
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (!ch.twitch && !ch.youtube && !ch.tiktok) {
+          try {
+            const raw = localStorage.getItem('streampulse_user_channels') ||
+                        localStorage.getItem('streampulse_my_channels') ||
+                        localStorage.getItem('streampulse_guest_channels');
+            if (raw) ch = JSON.parse(raw);
+          } catch (e) {}
+        }
 
         return {
           twitch: (params.get('twitch') || ch.twitch || '').trim().toLowerCase().replace(/^[#@]/, ''),
           youtube: (params.get('youtube') || ch.youtube || '').trim(),
-          tiktok: (params.get('tiktok') || ch.tiktok || '').trim().replace(/^@/, '')
+          tiktok: (params.get('tiktok') || ch.tiktok || '').trim().replace(/^@/, ''),
+          userToken: qToken || ''
         };
       }
 
       // Initialize Socket.IO
-      function initSocket() {
+      async function initSocket() {
         renderLayout();
 
-        const channels = resolveChannels();
-        const userToken = localStorage.getItem('streampulse_user_token') || '';
+        const resolved = await resolveChannels();
+        const userToken = resolved.userToken || '';
 
         const socket = io({ transports: ['websocket', 'polling'] });
 
         socket.on('connect', () => {
           console.log('[Viewers Overlay] Connected to StreamPulse socket');
           socket.emit('update_channels', {
-            ...channels,
+            twitch: resolved.twitch,
+            youtube: resolved.youtube,
+            tiktok: resolved.tiktok,
             userToken: userToken
           });
         });
@@ -614,3 +652,4 @@
   </script>
 </body>
 </html>
+

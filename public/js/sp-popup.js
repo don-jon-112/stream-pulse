@@ -954,10 +954,10 @@
     // Update Language Toggle Button in Header
     document.querySelectorAll('.btn-lang-toggle').forEach(btn => {
       if (currentLang === 'id') {
-        btn.innerHTML = `<span style="font-size:1.1rem; line-height:1;">🇮🇩</span> <span>ID</span>`;
+        btn.innerHTML = `<span style="font-size:1.1rem; line-height:1;">🇮🇩</span>`;
         btn.title = "Ganti Bahasa ke English (Switch to English)";
       } else {
-        btn.innerHTML = `<span style="font-size:1.1rem; line-height:1;">🇬🇧</span> <span>EN</span>`;
+        btn.innerHTML = `<span style="font-size:1.1rem; line-height:1;">🇬🇧</span>`;
         btn.title = "Switch Language to Bahasa Indonesia";
       }
     });

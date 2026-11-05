@@ -43,6 +43,7 @@
   const connDot = document.getElementById('dock-conn-dot');
   const scrollBottomBtn = document.getElementById('btn-scroll-bottom');
   const counterLabel = document.getElementById('dock-counter-label');
+  const btnCopyDockUrl = document.getElementById('btn-copy-dock-url');
 
   // Viewer counts
   const countTwitchEl = document.getElementById('count-twitch');
@@ -308,6 +309,27 @@
   if (btnDockSettings) btnDockSettings.addEventListener('click', openDockSettings);
   if (btnCloseDockSettings) btnCloseDockSettings.addEventListener('click', closeDockSettings);
   if (btnCancelDockSettings) btnCancelDockSettings.addEventListener('click', closeDockSettings);
+
+  if (btnCopyDockUrl) {
+    btnCopyDockUrl.addEventListener('click', async () => {
+      try {
+        const fullUrl = window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(fullUrl);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = fullUrl;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+        }
+        showFeedback('✓ URL OBS Dock berhasil disalin!', 'success', 3000);
+      } catch (err) {
+        showFeedback('Gagal menyalin URL', 'error', 3000);
+      }
+    });
+  }
 
   if (btnSaveDockSettings) {
     btnSaveDockSettings.addEventListener('click', async () => {
@@ -721,7 +743,10 @@
 
     const author = chat.author || {};
     const authorName = author.name || 'Penonton';
-    const authorColor = ensureContrastForLightBg(author.color, '#0f172a');
+    let authorColor = ensureContrastForLightBg(author.color, '#0f172a');
+    if (chat.platform === 'tiktok') {
+      authorColor = isDarkModeActive() ? '#25f4ee' : '#008f9c';
+    }
     const initial = (authorName[0] || '?').toUpperCase();
     const avatarHtml = author.avatar
       ? `<img src="${escapeHtml(author.avatar)}" class="dock-chat-avatar" alt="${escapeHtml(authorName)}" loading="lazy" onerror="this.onerror=null; this.outerHTML='<div class=\\'dock-chat-avatar\\'>${initial}</div>'">`

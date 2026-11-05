@@ -1478,7 +1478,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const author = chat.author || {};
     const authorName = author.name || 'Anonymous';
-    const authorColor = ensureContrastForLightBg(author.color, '#0f172a');
+    const isDarkTheme = isDarkModeActive();
+    let authorColor = ensureContrastForLightBg(author.color, '#0f172a');
+    if (chat.platform === 'tiktok') {
+      authorColor = isDarkTheme ? '#25f4ee' : '#008f9c';
+    }
     const initial = (authorName[0] || '?').toUpperCase();
     const showAvatar = !state.hideAvatars;
     const avatarImg = showAvatar
@@ -1580,13 +1584,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const stickerHtml = evt.stickerUrl ? `<div style="margin-top: 6px;"><img src="${escapeHtml(evt.stickerUrl)}" alt="Super Sticker" style="max-height: 70px; border-radius: 8px;"></div>` : '';
     const iconHtml = evt.icon ? `<div style="margin-top: 4px;"><img src="${escapeHtml(evt.icon)}" alt="Gift Icon" style="max-height: 48px; border-radius: 6px;"></div>` : '';
 
+    const evtAuthorColor = evt.platform === 'tiktok' 
+      ? (isDarkModeActive() ? '#25f4ee' : '#008f9c')
+      : ensureContrastForLightBg(evt.authorColor || '', '#0f172a');
+
     item.innerHTML = `
       ${avatarImg}
       <div class="chat-content">
         <div class="chat-meta">
           ${platBadge}
           ${badgePill}
-          <span class="author-name" style="color: ${escapeHtml(ensureContrastForLightBg(evt.authorColor || '', '#0f172a'))}; font-weight:800;">${escapeHtml(authorName)}</span>
+          <span class="author-name" style="color: ${escapeHtml(evtAuthorColor)}; font-weight:800;">${escapeHtml(authorName)}</span>
           <span class="chat-time">${formatTime(evt.timestamp)}</span>
         </div>
         <div class="event-highlight-text">

@@ -1985,8 +1985,9 @@ body.obs-mode #exitObsBtn {
   padding: 16px;
 }
 
-.modal-backdrop.show {
-  display: flex;
+.modal-backdrop.show,
+.modal-backdrop.active {
+  display: flex !important;
   animation: modal-fade-in 0.2s ease;
 }
 
@@ -2978,6 +2979,14 @@ body.dark-mode {
   background: rgba(255, 0, 51, 0.1) !important;
   border-color: rgba(255, 0, 51, 0.3) !important;
   border-left: 3px solid #ff0033 !important;
+}
+
+:root[data-theme="dark"] .chat-item[data-platform="tiktok"] .author-name,
+:root[data-theme="dark"] .chat-item.event-item.tiktok-gift .author-name,
+:root[data-theme="dark"] .chat-item.event-item.tiktok-sub .author-name,
+:root[data-theme="dark"] .dock-chat-item[data-platform="tiktok"] .dock-chat-author,
+:root[data-theme="dark"] .platform-chip.tiktok.connected {
+  color: #25f4ee !important; /* TikTok Bright Glowing Cyan in Dark Mode */
 }
 
 :root[data-theme="dark"] .chat-item.event-item.tiktok-gift {

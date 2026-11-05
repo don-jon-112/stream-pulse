@@ -810,6 +810,10 @@
         </div>
       </div>
       <div class="dock-header-actions">
+        <button class="dock-btn-icon" id="btn-copy-dock-url" title="Salin URL OBS Dock Pribadi">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+
         <button class="dock-btn-icon" id="btn-dock-settings" title="Pengaturan Saluran / Akun">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Atur
@@ -940,11 +944,13 @@
           <input type="text" id="dock-input-tiktok" class="dock-modal-input" placeholder="Username (@...) atau Room ID TikTok...">
         </div>
 
-        <div class="dock-form-field" style="margin-top: 6px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
-          <label class="dock-form-label">Tautkan Akun Web (User Token / Username)</label>
-          <input type="text" id="dock-input-user-token" class="dock-modal-input" placeholder="Username atau Token akun Anda...">
-          <div style="font-size: 0.67rem; color: var(--text-muted); margin-top: 3px; line-height: 1.35;">
-            💡 Masukkan username web Anda untuk otomatis menarik izin kirim chat & token event Twitch.
+        <div class="dock-form-field" style="margin-top: 8px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
+          <div style="font-size: 0.73rem; font-weight: 600; color: #38bdf8; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Otorisasi & Token Otomatis</span>
+          </div>
+          <div style="font-size: 0.69rem; color: var(--text-muted); line-height: 1.45;">
+            Izin kirim chat & token event Twitch ditarik otomatis dari server berdasarkan channel Twitch Anda yang sudah login di Dashboard web. Anda tidak perlu memasukkan token manual.
           </div>
         </div>
       </div>
