@@ -256,9 +256,9 @@
       flex-direction: column;
       gap: 12px;
       position: sticky;
-      top: 76px;
+      top: 72px;
       align-self: start;
-      max-height: calc(100vh - 96px);
+      max-height: calc(100vh - 88px);
       overflow-y: auto;
       padding: 0 4px;
     }
@@ -354,9 +354,9 @@
       gap: 16px;
       overflow-y: auto;
       position: sticky;
-      top: 76px;
+      top: 72px;
       align-self: start;
-      max-height: calc(100vh - 96px);
+      max-height: calc(100vh - 88px);
       box-shadow: none;
       z-index: 20;
       box-sizing: border-box;
@@ -867,9 +867,8 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      position: sticky;
-      top: 76px;
-      align-self: start;
+      position: relative;
+      min-width: 0;
     }
 
     .preview-window {
@@ -2947,6 +2946,9 @@
         if (settingFontFamily && settingFontFamily.value && settingFontFamily.value !== 'default') {
           url += `&font=${encodeURIComponent(settingFontFamily.value)}`;
         }
+        if (settingShowAvatars && !settingShowAvatars.checked) {
+          url += '&avatars=0';
+        }
         return url;
       }
 
@@ -3808,6 +3810,7 @@
         if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
         if (!settingShowYtBadges.checked) fullUrl += '&ytBadges=0';
         if (settingShowPlatformIcons && !settingShowPlatformIcons.checked) fullUrl += '&platformIcons=0';
+        if (settingShowAvatars && !settingShowAvatars.checked) fullUrl += '&avatars=0';
         if (settingFontFamily && settingFontFamily.value && settingFontFamily.value !== 'default') {
           fullUrl += `&font=${encodeURIComponent(settingFontFamily.value)}`;
         }
@@ -4528,24 +4531,28 @@
           name: 'pixel_pirate',
           platform: 'twitch',
           color: '#f97316',
+          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
           text: 'first time catching this live! 👋'
         },
         {
           name: 'Maya Chen',
           platform: 'youtube',
           color: '#ef4444',
+          avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
           text: 'hello from Lisbon 👏 the overlay looks so clean'
         },
         {
           name: 'KopiTubruk',
           platform: 'tiktok',
           color: '#00f2fe',
+          avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&h=100&fit=crop&crop=face',
           text: 'Halo bang! Nyimak sambil ngopi sore nih santai ☕'
         },
         {
           name: 'nightowl_42',
           platform: 'twitch',
           color: '#9333ea',
+          avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop&crop=face',
           badges: { moderator: '1' },
           isMod: true,
           text: 'welcome in everyone, be nice in chat'
@@ -4554,24 +4561,28 @@
           name: 'Sam Ortiz',
           platform: 'youtube',
           color: '#ef4444',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
           text: 'can you explain that last part again?'
         },
         {
           name: 'Siti_Cantik',
           platform: 'tiktok',
           color: '#ff70a6',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
           text: 'Semangat terus live-nya bang, seru banget! ✨'
         },
         {
           name: 'kiwi_codes',
           platform: 'twitch',
           color: '#a3e635',
+          avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face',
           text: 'that boss fight PogChamp'
         },
         {
           name: 'IndoGamer99',
           platform: 'youtube',
           color: '#f59e0b',
+          avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
           text: 'Mantap bang gameplay-nya GGWP! 🔥'
         }
       ];
@@ -4634,6 +4645,7 @@
           platform: sample.platform || 'twitch',
           author: {
             name: sample.name,
+            avatar: sample.avatar || '',
             color: sample.color || '',
             badges: sample.badges || {},
             isMod: !!sample.isMod,
@@ -4702,6 +4714,7 @@
                 platform: sample.platform || 'twitch',
                 author: {
                   name: sample.name,
+                  avatar: sample.avatar || '',
                   color: sample.color || '',
                   badges: sample.badges || {},
                   isMod: !!sample.isMod,
@@ -4729,7 +4742,11 @@
                 id: 'sim_link_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 isSim: true,
                 platform: 'twitch',
-                author: { name: 'Chatter123', color: '#38bdf8' },
+                author: {
+                  name: 'Chatter123',
+                  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
+                  color: '#38bdf8'
+                },
                 text: 'Cek gameplay mantap ini https://youtube.com/watch?v=123 dan https://discord.gg/xyz gan!',
                 timestamp: Date.now()
               }
@@ -4751,6 +4768,7 @@
                 platform: 'twitch',
                 author: {
                   name: 'ProGamerVIP',
+                  avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&h=100&fit=crop&crop=face',
                   color: '#00f2fe',
                   badges: { vip: '1', moderator: '1' }
                 },
@@ -5147,6 +5165,7 @@
           platform,
           author: {
             name: authorName,
+            avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face`,
             color: authorColor,
             isMod,
             isSub,

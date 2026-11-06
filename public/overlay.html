@@ -245,6 +245,13 @@
       color: #fff;
     }
 
+    body.hide-avatars .overlay-avatar {
+      display: none !important;
+    }
+    body.hide-avatars .overlay-item {
+      padding-left: 12px !important;
+    }
+
     .overlay-body {
       display: flex;
       flex-direction: column;
@@ -2076,6 +2083,9 @@
             showPlatformIcons: urlParams.get('platformIcons') !== null
               ? (urlParams.get('platformIcons') !== '0')
               : (profile.showPlatformIcons !== undefined ? profile.showPlatformIcons : true),
+            showAvatars: urlParams.get('avatars') !== null
+              ? (urlParams.get('avatars') !== '0')
+              : (profile.showAvatars !== undefined ? profile.showAvatars : true),
             authorColor: urlParams.get('authorColor') || profile.authorColor || config.authorColor,
             useTwitchColors: urlParams.get('useTwitchColors') !== null
               ? (urlParams.get('useTwitchColors') !== '0')
@@ -2118,6 +2128,9 @@
       }
       if (config.showPlatformIcons === false) {
         document.body.classList.add('hide-platform-icons');
+      }
+      if (config.showAvatars === false) {
+        document.body.classList.add('hide-avatars');
       }
       if (config.fontSize) {
         document.documentElement.style.fontSize = `${config.fontSize}px`;
@@ -3173,6 +3186,14 @@
               document.body.classList.add('hide-platform-icons');
             } else {
               document.body.classList.remove('hide-platform-icons');
+            }
+          }
+          if (newCfg.showAvatars !== undefined) {
+            config.showAvatars = newCfg.showAvatars;
+            if (config.showAvatars === false) {
+              document.body.classList.add('hide-avatars');
+            } else {
+              document.body.classList.remove('hide-avatars');
             }
           }
           if (newCfg.showTikTokLikes !== undefined) config.showTikTokLikes = newCfg.showTikTokLikes;
