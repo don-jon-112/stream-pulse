@@ -1270,12 +1270,12 @@
         if (isActive) {
           wakelockBtn.classList.add('active');
           wakelockBtn.classList.remove('inactive');
-          if (wakelockLabel) wakelockLabel.textContent = 'Always On';
+          if (wakelockLabel) wakelockLabel.textContent = '';
           wakelockBtn.title = 'Layar Aktif (Anti-Sleep ON) - Layar dicegah mati atau tidur otomatis';
         } else {
           wakelockBtn.classList.remove('active');
           wakelockBtn.classList.add('inactive');
-          if (wakelockLabel) wakelockLabel.textContent = 'Auto-Sleep';
+          if (wakelockLabel) wakelockLabel.textContent = '';
           wakelockBtn.title = 'Layar Normal (Auto-Sleep) - Klik untuk mengaktifkan mode Always On';
         }
       });
