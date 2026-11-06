@@ -188,10 +188,18 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 
-// Tiered Caching & ETag Configuration:
-// - API: no-store
+// Tiered Caching & Performance Header Configuration:
+// - API secara umum: no-store (real-time data)
 // - HTML: no-cache dengan revalidasi ETag (304 jika tidak berubah)
-// - Aset statis (JS, CSS, Gambar, Font): 1 jam cache dengan ETag
+// - Media Statis (Gambar, Audio, Font): 1 hari cache + stale-while-revalidate 7 hari
+// - Code Assets (JS, CSS): 1 jam cache dengan revalidasi ETag
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  }
+  next();
+});
+
 app.use('/api', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   next();
@@ -201,10 +209,13 @@ app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: 3600000,
   etag: true,
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) {
+    const lower = filePath.toLowerCase();
+    if (lower.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    } else if (/\.(png|jpe?g|gif|webp|svg|ico|mp3|wav|ogg|woff2?|ttf|eot)$/i.test(lower)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
     } else {
-      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
     }
   }
 }));
@@ -553,6 +564,7 @@ app.get('/api/events', (req, res) => {
 });
 
 app.get('/api/emotes/global', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
   res.json(emoteManager.getGlobalEmotes ? emoteManager.getGlobalEmotes() : {});
 });
 
