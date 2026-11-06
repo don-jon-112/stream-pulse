@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok LIVE Overlay - StreamPulse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: transparent !important;
+      overflow: hidden;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #fff;
+    }
+
+    /* Container */
+    #overlay-root {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Common Card Styles */
+    .tt-glass-panel {
+      background: rgba(15, 17, 26, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    .tt-neon-border {
+      position: relative;
+    }
+    .tt-neon-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, #00f2fe, #fe2c55);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* ========================================================
+       1. TOP GIFTER WIDGET
+       ======================================================== */
+    .widget-gifter-wrap {
+      padding: 16px;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .widget-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .widget-title svg {
+      width: 18px;
+      height: 18px;
+    }
+    .widget-badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 215, 0, 0.18);
+      color: #ffd700;
+      font-weight: 800;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    /* Podium Layout */
+    .podium-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      padding-top: 24px;
+      margin-bottom: 14px;
+      min-height: 190px;
+    }
+    .podium-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      max-width: 120px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .podium-avatar-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .podium-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 3px solid #71717a;
+      object-fit: cover;
+      background: #27272a;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    .podium-col.rank-1 .podium-avatar {
+      width: 68px;
+      height: 68px;
+      border-color: #ffd700;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    .podium-col.rank-2 .podium-avatar {
+      border-color: #e2e8f0;
+      box-shadow: 0 0 14px rgba(226, 232, 240, 0.4);
+    }
+    .podium-col.rank-3 .podium-avatar {
+      border-color: #cd7f32;
+      box-shadow: 0 0 14px rgba(205, 127, 50, 0.4);
+    }
+    .podium-crown {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.3rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+      animation: crownBounce 2s ease-in-out infinite;
+    }
+    @keyframes crownBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-4px); }
+    }
+    .podium-rank-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -2px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: #000;
+    }
+    .podium-col.rank-1 .podium-rank-badge { background: #ffd700; }
+    .podium-col.rank-2 .podium-rank-badge { background: #e2e8f0; }
+    .podium-col.rank-3 .podium-rank-badge { background: #cd7f32; }
+
+    .podium-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      max-width: 100px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+    .podium-score {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+    .podium-block {
+      width: 100%;
+      border-radius: 10px 10px 4px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      margin-top: 6px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .podium-col.rank-1 .podium-block {
+      height: 80px;
+      background: linear-gradient(180deg, rgba(255,215,0,0.35) 0%, rgba(255,215,0,0.12) 100%);
+      color: #ffd700;
+      border: 1px solid rgba(255,215,0,0.3);
+    }
+    .podium-col.rank-2 .podium-block {
+      height: 58px;
+      background: linear-gradient(180deg, rgba(226,232,240,0.3) 0%, rgba(226,232,240,0.1) 100%);
+      color: #e2e8f0;
+      border: 1px solid rgba(226,232,240,0.25);
+    }
+    .podium-col.rank-3 .podium-block {
+      height: 42px;
+      background: linear-gradient(180deg, rgba(205,127,50,0.3) 0%, rgba(205,127,50,0.1) 100%);
+      color: #cd7f32;
+      border: 1px solid rgba(205,127,50,0.25);
+    }
+
+    /* List Layout (Rank 4, 5 or full list mode) */
+    .gifter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .gifter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.3s ease;
+    }
+    .gifter-item.flash-update {
+      animation: flashItem 0.6s ease-out;
+    }
+    @keyframes flashItem {
+      0% { background: rgba(0, 242, 254, 0.4); transform: scale(1.02); }
+      100% { background: rgba(255, 255, 255, 0.04); transform: scale(1); }
+    }
+    .gifter-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .gifter-item-rank {
+      font-size: 0.8rem;
+      font-weight: 800;
+      width: 20px;
+      text-align: center;
+      color: #94a3b8;
+    }
+    .gifter-item-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #27272a;
+    }
+    .gifter-item-name {
+      font-size: 0.84rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+    .gifter-item-score {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #00f2fe;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* ========================================================
+       2. TOP LIKE WIDGET
+       ======================================================== */
+    .widget-likes-wrap {
+      padding: 16px;
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+    .like-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .like-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .like-item.rank-1 {
+      background: linear-gradient(90deg, rgba(254, 44, 85, 0.18) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border-color: rgba(254, 44, 85, 0.4);
+    }
+    .like-item-pulse {
+      animation: pulseLike 0.4s ease-out;
+    }
+    @keyframes pulseLike {
+      0% { transform: scale(1.04); box-shadow: 0 0 16px rgba(254, 44, 85, 0.6); }
+      100% { transform: scale(1); box-shadow: none; }
+    }
+    .like-item-score {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #fe2c55;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .heart-beat {
+      display: inline-block;
+      animation: beat 1.2s ease infinite;
+    }
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      20% { transform: scale(1.25); }
+      40% { transform: scale(1.1); }
+      60% { transform: scale(1.2); }
+    }
+
+    /* ========================================================
+       3. GIFT JAR (PHYSICS ENGINE CANVAS)
+       ======================================================== */
+    .jar-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .jar-container {
+      position: relative;
+      width: 320px;
+      height: 480px;
+      margin: 0 auto;
+    }
+    /* Stylized Glass Jar Frame */
+    .jar-glass {
+      position: absolute;
+      inset: 0;
+      border-radius: 24px 24px 50px 50px;
+      border: 4px solid rgba(255, 255, 255, 0.35);
+      border-top: 10px solid rgba(200, 220, 255, 0.6);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.25) 100%);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6),
+                  inset 0 0 25px rgba(255, 255, 255, 0.15),
+                  inset 4px 0 12px rgba(255, 255, 255, 0.3),
+                  inset -4px 0 12px rgba(255, 255, 255, 0.2);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .jar-neck {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 20px;
+      border-radius: 8px 8px 0 0;
+      background: rgba(220, 235, 255, 0.35);
+      border: 3px solid rgba(255, 255, 255, 0.4);
+      border-bottom: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 11;
+    }
+    .jar-specular {
+      position: absolute;
+      top: 24px;
+      left: 18px;
+      width: 14px;
+      height: 75%;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.02) 100%);
+      pointer-events: none;
+      z-index: 12;
+    }
+    #jarCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+    }
+    .jar-info-hud {
+      position: absolute;
+      bottom: -46px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 260px;
+      z-index: 20;
+    }
+    .jar-progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.15);
+      overflow: hidden;
+    }
+    .jar-progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00f2fe, #fe2c55);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
+    }
+    .jar-counter-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #e2e8f0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* ========================================================
+       4. LIKE WATERFALL / RAIN
+       ======================================================== */
+    #waterfallCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .avatar-burst-container {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .avatar-burst-card {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px 6px 8px;
+      border-radius: 999px;
+      background: rgba(15, 17, 26, 0.88);
+      border: 2px solid #fe2c55;
+      box-shadow: 0 8px 24px rgba(254, 44, 85, 0.5);
+      backdrop-filter: blur(8px);
+      animation: floatBurst 4s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+      pointer-events: none;
+    }
+    @keyframes floatBurst {
+      0% { opacity: 0; transform: translateY(40px) scale(0.6); }
+      15% { opacity: 1; transform: translateY(0) scale(1.05); }
+      25% { transform: translateY(-8px) scale(1); }
+      80% { opacity: 1; transform: translateY(-160px) scale(1); }
+      100% { opacity: 0; transform: translateY(-240px) scale(0.8); }
+    }
+    .avatar-burst-pic {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+    }
+    .avatar-burst-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .avatar-burst-name {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #fff;
+      max-width: 130px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .avatar-burst-count {
+      font-size: 0.76rem;
+      font-weight: 900;
+      color: #fe2c55;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* ========================================================
+       5. TIKTOK ALERTS OVERLAY (GIFT STREAK, FOLLOW, SHARE)
+       ======================================================== */
+    .alerts-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px;
+      pointer-events: none;
+    }
+    .tt-alert-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 22px;
+      border-radius: 20px;
+      background: rgba(15, 17, 26, 0.92);
+      border: 2px solid rgba(0, 242, 254, 0.6);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 242, 254, 0.35);
+      backdrop-filter: blur(14px);
+      transform-origin: center;
+      animation: alertIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      pointer-events: auto;
+      max-width: 520px;
+      width: 100%;
+    }
+    .tt-alert-card.gift-alert {
+      border-color: #fe2c55;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(254, 44, 85, 0.4);
+    }
+    .tt-alert-card.alert-out {
+      animation: alertOut 0.4s ease-in forwards !important;
+    }
+    @keyframes alertIn {
+      0% { opacity: 0; transform: translateY(-40px) scale(0.85); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes alertOut {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+    }
+    .alert-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .alert-avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+    }
+    .alert-icon-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      border: 1.5px solid #fff;
+    }
+    .alert-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .alert-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #00f2fe;
+      margin-bottom: 2px;
+    }
+    .gift-alert .alert-title {
+      color: #fe2c55;
+    }
+    .alert-user {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .alert-detail {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    /* Streak Combo Pill */
+    .alert-streak-pill {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fe2c55, #ff0055);
+      color: #fff;
+      font-weight: 900;
+      box-shadow: 0 4px 16px rgba(254, 44, 85, 0.6);
+      animation: streakBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes streakBounce {
+      0% { transform: scale(0.6) rotate(-10deg); }
+      70% { transform: scale(1.25) rotate(5deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    .streak-multiplier {
+      font-size: 1.3rem;
+      line-height: 1;
+      font-family: 'Nunito', sans-serif;
+    }
+    .streak-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    /* Fallback / Empty States */
+    .empty-state {
+      text-align: center;
+      padding: 24px 12px;
+      color: #64748b;
+      font-size: 0.84rem;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay-root"></div>
+
+  <script src="/js/socket.io.min.js"></script>
+  <script>
+    (function () {
+      // Parse Query Parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const pathname = window.location.pathname.toLowerCase();
+
+      // Determine active widget
+      let activeWidget = urlParams.get('widget') || 'all';
+      if (pathname.includes('top-gifter')) activeWidget = 'top-gifter';
+      else if (pathname.includes('top-likes')) activeWidget = 'top-likes';
+      else if (pathname.includes('gift-jar')) activeWidget = 'gift-jar';
+      else if (pathname.includes('like-waterfall')) activeWidget = 'like-waterfall';
+      else if (pathname.includes('alert')) activeWidget = 'alerts';
+
+      const config = {
+        widget: activeWidget,
+        channel: urlParams.get('channel') || '',
+        limit: parseInt(urlParams.get('limit') || '5', 10),
+        goal: parseInt(urlParams.get('goal') || '50', 10),
+        direction: urlParams.get('direction') || 'up', // 'up' or 'down'
+        sound: urlParams.get('sound') !== '0',
+        volume: parseInt(urlParams.get('volume') || '75', 10) / 100,
+        layout: urlParams.get('layout') || 'podium' // 'podium' or 'list'
+      };
+
+      const root = document.getElementById('overlay-root');
+
+      // Audio Synthesizer (Zero-dependency Web Audio SFX)
+      let audioCtx = null;
+      function playTone(type) {
+        if (!config.sound) return;
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          gain.gain.setValueAtTime(config.volume * 0.4, now);
+
+          if (type === 'gift') {
+            // Uplifting 3-tone arpeggio (C5 -> E5 -> G5)
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.setValueAtTime(659.25, now + 0.08);
+            osc.frequency.setValueAtTime(783.99, now + 0.16);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.start(now);
+            osc.stop(now + 0.45);
+          } else if (type === 'pop') {
+            // Bubble pop for falling coins
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(200, now + 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+            osc.start(now);
+            osc.stop(now + 0.06);
+          } else if (type === 'follow') {
+            // Pleasant chime ding
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now); // D5
+            osc.frequency.setValueAtTime(880.00, now + 0.1); // A5
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+          } else {
+            // Generic pleasant blip
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          }
+        } catch (e) {
+          console.warn('Audio playback not permitted yet:', e);
+        }
+      }
+
+      // Default Avatars
+      const DEFAULT_AVATARS = [
+        'https://api.dicebear.com/7.x/bottts/svg?seed=tiktok1',
+        'https://api.dicebear.com/7.x/bottts/svg?seed=tiktok2',
+        'https://api.dicebear.com/7.x/bottts/svg?seed=tiktok3',
+        'https://api.dicebear.com/7.x/bottts/svg?seed=tiktok4',
+        'https://api.dicebear.com/7.x/bottts/svg?seed=tiktok5'
+      ];
+      function getAvatar(author, avatarUrl) {
+        if (avatarUrl && avatarUrl.startsWith('http')) return avatarUrl;
+        return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(author || 'streamer')}`;
+      }
+
+      // ========================================================
+      // WIDGET 1: TOP GIFTER STATE & RENDERER
+      // ========================================================
+      let gifterData = [];
+      try {
+        const saved = localStorage.getItem('streampulse_tt_gifters');
+        if (saved) gifterData = JSON.parse(saved);
+      } catch (e) {}
+
+      function saveGifters() {
+        try {
+          localStorage.setItem('streampulse_tt_gifters', JSON.stringify(gifterData));
+        } catch (e) {}
+      }
+
+      function handleGiftEvent(event) {
+        const author = event.author || 'User';
+        const diamonds = Number(event.diamonds) || 10;
+        const avatar = getAvatar(author, event.avatar);
+
+        let existing = gifterData.find(g => g.name.toLowerCase() === author.toLowerCase());
+        if (existing) {
+          existing.diamonds += diamonds;
+          if (avatar && !existing.avatar.includes('dicebear')) existing.avatar = avatar;
+        } else {
+          gifterData.push({
+            name: author,
+            diamonds: diamonds,
+            avatar: avatar
+          });
+        }
+
+        // Sort descending
+        gifterData.sort((a, b) => b.diamonds - a.diamonds);
+        saveGifters();
+        renderTopGifter();
+        playTone('gift');
+      }
+
+      function renderTopGifter() {
+        const container = document.getElementById('widget-top-gifter');
+        if (!container) return;
+
+        const limit = config.limit || 5;
+        const topList = gifterData.slice(0, limit);
+
+        if (topList.length === 0) {
+          container.innerHTML = `
+            <div class="widget-header">
+              <div class="widget-title" style="color:#ffd700;">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+                <span>TOP GIFTER TIKTOK</span>
+              </div>
+              <span class="widget-badge">0 SULTAN</span>
+            </div>
+            <div class="empty-state">Menunggu gift pertama dari penonton... 🎁</div>
+          `;
+          return;
+        }
+
+        // Top 3 for Podium
+        const rank1 = topList[0];
+        const rank2 = topList[1];
+        const rank3 = topList[2];
+
+        let html = `
+          <div class="widget-header">
+            <div class="widget-title" style="color:#ffd700;">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+              <span>TOP GIFTER TIKTOK</span>
+            </div>
+            <span class="widget-badge">💎 SULTAN LIVE</span>
+          </div>
+
+          <div class="podium-container">
+            <!-- Rank 2 (Silver) -->
+            <div class="podium-col rank-2">
+              ${rank2 ? `
+                <div class="podium-avatar-wrap">
+                  <img class="podium-avatar" src="${rank2.avatar}" alt="${rank2.name}">
+                  <span class="podium-rank-badge">2</span>
+                </div>
+                <div class="podium-name">${rank2.name}</div>
+                <div class="podium-score">💎 ${rank2.diamonds.toLocaleString()}</div>
+                <div class="podium-block">2</div>
+              ` : `
+                <div class="podium-block" style="opacity:0.3;">-</div>
+              `}
+            </div>
+
+            <!-- Rank 1 (Gold) -->
+            <div class="podium-col rank-1">
+              ${rank1 ? `
+                <div class="podium-avatar-wrap">
+                  <span class="podium-crown">👑</span>
+                  <img class="podium-avatar" src="${rank1.avatar}" alt="${rank1.name}">
+                  <span class="podium-rank-badge">1</span>
+                </div>
+                <div class="podium-name">${rank1.name}</div>
+                <div class="podium-score">💎 ${rank1.diamonds.toLocaleString()}</div>
+                <div class="podium-block">1</div>
+              ` : `
+                <div class="podium-block" style="opacity:0.3;">-</div>
+              `}
+            </div>
+
+            <!-- Rank 3 (Bronze) -->
+            <div class="podium-col rank-3">
+              ${rank3 ? `
+                <div class="podium-avatar-wrap">
+                  <img class="podium-avatar" src="${rank3.avatar}" alt="${rank3.name}">
+                  <span class="podium-rank-badge">3</span>
+                </div>
+                <div class="podium-name">${rank3.name}</div>
+                <div class="podium-score">💎 ${rank3.diamonds.toLocaleString()}</div>
+                <div class="podium-block">3</div>
+              ` : `
+                <div class="podium-block" style="opacity:0.3;">-</div>
+              `}
+            </div>
+          </div>
+        `;
+
+        // Rank 4 & 5
+        const runnersUp = topList.slice(3);
+        if (runnersUp.length > 0) {
+          html += `<div class="gifter-list">`;
+          runnersUp.forEach((item, idx) => {
+            html += `
+              <div class="gifter-item">
+                <div class="gifter-item-left">
+                  <span class="gifter-item-rank">#${idx + 4}</span>
+                  <img class="gifter-item-avatar" src="${item.avatar}" alt="${item.name}">
+                  <span class="gifter-item-name">${item.name}</span>
+                </div>
+                <span class="gifter-item-score">💎 ${item.diamonds.toLocaleString()}</span>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+
+        container.innerHTML = html;
+      }
+
+      // ========================================================
+      // WIDGET 2: TOP LIKE STATE & RENDERER
+      // ========================================================
+      let likeData = [];
+      try {
+        const saved = localStorage.getItem('streampulse_tt_likes');
+        if (saved) likeData = JSON.parse(saved);
+      } catch (e) {}
+
+      function saveLikes() {
+        try {
+          localStorage.setItem('streampulse_tt_likes', JSON.stringify(likeData));
+        } catch (e) {}
+      }
+
+      function handleLikeEvent(event) {
+        const author = event.author || 'User';
+        const count = Number(event.count || event.likeCount) || 15;
+        const avatar = getAvatar(author, event.avatar);
+
+        let existing = likeData.find(l => l.name.toLowerCase() === author.toLowerCase());
+        if (existing) {
+          existing.likes += count;
+          if (avatar && !existing.avatar.includes('dicebear')) existing.avatar = avatar;
+        } else {
+          likeData.push({
+            name: author,
+            likes: count,
+            avatar: avatar
+          });
+        }
+
+        likeData.sort((a, b) => b.likes - a.likes);
+        saveLikes();
+        renderTopLikes(author);
+      }
+
+      function renderTopLikes(highlightUser) {
+        const container = document.getElementById('widget-top-likes');
+        if (!container) return;
+
+        const limit = config.limit || 5;
+        const topList = likeData.slice(0, limit);
+
+        if (topList.length === 0) {
+          container.innerHTML = `
+            <div class="widget-header">
+              <div class="widget-title" style="color:#fe2c55;">
+                <span class="heart-beat">❤️</span>
+                <span>TOP LIKES TIKTOK</span>
+              </div>
+              <span class="widget-badge" style="background:rgba(254,44,85,0.2); color:#fe2c55; border-color:rgba(254,44,85,0.4);">0 TAP</span>
+            </div>
+            <div class="empty-state">Belum ada yang tap layar live... Tap sekarang! ❤️</div>
+          `;
+          return;
+        }
+
+        let html = `
+          <div class="widget-header">
+            <div class="widget-title" style="color:#fe2c55;">
+              <span class="heart-beat">❤️</span>
+              <span>TOP LIKES TIKTOK</span>
+            </div>
+            <span class="widget-badge" style="background:rgba(254,44,85,0.2); color:#fe2c55; border-color:rgba(254,44,85,0.4);">TAP LEADER</span>
+          </div>
+          <div class="like-list">
+        `;
+
+        topList.forEach((item, idx) => {
+          const isHighlight = highlightUser && item.name.toLowerCase() === highlightUser.toLowerCase();
+          const rankPills = ['🥇', '🥈', '🥉', '#4', '#5'];
+          html += `
+            <div class="like-item ${idx === 0 ? 'rank-1' : ''} ${isHighlight ? 'like-item-pulse' : ''}">
+              <div class="gifter-item-left">
+                <span class="gifter-item-rank">${rankPills[idx] || '#' + (idx + 1)}</span>
+                <img class="gifter-item-avatar" src="${item.avatar}" alt="${item.name}">
+                <span class="gifter-item-name">${item.name}</span>
+              </div>
+              <span class="like-item-score">❤️ ${item.likes.toLocaleString()}</span>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+        container.innerHTML = html;
+      }
+
+      // ========================================================
+      // WIDGET 3: GIFT JAR (2D Physics Engine Canvas)
+      // ========================================================
+      let jarParticles = [];
+      let jarCanvas, jarCtx;
+      let jarGoal = config.goal || 50;
+      let currentJarCount = 0;
+
+      const GIFT_ITEMS = [
+        { emoji: '🌹', color: '#ff2d55', r: 16 },
+        { emoji: '🍩', color: '#f59e0b', r: 17 },
+        { emoji: '☕', color: '#8b5cf6', r: 16 },
+        { emoji: '🐶', color: '#ec4899', r: 18 },
+        { emoji: '🐳', color: '#06b6d4', r: 20 },
+        { emoji: '👑', color: '#eab308', r: 19 },
+        { emoji: '🪙', color: '#e2e8f0', r: 15 }
+      ];
+
+      function initGiftJar() {
+        jarCanvas = document.getElementById('jarCanvas');
+        if (!jarCanvas) return;
+        jarCtx = jarCanvas.getContext('2d');
+
+        const rect = jarCanvas.getBoundingClientRect();
+        jarCanvas.width = 320;
+        jarCanvas.height = 480;
+
+        // Start Physics Animation Loop
+        requestAnimationFrame(updateJarPhysics);
+      }
+
+      function spawnJarGift(giftType) {
+        if (!jarCanvas) return;
+        const itemTemplate = GIFT_ITEMS[Math.floor(Math.random() * GIFT_ITEMS.length)];
+        
+        const spawnX = jarCanvas.width / 2 + (Math.random() * 80 - 40);
+        const p = {
+          x: spawnX,
+          y: 20,
+          vx: (Math.random() - 0.5) * 3,
+          vy: Math.random() * 2 + 1,
+          r: itemTemplate.r,
+          emoji: giftType?.emoji || itemTemplate.emoji,
+          color: giftType?.color || itemTemplate.color,
+          rotation: Math.random() * Math.PI * 2,
+          vRot: (Math.random() - 0.5) * 0.1,
+          bounces: 0
+        };
+        jarParticles.push(p);
+        currentJarCount++;
+        updateJarHud();
+        playTone('pop');
+
+        // Target reached check
+        if (currentJarCount === jarGoal) {
+          triggerJarCelebration();
+        }
+      }
+
+      function updateJarHud() {
+        const fillEl = document.getElementById('jarProgressFill');
+        const countEl = document.getElementById('jarCountLabel');
+        if (fillEl) {
+          const pct = Math.min(100, Math.round((currentJarCount / jarGoal) * 100));
+          fillEl.style.width = pct + '%';
+        }
+        if (countEl) {
+          countEl.textContent = `${currentJarCount} / ${jarGoal} GIFTS`;
+        }
+      }
+
+      function triggerJarCelebration() {
+        playTone('follow');
+        // Visual shake
+        const container = document.querySelector('.jar-container');
+        if (container) {
+          container.style.animation = 'pulseLike 0.6s ease';
+          setTimeout(() => { container.style.animation = ''; }, 600);
+        }
+      }
+
+      function updateJarPhysics() {
+        if (!jarCtx || !jarCanvas) return;
+
+        jarCtx.clearRect(0, 0, jarCanvas.width, jarCanvas.height);
+
+        const gravity = 0.35;
+        const bounce = 0.45;
+        const friction = 0.985;
+        const floorY = jarCanvas.height - 22;
+        const leftWall = 22;
+        const rightWall = jarCanvas.width - 22;
+
+        for (let i = 0; i < jarParticles.length; i++) {
+          const p = jarParticles[i];
+
+          p.vy += gravity;
+          p.vx *= friction;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rotation += p.vRot;
+
+          // Wall Collisions
+          if (p.x - p.r < leftWall) {
+            p.x = leftWall + p.r;
+            p.vx = -p.vx * bounce;
+          } else if (p.x + p.r > rightWall) {
+            p.x = rightWall - p.r;
+            p.vx = -p.vx * bounce;
+          }
+
+          // Floor Collision
+          if (p.y + p.r > floorY) {
+            p.y = floorY - p.r;
+            p.vy = -p.vy * bounce;
+            p.vx *= 0.85;
+            p.vRot *= 0.85;
+          }
+
+          // Particle-Particle Collisions (simple circle relaxation)
+          for (let j = i + 1; j < jarParticles.length; j++) {
+            const p2 = jarParticles[j];
+            const dx = p2.x - p.x;
+            const dy = p2.y - p.y;
+            const dist = Math.hypot(dx, dy);
+            const minDist = p.r + p2.r;
+
+            if (dist < minDist && dist > 0) {
+              const overlap = (minDist - dist) * 0.5;
+              const nx = dx / dist;
+              const ny = dy / dist;
+
+              p.x -= nx * overlap;
+              p.y -= ny * overlap;
+              p2.x += nx * overlap;
+              p2.y += ny * overlap;
+
+              // Elastic bounce transfer
+              const kx = p.vx - p2.vx;
+              const ky = p.vy - p2.vy;
+              const pVel = 2 * (nx * kx + ny * ky) / 2;
+              p.vx -= pVel * nx * 0.4;
+              p.vy -= pVel * ny * 0.4;
+              p2.vx += pVel * nx * 0.4;
+              p2.vy += pVel * ny * 0.4;
+            }
+          }
+
+          // Render Particle (Spherical ball with emoji badge)
+          jarCtx.save();
+          jarCtx.translate(p.x, p.y);
+          jarCtx.rotate(p.rotation);
+
+          // Ball Circle with gradient
+          const grad = jarCtx.createRadialGradient(-p.r * 0.3, -p.r * 0.3, p.r * 0.1, 0, 0, p.r);
+          grad.addColorStop(0, '#ffffff');
+          grad.addColorStop(0.3, p.color);
+          grad.addColorStop(1, '#0f172a');
+
+          jarCtx.beginPath();
+          jarCtx.arc(0, 0, p.r, 0, Math.PI * 2);
+          jarCtx.fillStyle = grad;
+          jarCtx.shadowColor = 'rgba(0,0,0,0.35)';
+          jarCtx.shadowBlur = 6;
+          jarCtx.fill();
+
+          // Emoji Icon Center
+          jarCtx.font = `${Math.round(p.r * 1.1)}px sans-serif`;
+          jarCtx.textAlign = 'center';
+          jarCtx.textBaseline = 'middle';
+          jarCtx.shadowBlur = 0;
+          jarCtx.fillText(p.emoji, 0, 1);
+
+          jarCtx.restore();
+        }
+
+        requestAnimationFrame(updateJarPhysics);
+      }
+
+      function resetGiftJar() {
+        jarParticles = [];
+        currentJarCount = 0;
+        updateJarHud();
+      }
+
+      // ========================================================
+      // WIDGET 4: LIKE WATERFALL / RAIN
+      // ========================================================
+      let wfCanvas, wfCtx;
+      let wfHearts = [];
+      const HEART_PALETTE = ['#fe2c55', '#ff007f', '#00f2fe', '#ffd700', '#a855f7', '#ff4757'];
+
+      function initWaterfall() {
+        wfCanvas = document.getElementById('waterfallCanvas');
+        if (!wfCanvas) return;
+        wfCtx = wfCanvas.getContext('2d');
+
+        function resize() {
+          wfCanvas.width = window.innerWidth || 400;
+          wfCanvas.height = window.innerHeight || 700;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        requestAnimationFrame(updateWaterfall);
+      }
+
+      function spawnWaterfallHeart(count = 1) {
+        if (!wfCanvas) return;
+        const isUp = config.direction === 'up';
+
+        for (let i = 0; i < count; i++) {
+          wfHearts.push({
+            x: Math.random() * wfCanvas.width,
+            y: isUp ? wfCanvas.height + 20 : -20,
+            vy: isUp ? -(Math.random() * 2.5 + 2) : (Math.random() * 2.5 + 2),
+            vx: (Math.random() - 0.5) * 1.2,
+            size: Math.random() * 16 + 18,
+            color: HEART_PALETTE[Math.floor(Math.random() * HEART_PALETTE.length)],
+            opacity: 1,
+            swayPhase: Math.random() * Math.PI * 2,
+            swaySpeed: Math.random() * 0.04 + 0.02
+          });
+        }
+      }
+
+      function spawnAvatarBurst(author, count, avatar) {
+        const container = document.getElementById('avatarBurstContainer');
+        if (!container) return;
+
+        const burst = document.createElement('div');
+        burst.className = 'avatar-burst-card';
+        burst.style.left = Math.max(10, Math.min(window.innerWidth - 220, Math.random() * (window.innerWidth - 180))) + 'px';
+        burst.style.bottom = (Math.random() * 150 + 40) + 'px';
+
+        burst.innerHTML = `
+          <img class="avatar-burst-pic" src="${getAvatar(author, avatar)}" alt="${author}">
+          <div class="avatar-burst-text">
+            <span class="avatar-burst-name">${author}</span>
+            <span class="avatar-burst-count">❤️ +${count} LIKES</span>
+          </div>
+        `;
+
+        container.appendChild(burst);
+        playTone('pop');
+
+        setTimeout(() => {
+          if (burst.parentNode) burst.parentNode.removeChild(burst);
+        }, 4000);
+      }
+
+      function updateWaterfall() {
+        if (!wfCtx || !wfCanvas) return;
+        wfCtx.clearRect(0, 0, wfCanvas.width, wfCanvas.height);
+
+        const isUp = config.direction === 'up';
+
+        for (let i = wfHearts.length - 1; i >= 0; i--) {
+          const h = wfHearts[i];
+          h.y += h.vy;
+          h.swayPhase += h.swaySpeed;
+          h.x += Math.sin(h.swayPhase) * 1.5;
+
+          // Fade out near edges
+          if (isUp && h.y < 80) h.opacity -= 0.025;
+          else if (!isUp && h.y > wfCanvas.height - 80) h.opacity -= 0.025;
+
+          if (h.opacity <= 0 || (isUp && h.y < -30) || (!isUp && h.y > wfCanvas.height + 30)) {
+            wfHearts.splice(i, 1);
+            continue;
+          }
+
+          // Draw Heart
+          wfCtx.save();
+          wfCtx.globalAlpha = Math.max(0, h.opacity);
+          wfCtx.fillStyle = h.color;
+          wfCtx.font = `${Math.round(h.size)}px sans-serif`;
+          wfCtx.textAlign = 'center';
+          wfCtx.textBaseline = 'middle';
+          wfCtx.shadowColor = h.color;
+          wfCtx.shadowBlur = 8;
+          wfCtx.fillText('❤️', h.x, h.y);
+          wfCtx.restore();
+        }
+
+        requestAnimationFrame(updateWaterfall);
+      }
+
+      // ========================================================
+      // WIDGET 5: TIKTOK ALERT POPUP (STREAKS & QUEUE)
+      // ========================================================
+      const alertQueue = [];
+      let isShowingAlert = false;
+
+      function queueAlert(alertObj) {
+        alertQueue.push(alertObj);
+        if (!isShowingAlert) processNextAlert();
+      }
+
+      function processNextAlert() {
+        if (alertQueue.length === 0) {
+          isShowingAlert = false;
+          return;
+        }
+
+        isShowingAlert = true;
+        const cur = alertQueue.shift();
+        const container = document.getElementById('alertsContainer');
+        if (!container) return;
+
+        const card = document.createElement('div');
+        const isGift = cur.type === 'gift';
+        card.className = `tt-alert-card ${isGift ? 'gift-alert' : ''}`;
+
+        let iconBadge = '🎁';
+        let title = 'TIKTOK GIFT!';
+        if (cur.type === 'follow') {
+          iconBadge = '➕';
+          title = 'NEW FOLLOWER';
+        } else if (cur.type === 'share') {
+          iconBadge = '🚀';
+          title = 'TIKTOK SHARE';
+        } else if (cur.type === 'like') {
+          iconBadge = '❤️';
+          title = 'LIKE MILESTONE';
+        }
+
+        card.innerHTML = `
+          <div class="alert-avatar-wrap">
+            <img class="alert-avatar" src="${getAvatar(cur.author, cur.avatar)}" alt="${cur.author}">
+            <div class="alert-icon-badge">${iconBadge}</div>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">${title}</div>
+            <div class="alert-user">${cur.author}</div>
+            <div class="alert-detail">${cur.detail || cur.text || ''}</div>
+          </div>
+          ${cur.streak && cur.streak > 1 ? `
+            <div class="alert-streak-pill">
+              <span class="streak-multiplier">x${cur.streak}</span>
+              <span class="streak-label">COMBO</span>
+            </div>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+        playTone(isGift ? 'gift' : (cur.type === 'follow' ? 'follow' : 'pop'));
+
+        setTimeout(() => {
+          card.classList.add('alert-out');
+          setTimeout(() => {
+            if (card.parentNode) card.parentNode.removeChild(card);
+            processNextAlert();
+          }, 450);
+        }, 4200);
+      }
+
+      // ========================================================
+      // INITIAL DOM INJECTION BASED ON ACTIVE WIDGET
+      // ========================================================
+      function buildWidgetLayout() {
+        if (activeWidget === 'top-gifter') {
+          root.innerHTML = `
+            <div class="widget-gifter-wrap tt-glass-panel tt-neon-border" id="widget-top-gifter"></div>
+          `;
+          renderTopGifter();
+        } else if (activeWidget === 'top-likes') {
+          root.innerHTML = `
+            <div class="widget-likes-wrap tt-glass-panel tt-neon-border" id="widget-top-likes"></div>
+          `;
+          renderTopLikes();
+        } else if (activeWidget === 'gift-jar') {
+          root.innerHTML = `
+            <div class="jar-wrapper">
+              <div class="jar-container">
+                <div class="jar-neck"></div>
+                <div class="jar-glass"></div>
+                <div class="jar-specular"></div>
+                <canvas id="jarCanvas"></canvas>
+                <div class="jar-info-hud">
+                  <div class="jar-progress-bar-bg">
+                    <div class="jar-progress-bar-fill" id="jarProgressFill"></div>
+                  </div>
+                  <div class="jar-counter-label" id="jarCountLabel">0 / ${jarGoal} GIFTS</div>
+                </div>
+              </div>
+            </div>
+          `;
+          initGiftJar();
+        } else if (activeWidget === 'like-waterfall') {
+          root.innerHTML = `
+            <canvas id="waterfallCanvas"></canvas>
+            <div class="avatar-burst-container" id="avatarBurstContainer"></div>
+          `;
+          initWaterfall();
+        } else if (activeWidget === 'alerts') {
+          root.innerHTML = `
+            <div class="alerts-container" id="alertsContainer"></div>
+          `;
+        } else {
+          // 'all' or combined mode
+          root.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:16px; padding:16px; max-width:440px; margin:0 auto;">
+              <div class="widget-gifter-wrap tt-glass-panel tt-neon-border" id="widget-top-gifter"></div>
+              <div class="widget-likes-wrap tt-glass-panel tt-neon-border" id="widget-top-likes"></div>
+            </div>
+            <div class="alerts-container" id="alertsContainer"></div>
+          `;
+          renderTopGifter();
+          renderTopLikes();
+        }
+      }
+
+      buildWidgetLayout();
+
+      // ========================================================
+      // SOCKET.IO REALTIME EVENT LISTENER
+      // ========================================================
+      try {
+        const socket = io({ transports: ['websocket', 'polling'] });
+
+        socket.on('connect', () => {
+          if (config.channel) {
+            socket.emit('update_channels', {
+              tiktok: config.channel,
+              force: true
+            });
+          }
+        });
+
+        socket.on('new_event', (evt) => {
+          if (!evt) return;
+
+          // Dispatch to appropriate handler
+          if (evt.eventType === 'gift' || evt.type === 'gift') {
+            handleGiftEvent(evt);
+            if (activeWidget === 'gift-jar') spawnJarGift();
+            queueAlert({
+              type: 'gift',
+              author: evt.author,
+              avatar: evt.avatar,
+              detail: evt.detail || `${evt.diamonds || 1} Koin Hadiah`,
+              streak: evt.streak || 1
+            });
+          } else if (evt.eventType === 'like' || evt.type === 'like') {
+            handleLikeEvent(evt);
+            if (activeWidget === 'like-waterfall') {
+              spawnWaterfallHeart(12);
+              spawnAvatarBurst(evt.author || 'TiktokUser', evt.count || 15, evt.avatar);
+            }
+          } else if (evt.eventType === 'follow' || evt.type === 'follow') {
+            queueAlert({
+              type: 'follow',
+              author: evt.author,
+              avatar: evt.avatar,
+              detail: 'Mulai mengikuti siaran live! 🌟'
+            });
+          } else if (evt.eventType === 'share' || evt.type === 'share') {
+            queueAlert({
+              type: 'share',
+              author: evt.author,
+              avatar: evt.avatar,
+              detail: 'Membagikan siaran ke teman! 🚀'
+            });
+          }
+        });
+
+        socket.on('new_chat', (chat) => {
+          if (chat && chat.isGift) {
+            handleGiftEvent({
+              author: chat.author?.name || 'User',
+              diamonds: 10,
+              detail: chat.text
+            });
+          }
+        });
+      } catch (err) {
+        console.warn('Socket.io connection fallback:', err);
+      }
+
+      // ========================================================
+      // CROSS-WINDOW / IFRAME TEST SIMULATOR LISTENER
+      // ========================================================
+      window.addEventListener('message', (e) => {
+        const msg = e.data;
+        if (!msg || typeof msg !== 'object') return;
+
+        if (msg.action === 'sim_gift') {
+          handleGiftEvent(msg.payload || { author: 'SultanSultan', diamonds: 100 });
+          if (activeWidget === 'gift-jar') spawnJarGift(msg.gift);
+          queueAlert({
+            type: 'gift',
+            author: msg.payload?.author || 'SultanSultan',
+            avatar: msg.payload?.avatar,
+            detail: msg.payload?.detail || 'Paus Menyelam x1',
+            streak: msg.payload?.streak || 1
+          });
+        } else if (msg.action === 'sim_like') {
+          handleLikeEvent(msg.payload || { author: 'TiktokTapper', count: 25 });
+          if (activeWidget === 'like-waterfall') {
+            spawnWaterfallHeart(15);
+            spawnAvatarBurst(msg.payload?.author || 'TiktokTapper', msg.payload?.count || 25, msg.payload?.avatar);
+          }
+        } else if (msg.action === 'sim_follow') {
+          queueAlert({
+            type: 'follow',
+            author: msg.payload?.author || 'FollowerBaru',
+            avatar: msg.payload?.avatar,
+            detail: 'Mulai mengikuti live kamu! 🌟'
+          });
+        } else if (msg.action === 'sim_share') {
+          queueAlert({
+            type: 'share',
+            author: msg.payload?.author || 'TemanBaik',
+            avatar: msg.payload?.avatar,
+            detail: 'Membagikan live ke teman-teman! 🚀'
+          });
+        } else if (msg.action === 'reset_data') {
+          if (msg.target === 'gifter') {
+            gifterData = [];
+            saveGifters();
+            renderTopGifter();
+          } else if (msg.target === 'likes') {
+            likeData = [];
+            saveLikes();
+            renderTopLikes();
+          } else if (msg.target === 'jar') {
+            resetGiftJar();
+          }
+        } else if (msg.action === 'update_settings') {
+          if (msg.config) {
+            Object.assign(config, msg.config);
+            if (msg.config.goal) jarGoal = msg.config.goal;
+            buildWidgetLayout();
+          }
+        }
+      });
+
+      // Internal Simulator Triggers for direct access
+      window.__StreamPulseTT = {
+        simGift: (author, diamonds, detail, streak) => {
+          handleGiftEvent({ author, diamonds, detail });
+          if (activeWidget === 'gift-jar') spawnJarGift();
+          queueAlert({ type: 'gift', author, detail, streak: streak || 1 });
+        },
+        simLike: (author, count) => {
+          handleLikeEvent({ author, count });
+          if (activeWidget === 'like-waterfall') {
+            spawnWaterfallHeart(15);
+            spawnAvatarBurst(author, count);
+          }
+        },
+        simFollow: (author) => {
+          queueAlert({ type: 'follow', author, detail: 'Mulai mengikuti siaran!' });
+        },
+        resetGifters: () => {
+          gifterData = [];
+          saveGifters();
+          renderTopGifter();
+        },
+        resetLikes: () => {
+          likeData = [];
+          saveLikes();
+          renderTopLikes();
+        },
+        resetJar: resetGiftJar
+      };
+
+    })();
+  </script>
+</body>
+</html>

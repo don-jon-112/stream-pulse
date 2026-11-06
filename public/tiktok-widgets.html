@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widget TikTok LIVE OBS Suite - StreamPulse</title>
+  <meta name="description" content="Koleksi widget interaktif TikTok LIVE untuk OBS Studio: Top Gifter, Top Like, Gift Jar Fisika Kaca, Like Waterfall, dan Alert Streak.">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    :root {
+      --tt-cyan: #00f2fe;
+      --tt-pink: #fe2c55;
+      --tt-gold: #ffd700;
+    }
+    body {
+      background: var(--bg-canvas);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    .tt-nav-header {
+      min-height: 58px;
+      height: 58px;
+      padding: 0 20px;
+      background: var(--bg-canvas);
+      border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .tt-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tt-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Page Container */
+    .tt-page-wrapper {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px 20px;
+      flex: 1;
+    }
+
+    /* Hero Section */
+    .tt-hero {
+      margin-bottom: 24px;
+    }
+    .tt-hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(254, 44, 85, 0.15));
+      color: var(--tt-pink);
+      border: 1px solid rgba(254, 44, 85, 0.3);
+      margin-bottom: 10px;
+    }
+    .tt-hero-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .tt-hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--body);
+      max-width: 780px;
+      line-height: 1.5;
+    }
+
+    /* Tabs Bar */
+    .tt-tabs-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .tt-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 12px 12px 0 0;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      color: var(--body);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .tt-tab-btn:hover {
+      color: var(--ink);
+      background: var(--surface-card);
+    }
+    .tt-tab-btn.active {
+      color: var(--ink);
+      background: var(--surface-card);
+      border-color: var(--hairline);
+      border-bottom: 2px solid var(--tt-pink);
+    }
+    .tt-tab-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(254, 44, 85, 0.15);
+      color: var(--tt-pink);
+    }
+
+    /* Workspace Layout */
+    .tt-workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr 440px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .tt-workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Preview Canvas Area */
+    .preview-card {
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    .preview-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(0,0,0,0.02);
+    }
+    .preview-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-bg-switch {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-canvas);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--hairline);
+    }
+    .preview-bg-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--body);
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preview-bg-btn.active {
+      background: var(--surface-card);
+      color: var(--ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .preview-viewport {
+      position: relative;
+      width: 100%;
+      height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: background 0.3s ease;
+    }
+    /* Background presets */
+    .preview-viewport.bg-checker {
+      background-color: #12141c;
+      background-image: 
+        linear-gradient(45deg, #181b26 25%, transparent 25%), 
+        linear-gradient(-45deg, #181b26 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #181b26 75%), 
+        linear-gradient(-45deg, transparent 75%, #181b26 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    .preview-viewport.bg-dark {
+      background: #090a0f;
+    }
+    .preview-viewport.bg-game {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      background-image: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+    }
+
+    #previewFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+
+    /* Control Panel Cards */
+    .panel-card {
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .panel-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* OBS Browser Source URL Box */
+    .obs-url-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+    }
+    .obs-url-text {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select: all;
+    }
+    .btn-copy-url {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: var(--tt-pink);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-copy-url:hover {
+      opacity: 0.9;
+    }
+    .obs-res-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--body);
+      background: var(--bg-canvas);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--hairline);
+    }
+
+    /* Simulator Action Grid */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-sim {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--hairline);
+      background: var(--bg-canvas);
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .btn-sim:hover {
+      border-color: var(--tt-pink);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(254, 44, 85, 0.15);
+    }
+    .btn-sim-full {
+      grid-column: 1 / -1;
+    }
+    .btn-sim-danger {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .btn-sim-danger:hover {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    /* Options Form Controls */
+    .option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .option-row:last-child {
+      border-bottom: none;
+    }
+    .option-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .option-desc {
+      font-size: 0.74rem;
+      color: var(--body);
+      margin-top: 2px;
+    }
+    .option-ctrl {
+      flex-shrink: 0;
+    }
+    .option-select, .option-input {
+      background: var(--bg-canvas);
+      border: 1px solid var(--hairline);
+      color: var(--ink);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    /* Toast */
+    .tt-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 18px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--tt-pink);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .tt-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="tt-nav-header">
+    <div class="tt-header-left">
+      <button id="btnSideDrawerOpen" class="btn-icon" aria-label="Buka Menu" style="padding: 6px 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
+        <span style="font-weight:900; font-size:1.15rem; letter-spacing:-0.03em;">Stream<span style="color:var(--tt-pink)">Pulse</span></span>
+      </a>
+
+      <span style="color:var(--hairline)">/</span>
+      <span style="font-size:0.88rem; font-weight:800; color:var(--tt-pink);">Widget TikTok LIVE</span>
+    </div>
+
+    <div class="tt-header-right">
+      <a href="/dock" target="_blank" class="btn-icon" style="font-size:0.8rem; font-weight:700; gap:6px; padding:6px 12px; text-decoration:none; color:inherit; display:flex; align-items:center;">
+        <span>OBS Dock</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      </a>
+
+      <button id="themeToggleBtn" class="btn-icon" aria-label="Ganti Tema" style="padding:6px 10px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.27 19.57 10.58 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Side Navigation Drawer -->
+  <div id="sideDrawerBackdrop" class="drawer-backdrop"></div>
+  <aside id="sideDrawer" class="side-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <span class="drawer-logo">⚡</span>
+        <span class="drawer-title">StreamPulse</span>
+      </div>
+      <button id="btnCloseSideDrawer" class="btn-icon" aria-label="Tutup Menu">&times;</button>
+    </div>
+
+    <div class="drawer-scroll-body">
+      <!-- Section 1: Saluran Monitor -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">SALURAN MONITOR</div>
+        <a href="/" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:var(--primary); background:rgba(99,102,241,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Dashboard Utama</span>
+            <span class="drawer-nav-desc">Hubungkan Twitch, YouTube & TikTok</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Section 2: OBS Tools -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">OBS TOOLS</div>
+        <a href="/dock" target="_blank" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#06b6d4; background:rgba(6,182,212,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10z"/></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">OBS Custom Dock</span>
+            <span class="drawer-nav-desc">Panel chat interaktif untuk OBS Studio</span>
+          </div>
+        </a>
+        <a href="/viewers" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#38bdf8; background:rgba(56,189,248,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Live Viewers Counter</span>
+            <span class="drawer-nav-desc">Widget penghitung penonton siaran</span>
+          </div>
+        </a>
+        <a href="/studio" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#ec4899; background:rgba(236,72,153,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.27 19.57 10.58 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Overlay Studio & CSS</span>
+            <span class="drawer-nav-desc">Kustomisasi tema & animasi chat</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Section 3: Widget TikTok LIVE -->
+      <div class="drawer-section">
+        <div class="drawer-section-title" style="color:var(--tt-pink); display:flex; align-items:center; gap:6px;">
+          <span>WIDGET TIKTOK LIVE</span>
+          <span style="font-size:0.62rem; background:rgba(254,44,85,0.15); color:var(--tt-pink); padding:1px 6px; border-radius:4px; font-weight:800;">NEW</span>
+        </div>
+        <a href="/tiktok-widgets" class="drawer-nav-item active">
+          <div class="drawer-icon-wrap" style="color:var(--tt-pink); background:rgba(254,44,85,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.4a6.33 6.33 0 0 0-.86-.06A6.34 6.34 0 0 0 3.1 15.68a6.34 6.34 0 0 0 10.82 4.48c.03-.03.06-.06.09-.1V10.74a8.27 8.27 0 0 0 5.58 2.18V9.47a4.86 4.86 0 0 1-3.77-2.78z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Widget TikTok LIVE Hub</span>
+            <span class="drawer-nav-desc">Top Gifter, Top Like, Jar, Waterfall & Alert</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Section 4: Komunitas & Bantuan -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">KOMUNITAS & BANTUAN</div>
+        <a href="/features" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#8b5cf6; background:rgba(139,92,246,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Roadmap & Usulan Fitur</span>
+            <span class="drawer-nav-desc">Papan ide & voting fitur komunitas</span>
+          </div>
+        </a>
+        <button id="btnDonateModal" class="drawer-nav-item" type="button">
+          <div class="drawer-icon-wrap" style="color:#f97316; background:rgba(249,115,22,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Dukung Pengembang</span>
+            <span class="drawer-nav-desc">Traktir kopi via SociaBuzz / QRIS</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="tt-page-wrapper">
+    <!-- Hero Header -->
+    <div class="tt-hero">
+      <div class="tt-hero-tag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span>TIKTOK LIVE SUITE OBS</span>
+      </div>
+      <h1 class="tt-hero-title">
+        <span>Koleksi Widget Interaktif TikTok LIVE</span>
+      </h1>
+      <p class="tt-hero-subtitle">
+        Pilih widget di bawah ini, uji coba langsung di simulator interaktif, lalu salin URL Browser Source untuk ditampilkan transparan di OBS Studio Anda.
+      </p>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tt-tabs-bar">
+      <button class="tt-tab-btn active" data-widget="top-gifter">
+        <span>👑 Top Gifter</span>
+        <span class="tt-tab-badge">Podium</span>
+      </button>
+      <button class="tt-tab-btn" data-widget="top-likes">
+        <span>❤️ Top Like</span>
+        <span class="tt-tab-badge">Tapper</span>
+      </button>
+      <button class="tt-tab-btn" data-widget="gift-jar">
+        <span>🫙 Gift Jar</span>
+        <span class="tt-tab-badge">Fisika 2D</span>
+      </button>
+      <button class="tt-tab-btn" data-widget="like-waterfall">
+        <span>🌊 Like Waterfall</span>
+        <span class="tt-tab-badge">Hujan Love</span>
+      </button>
+      <button class="tt-tab-btn" data-widget="alerts">
+        <span>🔔 Alert TikTok</span>
+        <span class="tt-tab-badge">Streak x10</span>
+      </button>
+    </div>
+
+    <!-- Main Workspace Grid -->
+    <div class="tt-workspace-grid">
+      <!-- Left: Interactive OBS Preview -->
+      <div class="preview-card">
+        <div class="preview-header">
+          <div class="preview-title">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#22c55e;"></span>
+            <span id="previewLabel">Live Preview: Top Gifter Podium</span>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="preview-bg-switch">
+              <button class="preview-bg-btn active" data-bg="bg-checker">Transparan</button>
+              <button class="preview-bg-btn" data-bg="bg-dark">Dark</button>
+              <button class="preview-bg-btn" data-bg="bg-game">Game</button>
+            </div>
+            <button id="btnReloadPreview" class="btn-icon" title="Muat Ulang Preview" style="padding:4px 8px; font-size:0.75rem;">
+              🔄
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-viewport bg-checker" id="previewViewport">
+          <iframe id="previewFrame" src="/tiktok-overlay?widget=top-gifter"></iframe>
+        </div>
+      </div>
+
+      <!-- Right: Controls, Simulator & Settings -->
+      <div>
+        <!-- 1. OBS Browser Source URL Card -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>🔗 Link OBS Browser Source</span>
+            </div>
+            <span class="obs-res-badge" id="obsResBadge">400 x 520 px</span>
+          </div>
+
+          <div class="obs-url-box">
+            <span class="obs-url-text" id="obsUrlDisplay">http://localhost:3000/tiktok-overlay?widget=top-gifter</span>
+            <button class="btn-copy-url" id="btnCopyObsUrl">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Salin URL</span>
+            </button>
+          </div>
+
+          <div style="font-size:0.75rem; color:var(--body); line-height:1.5;">
+            💡 <strong>Cara pakai di OBS:</strong> Tambahkan Source ➔ <strong>Browser</strong> ➔ Paste link di atas ➔ Atur ukuran sesuai resolusi yang disarankan. Centang <em>"Shutdown source when not visible"</em>.
+          </div>
+        </div>
+
+        <!-- 2. Live Sandbox Simulator Card -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>⚡ Simulator Interaktif</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--body);">Uji Animasi Langsung</span>
+          </div>
+
+          <div id="simControlsContainer">
+            <!-- Dynamic simulator buttons per widget will be rendered here -->
+          </div>
+        </div>
+
+        <!-- 3. Widget Options & Settings -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>⚙️ Pengaturan Widget</span>
+            </div>
+          </div>
+
+          <div id="settingsContainer">
+            <!-- Dynamic settings controls per widget -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Copy Toast Notification -->
+  <div id="ttToast" class="tt-toast">
+    <span>✅ Link OBS Browser Source berhasil disalin!</span>
+  </div>
+
+  <script src="/js/drawer.js"></script>
+  <script>
+    (function () {
+      let currentWidget = 'top-gifter';
+      const previewFrame = document.getElementById('previewFrame');
+      const previewLabel = document.getElementById('previewLabel');
+      const obsResBadge = document.getElementById('obsResBadge');
+      const obsUrlDisplay = document.getElementById('obsUrlDisplay');
+      const btnCopyObsUrl = document.getElementById('btnCopyObsUrl');
+      const ttToast = document.getElementById('ttToast');
+      const simControls = document.getElementById('simControlsContainer');
+      const settingsControls = document.getElementById('settingsContainer');
+
+      // Widget specs
+      const WIDGET_SPECS = {
+        'top-gifter': {
+          label: 'Top Gifter Leaderboard (Podium)',
+          res: '440 x 520 px',
+          obsWidth: 440,
+          obsHeight: 520
+        },
+        'top-likes': {
+          label: 'Top Like Leaderboard (Tapper Layar)',
+          res: '380 x 480 px',
+          obsWidth: 380,
+          obsHeight: 480
+        },
+        'gift-jar': {
+          label: 'Gift Jar (Toples Kaca Fisika 2D)',
+          res: '340 x 540 px',
+          obsWidth: 340,
+          obsHeight: 540
+        },
+        'like-waterfall': {
+          label: 'Like Waterfall (Hujan Love & Spam Avatar)',
+          res: '360 x 680 px',
+          obsWidth: 360,
+          obsHeight: 680
+        },
+        'alerts': {
+          label: 'Alert TikTok (Gift Streaks, Follow & Share)',
+          res: '520 x 220 px',
+          obsWidth: 520,
+          obsHeight: 220
+        }
+      };
+
+      // Toast feedback
+      function showToast(msg) {
+        if (msg) ttToast.querySelector('span').textContent = msg;
+        ttToast.classList.add('show');
+        setTimeout(() => ttToast.classList.remove('show'), 2500);
+      }
+
+      // Update OBS URL
+      function updateObsUrl() {
+        const origin = window.location.origin;
+        const url = `${origin}/tiktok-overlay?widget=${currentWidget}`;
+        obsUrlDisplay.textContent = url;
+        const spec = WIDGET_SPECS[currentWidget] || { res: '400 x 500 px', label: 'TikTok Widget' };
+        obsResBadge.textContent = spec.res;
+        previewLabel.textContent = `Live Preview: ${spec.label}`;
+      }
+
+      // Switch active tab
+      function switchTab(widgetKey) {
+        currentWidget = widgetKey;
+        document.querySelectorAll('.tt-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-widget') === widgetKey);
+        });
+
+        // Update iframe source
+        previewFrame.src = `/tiktok-overlay?widget=${widgetKey}`;
+        updateObsUrl();
+        renderSimulatorButtons();
+        renderSettings();
+      }
+
+      // Tab clicks
+      document.querySelectorAll('.tt-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(btn.getAttribute('data-widget'));
+        });
+      });
+
+      // Background preview switcher
+      document.querySelectorAll('.preview-bg-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.preview-bg-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const vp = document.getElementById('previewViewport');
+          vp.className = `preview-viewport ${btn.getAttribute('data-bg')}`;
+        });
+      });
+
+      // Reload iframe preview
+      document.getElementById('btnReloadPreview').addEventListener('click', () => {
+        previewFrame.src = `/tiktok-overlay?widget=${currentWidget}&_t=${Date.now()}`;
+      });
+
+      // Copy OBS URL
+      btnCopyObsUrl.addEventListener('click', () => {
+        navigator.clipboard.writeText(obsUrlDisplay.textContent).then(() => {
+          showToast('✅ Link OBS Browser Source berhasil disalin!');
+        }).catch(() => {
+          showToast('Gagal menyalin link.');
+        });
+      });
+
+      // Send action to iframe
+      function sendToIframe(action, payload, extra = {}) {
+        if (previewFrame && previewFrame.contentWindow) {
+          previewFrame.contentWindow.postMessage({
+            action,
+            payload,
+            ...extra
+          }, '*');
+        }
+      }
+
+      // Render dynamic simulator buttons per widget
+      function renderSimulatorButtons() {
+        if (currentWidget === 'top-gifter') {
+          simControls.innerHTML = `
+            <div class="sim-grid">
+              <button class="btn-sim" id="btnSimRose">
+                <span>🌹</span>
+                <span>+1 Mawar (1 💎)</span>
+              </button>
+              <button class="btn-sim" id="btnSimCoffee">
+                <span>☕</span>
+                <span>+10 Kopi (10 💎)</span>
+              </button>
+              <button class="btn-sim" id="btnSimDonut">
+                <span>🍩</span>
+                <span>+30 Donat (30 💎)</span>
+              </button>
+              <button class="btn-sim" id="btnSimWhale">
+                <span>🐳</span>
+                <span>+1,000 Paus</span>
+              </button>
+              <button class="btn-sim btn-sim-full" id="btnSimNewSultan" style="background:rgba(255,215,0,0.1); border-color:rgba(255,215,0,0.4);">
+                <span>👑</span>
+                <span>Simulasi Sultan Overtake #1 (5,000 💎)</span>
+              </button>
+              <button class="btn-sim btn-sim-full btn-sim-danger" id="btnResetGifters">
+                <span>🗑️</span>
+                <span>Reset Data Leaderboard Top Gifter</span>
+              </button>
+            </div>
+          `;
+
+          document.getElementById('btnSimRose').onclick = () => {
+            sendToIframe('sim_gift', { author: 'Budi_Gamer', diamonds: 1, detail: 'Mawar x1' });
+            showToast('🌹 Gift 1 Mawar dikirim!');
+          };
+          document.getElementById('btnSimCoffee').onclick = () => {
+            sendToIframe('sim_gift', { author: 'Rina_Cute', diamonds: 10, detail: 'Kopi x1' });
+            showToast('☕ Gift Kopi dikirim!');
+          };
+          document.getElementById('btnSimDonut').onclick = () => {
+            sendToIframe('sim_gift', { author: 'Andi_Stream', diamonds: 30, detail: 'Donat x1' });
+            showToast('🍩 Gift Donat dikirim!');
+          };
+          document.getElementById('btnSimWhale').onclick = () => {
+            sendToIframe('sim_gift', { author: 'Sultan_Jakarta', diamonds: 1000, detail: 'Paus Menyelam x1' });
+            showToast('🐳 Paus Menyelam 1,000 Diamonds!');
+          };
+          document.getElementById('btnSimNewSultan').onclick = () => {
+            const sultanNames = ['Raja_Sawer', 'Mega_Sultan_99', 'Giga_Chad_ID', 'Ratu_Diamond'];
+            const name = sultanNames[Math.floor(Math.random() * sultanNames.length)];
+            sendToIframe('sim_gift', { author: name, diamonds: 5000, detail: 'Singa TikTok x1' });
+            showToast(`👑 ${name} menempati peringkat 1!`);
+          };
+          document.getElementById('btnResetGifters').onclick = () => {
+            sendToIframe('reset_data', {}, { target: 'gifter' });
+            showToast('🗑️ Data Top Gifter dikosongkan.');
+          };
+
+        } else if (currentWidget === 'top-likes') {
+          simControls.innerHTML = `
+            <div class="sim-grid">
+              <button class="btn-sim" id="btnSimLike15">
+                <span>❤️</span>
+                <span>+15 Tap Layar</span>
+              </button>
+              <button class="btn-sim" id="btnSimLike50">
+                <span>💥</span>
+                <span>+50 Spam Like</span>
+              </button>
+              <button class="btn-sim btn-sim-full" id="btnSimLikeRaid" style="background:rgba(254,44,85,0.1); border-color:rgba(254,44,85,0.4);">
+                <span>🔥</span>
+                <span>Simulasi Penonton Baru Spam 200 Likes</span>
+              </button>
+              <button class="btn-sim btn-sim-full btn-sim-danger" id="btnResetLikes">
+                <span>🗑️</span>
+                <span>Reset Data Top Likes</span>
+              </button>
+            </div>
+          `;
+
+          document.getElementById('btnSimLike15').onclick = () => {
+            sendToIframe('sim_like', { author: 'TiktokFan', count: 15 });
+            showToast('❤️ 15 Likes ditambahkan!');
+          };
+          document.getElementById('btnSimLike50').onclick = () => {
+            sendToIframe('sim_like', { author: 'MegaTapper', count: 50 });
+            showToast('💥 50 Likes spam!');
+          };
+          document.getElementById('btnSimLikeRaid').onclick = () => {
+            const users = ['SpamQueen', 'TapperPro', 'ClawGamer', 'LoveMaster'];
+            const name = users[Math.floor(Math.random() * users.length)];
+            sendToIframe('sim_like', { author: name, count: 200 });
+            showToast(`🔥 ${name} spam 200 Likes!`);
+          };
+          document.getElementById('btnResetLikes').onclick = () => {
+            sendToIframe('reset_data', {}, { target: 'likes' });
+            showToast('🗑️ Data Top Likes direset.');
+          };
+
+        } else if (currentWidget === 'gift-jar') {
+          simControls.innerHTML = `
+            <div class="sim-grid">
+              <button class="btn-sim" id="btnJarDropRose">
+                <span>🌹</span>
+                <span>Jatuhkan Mawar</span>
+              </button>
+              <button class="btn-sim" id="btnJarDropCoffee">
+                <span>☕</span>
+                <span>Jatuhkan Kopi</span>
+              </button>
+              <button class="btn-sim" id="btnJarDropDonut">
+                <span>🍩</span>
+                <span>Jatuhkan Donat</span>
+              </button>
+              <button class="btn-sim" id="btnJarDropWhale">
+                <span>🐳</span>
+                <span>Jatuhkan Paus</span>
+              </button>
+              <button class="btn-sim btn-sim-full" id="btnJarDropRain" style="background:rgba(0,242,254,0.1); border-color:rgba(0,242,254,0.4);">
+                <span>✨</span>
+                <span>Hujan 10 Hadiah Bertubi-tubi!</span>
+              </button>
+              <button class="btn-sim btn-sim-full btn-sim-danger" id="btnResetJar">
+                <span>🫙</span>
+                <span>Kosongkan Toples Hadiah</span>
+              </button>
+            </div>
+          `;
+
+          document.getElementById('btnJarDropRose').onclick = () => {
+            sendToIframe('sim_gift', { author: 'User' }, { gift: { emoji: '🌹', color: '#ff2d55' } });
+          };
+          document.getElementById('btnJarDropCoffee').onclick = () => {
+            sendToIframe('sim_gift', { author: 'User' }, { gift: { emoji: '☕', color: '#8b5cf6' } });
+          };
+          document.getElementById('btnJarDropDonut').onclick = () => {
+            sendToIframe('sim_gift', { author: 'User' }, { gift: { emoji: '🍩', color: '#f59e0b' } });
+          };
+          document.getElementById('btnJarDropWhale').onclick = () => {
+            sendToIframe('sim_gift', { author: 'User' }, { gift: { emoji: '🐳', color: '#06b6d4' } });
+          };
+          document.getElementById('btnJarDropRain').onclick = () => {
+            for (let i = 0; i < 10; i++) {
+              setTimeout(() => {
+                sendToIframe('sim_gift', { author: 'RainGiver' });
+              }, i * 140);
+            }
+            showToast('✨ Hujan 10 hadiah meluncur ke toples!');
+          };
+          document.getElementById('btnResetJar').onclick = () => {
+            sendToIframe('reset_data', {}, { target: 'jar' });
+            showToast('🫙 Toples hadiah berhasil dikosongkan!');
+          };
+
+        } else if (currentWidget === 'like-waterfall') {
+          simControls.innerHTML = `
+            <div class="sim-grid">
+              <button class="btn-sim" id="btnWfHearts">
+                <span>❤️</span>
+                <span>Kirim 15 Floating Hearts</span>
+              </button>
+              <button class="btn-sim" id="btnWfBurst">
+                <span>💥</span>
+                <span>Spam Burst + Avatar User</span>
+              </button>
+              <button class="btn-sim btn-sim-full" id="btnWfMegaRain" style="background:rgba(254,44,85,0.1); border-color:rgba(254,44,85,0.4);">
+                <span>🌊</span>
+                <span>Banjir Love Waterfall (50 Hearts)</span>
+              </button>
+            </div>
+          `;
+
+          document.getElementById('btnWfHearts').onclick = () => {
+            sendToIframe('sim_like', { author: 'Viewer_TikTok', count: 15 });
+          };
+          document.getElementById('btnWfBurst').onclick = () => {
+            const names = ['Siti_Stream', 'Rian_ID', 'Dian_Gamer', 'Bagas_Pro'];
+            const n = names[Math.floor(Math.random() * names.length)];
+            sendToIframe('sim_like', { author: n, count: 50 });
+            showToast(`💥 Popup avatar ${n} melayang!`);
+          };
+          document.getElementById('btnWfMegaRain').onclick = () => {
+            for (let i = 0; i < 5; i++) {
+              setTimeout(() => {
+                sendToIframe('sim_like', { author: 'MegaRaid', count: 10 });
+              }, i * 120);
+            }
+            showToast('🌊 Banjir Like Waterfall aktif!');
+          };
+
+        } else if (currentWidget === 'alerts') {
+          simControls.innerHTML = `
+            <div class="sim-grid">
+              <button class="btn-sim" id="btnAlertGiftStreak">
+                <span>🎁</span>
+                <span>Gift Alert (x10 Combo)</span>
+              </button>
+              <button class="btn-sim" id="btnAlertGiftMega">
+                <span>🔥</span>
+                <span>Mega Gift (x50 Combo)</span>
+              </button>
+              <button class="btn-sim" id="btnAlertFollow">
+                <span>⭐</span>
+                <span>Follower Baru</span>
+              </button>
+              <button class="btn-sim" id="btnAlertShare">
+                <span>🚀</span>
+                <span>Share Siaran Live</span>
+              </button>
+            </div>
+          `;
+
+          document.getElementById('btnAlertGiftStreak').onclick = () => {
+            sendToIframe('sim_gift', {
+              author: 'Dian_Sultan',
+              detail: 'Mawar x10 Combo!',
+              streak: 10
+            });
+            showToast('🎁 Gift Streak x10 Alert ditampilkan!');
+          };
+          document.getElementById('btnAlertGiftMega').onclick = () => {
+            sendToIframe('sim_gift', {
+              author: 'Raja_TikTok',
+              detail: 'Paus Menyelam x50 COMBO!',
+              streak: 50
+            });
+            showToast('🔥 Mega Streak x50 Alert!');
+          };
+          document.getElementById('btnAlertFollow').onclick = () => {
+            sendToIframe('sim_follow', {
+              author: 'Audrey_Hepp',
+              detail: 'Mulai mengikuti siaran langsung! 🌟'
+            });
+            showToast('⭐ New Follower Alert dipicu!');
+          };
+          document.getElementById('btnAlertShare').onclick = () => {
+            sendToIframe('sim_share', {
+              author: 'Fajar_Gamer',
+              detail: 'Membagikan live ke teman-teman! 🚀'
+            });
+            showToast('🚀 Share Alert dipicu!');
+          };
+        }
+      }
+
+      // Render Settings controls
+      function renderSettings() {
+        if (currentWidget === 'top-gifter') {
+          settingsControls.innerHTML = `
+            <div class="option-row">
+              <div>
+                <div class="option-label">Jumlah Peringkat</div>
+                <div class="option-desc">Tampilkan 3 teratas (Podium) atau hingga 5</div>
+              </div>
+              <div class="option-ctrl">
+                <select class="option-select" id="cfgGifterLimit">
+                  <option value="3">Top 3 (Podium)</option>
+                  <option value="5" selected>Top 5 (Podium + 2 List)</option>
+                </select>
+              </div>
+            </div>
+          `;
+          document.getElementById('cfgGifterLimit').onchange = (e) => {
+            sendToIframe('update_settings', {}, { config: { limit: parseInt(e.target.value) } });
+          };
+        } else if (currentWidget === 'gift-jar') {
+          settingsControls.innerHTML = `
+            <div class="option-row">
+              <div>
+                <div class="option-label">Target Kapasitas Toples</div>
+                <div class="option-desc">Jumlah gift untuk memenuhi indikator toples</div>
+              </div>
+              <div class="option-ctrl">
+                <select class="option-select" id="cfgJarGoal">
+                  <option value="25">25 Hadiah</option>
+                  <option value="50" selected>50 Hadiah</option>
+                  <option value="100">100 Hadiah</option>
+                  <option value="200">200 Hadiah</option>
+                </select>
+              </div>
+            </div>
+          `;
+          document.getElementById('cfgJarGoal').onchange = (e) => {
+            sendToIframe('update_settings', {}, { config: { goal: parseInt(e.target.value) } });
+          };
+        } else if (currentWidget === 'like-waterfall') {
+          settingsControls.innerHTML = `
+            <div class="option-row">
+              <div>
+                <div class="option-label">Arah Aliran Love</div>
+                <div class="option-desc">Bawah ke Atas (Default TikTok) atau Atas ke Bawah (Waterfall)</div>
+              </div>
+              <div class="option-ctrl">
+                <select class="option-select" id="cfgWfDirection">
+                  <option value="up" selected>Melayang ke Atas (Up)</option>
+                  <option value="down">Hujan ke Bawah (Down)</option>
+                </select>
+              </div>
+            </div>
+          `;
+          document.getElementById('cfgWfDirection').onchange = (e) => {
+            sendToIframe('update_settings', {}, { config: { direction: e.target.value } });
+          };
+        } else if (currentWidget === 'alerts') {
+          settingsControls.innerHTML = `
+            <div class="option-row">
+              <div>
+                <div class="option-label">Suara Lonceng / Chime</div>
+                <div class="option-desc">Bunyikan nada sintesis saat alert baru muncul</div>
+              </div>
+              <div class="option-ctrl">
+                <select class="option-select" id="cfgAlertSound">
+                  <option value="1" selected>Aktif 🔊</option>
+                  <option value="0">Bisu (Mute) 🔇</option>
+                </select>
+              </div>
+            </div>
+          `;
+          document.getElementById('cfgAlertSound').onchange = (e) => {
+            sendToIframe('update_settings', {}, { config: { sound: e.target.value === '1' } });
+          };
+        } else {
+          settingsControls.innerHTML = `
+            <div style="font-size:0.8rem; color:var(--body); padding:8px 0;">
+              Widget ini siap digunakan langsung dengan konfigurasi standar otomatis.
+            </div>
+          `;
+        }
+      }
+
+      // Initial setup
+      switchTab('top-gifter');
+
+      // Theme toggle support
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || document.body.classList.contains('dark-mode');
+          if (isDark) {
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('streampulse_theme', 'light');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('streampulse_theme', 'dark');
+          }
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('streampulse_theme') || 'dark';
+        if (savedTheme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.body.classList.add('dark-mode');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
