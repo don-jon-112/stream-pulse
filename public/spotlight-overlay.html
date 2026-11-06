@@ -526,9 +526,6 @@
               timerAnimFrame = requestAnimationFrame(updateTimer);
             } else {
               hideSpotlight();
-              if (socket && socket.connected) {
-                socket.emit('spotlight_clear');
-              }
             }
           }
 

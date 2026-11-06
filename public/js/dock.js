@@ -237,15 +237,39 @@
   }
 
   // ==========================================
-  // LOCAL STORAGE PERSISTENCE (NO LIMIT)
+  // LOCAL STORAGE PERSISTENCE (DEBOUNCED & BOUNDED)
   // ==========================================
+  const MAX_HISTORY_ITEMS = 100;
+  const MAX_DOCK_CHAT_ITEMS = 150;
+  let storedHistoryCache = null;
+  let saveHistoryDebounceTimer = null;
+
+  function pruneChatContainer() {
+    if (!chatContainer) return;
+    while (chatContainer.children.length > MAX_DOCK_CHAT_ITEMS) {
+      const first = chatContainer.firstElementChild;
+      if (first) {
+        first.remove();
+      } else {
+        break;
+      }
+    }
+  }
+
   function getStoredHistory() {
+    if (storedHistoryCache) return storedHistoryCache;
     try {
       const data = localStorage.getItem(STORAGE_KEY_HISTORY);
-      if (!data) return [];
+      if (!data) {
+        storedHistoryCache = [];
+        return storedHistoryCache;
+      }
       const list = JSON.parse(data);
-      if (!Array.isArray(list)) return [];
-      return list.map(item => {
+      if (!Array.isArray(list)) {
+        storedHistoryCache = [];
+        return storedHistoryCache;
+      }
+      storedHistoryCache = list.slice(-MAX_HISTORY_ITEMS).map(item => {
         if (item && item.text && typeof item.text === 'string') {
           // Bersihkan jika riwayat lokal lama menyimpan fragmen HTML rusak
           if (item.text.includes('<img') || item.text.includes('loading="lazy"') || item.text.includes('title="')) {
@@ -260,39 +284,59 @@
         }
         return item;
       });
+      return storedHistoryCache;
     } catch (e) {
       console.warn('[Dock] Gagal parse localStorage history:', e);
-      return [];
+      storedHistoryCache = [];
+      return storedHistoryCache;
+    }
+  }
+
+  function flushHistoryToStorage() {
+    if (!storedHistoryCache) return;
+    try {
+      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(storedHistoryCache));
+    } catch (quotaErr) {
+      if (storedHistoryCache.length > 40) {
+        storedHistoryCache.splice(0, Math.floor(storedHistoryCache.length * 0.3));
+        try {
+          localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(storedHistoryCache));
+        } catch (_) {}
+      }
     }
   }
 
   function saveItemToHistory(item) {
     try {
-      let history = getStoredHistory();
+      const history = getStoredHistory();
       history.push(item);
-
-      try {
-        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-      } catch (quotaErr) {
-        if (history.length > 100) {
-          const cutCount = Math.floor(history.length * 0.2);
-          history.splice(0, cutCount);
-          localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-        }
+      if (history.length > MAX_HISTORY_ITEMS) {
+        history.splice(0, history.length - MAX_HISTORY_ITEMS);
       }
 
       updateHistoryCountLabel(history.length);
+
+      // Debounce disk I/O to avoid UI stutter during fast chat
+      if (saveHistoryDebounceTimer) clearTimeout(saveHistoryDebounceTimer);
+      saveHistoryDebounceTimer = setTimeout(flushHistoryToStorage, 1500);
     } catch (e) {
       console.warn('[Dock] Gagal menyimpan ke localStorage:', e);
     }
   }
 
   function clearHistoryStorage() {
+    if (saveHistoryDebounceTimer) {
+      clearTimeout(saveHistoryDebounceTimer);
+      saveHistoryDebounceTimer = null;
+    }
+    storedHistoryCache = [];
     try {
       localStorage.removeItem(STORAGE_KEY_HISTORY);
     } catch (e) {}
     updateHistoryCountLabel(0);
   }
+
+  window.addEventListener('beforeunload', flushHistoryToStorage);
 
   function updateHistoryCountLabel(count) {
     if (counterLabel) {
@@ -888,13 +932,7 @@
       </div>
     `;
 
-    const pinBtn = item.querySelector('.dock-pin-btn');
-    if (pinBtn) {
-      pinBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        pinChatToSpotlight(chat, item);
-      });
-    }
+    item._chatData = chat;
 
     // Filter display
     if (currentFilter === 'event') {
@@ -902,6 +940,7 @@
     }
 
     chatContainer.appendChild(item);
+    pruneChatContainer();
 
     if (shouldScroll) {
       handleAutoScroll();
@@ -940,6 +979,7 @@
     }
 
     chatContainer.appendChild(item);
+    pruneChatContainer();
 
     if (shouldScroll) {
       handleAutoScroll();
@@ -966,6 +1006,17 @@
     } else {
       isUserScrolledUp = false;
       if (scrollBottomBtn) scrollBottomBtn.style.display = 'none';
+    }
+  });
+
+  // Delegated pin button handler to prevent memory leaks from individual closures
+  chatContainer.addEventListener('click', (e) => {
+    const pinBtn = e.target.closest('.dock-pin-btn');
+    if (!pinBtn) return;
+    e.stopPropagation();
+    const chatItem = pinBtn.closest('.dock-chat-item');
+    if (chatItem && chatItem._chatData) {
+      pinChatToSpotlight(chatItem._chatData, chatItem);
     }
   });
 

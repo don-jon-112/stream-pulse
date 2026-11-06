@@ -188,24 +188,60 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 
-// Cegah cache browser agar script terbaru selalu langsung aktif
-app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+// Tiered Caching & ETag Configuration:
+// - API: no-store
+// - HTML: no-cache dengan revalidasi ETag (304 jika tidak berubah)
+// - Aset statis (JS, CSS, Gambar, Font): 1 jam cache dengan ETag
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   next();
 });
 
 app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: 0,
-  etag: false
+  maxAge: 3600000,
+  etag: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+  }
 }));
 
 // Initialize Stream Manager
 const streamManager = new StreamManager(io);
 
-// State In-Memory Chat Spotlight (Pin Komentar ke Layar OBS)
+// State In-Memory Chat Spotlight (Pin Komentar ke Layar OBS) dengan Centralized Server Timer
 let currentSpotlight = null;
+let spotlightServerTimer = null;
+
+function setServerSpotlight(data) {
+  if (spotlightServerTimer) {
+    clearTimeout(spotlightServerTimer);
+    spotlightServerTimer = null;
+  }
+  currentSpotlight = data;
+  io.emit('spotlight_chat', currentSpotlight);
+  console.log(`[Spotlight] Komentar dipin: "${data?.author?.name || 'User'}": "${(data?.text || '').substring(0, 35)}..."`);
+
+  const durSec = parseInt(data?.duration, 10) || 0;
+  if (durSec > 0) {
+    spotlightServerTimer = setTimeout(() => {
+      clearServerSpotlight();
+    }, durSec * 1000);
+  }
+}
+
+function clearServerSpotlight() {
+  if (spotlightServerTimer) {
+    clearTimeout(spotlightServerTimer);
+    spotlightServerTimer = null;
+  }
+  currentSpotlight = null;
+  io.emit('spotlight_clear');
+  console.log('[Spotlight] Komentar dilepas (unpinned)');
+}
 
 // Socket.io Connection
 io.on('connection', (socket) => {
@@ -219,15 +255,11 @@ io.on('connection', (socket) => {
 
   // Spotlight Socket Events
   socket.on('spotlight_chat', (data) => {
-    currentSpotlight = data;
-    io.emit('spotlight_chat', data);
-    console.log(`[Spotlight] Komentar dipin: "${data?.author?.name || 'User'}": "${(data?.text || '').substring(0, 35)}..."`);
+    setServerSpotlight(data);
   });
 
   socket.on('spotlight_clear', () => {
-    currentSpotlight = null;
-    io.emit('spotlight_clear');
-    console.log('[Spotlight] Komentar dilepas (unpinned)');
+    clearServerSpotlight();
   });
 
   socket.on('get_spotlight', (callback) => {
@@ -499,14 +531,12 @@ app.get('/api/spotlight', (req, res) => {
 });
 
 app.post('/api/spotlight', express.json(), (req, res) => {
-  currentSpotlight = req.body;
-  io.emit('spotlight_chat', currentSpotlight);
+  setServerSpotlight(req.body);
   res.json({ success: true, spotlight: currentSpotlight });
 });
 
 app.delete('/api/spotlight', (req, res) => {
-  currentSpotlight = null;
-  io.emit('spotlight_clear');
+  clearServerSpotlight();
   res.json({ success: true });
 });
 
@@ -515,9 +545,10 @@ app.get('/api/status', (req, res) => {
 });
 
 app.get('/api/events', (req, res) => {
+  const events = Array.isArray(streamManager.eventHistory) ? streamManager.eventHistory : [];
   res.json({
-    total: streamManager.eventHistory.length,
-    events: streamManager.eventHistory
+    total: events.length,
+    events: events
   });
 });
 
@@ -847,9 +878,24 @@ export async function refreshTwitchToken(usernameOrChannel) {
 // Hubungkan StreamManager dengan Twitch Token Auto-Refresh
 streamManager.setTokenRefreshHandler(refreshTwitchToken);
 
-// In-Memory Rate Limiting & Verification Code Store
+// In-Memory Rate Limiting & Verification Code Store (dengan pembersihan TTL otomatis berkala)
 const verificationStore = new Map(); // email -> { code, expiresAt }
 const rateLimitStore = new Map(); // key -> { count, resetAt }
+
+// Bersihkan entri kedaluwarsa secara berkala setiap 10 menit agar memori server tidak bocor
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, data] of verificationStore.entries()) {
+    if (data?.expiresAt && now > data.expiresAt) {
+      verificationStore.delete(email);
+    }
+  }
+  for (const [key, data] of rateLimitStore.entries()) {
+    if (data?.resetAt && now > data.resetAt) {
+      rateLimitStore.delete(key);
+    }
+  }
+}, 10 * 60 * 1000).unref();
 
 function isRateLimited(key, maxAttempts) {
   const now = Date.now();
