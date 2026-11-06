@@ -1154,13 +1154,27 @@
       // ========================================================
       // WIDGET 1: TOP GIFTER STATE & RENDERER
       // ========================================================
+      // Clean up legacy poisoned dummy data from localStorage if running in live OBS mode
+      if (!isPreview) {
+        try {
+          const oldG = localStorage.getItem('streampulse_tt_gifters');
+          if (oldG && oldG.includes('Sultan_Jakarta')) localStorage.removeItem('streampulse_tt_gifters');
+          const oldL = localStorage.getItem('streampulse_tt_likes');
+          if (oldL && oldL.includes('Tapper_Pro')) localStorage.removeItem('streampulse_tt_likes');
+        } catch (e) {}
+      }
+
+      const gifterStorageKey = isPreview ? 'streampulse_preview_tt_gifters' : `streampulse_live_tt_gifters_${config.channel || 'default'}`;
       let gifterData = [];
       try {
-        const saved = localStorage.getItem('streampulse_tt_gifters');
-        if (saved) gifterData = JSON.parse(saved);
+        const saved = isPreview ? localStorage.getItem(gifterStorageKey) : sessionStorage.getItem(gifterStorageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) gifterData = parsed;
+        }
       } catch (e) {}
 
-      // Seed default sultan data if empty in preview mode so preview is immediately lively and visible
+      // Seed default sultan data ONLY in preview mode so preview iframe is immediately lively
       if (isPreview && (!gifterData || gifterData.length === 0)) {
         gifterData = [
           { name: 'Sultan_Jakarta', diamonds: 15400, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=sultan' },
@@ -1173,7 +1187,11 @@
 
       function saveGifters() {
         try {
-          localStorage.setItem('streampulse_tt_gifters', JSON.stringify(gifterData));
+          if (isPreview) {
+            localStorage.setItem(gifterStorageKey, JSON.stringify(gifterData));
+          } else {
+            sessionStorage.setItem(gifterStorageKey, JSON.stringify(gifterData));
+          }
         } catch (e) {}
       }
 
@@ -1218,9 +1236,13 @@
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
                 <span>TOP GIFTER TIKTOK</span>
               </div>
-              <span class="widget-badge">0 SULTAN</span>
+              <span class="widget-badge">LIVE SULTAN</span>
             </div>
-            <div class="empty-state">Menunggu gift pertama dari penonton... 🎁</div>
+            <div class="empty-state" style="padding:28px 12px; text-align:center;">
+              <div style="font-size:1.8rem; margin-bottom:4px;">👑</div>
+              <div style="font-weight:700; color:#fff; font-size:0.9rem;">Menunggu Sultan Live</div>
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); margin-top:3px;">Kirim gift untuk menempati podium #1! 🎁</div>
+            </div>
           `;
           return;
         }
@@ -1343,13 +1365,17 @@
       // ========================================================
       // WIDGET 2: TOP LIKE STATE & RENDERER
       // ========================================================
+      const likeStorageKey = isPreview ? 'streampulse_preview_tt_likes' : `streampulse_live_tt_likes_${config.channel || 'default'}`;
       let likeData = [];
       try {
-        const saved = localStorage.getItem('streampulse_tt_likes');
-        if (saved) likeData = JSON.parse(saved);
+        const saved = isPreview ? localStorage.getItem(likeStorageKey) : sessionStorage.getItem(likeStorageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) likeData = parsed;
+        }
       } catch (e) {}
 
-      // Seed default tapper data if empty in preview mode so preview is immediately lively
+      // Seed default tapper data ONLY in preview mode so preview iframe is immediately lively
       if (isPreview && (!likeData || likeData.length === 0)) {
         likeData = [
           { name: 'Tapper_Pro', likes: 1840, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=tapper' },
@@ -1362,7 +1388,11 @@
 
       function saveLikes() {
         try {
-          localStorage.setItem('streampulse_tt_likes', JSON.stringify(likeData));
+          if (isPreview) {
+            localStorage.setItem(likeStorageKey, JSON.stringify(likeData));
+          } else {
+            sessionStorage.setItem(likeStorageKey, JSON.stringify(likeData));
+          }
         } catch (e) {}
       }
 
@@ -1405,9 +1435,13 @@
                 <span class="heart-beat">❤️</span>
                 <span>TOP LIKES TIKTOK</span>
               </div>
-              <span class="widget-badge" style="background:rgba(254,44,85,0.2); color:#fe2c55; border-color:rgba(254,44,85,0.4);">0 TAP</span>
+              <span class="widget-badge" style="background:rgba(254,44,85,0.2); color:#fe2c55; border-color:rgba(254,44,85,0.4);">LIVE TAP</span>
             </div>
-            <div class="empty-state">Belum ada yang tap layar live... Tap sekarang! ❤️</div>
+            <div class="empty-state" style="padding:28px 12px; text-align:center;">
+              <div style="font-size:1.8rem; margin-bottom:4px;">❤️</div>
+              <div style="font-weight:700; color:#fff; font-size:0.9rem;">Menunggu Tap Layar</div>
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); margin-top:3px;">Tap layar siaran sekarang untuk masuk leaderboard!</div>
+            </div>
           `;
           return;
         }
@@ -1575,7 +1609,9 @@
         jarCanvas.width = 320;
         jarCanvas.height = 480;
 
-        if (jarParticles.length === 0) {
+        // Only drop sample gifts in preview simulator mode!
+        // In OBS mode, jar starts clean and transparent until live gifts arrive.
+        if (isPreview && jarParticles.length === 0) {
           for (let i = 0; i < 6; i++) {
             setTimeout(() => {
               spawnJarGift();
@@ -1786,8 +1822,12 @@
         window.addEventListener('resize', resize);
 
         requestAnimationFrame(updateWaterfall);
-        spawnWaterfallHeart(12);
-        spawnAvatarBurst('MegaTapper', 50);
+        // Only spawn sample floating hearts and avatar burst in preview simulator mode!
+        // In OBS mode, canvas starts 100% transparent and clean until live taps occur.
+        if (isPreview) {
+          spawnWaterfallHeart(12);
+          spawnAvatarBurst('MegaTapper', 50);
+        }
       }
 
       function spawnWaterfallHeart(count = 1) {
@@ -1958,9 +1998,11 @@
       let goalTarget = config.goalTarget || 1000;
       let goalCelebrated = false;
 
-      // Muat progress tersimpan dari localStorage
+      const goalStorageKey = isPreview ? `streampulse_preview_tt_goal_${config.goalType}` : `streampulse_live_tt_goal_${config.channel || 'default'}_${config.goalType}`;
+
+      // Muat progress tersimpan dari storage (preview simulator dipisahkan dari siaran live OBS)
       try {
-        const savedCount = localStorage.getItem(`streampulse_tt_goal_${config.goalType}`);
+        const savedCount = isPreview ? localStorage.getItem(goalStorageKey) : sessionStorage.getItem(goalStorageKey);
         if (savedCount !== null && !isNaN(parseInt(savedCount, 10))) {
           goalCurrent = parseInt(savedCount, 10);
         }
@@ -1968,7 +2010,11 @@
 
       function saveGoalProgress() {
         try {
-          localStorage.setItem(`streampulse_tt_goal_${config.goalType}`, String(goalCurrent));
+          if (isPreview) {
+            localStorage.setItem(goalStorageKey, String(goalCurrent));
+          } else {
+            sessionStorage.setItem(goalStorageKey, String(goalCurrent));
+          }
         } catch (e) {}
       }
 
@@ -2186,6 +2232,16 @@
 
         socket.on('connect', () => {
           subscribeTikTokChannel();
+        });
+
+        socket.on('initial_state', (data) => {
+          if (!data) return;
+          if (data.viewerCounts && typeof data.viewerCounts.tiktok === 'number') {
+            const vCount = data.viewerCounts.tiktok;
+            if (activeWidget === 'goals' && config.goalType === 'viewer') {
+              updateGoalProgress(vCount, true);
+            }
+          }
         });
 
         socket.on('viewer_count', (payload) => {
