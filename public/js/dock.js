@@ -340,7 +340,7 @@
 
   function updateHistoryCountLabel(count) {
     if (counterLabel) {
-      counterLabel.textContent = `${count} tersimpan (No Limit)`;
+      counterLabel.textContent = `${count} tersimpan (Maks 100)`;
     }
   }
 

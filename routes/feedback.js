@@ -184,4 +184,20 @@ router.post('/admin/feedback', (req, res) => {
   res.json({ success: true, item: newItem });
 });
 
+router.get('/admin/system-stats', (req, res) => {
+  if (!checkAdminAuth(req)) {
+    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
+  }
+  const mem = process.memoryUsage();
+  res.json({
+    uptime: Math.floor(process.uptime()),
+    ramRssMb: Math.round(mem.rss / 1024 / 1024),
+    ramHeapMb: Math.round(mem.heapUsed / 1024 / 1024),
+    nodeVersion: process.version,
+    platform: process.platform,
+    port: process.env.PORT || 3000
+  });
+});
+
 export default router;
+
