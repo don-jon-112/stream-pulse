@@ -351,64 +351,212 @@
       }
     }
   
-    /* Dark Mode Overrides for Features / Roadmap Kanban */
+    /* =========================================================
+       DARK MODE & LIGHT MODE CONTRAST OVERRIDES
+       ========================================================= */
     :root[data-theme="dark"],
     body.dark-mode {
       --bg-canvas: #09090b !important;
-      --surface-soft: #18181b !important;
+      --surface-soft: #141417 !important;
       --hairline: #27272a !important;
       --hairline-strong: #3f3f46 !important;
       --ink: #f8fafc !important;
       --body: #94a3b8 !important;
+      --mute: #64748b !important;
     }
 
+    :root[data-theme="dark"] body {
+      background-color: #09090b !important;
+      color: #f8fafc !important;
+    }
+
+    /* Header in Dark Mode */
+    :root[data-theme="dark"] .app-header,
     :root[data-theme="dark"] .roadmap-header-wrapper {
-      background: var(--bg-canvas) !important;
-      border-bottom-color: var(--hairline) !important;
+      background: #0f0f12 !important;
+      border-bottom-color: #27272a !important;
     }
-
-    :root[data-theme="dark"] .roadmap-column {
-      background: var(--surface-soft) !important;
-      border-color: var(--hairline) !important;
+    :root[data-theme="dark"] .brand-title {
+      color: #f8fafc !important;
     }
-
-    :root[data-theme="dark"] .kanban-card {
+    :root[data-theme="dark"] .brand-badge-glow {
       background: #18181b !important;
-      border-color: var(--hairline) !important;
-      color: var(--ink) !important;
+      border-color: #27272a !important;
+      color: #94a3b8 !important;
     }
-
-    :root[data-theme="dark"] .kanban-card:hover {
-      background: #202025 !important;
-      border-color: var(--hairline-strong) !important;
-    }
-
-    :root[data-theme="dark"] .kanban-card-title {
-      color: var(--ink) !important;
-    }
-
-    :root[data-theme="dark"] .kanban-card-desc {
-      color: var(--body) !important;
-    }
-
-    :root[data-theme="dark"] .vote-btn {
-      background: var(--surface-soft) !important;
-      border-color: var(--hairline) !important;
-      color: var(--ink) !important;
-    }
-
-    :root[data-theme="dark"] .modal-content {
+    :root[data-theme="dark"] .nav-btn {
       background: #18181b !important;
-      border-color: var(--hairline) !important;
-      color: var(--ink) !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .nav-btn:hover {
+      background: #27272a !important;
+      border-color: #3f3f46 !important;
+    }
+    :root[data-theme="dark"] .nav-btn-primary {
+      background: #ffffff !important;
+      color: #09090b !important;
+      border-color: #ffffff !important;
+      font-weight: 700 !important;
+    }
+    :root[data-theme="dark"] .nav-btn-primary:hover {
+      background: #e2e8f0 !important;
+      color: #000000 !important;
     }
 
-    :root[data-theme="dark"] .modal-content input,
-    :root[data-theme="dark"] .modal-content textarea,
-    :root[data-theme="dark"] .modal-content select {
+    /* Hero Banner */
+    :root[data-theme="dark"] .hero-banner {
       background: #121216 !important;
-      border-color: var(--hairline) !important;
-      color: var(--ink) !important;
+      border-color: #27272a !important;
+    }
+    :root[data-theme="dark"] .hero-tag {
+      background: #18181b !important;
+      border-color: #27272a !important;
+      color: #38bdf8 !important;
+    }
+    :root[data-theme="dark"] .hero-text h1 {
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .hero-text p {
+      color: #94a3b8 !important;
+    }
+
+    /* Kanban Board & Columns */
+    :root[data-theme="dark"] .kanban-column {
+      background: #101014 !important;
+      border-color: #27272a !important;
+    }
+    :root[data-theme="dark"] .column-header {
+      background: #18181b !important;
+      border-bottom-color: #27272a !important;
+    }
+    :root[data-theme="dark"] .column-title-group {
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .column-badge {
+      background: #202025 !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+
+    /* Feature Cards */
+    :root[data-theme="dark"] .feature-card {
+      background: #18181b !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .feature-card:hover {
+      background: #1e1e24 !important;
+      border-color: #3f3f46 !important;
+    }
+    :root[data-theme="dark"] .card-title {
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .card-desc {
+      color: #94a3b8 !important;
+    }
+    :root[data-theme="dark"] .card-footer {
+      border-top-color: #27272a !important;
+    }
+    :root[data-theme="dark"] .card-author {
+      color: #64748b !important;
+    }
+
+    /* Category Badges in Dark Mode */
+    :root[data-theme="dark"] .cat-tag {
+      background: #18181b !important;
+      border-color: #27272a !important;
+    }
+    :root[data-theme="dark"] .cat-tag.twitch {
+      color: #c084fc !important;
+      background: rgba(168, 85, 247, 0.12) !important;
+      border-color: rgba(168, 85, 247, 0.3) !important;
+    }
+    :root[data-theme="dark"] .cat-tag.youtube {
+      color: #f87171 !important;
+      background: rgba(239, 68, 68, 0.12) !important;
+      border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+    :root[data-theme="dark"] .cat-tag.tiktok {
+      color: #38bdf8 !important;
+      background: rgba(56, 189, 248, 0.12) !important;
+      border-color: rgba(56, 189, 248, 0.3) !important;
+    }
+    :root[data-theme="dark"] .cat-tag.overlay {
+      color: #fbbf24 !important;
+      background: rgba(245, 158, 11, 0.12) !important;
+      border-color: rgba(245, 158, 11, 0.3) !important;
+    }
+    :root[data-theme="dark"] .cat-tag.core {
+      color: #34d399 !important;
+      background: rgba(16, 185, 129, 0.12) !important;
+      border-color: rgba(16, 185, 129, 0.3) !important;
+    }
+    :root[data-theme="dark"] .cat-tag.general {
+      color: #cbd5e1 !important;
+      background: #27272a !important;
+      border-color: #3f3f46 !important;
+    }
+
+    /* Upvote Buttons */
+    :root[data-theme="dark"] .btn-upvote {
+      background: #202025 !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .btn-upvote:hover {
+      background: #27272a !important;
+      border-color: #3f3f46 !important;
+      color: #ffffff !important;
+    }
+    :root[data-theme="dark"] .btn-upvote.voted {
+      background: #6366f1 !important;
+      border-color: #6366f1 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.4) !important;
+    }
+
+    /* Proposal Modal in Dark Mode */
+    :root[data-theme="dark"] .modal-content {
+      background: #141417 !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .modal-header {
+      background: #18181b !important;
+      border-bottom-color: #27272a !important;
+    }
+    :root[data-theme="dark"] .modal-close {
+      color: #94a3b8 !important;
+    }
+    :root[data-theme="dark"] .modal-close:hover {
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .channel-label {
+      color: #94a3b8 !important;
+    }
+    :root[data-theme="dark"] .modal-content input,
+    :root[data-theme="dark"] .modal-content select,
+    :root[data-theme="dark"] .modal-content textarea {
+      background: #18181b !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] .modal-content input:focus,
+    :root[data-theme="dark"] .modal-content select:focus,
+    :root[data-theme="dark"] .modal-content textarea:focus {
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+    }
+    :root[data-theme="dark"] #btnCancelRequest {
+      background: #202025 !important;
+      border-color: #27272a !important;
+      color: #f8fafc !important;
+    }
+    :root[data-theme="dark"] #btnSubmitRequest {
+      background: #ffffff !important;
+      color: #09090b !important;
+      font-weight: 700 !important;
     }
 
   </style>
@@ -685,12 +833,12 @@
       <form id="formNewRequest" class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
         <div class="channel-field">
           <label class="channel-label" for="reqTitle" data-i18n="feat_req_title_label">Judul Fitur *</label>
-          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." data-i18n-ph="feat_req_title_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:9999px; color:var(--ink); font-size:0.88rem; outline:none;">
+          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." data-i18n-ph="feat_req_title_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; border:1px solid var(--hairline); border-radius:9999px; font-size:0.88rem; outline:none;">
         </div>
 
         <div class="channel-field">
           <label class="channel-label" for="reqCategory" data-i18n="feat_req_cat_label">Kategori Platform</label>
-          <select id="reqCategory" style="width:100%; height:40px; padding:8px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:9999px; color:var(--ink); font-size:0.88rem; outline:none; cursor:pointer;">
+          <select id="reqCategory" style="width:100%; height:40px; padding:8px 16px; border:1px solid var(--hairline); border-radius:9999px; font-size:0.88rem; outline:none; cursor:pointer;">
             <option value="twitch">🟣 Twitch</option>
             <option value="youtube">🔴 YouTube Live</option>
             <option value="tiktok">🎵 TikTok LIVE</option>
@@ -702,12 +850,12 @@
 
         <div class="channel-field">
           <label class="channel-label" for="reqAuthor" data-i18n="feat_req_author_label">Nama Anda / Streamer (Opsional)</label>
-          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" data-i18n-ph="feat_req_author_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:9999px; color:var(--ink); font-size:0.88rem; outline:none;">
+          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" data-i18n-ph="feat_req_author_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; border:1px solid var(--hairline); border-radius:9999px; font-size:0.88rem; outline:none;">
         </div>
 
         <div class="channel-field">
           <label class="channel-label" for="reqDesc" data-i18n="feat_req_desc_label">Deskripsi Fitur *</label>
-          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." data-i18n-ph="feat_req_desc_ph" style="width:100%; padding:12px 16px; background:#ffffff; border:1px solid var(--hairline); border-radius:12px; color:var(--ink); font-size:0.88rem; resize:vertical; font-family:var(--font-body); outline:none;"></textarea>
+          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." data-i18n-ph="feat_req_desc_ph" style="width:100%; padding:12px 16px; border:1px solid var(--hairline); border-radius:12px; font-size:0.88rem; resize:vertical; font-family:var(--font-body); outline:none;"></textarea>
         </div>
 
         <div class="modal-footer" style="padding:14px 0 0 0; background:transparent;">
