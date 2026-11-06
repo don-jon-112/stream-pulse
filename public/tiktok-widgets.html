@@ -980,21 +980,26 @@
           <div class="config-card" style="margin-bottom:0;">
             <div class="config-card-header" style="margin-bottom:12px; padding-bottom:8px;">
               <div class="config-card-title" style="font-size:0.95rem;">
-                <span>🔗 Link OBS Browser Source</span>
+                <span>🔗 Link OBS Browser Source (Siaran Langsung)</span>
               </div>
               <span class="obs-res-badge" id="obsResBadge">440 x 520 px</span>
             </div>
 
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-size:0.75rem;">
+              <span id="obsAuthBadge" style="font-weight:700;">🟢 TikTok: Terhubung</span>
+              <span style="color:var(--body); font-size:0.72rem;">URL Khusus OBS (Bukan Preview)</span>
+            </div>
+
             <div class="obs-url-box">
-              <span class="obs-url-text" id="obsUrlDisplay">http://localhost:3000/tiktok-overlay?widget=top-gifter</span>
+              <input type="text" readonly class="obs-url-text" id="obsUrlDisplay" value="http://localhost:3000/tiktok-overlay?widget=top-gifter" style="background:transparent; border:none; outline:none; width:100%; cursor:text;">
               <button class="btn-copy-url" id="btnCopyObsUrl">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span>Salin URL</span>
+                <span>Salin URL OBS</span>
               </button>
             </div>
 
             <div style="font-size:0.75rem; color:var(--body); line-height:1.5;">
-              💡 <strong>Cara pakai di OBS:</strong> Tambahkan Source ➔ <strong>Browser</strong> ➔ Paste link di atas ➔ Atur ukuran resolusi sesuai rekomendasi. Centang <em>"Shutdown source when not visible"</em>.
+              💡 <strong>Cara pakai di OBS Studio:</strong> Tambahkan Source ➔ <strong>Browser</strong> ➔ Paste link di atas ➔ Atur ukuran resolusi sesuai rekomendasi. Centang <em>"Shutdown source when not visible"</em>. Link ini otomatis menyinkronkan data siaran TikTok Anda secara live (bukan preview dummy).
             </div>
           </div>
 
@@ -1122,21 +1127,38 @@
         setTimeout(() => ttToast.classList.remove('show'), 2500);
       }
 
-      // Check User Token or Channel for OBS Browser Source URL
-      function getAuthQuery() {
-        const userToken = localStorage.getItem('streampulse_user_token');
-        if (userToken) {
-          return `&token=${encodeURIComponent(userToken)}`;
+      // Check User Token and Channel for OBS Browser Source URL
+      function getTikTokAuthInfo() {
+        const urlP = new URLSearchParams(window.location.search);
+        let token = urlP.get('token') || localStorage.getItem('streampulse_user_token') || '';
+        let channel = urlP.get('channel') || urlP.get('tiktok') || '';
+
+        if (!channel) {
+          try {
+            const raw = localStorage.getItem('streampulse_user_channels') ||
+                        localStorage.getItem('streampulse_my_channels') ||
+                        localStorage.getItem('streampulse_guest_channels');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed.tiktok) channel = parsed.tiktok;
+            }
+          } catch (e) {}
         }
-        try {
-          const ch = JSON.parse(localStorage.getItem('streampulse_channels') || '{}');
-          if (ch.tiktok) {
-            return `&channel=${encodeURIComponent(ch.tiktok.replace(/^@/, ''))}`;
-          }
-        } catch (e) {}
-        const directTt = localStorage.getItem('streampulse_tiktok');
-        if (directTt) return `&channel=${encodeURIComponent(directTt.replace(/^@/, ''))}`;
-        return '';
+
+        if (!channel) {
+          channel = localStorage.getItem('streampulse_tiktok') || '';
+        }
+
+        channel = channel.replace(/^@/, '').trim();
+        return { token, channel };
+      }
+
+      function getAuthQuery() {
+        const { token, channel } = getTikTokAuthInfo();
+        let q = '';
+        if (channel) q += `&channel=${encodeURIComponent(channel)}`;
+        if (token) q += `&token=${encodeURIComponent(token)}`;
+        return q;
       }
 
       // Update OBS URL
@@ -1166,7 +1188,22 @@
         }
 
         url += auth;
-        obsUrlDisplay.textContent = url;
+        if (obsUrlDisplay.tagName === 'INPUT') {
+          obsUrlDisplay.value = url;
+        } else {
+          obsUrlDisplay.textContent = url;
+        }
+
+        const { channel, token } = getTikTokAuthInfo();
+        const obsAuthBadge = document.getElementById('obsAuthBadge');
+        if (obsAuthBadge) {
+          if (channel) {
+            obsAuthBadge.innerHTML = `<span style="color:#10b981;">🟢 TikTok: <strong>@${channel}</strong></span> ${token ? '<span style="opacity:0.75; font-size:0.7rem;">(Token Aktif)</span>' : ''}`;
+          } else {
+            obsAuthBadge.innerHTML = `<span style="color:#f59e0b;">⚠️ Belum ada channel TikTok di <a href="/" style="color:var(--tt-pink); text-decoration:underline;">Beranda</a></span>`;
+          }
+        }
+
         const spec = WIDGET_SPECS[currentWidget] || { res: '400 x 500 px', label: 'TikTok Widget', previewHeight: '520px' };
         obsResBadge.textContent = spec.res;
         previewLabel.textContent = `Live Preview: ${spec.label}`;
@@ -1199,7 +1236,8 @@
         } else if (currentWidget === 'like-waterfall') {
           url += `like-waterfall&direction=${wfDirection}`;
         }
-        url += `&_t=${Date.now()}`;
+        // Always append &preview=1 to preview iframe so it knows it is running in simulator mode
+        url += `&preview=1&_t=${Date.now()}`;
         previewFrame.src = url;
         updateObsUrl();
       }
@@ -1250,12 +1288,29 @@
 
       // Copy OBS URL button
       if (btnCopyObsUrl) {
-        btnCopyObsUrl.addEventListener('click', () => {
-          navigator.clipboard.writeText(obsUrlDisplay.textContent).then(() => {
+        btnCopyObsUrl.addEventListener('click', async () => {
+          const textToCopy = obsUrlDisplay.value || obsUrlDisplay.textContent;
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+            btnCopyObsUrl.innerHTML = `<span>✓</span><span>Tersalin!</span>`;
+            btnCopyObsUrl.style.background = '#10b981';
             showToast('✅ Link OBS Browser Source berhasil disalin!');
-          }).catch(() => {
-            showToast('Gagal menyalin link.');
-          });
+            setTimeout(() => {
+              btnCopyObsUrl.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Salin URL OBS</span>
+              `;
+              btnCopyObsUrl.style.background = '';
+            }, 2500);
+          } catch (e) {
+            if (obsUrlDisplay.select) {
+              obsUrlDisplay.select();
+              document.execCommand('copy');
+              showToast('✅ Link OBS Browser Source berhasil disalin!');
+            } else {
+              showToast('Gagal menyalin link.');
+            }
+          }
         });
       }
 

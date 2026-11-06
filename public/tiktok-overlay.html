@@ -1002,9 +1002,13 @@
         activeWidget = 'goals';
       }
 
+      // Determine if preview mode or live OBS mode
+      const isPreview = urlParams.get('preview') === '1' || window.self !== window.top;
+      let socket = null;
+
       const config = {
         widget: activeWidget,
-        channel: urlParams.get('channel') || '',
+        channel: urlParams.get('channel') || urlParams.get('tiktok') || '',
         token: urlParams.get('token') || '',
         theme: urlParams.get('theme') || 'neon', // 'neon', 'luxury', 'glass', 'arcade', 'compact'
         limit: parseInt(urlParams.get('limit') || '5', 10),
@@ -1021,6 +1025,36 @@
         goalCurrent: parseInt(urlParams.get('current') || '0', 10)
       };
 
+      // Fallback channel / token from localStorage if missing in URL query
+      if (!config.channel && !config.token) {
+        try {
+          const raw = localStorage.getItem('streampulse_user_channels') ||
+                      localStorage.getItem('streampulse_my_channels') ||
+                      localStorage.getItem('streampulse_guest_channels');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed.tiktok) config.channel = parsed.tiktok.replace(/^@/, '');
+          }
+        } catch (e) {}
+        if (!config.channel) {
+          const direct = localStorage.getItem('streampulse_tiktok');
+          if (direct) config.channel = direct.replace(/^@/, '');
+        }
+        if (!config.token) {
+          config.token = localStorage.getItem('streampulse_user_token') || '';
+        }
+      }
+
+      function subscribeTikTokChannel() {
+        if (!socket || !socket.connected) return;
+        if (config.channel) {
+          socket.emit('update_channels', {
+            tiktok: config.channel,
+            force: false
+          });
+        }
+      }
+
       // Auto-resolve channel if user token is provided in OBS browser source link
       if (config.token && !config.channel) {
         fetch(`/api/dock/config?token=${encodeURIComponent(config.token)}`)
@@ -1028,9 +1062,7 @@
           .then(data => {
             if (data?.channels?.tiktok) {
               config.channel = data.channels.tiktok.replace(/^@/, '');
-              if (typeof socket !== 'undefined' && socket && socket.connected) {
-                socket.emit('update_channels', { tiktok: config.channel, force: false });
-              }
+              subscribeTikTokChannel();
             }
           })
           .catch(() => {});
@@ -1128,8 +1160,8 @@
         if (saved) gifterData = JSON.parse(saved);
       } catch (e) {}
 
-      // Seed default sultan data if empty so preview is immediately lively and visible
-      if (!gifterData || gifterData.length === 0) {
+      // Seed default sultan data if empty in preview mode so preview is immediately lively and visible
+      if (isPreview && (!gifterData || gifterData.length === 0)) {
         gifterData = [
           { name: 'Sultan_Jakarta', diamonds: 15400, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=sultan' },
           { name: 'Rina_Cute', diamonds: 8200, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=rina' },
@@ -1317,8 +1349,8 @@
         if (saved) likeData = JSON.parse(saved);
       } catch (e) {}
 
-      // Seed default tapper data if empty so preview is immediately lively
-      if (!likeData || likeData.length === 0) {
+      // Seed default tapper data if empty in preview mode so preview is immediately lively
+      if (isPreview && (!likeData || likeData.length === 0)) {
         likeData = [
           { name: 'Tapper_Pro', likes: 1840, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=tapper' },
           { name: 'MegaSpammer', likes: 1250, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=spammer' },
@@ -2111,14 +2143,18 @@
           root.innerHTML = `
             <div class="alerts-container" id="alertsContainer"></div>
           `;
-          setTimeout(() => {
-            queueAlert({
-              type: 'gift',
-              author: 'Sultan_Vip',
-              detail: 'Mawar x10 Combo! 🌹',
-              streak: 10
-            });
-          }, 350);
+          // Only trigger preview dummy alert if inside simulator/preview mode!
+          // In OBS Studio mode (!isPreview), alertsContainer remains clean and transparent until live events occur.
+          if (isPreview) {
+            setTimeout(() => {
+              queueAlert({
+                type: 'gift',
+                author: 'Sultan_Vip',
+                detail: 'Mawar x10 Combo! 🌹',
+                streak: 10
+              });
+            }, 350);
+          }
         } else if (activeWidget === 'goals') {
           root.innerHTML = `
             <div id="widget-goals"></div>
@@ -2146,15 +2182,10 @@
       // SOCKET.IO REALTIME EVENT LISTENER
       // ========================================================
       try {
-        const socket = io({ transports: ['websocket', 'polling'] });
+        socket = io({ transports: ['websocket', 'polling'] });
 
         socket.on('connect', () => {
-          if (config.channel) {
-            socket.emit('update_channels', {
-              tiktok: config.channel,
-              force: false
-            });
-          }
+          subscribeTikTokChannel();
         });
 
         socket.on('viewer_count', (payload) => {
