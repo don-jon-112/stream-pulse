@@ -1599,32 +1599,32 @@
         </div>
 
         <div id="channelModeNotice" style="font-size:0.73rem; color:var(--text-tertiary); line-height:1.4; margin-bottom:8px;">
-          🔒 <strong style="color:#0f172a; font-weight:700;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.
+          🔒 <strong style="color:var(--ink); font-weight:700;">Mode Sinkronisasi Akun (Default):</strong> Saluran di bawah ini terkunci otomatis mengikuti data resmi dari menu <em>"Atur Channel"</em> agar apa yang tampil di OBS Studio selalu 100% cocok. Klik tombol <strong>"⚙️ Buka Atur Channel"</strong> untuk mengubah saluran resmi, atau nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika ingin mencoba testing tampilan dengan chat streamer lain.
         </div>
 
         <div class="form-group">
           <label class="form-label" for="settingTwitch" data-i18n="label_twitch_channel">Twitch Channel</label>
-          <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch">
+          <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch" readonly style="background:rgba(0,0,0,0.3); opacity:0.85; cursor:not-allowed;">
         </div>
         <div class="form-group">
           <label class="form-label" for="settingYouTube" data-i18n="label_youtube_channel">YouTube Live Stream</label>
-          <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube">
+          <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube" readonly style="background:rgba(0,0,0,0.3); opacity:0.85; cursor:not-allowed;">
         </div>
         <div class="form-group">
           <label class="form-label" for="settingTikTok" data-i18n="label_tiktok_channel">TikTok LIVE Username</label>
-          <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok">
+          <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok" readonly style="background:rgba(0,0,0,0.3); opacity:0.85; cursor:not-allowed;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px; flex-wrap:wrap; gap:8px;">
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" id="btnSaveChannelsStudio" class="btn-icon btn-primary" style="font-size:0.75rem; padding:6px 14px; font-weight:700;">
-              <span>💾 Simpan Saluran</span>
-            </button>
-            <a href="/?setup=1" target="_blank" class="btn-icon" style="font-size:0.75rem; padding:6px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; border-color:rgba(99,102,241,0.4); color:#a5b4fc;" title="Buka dialog pengaturan saluran monitor di Beranda">
+            <a href="/?setup=1" target="_blank" class="btn-icon btn-primary" style="font-size:0.75rem; padding:6px 14px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-weight:700;" title="Buka dialog pengaturan saluran monitor resmi di Beranda">
               <span>⚙️ Buka Atur Channel ↗</span>
             </a>
+            <button type="button" id="btnSaveChannelsStudio" class="btn-icon" style="font-size:0.75rem; padding:6px 14px; font-weight:700; display:none;">
+              <span>💾 Terapkan ke Preview</span>
+            </button>
           </div>
-          <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700;" data-i18n="status_channel_synced">✓ Terhubung ke Saluran Akun</span>
+          <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700;" data-i18n="status_channel_synced">🔒 Terkunci (Sinkron Akun OBS)</span>
         </div>
       </div>
 
@@ -2874,6 +2874,7 @@
 
       function updateChannelModeUI() {
         isPreviewTestingMode = !!(switchPreviewMode && switchPreviewMode.checked);
+        const btnSaveStudio = document.getElementById('btnSaveChannelsStudio');
         if (isPreviewTestingMode) {
           settingTwitch.readOnly = false;
           settingYouTube.readOnly = false;
@@ -2881,7 +2882,12 @@
           [settingTwitch, settingYouTube, settingTikTok].forEach(el => {
             el.style.background = 'var(--bg-input, rgba(0,0,0,0.5))';
             el.style.opacity = '1';
+            el.style.cursor = 'text';
           });
+          if (btnSaveStudio) {
+            btnSaveStudio.style.display = 'inline-flex';
+            btnSaveStudio.innerHTML = '<span>💾 Terapkan ke Preview</span>';
+          }
           if (channelModeNotice) {
             channelModeNotice.innerHTML = `🧪 <strong style="color:#fbbf24;">Mode Uji Coba Preview Aktif:</strong> Anda dapat mengganti username di bawah untuk mencoba preview di sebelah kanan. Pengaturan ini <em>TIDAK akan disimpan ke OBS</em> sehingga link OBS Anda tetap aman.`;
           }
@@ -2894,19 +2900,23 @@
           settingYouTube.value = previewTestingChannels.youtube !== undefined && previewTestingChannels.youtube !== '' ? previewTestingChannels.youtube : settingYouTube.value;
           settingTikTok.value = previewTestingChannels.tiktok !== undefined && previewTestingChannels.tiktok !== '' ? previewTestingChannels.tiktok : settingTikTok.value;
         } else {
-          settingTwitch.readOnly = false;
-          settingYouTube.readOnly = false;
-          settingTikTok.readOnly = false;
+          settingTwitch.readOnly = true;
+          settingYouTube.readOnly = true;
+          settingTikTok.readOnly = true;
           [settingTwitch, settingYouTube, settingTikTok].forEach(el => {
-            el.style.background = 'var(--bg-input, rgba(0,0,0,0.5))';
-            el.style.opacity = '1';
+            el.style.background = 'rgba(0,0,0,0.3)';
+            el.style.opacity = '0.85';
+            el.style.cursor = 'not-allowed';
           });
+          if (btnSaveStudio) {
+            btnSaveStudio.style.display = 'none';
+          }
           if (channelModeNotice) {
-            channelModeNotice.innerHTML = `🔒 <strong style="color:var(--ink); font-weight:700;">Saluran Live Stream Resmi:</strong> Masukkan username saluran Anda di bawah lalu klik <strong>"Simpan Saluran"</strong> untuk menyinkronkan ke akun cloud Anda dan OBS Studio.`;
+            channelModeNotice.innerHTML = `🔒 <strong style="color:var(--ink); font-weight:700;">Mode Sinkronisasi Akun (Default):</strong> Saluran di bawah ini terkunci otomatis mengikuti data resmi dari menu <em>"Atur Channel"</em> agar apa yang tampil di OBS Studio selalu 100% cocok. Klik tombol <strong>"⚙️ Buka Atur Channel"</strong> untuk mengubah saluran resmi, atau nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika ingin mencoba testing tampilan dengan chat streamer lain.`;
           }
           if (channelSyncStatus) {
             channelSyncStatus.style.display = 'inline';
-            channelSyncStatus.textContent = '✓ Terhubung ke Saluran Akun';
+            channelSyncStatus.textContent = '🔒 Terkunci (Sinkron Akun OBS)';
             channelSyncStatus.style.color = '#10b981';
           }
           syncInputsWithOfficialChannels();
@@ -3810,32 +3820,19 @@
       });
 
       if (btnSaveChannelsStudio) {
-        btnSaveChannelsStudio.addEventListener('click', async () => {
-          const chData = {
-            twitch: settingTwitch.value.trim(),
-            youtube: settingYouTube.value.trim(),
-            tiktok: settingTikTok.value.trim()
-          };
-          saveStoredChannels(chData);
-          refreshPreview();
-
-          if (userToken && currentUser) {
+        btnSaveChannelsStudio.addEventListener('click', () => {
+          if (isPreviewTestingMode) {
+            previewTestingChannels = {
+              twitch: settingTwitch.value.trim(),
+              youtube: settingYouTube.value.trim(),
+              tiktok: settingTikTok.value.trim()
+            };
             try {
-              await fetch('/api/user/channels', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'x-user-token': userToken
-                },
-                body: JSON.stringify(chData)
-              });
-              await saveProfile(false);
-              spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? '✅ Live channels & overlay saved!' : '✅ Saluran live stream & overlay berhasil disimpan!', 'success');
-            } catch (e) {
-              spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Channels saved locally' : 'Saluran tersimpan secara lokal', 'info');
-            }
-          } else {
-            spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? '✓ Channels synced to homepage & preview' : '✓ Saluran aktif disinkronkan ke beranda & preview', 'success');
+              localStorage.setItem('streampulse_preview_testing_channels', JSON.stringify(previewTestingChannels));
+            } catch (e) {}
+            refreshPreview(true);
+            if (previewIframe) previewIframe.src = getPreviewIframeUrl(profileId);
+            spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Preview updated with testing channels!' : 'Preview diperbarui dengan saluran uji coba!', 'info');
           }
         });
       }
@@ -3845,13 +3842,22 @@
         if (e.key === 'streampulse_user_channels' || e.key === 'streampulse_my_channels' || e.key === 'streampulse_guest_channels') {
           try {
             const ch = JSON.parse(e.newValue || '{}');
-            if (ch.twitch !== undefined) settingTwitch.value = ch.twitch;
-            if (ch.youtube !== undefined) settingYouTube.value = ch.youtube;
-            if (ch.tiktok !== undefined) settingTikTok.value = ch.tiktok;
+            if (ch.twitch !== undefined) {
+              officialChannels.twitch = ch.twitch;
+              if (!isPreviewTestingMode) settingTwitch.value = ch.twitch;
+            }
+            if (ch.youtube !== undefined) {
+              officialChannels.youtube = ch.youtube;
+              if (!isPreviewTestingMode) settingYouTube.value = ch.youtube;
+            }
+            if (ch.tiktok !== undefined) {
+              officialChannels.tiktok = ch.tiktok;
+              if (!isPreviewTestingMode) settingTikTok.value = ch.tiktok;
+            }
             refreshPreview();
-            if (channelSyncStatus) {
+            if (channelSyncStatus && !isPreviewTestingMode) {
               channelSyncStatus.style.display = 'inline';
-              channelSyncStatus.textContent = '✓ Disinkronkan dari Beranda';
+              channelSyncStatus.textContent = '🔒 Terkunci (Sinkron Akun OBS)';
               channelSyncStatus.style.color = '#10b981';
             }
           } catch (err) {}
