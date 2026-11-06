@@ -299,6 +299,10 @@
     if (dockInputUserToken) {
       dockInputUserToken.value = localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '';
     }
+    const modalUrlInput = document.getElementById('dock-modal-url-input');
+    if (modalUrlInput) {
+      modalUrlInput.value = getDockShareUrl();
+    }
     dockSettingsModal.style.display = 'flex';
   }
 
@@ -310,10 +314,11 @@
   if (btnCloseDockSettings) btnCloseDockSettings.addEventListener('click', closeDockSettings);
   if (btnCancelDockSettings) btnCancelDockSettings.addEventListener('click', closeDockSettings);
 
-  if (btnCopyDockUrl) {
-    btnCopyDockUrl.addEventListener('click', async () => {
+  const btnCopyModalUrl = document.getElementById('btn-copy-modal-url');
+  if (btnCopyModalUrl) {
+    btnCopyModalUrl.addEventListener('click', async () => {
+      const fullUrl = getDockShareUrl();
       try {
-        const fullUrl = window.location.href;
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(fullUrl);
         } else {
@@ -324,7 +329,61 @@
           document.execCommand('copy');
           ta.remove();
         }
-        showFeedback('✓ URL OBS Dock berhasil disalin!', 'success', 3000);
+        const origText = btnCopyModalUrl.textContent;
+        btnCopyModalUrl.textContent = '✓ Tersalin!';
+        setTimeout(() => { btnCopyModalUrl.textContent = origText; }, 2000);
+        showFeedback('✓ URL OBS Dock (dengan Token) berhasil disalin!', 'success', 3000);
+      } catch (e) {
+        showFeedback('Gagal menyalin URL', 'error', 2000);
+      }
+    });
+  }
+
+  function getDockShareUrl() {
+    const origin = window.location.origin;
+    const userToken = localStorage.getItem(STORAGE_KEY_USER_TOKEN);
+    const params = new URLSearchParams(window.location.search);
+    const qToken = params.get('token');
+
+    // 1. Prioritas token akun (dari URL atau tersimpan di local storage browser)
+    const effectiveToken = qToken || userToken;
+    if (effectiveToken) {
+      return `${origin}/dock?token=${encodeURIComponent(effectiveToken)}`;
+    }
+
+    // 2. Jika mode guest (tanpa akun/token), bawa parameter channel aktif agar OBS bisa load
+    const ch = currentChannels || {};
+    const chParams = new URLSearchParams();
+    if (ch.twitch) chParams.set('twitch', ch.twitch);
+    if (ch.youtube) chParams.set('youtube', ch.youtube);
+    if (ch.tiktok) chParams.set('tiktok', ch.tiktok);
+
+    const query = chParams.toString();
+    return query ? `${origin}/dock?${query}` : `${origin}/dock`;
+  }
+
+  if (btnCopyDockUrl) {
+    btnCopyDockUrl.addEventListener('click', async () => {
+      try {
+        const fullUrl = getDockShareUrl();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(fullUrl);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = fullUrl;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+        }
+        const hasToken = fullUrl.includes('token=');
+        showFeedback(
+          hasToken 
+            ? '✓ URL OBS Dock (termasuk Token Akun) berhasil disalin!' 
+            : '✓ URL OBS Dock berhasil disalin!',
+          'success', 
+          3500
+        );
       } catch (err) {
         showFeedback('Gagal menyalin URL', 'error', 3000);
       }
@@ -371,6 +430,13 @@
         } else {
           localStorage.setItem(STORAGE_KEY_USER_TOKEN, tokenOrUser);
         }
+      }
+
+      const savedToken = localStorage.getItem(STORAGE_KEY_USER_TOKEN);
+      if (savedToken && window.history && window.history.replaceState) {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('token', savedToken);
+        window.history.replaceState({}, '', currentUrl.toString());
       }
 
       const newSig = `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`;
@@ -432,10 +498,13 @@
       updateChannelUI();
     };
 
-    // 1. Prioritas Utama: Konfigurasi Akun dari Server jika parameter token / user ada di URL
-    if (qToken || qUser) {
+    // 1. Prioritas Utama: Konfigurasi Akun dari Server jika parameter token / user ada di URL atau tersimpan di local storage
+    const storedToken = localStorage.getItem(STORAGE_KEY_USER_TOKEN);
+    const effectiveToken = qToken || (!qUser ? storedToken : null);
+
+    if (effectiveToken || qUser) {
       try {
-        const queryStr = qToken ? `token=${encodeURIComponent(qToken)}` : `user=${encodeURIComponent(qUser)}`;
+        const queryStr = effectiveToken ? `token=${encodeURIComponent(effectiveToken)}` : `user=${encodeURIComponent(qUser)}`;
         const res = await fetch(`/api/dock/config?${queryStr}`);
         if (res.ok) {
           const cfg = await res.json();
@@ -449,6 +518,17 @@
             currentChannels.twitch = (qTwitch || cfg.channels.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
             currentChannels.youtube = (qYt || cfg.channels.youtube || '').trim();
             currentChannels.tiktok = (qTikTok || cfg.channels.tiktok || '').trim().replace(/^@/, '');
+
+            // Pastikan URL di address bar browser juga terisi ?token=...
+            if (effectiveToken && window.history && window.history.replaceState) {
+              try {
+                const currentUrl = new URL(window.location.href);
+                if (!currentUrl.searchParams.get('token')) {
+                  currentUrl.searchParams.set('token', effectiveToken);
+                  window.history.replaceState({}, '', currentUrl.toString());
+                }
+              } catch (e) {}
+            }
 
             finishInit();
             syncChannelsWithSocket();

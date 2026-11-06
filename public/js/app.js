@@ -1810,6 +1810,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const q = params.toString();
       dockShareUrl.value = q ? `${origin}/dock?${q}` : `${origin}/dock`;
     }
+    const linkOpenDock = document.getElementById('linkOpenDock');
+    if (linkOpenDock) {
+      linkOpenDock.href = dockShareUrl.value;
+    }
   }
 
   const btnCopyDockUrl = document.getElementById('btnCopyDockUrl');

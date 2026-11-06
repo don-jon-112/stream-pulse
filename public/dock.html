@@ -968,8 +968,9 @@
           <span id="dock-wakelock-label">Always On</span>
         </button>
 
-        <button class="dock-btn-icon" id="btn-copy-dock-url" title="Salin URL OBS Dock Pribadi">
+        <button class="dock-btn-icon" id="btn-copy-dock-url" title="Salin URL OBS Dock Pribadi (Termasuk Token Akun)">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span>Salin URL</span>
         </button>
 
         <button class="dock-btn-icon" id="btn-dock-settings" title="Pengaturan Saluran / Akun">
@@ -1100,6 +1101,14 @@
         <div class="dock-form-field">
           <label class="dock-form-label">TikTok Live</label>
           <input type="text" id="dock-input-tiktok" class="dock-modal-input" placeholder="Username (@...) atau Room ID TikTok...">
+        </div>
+
+        <div class="dock-form-field" style="margin-top: 6px;">
+          <label class="dock-form-label">Link URL OBS Dock Pribadi (Termasuk Token)</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="dock-modal-url-input" class="dock-modal-input" readonly style="flex:1; font-family: monospace; font-size: 0.72rem; background: var(--bg-card); cursor: text;" value="">
+            <button type="button" class="dock-btn-save" id="btn-copy-modal-url" style="padding: 4px 12px; font-size: 0.72rem; white-space: nowrap;">Salin</button>
+          </div>
         </div>
 
         <div class="dock-form-field" style="margin-top: 8px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
