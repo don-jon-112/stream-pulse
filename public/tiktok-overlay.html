@@ -1121,6 +1121,17 @@
         if (saved) gifterData = JSON.parse(saved);
       } catch (e) {}
 
+      // Seed default sultan data if empty so preview is immediately lively and visible
+      if (!gifterData || gifterData.length === 0) {
+        gifterData = [
+          { name: 'Sultan_Jakarta', diamonds: 15400, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=sultan' },
+          { name: 'Rina_Cute', diamonds: 8200, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=rina' },
+          { name: 'Budi_Gamer', diamonds: 3500, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=budi' },
+          { name: 'Andi_Stream', diamonds: 1200, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=andi' },
+          { name: 'Tiktok_Fan99', diamonds: 450, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=fan99' }
+        ];
+      }
+
       function saveGifters() {
         try {
           localStorage.setItem('streampulse_tt_gifters', JSON.stringify(gifterData));
@@ -1298,6 +1309,17 @@
         const saved = localStorage.getItem('streampulse_tt_likes');
         if (saved) likeData = JSON.parse(saved);
       } catch (e) {}
+
+      // Seed default tapper data if empty so preview is immediately lively
+      if (!likeData || likeData.length === 0) {
+        likeData = [
+          { name: 'Tapper_Pro', likes: 1840, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=tapper' },
+          { name: 'MegaSpammer', likes: 1250, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=spammer' },
+          { name: 'Siti_Love', likes: 980, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=siti' },
+          { name: 'Audrey_ID', likes: 620, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=audrey' },
+          { name: 'Gamer_Keren', likes: 310, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=keren' }
+        ];
+      }
 
       function saveLikes() {
         try {
@@ -1514,6 +1536,14 @@
         jarCanvas.width = 320;
         jarCanvas.height = 480;
 
+        if (jarParticles.length === 0) {
+          for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+              spawnJarGift();
+            }, i * 160);
+          }
+        }
+
         requestAnimationFrame(updateJarPhysics);
       }
 
@@ -1717,6 +1747,8 @@
         window.addEventListener('resize', resize);
 
         requestAnimationFrame(updateWaterfall);
+        spawnWaterfallHeart(12);
+        spawnAvatarBurst('MegaTapper', 50);
       }
 
       function spawnWaterfallHeart(count = 1) {
@@ -1856,29 +1888,6 @@
             <div class="alert-icon-badge">${iconBadge}</div>
           </div>
           <div class="alert-content">
-            <div class="alert-title">${title}</div>
-            <div class="alert-user">${cur.author}</div>
-            <div class="alert-detail">${cur.detail || cur.text || ''}</div>
-          </div>
-          ${cur.streak && cur.streak > 1 ? `
-            <div class="alert-streak-pill">
-              <span class="streak-multiplier">x${cur.streak}</span>
-              <span class="streak-label">COMBO</span>
-            </div>
-          ` : ''}
-        `;
-
-        container.appendChild(card);
-        playTone(isGift ? 'gift' : (cur.type === 'follow' ? 'follow' : 'pop'));
-
-        setTimeout(() => {
-          card.classList.add('alert-out');
-          setTimeout(() => {
-            if (card.parentNode) card.parentNode.removeChild(card);
-            processNextAlert();
-          }, 450);
-        }, 4200);
-      }
             <div class="alert-title">${title}</div>
             <div class="alert-user">${cur.author}</div>
             <div class="alert-detail">${cur.detail || cur.text || ''}</div>
@@ -2095,6 +2104,14 @@
           root.innerHTML = `
             <div class="alerts-container" id="alertsContainer"></div>
           `;
+          setTimeout(() => {
+            queueAlert({
+              type: 'gift',
+              author: 'Sultan_Vip',
+              detail: 'Mawar x10 Combo! 🌹',
+              streak: 10
+            });
+          }, 350);
         } else if (activeWidget === 'goals') {
           root.innerHTML = `
             <div id="widget-goals"></div>
