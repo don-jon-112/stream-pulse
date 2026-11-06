@@ -1500,9 +1500,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (emptyState) emptyState.remove();
 
     const item = document.createElement('div');
-    item.className = 'chat-item';
+    item.className = 'chat-item' + (chat.isFollow ? ' chat-follow-item' : (chat.isGift ? ' chat-gift-item' : ''));
     item.dataset.platform = chat.platform;
-    item.dataset.isEvent = 'false';
+    item.dataset.isEvent = chat.isFollow ? 'true' : 'false';
 
     const isDarkTheme = isDarkModeActive();
     let authorColor = ensureContrastForLightBg(author.color, '#0f172a');
@@ -1517,7 +1517,8 @@ document.addEventListener('DOMContentLoaded', () => {
         : `<div class="chat-avatar">${initial}</div>`)
       : '';
 
-    const badgesHtml = getPlatformBadge(chat.platform) + getOfficialBadgesHtml(chat);
+    const followBadge = chat.isFollow ? `<span class="badge-user" style="background:rgba(37,244,238,0.2); border:1px solid rgba(37,244,238,0.4); color:#00b4d8; font-weight:800;">➕ FOLLOW</span>` : '';
+    const badgesHtml = getPlatformBadge(chat.platform) + followBadge + getOfficialBadgesHtml(chat);
 
     let chatTextHtml = '';
     if (chat.platform === 'twitch') {
@@ -1582,10 +1583,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (evt.platform === 'tiktok') {
       if (evt.eventType === 'gift') extraClass = 'tiktok-gift';
       else if (evt.eventType === 'subscribe') extraClass = 'tiktok-sub';
+      else if (evt.eventType === 'follow') extraClass = 'tiktok-follow';
+      else if (evt.eventType === 'share') extraClass = 'tiktok-share';
       else extraClass = 'tiktok-gift';
     } else if (evt.platform === 'twitch') {
       if (evt.eventType === 'redeem') extraClass = 'twitch-redeem';
       else if (evt.eventType === 'watch_streak') extraClass = 'twitch-streak';
+      else if (evt.eventType === 'follow') extraClass = 'twitch-follow';
       else extraClass = 'twitch-sub';
     }
 

@@ -1751,6 +1751,24 @@ body.hide-avatars .chat-item {
   border-left: 3px solid var(--tiktok-pink);
 }
 
+.chat-item.event-item.tiktok-follow,
+.chat-item.event-item.twitch-follow {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  border-left: 3px solid #00b4d8;
+}
+
+.chat-item.event-item.tiktok-share {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  border-left: 3px solid #10b981;
+}
+
+.chat-item.chat-follow-item {
+  background: rgba(37, 244, 238, 0.05);
+  border-left: 3px solid #00b4d8;
+}
+
 .event-highlight-text {
   font-family: var(--font-display);
   font-weight: 600;
@@ -3058,6 +3076,18 @@ body.dark-mode {
   background: rgba(254, 44, 85, 0.1) !important;
   border-color: rgba(254, 44, 85, 0.3) !important;
   border-left: 3px solid var(--tiktok-pink) !important;
+}
+
+:root[data-theme="dark"] .chat-item.event-item.tiktok-follow,
+:root[data-theme="dark"] .chat-item.event-item.twitch-follow {
+  background: rgba(37, 244, 238, 0.08) !important;
+  border-color: rgba(37, 244, 238, 0.25) !important;
+  border-left: 3px solid #25f4ee !important;
+}
+
+:root[data-theme="dark"] .chat-item.chat-follow-item {
+  background: rgba(37, 244, 238, 0.06) !important;
+  border-left: 3px solid #25f4ee !important;
 }
 
 :root[data-theme="dark"] .chat-item.event-item.twitch-sub {

@@ -488,6 +488,11 @@
       border-color: rgba(145, 70, 255, 0.4);
       border-left-color: var(--twitch);
     }
+    .dock-event-item.follow {
+      background: linear-gradient(90deg, rgba(37, 244, 238, 0.15), var(--bg-card));
+      border-color: rgba(37, 244, 238, 0.4);
+      border-left-color: #00b4d8;
+    }
 
     .dock-event-header {
       display: flex;
@@ -657,6 +662,12 @@
       border-color: #27272a !important;
       border-left-color: #ffffff !important;
       color: #f8fafc !important;
+    }
+
+    :root[data-theme="dark"] .dock-event-item.follow {
+      background: linear-gradient(90deg, rgba(37, 244, 238, 0.12), #18181b) !important;
+      border-color: rgba(37, 244, 238, 0.35) !important;
+      border-left-color: #25f4ee !important;
     }
 
     :root[data-theme="dark"] .dock-event-header {
