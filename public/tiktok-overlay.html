@@ -1006,6 +1006,15 @@
       const isPreview = urlParams.get('preview') === '1' || window.self !== window.top;
       let socket = null;
 
+      // Sound should ONLY be enabled for 'alerts' (or combined 'all') by default.
+      // Other widgets (top-likes, top-gifter, gift-jar, like-waterfall, goals) are silent by default
+      // unless explicitly requested via ?sound=1 in URL.
+      const soundParam = urlParams.get('sound');
+      const isAlertWidget = (activeWidget === 'alerts' || activeWidget === 'all');
+      const soundEnabled = soundParam !== null
+        ? (soundParam === '1' || soundParam === 'true')
+        : isAlertWidget;
+
       const config = {
         widget: activeWidget,
         channel: urlParams.get('channel') || urlParams.get('tiktok') || '',
@@ -1014,7 +1023,7 @@
         limit: parseInt(urlParams.get('limit') || '5', 10),
         goal: parseInt(urlParams.get('goal') || '50', 10),
         direction: urlParams.get('direction') || 'up', // 'up' or 'down'
-        sound: urlParams.get('sound') !== '0',
+        sound: soundEnabled,
         volume: parseInt(urlParams.get('volume') || '75', 10) / 100,
         layout: urlParams.get('layout') || 'podium', // 'podium' or 'list'
         // Goals Configuration
@@ -1216,7 +1225,6 @@
         gifterData.sort((a, b) => b.diamonds - a.diamonds);
         saveGifters();
         renderTopGifter();
-        playTone('gift');
       }
 
       function renderTopGifter() {
@@ -2255,56 +2263,70 @@
         socket.on('new_event', (evt) => {
           if (!evt) return;
 
-          // Dispatch to appropriate handler
+          // Dispatch to appropriate handler based on active widget
           if (evt.eventType === 'gift' || evt.type === 'gift') {
-            handleGiftEvent(evt);
-            if (activeWidget === 'gift-jar') spawnJarGift(evt);
-            if (activeWidget === 'goals' && config.goalType === 'gift') {
+            if (activeWidget === 'top-gifter' || activeWidget === 'all') {
+              handleGiftEvent(evt);
+            }
+            if (activeWidget === 'gift-jar' || activeWidget === 'all') {
+              spawnJarGift(evt);
+            }
+            if ((activeWidget === 'goals' || activeWidget === 'all') && config.goalType === 'gift') {
               updateGoalProgress(Number(evt.diamonds) || 1);
             }
-            queueAlert({
-              type: 'gift',
-              author: evt.author,
-              avatar: evt.avatar,
-              detail: evt.detail || `${evt.diamonds || 1} Koin Hadiah`,
-              streak: evt.streak || 1
-            });
+            if (activeWidget === 'alerts' || activeWidget === 'all') {
+              queueAlert({
+                type: 'gift',
+                author: evt.author,
+                avatar: evt.avatar,
+                detail: evt.detail || `${evt.diamonds || 1} Koin Hadiah`,
+                streak: evt.streak || 1
+              });
+            }
           } else if (evt.eventType === 'like' || evt.type === 'like') {
-            handleLikeEvent(evt);
-            if (activeWidget === 'like-waterfall') {
+            if (activeWidget === 'top-likes' || activeWidget === 'all') {
+              handleLikeEvent(evt);
+            }
+            if (activeWidget === 'like-waterfall' || activeWidget === 'all') {
               spawnWaterfallHeart(12);
               spawnAvatarBurst(evt.author || 'TiktokUser', evt.count || 15, evt.avatar);
             }
-            if (activeWidget === 'goals' && config.goalType === 'like') {
+            if ((activeWidget === 'goals' || activeWidget === 'all') && config.goalType === 'like') {
               updateGoalProgress(Number(evt.count || evt.likeCount) || 15);
             }
           } else if (evt.eventType === 'follow' || evt.type === 'follow') {
-            if (activeWidget === 'goals' && config.goalType === 'follower') {
+            if ((activeWidget === 'goals' || activeWidget === 'all') && config.goalType === 'follower') {
               updateGoalProgress(1);
             }
-            queueAlert({
-              type: 'follow',
-              author: evt.author,
-              avatar: evt.avatar,
-              detail: 'Mulai mengikuti siaran live! 🌟'
-            });
+            if (activeWidget === 'alerts' || activeWidget === 'all') {
+              queueAlert({
+                type: 'follow',
+                author: evt.author,
+                avatar: evt.avatar,
+                detail: 'Mulai mengikuti siaran live! 🌟'
+              });
+            }
           } else if (evt.eventType === 'share' || evt.type === 'share') {
-            queueAlert({
-              type: 'share',
-              author: evt.author,
-              avatar: evt.avatar,
-              detail: 'Membagikan siaran ke teman! 🚀'
-            });
+            if (activeWidget === 'alerts' || activeWidget === 'all') {
+              queueAlert({
+                type: 'share',
+                author: evt.author,
+                avatar: evt.avatar,
+                detail: 'Membagikan siaran ke teman! 🚀'
+              });
+            }
           }
         });
 
         socket.on('new_chat', (chat) => {
           if (chat && chat.isGift) {
-            handleGiftEvent({
-              author: chat.author?.name || 'User',
-              diamonds: 10,
-              detail: chat.text
-            });
+            if (activeWidget === 'top-gifter' || activeWidget === 'all') {
+              handleGiftEvent({
+                author: chat.author?.name || 'User',
+                diamonds: 10,
+                detail: chat.text
+              });
+            }
           }
         });
       } catch (err) {
@@ -2319,37 +2341,47 @@
         if (!msg || typeof msg !== 'object') return;
 
         if (msg.action === 'sim_gift') {
-          handleGiftEvent(msg.payload || { author: 'SultanSultan', diamonds: 100 });
-          if (activeWidget === 'gift-jar') spawnJarGift(msg.gift);
-          if (activeWidget === 'goals' && config.goalType === 'gift') {
+          if (activeWidget === 'top-gifter' || activeWidget === 'all') {
+            handleGiftEvent(msg.payload || { author: 'SultanSultan', diamonds: 100 });
+          }
+          if (activeWidget === 'gift-jar' || activeWidget === 'all') {
+            spawnJarGift(msg.gift);
+          }
+          if ((activeWidget === 'goals' || activeWidget === 'all') && config.goalType === 'gift') {
             updateGoalProgress(Number(msg.payload?.diamonds) || 10);
           }
-          queueAlert({
-            type: 'gift',
-            author: msg.payload?.author || 'SultanSultan',
-            avatar: msg.payload?.avatar,
-            detail: msg.payload?.detail || 'Paus Menyelam x1',
-            streak: msg.payload?.streak || 1
-          });
+          if (activeWidget === 'alerts' || activeWidget === 'all') {
+            queueAlert({
+              type: 'gift',
+              author: msg.payload?.author || 'SultanSultan',
+              avatar: msg.payload?.avatar,
+              detail: msg.payload?.detail || 'Paus Menyelam x1',
+              streak: msg.payload?.streak || 1
+            });
+          }
         } else if (msg.action === 'sim_like') {
-          handleLikeEvent(msg.payload || { author: 'TiktokTapper', count: 25 });
-          if (activeWidget === 'like-waterfall') {
+          if (activeWidget === 'top-likes' || activeWidget === 'all') {
+            handleLikeEvent(msg.payload || { author: 'TiktokTapper', count: 25 });
+          }
+          if (activeWidget === 'like-waterfall' || activeWidget === 'all') {
             spawnWaterfallHeart(15);
             spawnAvatarBurst(msg.payload?.author || 'TiktokTapper', msg.payload?.count || 25, msg.payload?.avatar);
           }
-          if (activeWidget === 'goals' && config.goalType === 'like') {
+          if ((activeWidget === 'goals' || activeWidget === 'all') && config.goalType === 'like') {
             updateGoalProgress(Number(msg.payload?.count) || 25);
           }
         } else if (msg.action === 'sim_follow') {
-          if (activeWidget === 'goals' && config.goalType === 'follower') {
+          if ((activeWidget === 'goals' || activeWidget === 'all') && config.goalType === 'follower') {
             updateGoalProgress(1);
           }
-          queueAlert({
-            type: 'follow',
-            author: msg.payload?.author || 'FollowerBaru',
-            avatar: msg.payload?.avatar,
-            detail: 'Mulai mengikuti live kamu! 🌟'
-          });
+          if (activeWidget === 'alerts' || activeWidget === 'all') {
+            queueAlert({
+              type: 'follow',
+              author: msg.payload?.author || 'FollowerBaru',
+              avatar: msg.payload?.avatar,
+              detail: 'Mulai mengikuti live kamu! 🌟'
+            });
+          }
         } else if (msg.action === 'sim_goal_inc') {
           updateGoalProgress(msg.count || 25);
         } else if (msg.action === 'sim_goal_finish') {
@@ -2360,12 +2392,14 @@
           saveGoalProgress();
           renderGoals();
         } else if (msg.action === 'sim_share') {
-          queueAlert({
-            type: 'share',
-            author: msg.payload?.author || 'TemanBaik',
-            avatar: msg.payload?.avatar,
-            detail: 'Membagikan live ke teman-teman! 🚀'
-          });
+          if (activeWidget === 'alerts' || activeWidget === 'all') {
+            queueAlert({
+              type: 'share',
+              author: msg.payload?.author || 'TemanBaik',
+              avatar: msg.payload?.avatar,
+              detail: 'Membagikan live ke teman-teman! 🚀'
+            });
+          }
         } else if (msg.action === 'reset_data') {
           if (msg.target === 'gifter') {
             gifterData = [];
@@ -2396,19 +2430,29 @@
       // Internal Simulator Triggers for direct access
       window.__StreamPulseTT = {
         simGift: (author, diamonds, detail, streak) => {
-          handleGiftEvent({ author, diamonds, detail });
-          if (activeWidget === 'gift-jar') spawnJarGift();
-          queueAlert({ type: 'gift', author, detail, streak: streak || 1 });
+          if (activeWidget === 'top-gifter' || activeWidget === 'all') {
+            handleGiftEvent({ author, diamonds, detail });
+          }
+          if (activeWidget === 'gift-jar' || activeWidget === 'all') {
+            spawnJarGift();
+          }
+          if (activeWidget === 'alerts' || activeWidget === 'all') {
+            queueAlert({ type: 'gift', author, detail, streak: streak || 1 });
+          }
         },
         simLike: (author, count) => {
-          handleLikeEvent({ author, count });
-          if (activeWidget === 'like-waterfall') {
+          if (activeWidget === 'top-likes' || activeWidget === 'all') {
+            handleLikeEvent({ author, count });
+          }
+          if (activeWidget === 'like-waterfall' || activeWidget === 'all') {
             spawnWaterfallHeart(15);
             spawnAvatarBurst(author, count);
           }
         },
         simFollow: (author) => {
-          queueAlert({ type: 'follow', author, detail: 'Mulai mengikuti siaran!' });
+          if (activeWidget === 'alerts' || activeWidget === 'all') {
+            queueAlert({ type: 'follow', author, detail: 'Mulai mengikuti siaran!' });
+          }
         },
         resetGifters: () => {
           gifterData = [];
