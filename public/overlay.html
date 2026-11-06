@@ -299,6 +299,14 @@
     
 
     /* Official Platform Badges */
+    .overlay-badges-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      vertical-align: middle;
+      margin-right: 3px;
+      flex-shrink: 0;
+    }
     .platform-official-badge {
       display: inline-block;
       width: 18px;
@@ -308,7 +316,7 @@
       border-radius: 2px;
       vertical-align: middle;
       object-fit: contain;
-      margin-right: 4px;
+      margin-right: 2px;
     }
     .twitch-badge {
       width: 18px;
@@ -2367,7 +2375,7 @@
 
       // Official Platform Badges Renderer
       function renderBadges(chat) {
-        if (!config.showBadges) return '';
+        if (config.showBadges === false && config.showTwitchBadges !== true && config.showYtBadges !== true) return '';
 
         // V2 Themes: Glass v2 & Paper v2 hide badges; Bubbles v2 shows clean outline badge matching reference
         const isBubblesV2 = document.body.classList.contains('theme-bubbles-v2') || config.theme === 'bubbles-v2';
@@ -2417,7 +2425,7 @@
             const b = TWITCH_OFFICIAL_BADGES.moderator;
             html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
           }
-          if (badges.vip) {
+          if (badges.vip || author.isVip) {
             const b = TWITCH_OFFICIAL_BADGES.vip;
             html += `<img src="${b.url}" class="platform-official-badge twitch-badge" alt="${b.title}" title="${b.title}" referrerpolicy="no-referrer" loading="lazy">`;
           }
