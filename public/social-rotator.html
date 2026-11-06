@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Rotator Overlay - StreamPulse OBS Tools</title>
+  <meta name="description" content="Kustomisasi widget rotator akun media sosial animasi untuk OBS Studio. Dukung TikTok, YouTube, Twitch, Instagram, Discord, X/Twitter, Kick dengan ragam pilihan tema modern.">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Nunito:wght@700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    :root {
+      color-scheme: light;
+      --surface: #ffffff;
+      --surface-soft: #fafafa;
+    }
+    :root[data-theme="dark"], body.dark-mode {
+      color-scheme: dark;
+      --surface: #18181b;
+      --surface-soft: #111115;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    body {
+      background: var(--bg-canvas);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Nav */
+    .rotator-nav-header {
+      min-height: 56px;
+      height: 56px;
+      padding: 0 20px;
+      background: var(--bg-canvas);
+      border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .rotator-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .rotator-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Main Container */
+    .rotator-page-wrapper {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px 20px;
+      flex: 1;
+    }
+
+    /* Page Intro */
+    .rotator-hero {
+      margin-bottom: 24px;
+    }
+    .rotator-hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      color: #a855f7;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .rotator-hero h1 {
+      font-size: 1.85rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+    .rotator-hero p {
+      font-size: 0.92rem;
+      color: var(--ink-secondary);
+      max-width: 760px;
+      line-height: 1.5;
+    }
+
+    /* 2-Column Responsive Layout */
+    .rotator-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1080px) {
+      .rotator-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Sticky Column */
+    .rotator-left-col {
+      position: sticky;
+      top: 76px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @media (max-width: 1080px) {
+      .rotator-left-col {
+        position: static;
+      }
+    }
+
+    /* Live Preview Card */
+    .preview-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .preview-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+    .preview-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e;
+      animation: liveDotPulse 1.5s infinite;
+    }
+    @keyframes liveDotPulse {
+      0%, 100% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+
+    /* Stage Canvas */
+    .preview-canvas-box {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--hairline);
+      transition: background 0.3s ease;
+    }
+
+    /* Canvas Background Options */
+    .canvas-bg-checker {
+      background-color: #0b0f17;
+      background-image:
+        linear-gradient(45deg, #131926 25%, transparent 25%),
+        linear-gradient(-45deg, #131926 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #131926 75%),
+        linear-gradient(-45deg, transparent 75%, #131926 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    }
+    .canvas-bg-dark {
+      background: #090a0f;
+    }
+    .canvas-bg-gaming {
+      background: linear-gradient(135deg, #111827 0%, #1e1b4b 50%, #0f172a 100%);
+    }
+    .canvas-bg-bright {
+      background: #e2e8f0;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent !important;
+      display: block;
+    }
+
+    /* Preview Controls Bar */
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--hairline);
+    }
+    .btn-preview-action {
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-preview-action:hover {
+      background: var(--hairline);
+      transform: translateY(-1px);
+    }
+
+    .bg-switcher {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .bg-dot-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+    .bg-dot-btn.active {
+      border-color: #a855f7;
+      transform: scale(1.15);
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+    }
+
+    /* OBS URL Box */
+    .obs-url-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .obs-url-input-wrap {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 16px 0;
+    }
+    .obs-url-input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--hairline);
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      outline: none;
+      min-width: 0;
+    }
+    .obs-url-input:focus {
+      border-color: #a855f7;
+    }
+    .btn-copy-url {
+      padding: 10px 18px;
+      background: #a855f7;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-copy-url:hover {
+      background: #9333ea;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .obs-instructions {
+      font-size: 0.78rem;
+      color: var(--ink-secondary);
+      line-height: 1.6;
+      background: var(--surface-soft);
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--hairline);
+    }
+    .obs-instructions ol {
+      margin: 6px 0 0 16px;
+      padding: 0;
+    }
+    .obs-instructions li {
+      margin-bottom: 4px;
+    }
+
+    /* Right Column Cards */
+    .config-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    .config-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .config-card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .config-card-desc {
+      font-size: 0.82rem;
+      color: var(--ink-secondary);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    /* Social Accounts List Editor */
+    .social-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .social-item-row {
+      display: grid;
+      grid-template-columns: 36px 140px 1fr 140px auto;
+      gap: 10px;
+      align-items: center;
+      background: var(--surface-soft);
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--hairline);
+      transition: all 0.2s ease;
+    }
+
+    @media (max-width: 768px) {
+      .social-item-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+
+    .social-item-row.disabled {
+      opacity: 0.55;
+    }
+
+    .social-icon-preview {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .social-icon-preview svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .social-input-select,
+    .social-input-text {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--hairline);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+    }
+    .social-input-select:focus,
+    .social-input-text:focus {
+      border-color: #a855f7;
+    }
+
+    .social-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-row-action {
+      background: transparent;
+      border: 1px solid var(--hairline);
+      color: var(--ink);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-row-action:hover {
+      background: var(--hairline);
+    }
+    .btn-row-action.delete:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    /* Theme Picker Grid */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+
+    .theme-card-option {
+      background: var(--surface-soft);
+      border: 2px solid var(--hairline);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .theme-card-option:hover {
+      transform: translateY(-2px);
+      border-color: rgba(168, 85, 247, 0.4);
+    }
+    .theme-card-option.active {
+      border-color: #a855f7;
+      background: rgba(168, 85, 247, 0.04);
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.15);
+    }
+
+    .theme-thumbnail {
+      width: 100%;
+      height: 52px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .theme-meta-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .theme-meta-desc {
+      font-size: 0.72rem;
+      color: var(--ink-secondary);
+      line-height: 1.35;
+    }
+
+    /* Controls Grid */
+    .control-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .control-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .control-select,
+    .control-range {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--hairline);
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-size: 0.86rem;
+      font-weight: 600;
+      outline: none;
+    }
+    .control-select:focus {
+      border-color: #a855f7;
+    }
+
+    /* Pill Selection Buttons */
+    .pill-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-pill-opt {
+      flex: 1;
+      min-width: 60px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--hairline);
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .btn-pill-opt.active {
+      background: #a855f7;
+      color: #ffffff;
+      border-color: #a855f7;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast-msg {
+      background: #18181b;
+      color: #f8fafc;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes toastIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="rotator-nav-header">
+    <div class="rotator-header-left">
+      <button id="btnSideDrawerOpen" class="btn-drawer-toggle" title="Menu Navigasi StreamPulse (M)" aria-label="Buka Menu Samping">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
+        <div class="brand-logo" style="width:28px; height:28px;">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <span style="font-weight:900; font-size:1.1rem; letter-spacing:-0.01em;">StreamPulse</span>
+        <span style="font-size:0.65rem; background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 6px; border-radius:4px; font-weight:800;">ROTATOR</span>
+      </a>
+    </div>
+
+    <div class="rotator-header-right">
+      <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
+        <span class="theme-icon">☀️</span>
+      </button>
+
+      <a href="/studio?auth=1" class="btn-icon btn-primary" title="Akun Pengguna & OBS Studio" style="text-decoration:none; padding:6px 14px; font-weight:700; border-radius:var(--radius-pill);">
+        <span>🔐 Login / Akun</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- STANDARDIZED SIDE NAVIGATION DRAWER & BACKDROP -->
+  <div id="sideDrawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="sideDrawer" class="side-drawer" aria-label="Menu Navigasi Samping" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <div class="drawer-title-group">
+          <span class="drawer-title">StreamPulse</span>
+          <span class="drawer-badge">PRO MAX</span>
+        </div>
+      </div>
+      <button id="btnCloseSideDrawer" class="btn-drawer-close" aria-label="Tutup Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- User Profile Card in Drawer -->
+    <a href="/studio" class="drawer-user-hero" id="drawerUserHero" title="Buka Panel Profil & OBS Studio">
+      <div class="drawer-user-avatar" id="drawerUserAvatar">👤</div>
+      <div class="drawer-user-meta">
+        <div class="drawer-user-name" id="drawerUserName">Streamer Tamu</div>
+        <div class="drawer-user-role" id="drawerUserRole">Mode Tamu • Klik untuk Login</div>
+      </div>
+      <div class="drawer-user-arrow">→</div>
+    </a>
+
+    <!-- Drawer Navigation Content -->
+    <div class="drawer-scroll-body">
+      <!-- Section 1: Saluran & Monitor -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">SALURAN MONITOR</div>
+
+        <a href="/" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:var(--primary); background:rgba(99,102,241,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">MultiChat Dashboard</span>
+            <span class="drawer-nav-desc">Live chat multi-platform Twitch, YT & TikTok</span>
+          </div>
+        </a>
+
+        <button id="drawerBtnSetup" class="drawer-nav-item" type="button">
+          <div class="drawer-icon-wrap" style="color:#a855f7; background:rgba(168,85,247,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Atur Saluran Monitor</span>
+            <span class="drawer-nav-desc">Hubungkan Twitch, YouTube & TikTok</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Section 2: OBS Tools -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">OBS TOOLS</div>
+
+        <a href="/dock" target="_blank" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#06b6d4; background:rgba(6,182,212,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">OBS Custom Dock</span>
+            <span class="drawer-nav-desc">Panel chat interaktif untuk OBS Studio</span>
+          </div>
+        </a>
+
+        <a href="/viewers" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#38bdf8; background:rgba(56,189,248,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Live Viewers Counter</span>
+            <span class="drawer-nav-desc">Widget penghitung penonton siaran untuk OBS</span>
+          </div>
+        </a>
+
+        <a href="/social-rotator" class="drawer-nav-item active">
+          <div class="drawer-icon-wrap" style="color:#a855f7; background:rgba(168,85,247,0.14);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Social Media Rotator <span style="font-size:0.62rem; background:rgba(168,85,247,0.2); color:#a855f7; padding:1px 5px; border-radius:4px; font-weight:800; margin-left:4px;">NEW</span></span>
+            <span class="drawer-nav-desc">Rotator akun sosial media animasi untuk OBS</span>
+          </div>
+        </a>
+
+        <a href="/studio" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#ec4899; background:rgba(236,72,153,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.27 19.57 10.58 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-1.38 0-2.63-.47-3.64-1.26l2.35-2.35c.78.39 1.66.61 2.59.61 3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6c0 .93.22 1.81.61 2.59L5.56 19.94C4.59 18.73 4 17.2 4 15.5c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z" />
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Overlay Studio & CSS</span>
+            <span class="drawer-nav-desc">Kustomisasi tema & animasi browser source</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Section: Widget TikTok LIVE -->
+      <div class="drawer-section">
+        <div class="drawer-section-title" style="color:#fe2c55; display:flex; align-items:center; gap:6px;">
+          <span>WIDGET TIKTOK LIVE</span>
+          <span style="font-size:0.62rem; background:rgba(254,44,85,0.15); color:#fe2c55; padding:1px 6px; border-radius:4px; font-weight:800;">NEW</span>
+        </div>
+
+        <a href="/tiktok-widgets" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#fe2c55; background:rgba(254,44,85,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Widget TikTok LIVE Hub</span>
+            <span class="drawer-nav-desc">Top Gifter, Top Likes, Jar, Waterfall & Alerts</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Section: Komunitas & Bantuan -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">KOMUNITAS & BANTUAN</div>
+        <a href="/features" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#8b5cf6; background:rgba(139,92,246,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Roadmap & Usulan Fitur</span>
+            <span class="drawer-nav-desc">Papan ide & voting fitur komunitas</span>
+          </div>
+        </a>
+
+        <button id="btnDonateModal" class="drawer-nav-item" type="button">
+          <div class="drawer-icon-wrap" style="color:#f97316; background:rgba(249,115,22,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Dukung Pengembang</span>
+            <span class="drawer-nav-desc">Traktir kopi via SociaBuzz / QRIS</span>
+          </div>
+        </button>
+
+        <a href="/privacy" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#10b981; background:rgba(168,85,247,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Kebijakan Privasi</span>
+            <span class="drawer-nav-desc">Keamanan data & ketentuan layanan</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Page Content -->
+  <main class="rotator-page-wrapper">
+    <div class="rotator-hero">
+      <div class="rotator-hero-tag">
+        <span>✨ OBS BROWSER SOURCE OVERLAY</span>
+      </div>
+      <h1>Social Media Rotator Overlay</h1>
+      <p>
+        Tampilkan akun-akun media sosial Anda secara bergantian dengan animasi dinamis di layar livestream OBS Studio.
+        Pilih dari beragam tema visual premium (Frost Glass, Cyberpunk Neon, Gaming RGB, Retro Arcade, Pop Gradient, dan lainnya).
+      </p>
+    </div>
+
+    <div class="rotator-grid">
+      <!-- Left Column: Live Interactive Preview & OBS URL -->
+      <div class="rotator-left-col">
+        <!-- Live Preview Box -->
+        <div class="preview-card">
+          <div class="preview-header">
+            <div class="preview-title">
+              <span>Pratinjau Langsung</span>
+              <span class="preview-badge-live">
+                <span class="preview-dot"></span>
+                <span>REAL-TIME</span>
+              </span>
+            </div>
+            <div class="bg-switcher">
+              <button type="button" class="bg-dot-btn canvas-bg-checker active" title="Latar Belakang Transparan (Checker)" data-bg="canvas-bg-checker"></button>
+              <button type="button" class="bg-dot-btn canvas-bg-dark" title="Latar Belakang Gelap" data-bg="canvas-bg-dark"></button>
+              <button type="button" class="bg-dot-btn canvas-bg-gaming" title="Latar Belakang Gaming" data-bg="canvas-bg-gaming"></button>
+              <button type="button" class="bg-dot-btn canvas-bg-bright" title="Latar Belakang Terang" data-bg="canvas-bg-bright"></button>
+            </div>
+          </div>
+
+          <div id="previewCanvasBox" class="preview-canvas-box canvas-bg-checker">
+            <iframe id="previewIframe" class="preview-iframe" src="/social-rotator-overlay" title="Pratinjau Rotator Overlay"></iframe>
+          </div>
+
+          <div class="preview-toolbar">
+            <div style="display:flex; gap:8px;">
+              <button type="button" id="btnPreviewNext" class="btn-preview-action" title="Paksa ganti ke akun sosial berikutnya">
+                <span>⏭ Putar Berikutnya</span>
+              </button>
+              <button type="button" id="btnPreviewPause" class="btn-preview-action" title="Jeda atau lanjutkan putaran">
+                <span id="btnPauseLabel">⏸ Jeda</span>
+              </button>
+            </div>
+            <a href="/social-rotator-overlay" id="btnTestOverlayTab" target="_blank" class="btn-preview-action" style="text-decoration:none;">
+              <span>↗ Buka Tab</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- OBS Browser Source Link Card -->
+        <div class="obs-url-card">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:0.9rem; font-weight:800; display:flex; align-items:center; gap:6px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              URL OBS Browser Source
+            </span>
+            <span style="font-size:0.72rem; font-weight:700; color:#a855f7;">Siap Pakai</span>
+          </div>
+
+          <div class="obs-url-input-wrap">
+            <input type="text" id="obsOverlayUrl" class="obs-url-input" readonly value="">
+            <button type="button" id="btnCopyOverlayUrl" class="btn-copy-url">
+              <span>Salin URL</span>
+            </button>
+          </div>
+
+          <div class="obs-instructions">
+            <strong>Cara Pasang di OBS Studio:</strong>
+            <ol>
+              <li>Buka OBS Studio, klik tanda <strong>+</strong> pada panel <strong>Sources</strong>.</li>
+              <li>Pilih <strong>Browser</strong> dan beri nama (misal: <em>Social Rotator</em>).</li>
+              <li>Paste URL di atas ke dalam kolom <strong>URL</strong>.</li>
+              <li>Ukuran resolusi rekomendasi: <strong>Width: 480</strong>, <strong>Height: 120</strong> (atau disesuaikan).</li>
+              <li>Centang <em>"Shutdown source when not visible"</em> untuk menghemat beban GPU.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Configurations & Customization -->
+      <div class="rotator-right-col">
+        <!-- 1. Social Accounts List Card -->
+        <div class="config-card">
+          <div class="config-card-header">
+            <div>
+              <div class="config-card-title">
+                <span>📱 Daftar Akun Media Sosial</span>
+              </div>
+              <div class="config-card-desc" style="margin-bottom:0;">
+                Tambah, atur urutan, atau aktifkan/nonaktifkan akun yang ingin ditampilkan pada overlay.
+              </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" id="btnImportChannels" class="btn-preview-action" style="background:rgba(168,85,247,0.1); color:#a855f7; border-color:rgba(168,85,247,0.3);" title="Ambil akun Twitch, YouTube, & TikTok yang tersimpan di halaman utama">
+                <span>⚡ Ambil Saluran Saya</span>
+              </button>
+              <button type="button" id="btnAddSocialItem" class="btn-copy-url" style="padding:6px 14px; font-size:0.8rem;">
+                <span>+ Tambah Akun</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Item Rows -->
+          <div id="socialItemsList" class="social-items-list">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+
+        <!-- 2. Themes Selection Card (Many Selection as Requested!) -->
+        <div class="config-card">
+          <div class="config-card-title">
+            <span>🎨 Koleksi Tema Tampilan (Themes)</span>
+          </div>
+          <div class="config-card-desc">
+            Pilih tema estetika yang paling cocok dengan gaya branding dan game yang Anda mainkan.
+          </div>
+
+          <div class="theme-grid" id="themeGrid">
+            <!-- 1. Frost Glass -->
+            <div class="theme-card-option active" data-theme="glass">
+              <div class="theme-thumbnail" style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:18px; height:18px; border-radius:50%; background:#fe2c55; display:inline-block;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Frost Glass</div>
+                <div class="theme-meta-desc">Kaca buram modern minimalis dengan efek blur tembus pandang.</div>
+              </div>
+            </div>
+
+            <!-- 2. Cyberpunk Neon -->
+            <div class="theme-card-option" data-theme="cyberpunk">
+              <div class="theme-thumbnail" style="background:#090b14; border:1.5px solid #00f0ff; color:#00f0ff; box-shadow:0 0 10px rgba(0,240,255,0.4); font-family:monospace;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:18px; height:18px; border-radius:4px; background:#ff007f; display:inline-block;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Cyberpunk Neon</div>
+                <div class="theme-meta-desc">Gaya sci-fi hi-tech dengan border neon bercahaya cyan & magenta.</div>
+              </div>
+            </div>
+
+            <!-- 3. Gaming RGB Chroma -->
+            <div class="theme-card-option" data-theme="chroma">
+              <div class="theme-thumbnail" style="background:#0f1015; border:2px solid #a855f7; color:#fff; position:relative;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:18px; height:18px; border-radius:50%; background:#9146ff; display:inline-block;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Gaming RGB Chroma</div>
+                <div class="theme-meta-desc">Border warna-warni pelangi RGB berputar khas setup gamer pro.</div>
+              </div>
+            </div>
+
+            <!-- 4. Minimal Obsidian -->
+            <div class="theme-card-option" data-theme="minimal-dark">
+              <div class="theme-thumbnail" style="background:#121217; border:1px solid rgba(255,255,255,0.12); color:#fff; border-radius:9999px;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:18px; height:18px; border-radius:50%; background:#5865f2; display:inline-block;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Minimal Obsidian</div>
+                <div class="theme-meta-desc">Pill badge warna hitam pekat elegan dengan kontras teks tajam.</div>
+              </div>
+            </div>
+
+            <!-- 5. Minimal Porcelain -->
+            <div class="theme-card-option" data-theme="minimal-light">
+              <div class="theme-thumbnail" style="background:#ffffff; border:1px solid rgba(0,0,0,0.1); color:#0f172a; border-radius:9999px;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:18px; height:18px; border-radius:50%; background:#ff0000; display:inline-block;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Minimal Porcelain</div>
+                <div class="theme-meta-desc">Badge putih bersih premium, sangat kontras untuk game gelap.</div>
+              </div>
+            </div>
+
+            <!-- 6. Retro 8-Bit Pixel -->
+            <div class="theme-card-option" data-theme="retro">
+              <div class="theme-thumbnail" style="background:#111827; border:3px solid #facc15; color:#facc15; font-family:monospace;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:16px; height:16px; background:#facc15; display:inline-block;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Retro 8-Bit Arcade</div>
+                <div class="theme-meta-desc">Gaya arkade retro pixelated ala konsol game klasik nostalgia.</div>
+              </div>
+            </div>
+
+            <!-- 7. Pop Sunset Gradient -->
+            <div class="theme-card-option" data-theme="pop">
+              <div class="theme-thumbnail" style="background:linear-gradient(135deg, #ff512f, #dd2476, #8a2387); color:#fff; border-radius:9999px;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:18px; height:18px; border-radius:50%; background:#fff; display:inline-block;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Pop Sunset Gradient</div>
+                <div class="theme-meta-desc">Gradasi warna hangat ceria perpaduan oranye, pink, dan ungu.</div>
+              </div>
+            </div>
+
+            <!-- 8. Neo-Brutalism -->
+            <div class="theme-card-option" data-theme="brutalist">
+              <div class="theme-thumbnail" style="background:#fef08a; border:3px solid #000; color:#000; box-shadow:3px 3px 0 #000; border-radius:8px;">
+                <span style="display:flex; align-items:center; gap:6px; font-weight:900;">
+                  <span style="width:16px; height:16px; background:#000; display:inline-block; border-radius:4px;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Neo-Brutalism</div>
+                <div class="theme-meta-desc">Garis tepi hitam tebal dengan bayangan tegas modern ala Gen-Z.</div>
+              </div>
+            </div>
+
+            <!-- 9. Esports Stealth -->
+            <div class="theme-card-option" data-theme="stealth">
+              <div class="theme-thumbnail" style="background:#0a0a0d; border-left:4px solid #ef4444; border-top:1px solid #333; color:#fff; border-radius:4px;">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:16px; height:16px; background:#ef4444; display:inline-block; border-radius:2px;"></span>
+                  @streampulse
+                </span>
+              </div>
+              <div>
+                <div class="theme-meta-title">Esports Stealth</div>
+                <div class="theme-meta-desc">Desain gaming gelap agresif dengan aksen garis potong merah.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Animation & Layout Controls -->
+        <div class="config-card">
+          <div class="config-card-title">
+            <span>✨ Animasi & Tata Letak</span>
+          </div>
+          <div class="config-card-desc">
+            Atur transisi peralihan, bentuk kartu, dan ukuran tampilan di layar OBS.
+          </div>
+
+          <div class="control-row">
+            <!-- Animation Style -->
+            <div class="control-group">
+              <label class="control-label" for="selectAnimation">Transisi Animasi</label>
+              <select id="selectAnimation" class="control-select">
+                <option value="slide-up">Slide Ke Atas (Slide Up)</option>
+                <option value="slide-right">Slide Mendatar (Slide Right)</option>
+                <option value="fade">Memudar & Skala (Fade & Scale)</option>
+                <option value="flip">Putar Balik 3D (Flip Card)</option>
+                <option value="bounce">Membal Ceria (Bounce Pop)</option>
+              </select>
+            </div>
+
+            <!-- Layout Mode -->
+            <div class="control-group">
+              <label class="control-label" for="selectLayout">Bentuk Kartu (Layout)</label>
+              <select id="selectLayout" class="control-select">
+                <option value="badge">Badge Pill Oval (Default)</option>
+                <option value="banner">Banner Kartu Lebar (Kotak)</option>
+                <option value="compact">Ringkas (Hanya Ikon & Nama)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <!-- Scale Option -->
+            <div class="control-group">
+              <label class="control-label">Skala Ukuran (Size)</label>
+              <div class="pill-options" id="scaleOptions">
+                <button type="button" class="btn-pill-opt" data-scale="sm">80%</button>
+                <button type="button" class="btn-pill-opt active" data-scale="md">100%</button>
+                <button type="button" class="btn-pill-opt" data-scale="lg">125%</button>
+                <button type="button" class="btn-pill-opt" data-scale="xl">150%</button>
+              </div>
+            </div>
+
+            <!-- Alignment Option -->
+            <div class="control-group">
+              <label class="control-label">Perataan di Layar (Alignment)</label>
+              <div class="pill-options" id="alignOptions">
+                <button type="button" class="btn-pill-opt active" data-align="left">Kiri</button>
+                <button type="button" class="btn-pill-opt" data-align="center">Tengah</button>
+                <button type="button" class="btn-pill-opt" data-align="right">Kanan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Timing & Sound Controls -->
+        <div class="config-card">
+          <div class="config-card-title">
+            <span>⏱️ Waktu Putaran & Suara</span>
+          </div>
+          <div class="config-card-desc">
+            Atur durasi kemunculan setiap akun dan jeda sembunyi agar layar siaran tidak penuh terus-menerus.
+          </div>
+
+          <div class="control-row">
+            <!-- Duration -->
+            <div class="control-group">
+              <label class="control-label" for="selectDuration">
+                <span>Durasi Tampil per Akun</span>
+                <span id="labelDurationVal" style="color:#a855f7; font-weight:800;">6 Detik</span>
+              </label>
+              <select id="selectDuration" class="control-select">
+                <option value="3">3 Detik (Cepat)</option>
+                <option value="5">5 Detik</option>
+                <option value="6" selected>6 Detik (Rekomendasi)</option>
+                <option value="8">8 Detik</option>
+                <option value="10">10 Detik</option>
+                <option value="15">15 Detik (Lama)</option>
+              </select>
+            </div>
+
+            <!-- Pause Interval between Loops -->
+            <div class="control-group">
+              <label class="control-label" for="selectPause">
+                <span>Jeda Sembunyi Tiap Putaran</span>
+                <span id="labelPauseVal" style="color:#a855f7; font-weight:800;">0 Detik</span>
+              </label>
+              <select id="selectPause" class="control-select">
+                <option value="0" selected>0 Detik (Terus berputar / Loop tiada henti)</option>
+                <option value="5">Sembunyi 5 Detik</option>
+                <option value="10">Sembunyi 10 Detik</option>
+                <option value="20">Sembunyi 20 Detik</option>
+                <option value="30">Sembunyi 30 Detik (Bersih)</option>
+                <option value="60">Sembunyi 1 Menit</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <!-- Sound Chime Toggle -->
+            <div class="control-group" style="flex-direction:row; align-items:center; justify-content:space-between; background:var(--surface-soft); padding:12px 16px; border-radius:10px; border:1px solid var(--hairline);">
+              <div>
+                <div style="font-weight:700; font-size:0.86rem;">Efek Suara Berputar (Chime Pop)</div>
+                <div style="font-size:0.75rem; color:var(--ink-secondary);">Bunyi 'ting' halus tiap kali kartu berganti akun.</div>
+              </div>
+              <input type="checkbox" id="checkSound" style="width:20px; height:20px; accent-color:#a855f7; cursor:pointer;">
+            </div>
+
+            <!-- Randomize Order -->
+            <div class="control-group" style="flex-direction:row; align-items:center; justify-content:space-between; background:var(--surface-soft); padding:12px 16px; border-radius:10px; border:1px solid var(--hairline);">
+              <div>
+                <div style="font-weight:700; font-size:0.86rem;">Acak Urutan Akun (Shuffle)</div>
+                <div style="font-size:0.75rem; color:var(--ink-secondary);">Putar akun sosial secara acak setiap siklus.</div>
+              </div>
+              <input type="checkbox" id="checkRandomize" style="width:20px; height:20px; accent-color:#a855f7; cursor:pointer;">
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Save & Reset Action Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
+          <button type="button" id="btnResetDefaults" class="btn-preview-action" style="padding:10px 18px;">
+            <span>🔄 Reset Pengaturan Awal</span>
+          </button>
+
+          <button type="button" id="btnSaveConfig" class="btn-copy-url" style="padding:10px 24px; font-size:0.95rem;">
+            <span>💾 Simpan & Sinkronkan</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Shared Universal Drawer JS -->
+  <script src="/js/drawer.js"></script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Platform Definitions & SVGs
+      const PLATFORMS = {
+        tiktok: { name: 'TikTok', bg: '#fe2c55', color: '#ffffff', defaultLabel: 'Follow TikTok' },
+        youtube: { name: 'YouTube', bg: '#ff0000', color: '#ffffff', defaultLabel: 'Subscribe YouTube' },
+        twitch: { name: 'Twitch', bg: '#9146ff', color: '#ffffff', defaultLabel: 'Follow Twitch' },
+        instagram: { name: 'Instagram', bg: 'linear-gradient(45deg, #f09433, #dc2743, #bc1888)', color: '#ffffff', defaultLabel: 'Follow Instagram' },
+        discord: { name: 'Discord', bg: '#5865f2', color: '#ffffff', defaultLabel: 'Join Discord Server' },
+        twitter: { name: 'X (Twitter)', bg: '#000000', color: '#ffffff', defaultLabel: 'Follow on X' },
+        kick: { name: 'Kick', bg: '#53fc18', color: '#000000', defaultLabel: 'Watch on Kick' },
+        facebook: { name: 'Facebook', bg: '#1877f2', color: '#ffffff', defaultLabel: 'Follow on Facebook' },
+        threads: { name: 'Threads', bg: '#101010', color: '#ffffff', defaultLabel: 'Follow on Threads' },
+        spotify: { name: 'Spotify', bg: '#1ed760', color: '#000000', defaultLabel: 'Listen on Spotify' },
+        steam: { name: 'Steam', bg: '#171a21', color: '#ffffff', defaultLabel: 'Play on Steam' },
+        website: { name: 'Website / Store', bg: '#06b6d4', color: '#ffffff', defaultLabel: 'Visit Website' }
+      };
+
+      // Active Configuration State
+      let state = {
+        id: 'default',
+        theme: 'glass',
+        animation: 'slide-up',
+        duration: 6,
+        pauseInterval: 0,
+        scale: 'md',
+        layout: 'badge',
+        align: 'left',
+        sound: false,
+        randomize: false,
+        items: [
+          { id: '1', platform: 'tiktok', handle: '@streampulse', label: 'Follow TikTok', enabled: true },
+          { id: '2', platform: 'youtube', handle: 'StreamPulseTV', label: 'Subscribe YouTube', enabled: true },
+          { id: '3', platform: 'instagram', handle: '@streampulse.live', label: 'Follow Instagram', enabled: true },
+          { id: '4', platform: 'discord', handle: 'discord.gg/streampulse', label: 'Join Discord', enabled: true },
+          { id: '5', platform: 'twitch', handle: 'streampulse_live', label: 'Follow Twitch', enabled: true }
+        ]
+      };
+
+      // DOM Elements
+      const previewIframe = document.getElementById('previewIframe');
+      const obsOverlayUrl = document.getElementById('obsOverlayUrl');
+      const btnCopyOverlayUrl = document.getElementById('btnCopyOverlayUrl');
+      const btnTestOverlayTab = document.getElementById('btnTestOverlayTab');
+      const btnPreviewNext = document.getElementById('btnPreviewNext');
+      const btnPreviewPause = document.getElementById('btnPreviewPause');
+      const btnPauseLabel = document.getElementById('btnPauseLabel');
+      const socialItemsList = document.getElementById('socialItemsList');
+      const btnAddSocialItem = document.getElementById('btnAddSocialItem');
+      const btnImportChannels = document.getElementById('btnImportChannels');
+      const selectAnimation = document.getElementById('selectAnimation');
+      const selectLayout = document.getElementById('selectLayout');
+      const selectDuration = document.getElementById('selectDuration');
+      const selectPause = document.getElementById('selectPause');
+      const checkSound = document.getElementById('checkSound');
+      const checkRandomize = document.getElementById('checkRandomize');
+      const btnSaveConfig = document.getElementById('btnSaveConfig');
+      const btnResetDefaults = document.getElementById('btnResetDefaults');
+      const toastContainer = document.getElementById('toastContainer');
+
+      let isPaused = false;
+
+      // Toast Notification Helper
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        const icon = type === 'success' ? '✓' : (type === 'error' ? '✕' : 'ℹ');
+        toast.innerHTML = `<span style="color:#a855f7; font-weight:900;">${icon}</span><span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(10px)';
+          toast.style.transition = 'all 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // Generate OBS Browser Source URL
+      function buildObsUrl() {
+        const origin = window.location.origin;
+        // Compact base64 representation of clean payload
+        const cleanPayload = {
+          theme: state.theme,
+          animation: state.animation,
+          duration: state.duration,
+          pauseInterval: state.pauseInterval,
+          scale: state.scale,
+          layout: state.layout,
+          align: state.align,
+          sound: state.sound,
+          randomize: state.randomize,
+          items: state.items
+        };
+
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(cleanPayload))));
+        return `${origin}/social-rotator-overlay?c=${encodeURIComponent(b64)}`;
+      }
+
+      function updateObsUrlDisplay() {
+        const url = buildObsUrl();
+        if (obsOverlayUrl) obsOverlayUrl.value = url;
+        if (btnTestOverlayTab) btnTestOverlayTab.href = url;
+      }
+
+      // Send Instant Live Config Update to Preview Iframe
+      function syncPreviewIframe() {
+        updateObsUrlDisplay();
+        if (previewIframe && previewIframe.contentWindow) {
+          previewIframe.contentWindow.postMessage({
+            type: 'UPDATE_CONFIG',
+            config: state
+          }, '*');
+        }
+      }
+
+      // Render Social Accounts Rows in List
+      function renderItemsList() {
+        if (!socialItemsList) return;
+        socialItemsList.innerHTML = '';
+
+        if (state.items.length === 0) {
+          socialItemsList.innerHTML = `
+            <div style="text-align:center; padding:24px; color:var(--ink-secondary); font-size:0.85rem; border:1px dashed var(--hairline); border-radius:12px;">
+              Belum ada akun sosial. Klik <strong>+ Tambah Akun</strong> untuk menambahkan akun pertama Anda.
+            </div>
+          `;
+          return;
+        }
+
+        state.items.forEach((item, index) => {
+          const meta = PLATFORMS[item.platform] || PLATFORMS.website;
+          const row = document.createElement('div');
+          row.className = `social-item-row ${item.enabled ? '' : 'disabled'}`;
+          row.dataset.index = index;
+
+          let optionsHtml = '';
+          Object.keys(PLATFORMS).forEach(pk => {
+            optionsHtml += `<option value="${pk}" ${item.platform === pk ? 'selected' : ''}>${PLATFORMS[pk].name}</option>`;
+          });
+
+          row.innerHTML = `
+            <div class="social-icon-preview" style="background:${meta.bg};">
+              <span style="font-size:0.75rem; font-weight:800;">${index + 1}</span>
+            </div>
+
+            <div>
+              <select class="social-input-select sel-platform">
+                ${optionsHtml}
+              </select>
+            </div>
+
+            <div>
+              <input type="text" class="social-input-text inp-handle" placeholder="@username" value="${escapeHtml(item.handle || '')}">
+            </div>
+
+            <div>
+              <input type="text" class="social-input-text inp-label" placeholder="${escapeHtml(meta.defaultLabel)}" value="${escapeHtml(item.label || '')}">
+            </div>
+
+            <div class="social-item-actions">
+              <button type="button" class="btn-row-action btn-move-up" title="Pindah ke Atas" ${index === 0 ? 'disabled' : ''}>▲</button>
+              <button type="button" class="btn-row-action btn-move-down" title="Pindah ke Bawah" ${index === state.items.length - 1 ? 'disabled' : ''}>▼</button>
+              <button type="button" class="btn-row-action btn-toggle-enable" title="${item.enabled ? 'Nonaktifkan Akun' : 'Aktifkan Akun'}">
+                ${item.enabled ? '👁️' : '🚫'}
+              </button>
+              <button type="button" class="btn-row-action delete btn-delete-row" title="Hapus Akun">✕</button>
+            </div>
+          `;
+
+          // Event Listeners for Row
+          const selPlatform = row.querySelector('.sel-platform');
+          const inpHandle = row.querySelector('.inp-handle');
+          const inpLabel = row.querySelector('.inp-label');
+          const btnMoveUp = row.querySelector('.btn-move-up');
+          const btnMoveDown = row.querySelector('.btn-move-down');
+          const btnToggle = row.querySelector('.btn-toggle-enable');
+          const btnDelete = row.querySelector('.btn-delete-row');
+
+          selPlatform.addEventListener('change', (e) => {
+            item.platform = e.target.value;
+            if (!item.label || item.label.trim() === '') {
+              item.label = PLATFORMS[item.platform]?.defaultLabel || '';
+              inpLabel.value = item.label;
+            }
+            renderItemsList();
+            syncPreviewIframe();
+          });
+
+          inpHandle.addEventListener('input', (e) => {
+            item.handle = e.target.value;
+            syncPreviewIframe();
+          });
+
+          inpLabel.addEventListener('input', (e) => {
+            item.label = e.target.value;
+            syncPreviewIframe();
+          });
+
+          if (btnMoveUp) {
+            btnMoveUp.addEventListener('click', () => {
+              if (index > 0) {
+                const temp = state.items[index];
+                state.items[index] = state.items[index - 1];
+                state.items[index - 1] = temp;
+                renderItemsList();
+                syncPreviewIframe();
+              }
+            });
+          }
+
+          if (btnMoveDown) {
+            btnMoveDown.addEventListener('click', () => {
+              if (index < state.items.length - 1) {
+                const temp = state.items[index];
+                state.items[index] = state.items[index + 1];
+                state.items[index + 1] = temp;
+                renderItemsList();
+                syncPreviewIframe();
+              }
+            });
+          }
+
+          if (btnToggle) {
+            btnToggle.addEventListener('click', () => {
+              item.enabled = !item.enabled;
+              renderItemsList();
+              syncPreviewIframe();
+            });
+          }
+
+          if (btnDelete) {
+            btnDelete.addEventListener('click', () => {
+              state.items.splice(index, 1);
+              renderItemsList();
+              syncPreviewIframe();
+              showToast('Akun berhasil dihapus', 'info');
+            });
+          }
+
+          socialItemsList.appendChild(row);
+        });
+      }
+
+      function escapeHtml(str) {
+        return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      // Add New Social Item
+      if (btnAddSocialItem) {
+        btnAddSocialItem.addEventListener('click', () => {
+          const newItem = {
+            id: 'item_' + Date.now().toString(36),
+            platform: 'tiktok',
+            handle: '@channel',
+            label: 'Follow TikTok',
+            enabled: true
+          };
+          state.items.push(newItem);
+          renderItemsList();
+          syncPreviewIframe();
+          showToast('Akun baru ditambahkan');
+        });
+      }
+
+      // Import Channels from Local Storage
+      if (btnImportChannels) {
+        btnImportChannels.addEventListener('click', () => {
+          const raw = localStorage.getItem('streampulse_my_channels') ||
+                      localStorage.getItem('streampulse_guest_channels') ||
+                      localStorage.getItem('streampulse_user_channels');
+          if (raw) {
+            try {
+              const ch = JSON.parse(raw);
+              let importedCount = 0;
+
+              if (ch.tiktok && ch.tiktok.trim()) {
+                state.items.push({
+                  id: 'tt_' + Date.now(),
+                  platform: 'tiktok',
+                  handle: ch.tiktok.startsWith('@') ? ch.tiktok : `@${ch.tiktok}`,
+                  label: 'Follow TikTok',
+                  enabled: true
+                });
+                importedCount++;
+              }
+              if (ch.youtube && ch.youtube.trim()) {
+                state.items.push({
+                  id: 'yt_' + Date.now(),
+                  platform: 'youtube',
+                  handle: ch.youtube.startsWith('@') ? ch.youtube : `@${ch.youtube}`,
+                  label: 'Subscribe YouTube',
+                  enabled: true
+                });
+                importedCount++;
+              }
+              if (ch.twitch && ch.twitch.trim()) {
+                state.items.push({
+                  id: 'tw_' + Date.now(),
+                  platform: 'twitch',
+                  handle: ch.twitch.replace(/^#/, ''),
+                  label: 'Follow Twitch',
+                  enabled: true
+                });
+                importedCount++;
+              }
+
+              if (importedCount > 0) {
+                renderItemsList();
+                syncPreviewIframe();
+                showToast(`✓ Berhasil mengimpor ${importedCount} saluran dari beranda!`);
+              } else {
+                showToast('Belum ada saluran yang terisi di beranda.', 'info');
+              }
+            } catch (e) {
+              showToast('Gagal memuat saluran lokal.', 'error');
+            }
+          } else {
+            showToast('Belum ada saluran yang terkonfigurasi di beranda.', 'info');
+          }
+        });
+      }
+
+      // Theme Selection Handlers
+      const themeCards = document.querySelectorAll('.theme-card-option');
+      themeCards.forEach(card => {
+        card.addEventListener('click', () => {
+          themeCards.forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          state.theme = card.dataset.theme;
+          syncPreviewIframe();
+        });
+      });
+
+      // Animation Select Handler
+      if (selectAnimation) {
+        selectAnimation.addEventListener('change', (e) => {
+          state.animation = e.target.value;
+          syncPreviewIframe();
+        });
+      }
+
+      // Layout Select Handler
+      if (selectLayout) {
+        selectLayout.addEventListener('change', (e) => {
+          state.layout = e.target.value;
+          syncPreviewIframe();
+        });
+      }
+
+      // Duration Select Handler
+      if (selectDuration) {
+        selectDuration.addEventListener('change', (e) => {
+          state.duration = Number(e.target.value);
+          const labelDurationVal = document.getElementById('labelDurationVal');
+          if (labelDurationVal) labelDurationVal.textContent = `${state.duration} Detik`;
+          syncPreviewIframe();
+        });
+      }
+
+      // Pause Interval Select Handler
+      if (selectPause) {
+        selectPause.addEventListener('change', (e) => {
+          state.pauseInterval = Number(e.target.value);
+          const labelPauseVal = document.getElementById('labelPauseVal');
+          if (labelPauseVal) labelPauseVal.textContent = `${state.pauseInterval} Detik`;
+          syncPreviewIframe();
+        });
+      }
+
+      // Sound Effect Toggle
+      if (checkSound) {
+        checkSound.addEventListener('change', (e) => {
+          state.sound = e.target.checked;
+          syncPreviewIframe();
+        });
+      }
+
+      // Randomize Toggle
+      if (checkRandomize) {
+        checkRandomize.addEventListener('change', (e) => {
+          state.randomize = e.target.checked;
+          syncPreviewIframe();
+        });
+      }
+
+      // Scale Options Handlers
+      const scaleButtons = document.querySelectorAll('#scaleOptions .btn-pill-opt');
+      scaleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          scaleButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.scale = btn.dataset.scale;
+          syncPreviewIframe();
+        });
+      });
+
+      // Align Options Handlers
+      const alignButtons = document.querySelectorAll('#alignOptions .btn-pill-opt');
+      alignButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          alignButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.align = btn.dataset.align;
+          syncPreviewIframe();
+        });
+      });
+
+      // Canvas Background Switcher
+      const bgDots = document.querySelectorAll('.bg-dot-btn');
+      const previewCanvasBox = document.getElementById('previewCanvasBox');
+      bgDots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          bgDots.forEach(d => d.classList.remove('active'));
+          dot.classList.add('active');
+          const bgClass = dot.dataset.bg;
+          previewCanvasBox.className = `preview-canvas-box ${bgClass}`;
+        });
+      });
+
+      // Preview Controls
+      if (btnPreviewNext) {
+        btnPreviewNext.addEventListener('click', () => {
+          if (previewIframe && previewIframe.contentWindow) {
+            previewIframe.contentWindow.postMessage({ type: 'FORCE_NEXT' }, '*');
+          }
+        });
+      }
+
+      if (btnPreviewPause) {
+        btnPreviewPause.addEventListener('click', () => {
+          isPaused = !isPaused;
+          btnPauseLabel.textContent = isPaused ? '▶ Putar' : '⏸ Jeda';
+          if (previewIframe && previewIframe.contentWindow) {
+            previewIframe.contentWindow.postMessage({ type: 'TOGGLE_PAUSE' }, '*');
+          }
+        });
+      }
+
+      // Copy OBS URL Button
+      if (btnCopyOverlayUrl && obsOverlayUrl) {
+        btnCopyOverlayUrl.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(obsOverlayUrl.value);
+            btnCopyOverlayUrl.innerHTML = '<span>✓ Tersalin!</span>';
+            btnCopyOverlayUrl.style.background = '#10b981';
+            showToast('✓ URL Overlay tersalin ke clipboard! Siap dipaste ke OBS Studio Browser Source.', 'success');
+            setTimeout(() => {
+              btnCopyOverlayUrl.innerHTML = '<span>Salin URL</span>';
+              btnCopyOverlayUrl.style.background = '';
+            }, 2500);
+          } catch (e) {
+            obsOverlayUrl.select();
+            document.execCommand('copy');
+            showToast('✓ URL Overlay tersalin!', 'success');
+          }
+        });
+      }
+
+      // Save Configuration to Server & LocalStorage
+      async function saveConfig() {
+        try {
+          localStorage.setItem('streampulse_social_rotator_config', JSON.stringify(state));
+
+          const userToken = localStorage.getItem('streampulse_user_token');
+          const headers = { 'Content-Type': 'application/json' };
+          if (userToken) headers['x-user-token'] = userToken;
+
+          const res = await fetch('/api/social-rotator/config', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(state)
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.id) state.id = data.id;
+            updateObsUrlDisplay();
+            showToast('✓ Pengaturan rotator berhasil disimpan & disinkronkan!');
+          } else {
+            showToast('Tersimpan di peramban lokal.');
+          }
+        } catch (e) {
+          showToast('Tersimpan di peramban lokal.');
+        }
+      }
+
+      if (btnSaveConfig) {
+        btnSaveConfig.addEventListener('click', saveConfig);
+      }
+
+      // Reset Defaults
+      if (btnResetDefaults) {
+        btnResetDefaults.addEventListener('click', () => {
+          if (confirm('Apakah Anda yakin ingin mereset pengaturan ke default?')) {
+            state = {
+              id: 'default',
+              theme: 'glass',
+              animation: 'slide-up',
+              duration: 6,
+              pauseInterval: 0,
+              scale: 'md',
+              layout: 'badge',
+              align: 'left',
+              sound: false,
+              randomize: false,
+              items: [
+                { id: '1', platform: 'tiktok', handle: '@streampulse', label: 'Follow TikTok', enabled: true },
+                { id: '2', platform: 'youtube', handle: 'StreamPulseTV', label: 'Subscribe YouTube', enabled: true },
+                { id: '3', platform: 'instagram', handle: '@streampulse.live', label: 'Follow Instagram', enabled: true },
+                { id: '4', platform: 'discord', handle: 'discord.gg/streampulse', label: 'Join Discord', enabled: true },
+                { id: '5', platform: 'twitch', handle: 'streampulse_live', label: 'Follow Twitch', enabled: true }
+              ]
+            };
+            syncControlsToState();
+            renderItemsList();
+            syncPreviewIframe();
+            saveConfig();
+            showToast('Pengaturan telah direset ke default');
+          }
+        });
+      }
+
+      // Sync UI Form Controls from State
+      function syncControlsToState() {
+        // Theme card active
+        themeCards.forEach(c => {
+          c.classList.toggle('active', c.dataset.theme === state.theme);
+        });
+
+        // Animation
+        if (selectAnimation) selectAnimation.value = state.animation || 'slide-up';
+        // Layout
+        if (selectLayout) selectLayout.value = state.layout || 'badge';
+        // Duration
+        if (selectDuration) selectDuration.value = String(state.duration || 6);
+        const labelDurationVal = document.getElementById('labelDurationVal');
+        if (labelDurationVal) labelDurationVal.textContent = `${state.duration || 6} Detik`;
+        // Pause
+        if (selectPause) selectPause.value = String(state.pauseInterval || 0);
+        const labelPauseVal = document.getElementById('labelPauseVal');
+        if (labelPauseVal) labelPauseVal.textContent = `${state.pauseInterval || 0} Detik`;
+        // Sound
+        if (checkSound) checkSound.checked = Boolean(state.sound);
+        // Randomize
+        if (checkRandomize) checkRandomize.checked = Boolean(state.randomize);
+
+        // Scale
+        scaleButtons.forEach(b => {
+          b.classList.toggle('active', b.dataset.scale === (state.scale || 'md'));
+        });
+
+        // Align
+        alignButtons.forEach(b => {
+          b.classList.toggle('active', b.dataset.align === (state.align || 'left'));
+        });
+      }
+
+      // Load Saved Configuration from Server / LocalStorage
+      async function loadSavedConfig() {
+        try {
+          const userToken = localStorage.getItem('streampulse_user_token');
+          let loaded = false;
+
+          if (userToken) {
+            const res = await fetch(`/api/social-rotator/config?token=${encodeURIComponent(userToken)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.config) {
+                state = { ...state, ...data.config, id: data.id || state.id };
+                loaded = true;
+              }
+            }
+          }
+
+          if (!loaded) {
+            const local = localStorage.getItem('streampulse_social_rotator_config');
+            if (local) {
+              const parsed = JSON.parse(local);
+              state = { ...state, ...parsed };
+            }
+          }
+        } catch (e) {
+          console.warn('[Social Rotator] Error loading saved config:', e);
+        }
+
+        syncControlsToState();
+        renderItemsList();
+        updateObsUrlDisplay();
+
+        // Send initial state to preview iframe once loaded
+        if (previewIframe) {
+          previewIframe.onload = () => {
+            syncPreviewIframe();
+          };
+        }
+      }
+
+      // Dark / Light Theme Toggle for Page
+      const btnThemeToggle = document.getElementById('btnThemeToggle');
+      if (btnThemeToggle) {
+        btnThemeToggle.addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme') || 'dark';
+          const next = current === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          document.body.classList.toggle('dark-mode', next === 'dark');
+          localStorage.setItem('streampulse_theme', next);
+          btnThemeToggle.querySelector('.theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+        const savedTheme = localStorage.getItem('streampulse_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.body.classList.toggle('dark-mode', savedTheme === 'dark');
+        btnThemeToggle.querySelector('.theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      }
+
+      loadSavedConfig();
+    })();
+  </script>
+</body>
+</html>

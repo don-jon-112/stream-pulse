@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamPulse - Social Media Rotator Overlay</title>
+  <meta name="description" content="Animated Social Media Rotator OBS Browser Source Overlay">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Nunito:wght@700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    /* Reset & Transparent Canvas */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background: transparent !important;
+      background-color: rgba(0, 0, 0, 0) !important;
+      color: #ffffff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Outer Viewport for Alignment and Scaling */
+    .rotator-viewport {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      transform-origin: left center;
+      transition: transform 0.25s ease;
+    }
+
+    .rotator-viewport.align-left { justify-content: flex-start; transform-origin: left center; }
+    .rotator-viewport.align-center { justify-content: center; transform-origin: center center; }
+    .rotator-viewport.align-right { justify-content: flex-end; transform-origin: right center; }
+
+    /* Scale variants */
+    .scale-sm { transform: scale(0.82); }
+    .scale-md { transform: scale(1.0); }
+    .scale-lg { transform: scale(1.22); }
+    .scale-xl { transform: scale(1.45); }
+
+    /* Container for the Active Social Card */
+    .rotator-stage {
+      position: relative;
+      perspective: 1000px;
+      display: inline-flex;
+    }
+
+    /* Base Social Card */
+    .social-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 18px 8px 10px;
+      border-radius: 9999px;
+      position: relative;
+      cursor: default;
+      will-change: transform, opacity;
+      max-width: 90vw;
+    }
+
+    /* Icon Container */
+    .social-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-icon-box svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+      fill: currentColor;
+    }
+
+    /* Content Area */
+    .social-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.25;
+      min-width: 0;
+    }
+
+    .social-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.85;
+      margin-bottom: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .social-handle {
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Platform Pill Badge (for banner layout) */
+    .social-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      margin-left: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: none;
+    }
+
+    /* =========================================================================
+       LAYOUT MODES (Badge, Banner, Compact)
+       ========================================================================= */
+
+    /* 1. Badge (Default Pill) */
+    .layout-badge .social-card {
+      padding: 8px 18px 8px 10px;
+      border-radius: 9999px;
+    }
+
+    /* 2. Banner (Square/Rounded Card) */
+    .layout-banner .social-card {
+      border-radius: 16px;
+      padding: 12px 22px 12px 14px;
+      gap: 14px;
+    }
+    .layout-banner .social-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+    }
+    .layout-banner .social-icon-box svg {
+      width: 24px;
+      height: 24px;
+    }
+    .layout-banner .social-label {
+      font-size: 0.75rem;
+    }
+    .layout-banner .social-handle {
+      font-size: 1.1rem;
+    }
+    .layout-banner .social-badge {
+      display: inline-block;
+    }
+
+    /* 3. Compact (Icon + Handle only) */
+    .layout-compact .social-card {
+      padding: 6px 14px 6px 8px;
+      border-radius: 9999px;
+      gap: 10px;
+    }
+    .layout-compact .social-icon-box {
+      width: 32px;
+      height: 32px;
+    }
+    .layout-compact .social-icon-box svg {
+      width: 17px;
+      height: 17px;
+    }
+    .layout-compact .social-label {
+      display: none;
+    }
+    .layout-compact .social-handle {
+      font-size: 0.95rem;
+    }
+
+    /* =========================================================================
+       THEMES (8 Distinct Streamer Styles)
+       ========================================================================= */
+
+    /* 1. THEME: FROST GLASS (Modern Apple/iOS Frosted Glass) */
+    .theme-glass .social-card {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+    .theme-glass .social-label { color: #94a3b8; }
+    .theme-glass .social-handle { color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+
+    /* 2. THEME: CYBERPUNK NEON (Hi-Tech Glow & Tech HUD) */
+    .theme-cyberpunk .social-card {
+      background: rgba(8, 10, 20, 0.95);
+      border: 1.8px solid #00f0ff;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.5), inset 0 0 14px rgba(255, 0, 128, 0.25);
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .theme-cyberpunk .social-label { color: #ff007f; font-weight: 800; letter-spacing: 0.08em; }
+    .theme-cyberpunk .social-handle { color: #00f0ff; text-shadow: 0 0 8px rgba(0, 240, 255, 0.7); }
+    .theme-cyberpunk .social-icon-box {
+      border: 1px solid #00f0ff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+    }
+
+    /* 3. THEME: CHROMA GAMING RGB (Flowing animated rainbow border) */
+    @keyframes chromaRotate {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+    .theme-chroma .social-card {
+      background: #0d0f17;
+      color: #ffffff;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+    .theme-chroma .social-card::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      background: conic-gradient(from 0deg, #ff0055, #ff9900, #33ff00, #00ffff, #7700ff, #ff0055);
+      z-index: -1;
+      animation: chromaRotate 4s linear infinite;
+      box-shadow: 0 0 12px rgba(0, 255, 255, 0.35);
+    }
+    .theme-chroma .social-label { color: #cbd5e1; }
+    .theme-chroma .social-handle { color: #f8fafc; }
+
+    /* 4. THEME: MINIMAL OBSIDIAN (Deep Matte Dark Pill) */
+    .theme-minimal-dark .social-card {
+      background: rgba(18, 18, 24, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      color: #ffffff;
+    }
+    .theme-minimal-dark .social-label { color: #9ca3af; }
+    .theme-minimal-dark .social-handle { color: #f9fafb; }
+
+    /* 5. THEME: MINIMAL PORCELAIN (Clean Crisp Light Pill) */
+    .theme-minimal-light .social-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+      color: #0f172a;
+    }
+    .theme-minimal-light .social-label { color: #64748b; }
+    .theme-minimal-light .social-handle { color: #0f172a; font-weight: 900; }
+
+    /* 6. THEME: RETRO 8-BIT ARCADE (Pixel art arcade aesthetic) */
+    .theme-retro .social-card {
+      background: #111827;
+      border: 3.5px solid #facc15;
+      box-shadow: 4px 4px 0px #000000, 0 0 0 2px #000000;
+      border-radius: 4px !important;
+      font-family: 'Press Start 2P', 'JetBrains Mono', monospace;
+      color: #facc15;
+    }
+    .theme-retro .social-icon-box {
+      border-radius: 2px !important;
+      box-shadow: 2px 2px 0px #000000;
+    }
+    .theme-retro .social-label {
+      color: #38bdf8;
+      font-size: 0.55rem;
+      letter-spacing: 0.02em;
+    }
+    .theme-retro .social-handle {
+      color: #ffffff;
+      font-size: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    /* 7. THEME: POP SUNSET GRADIENT (Warm vibrant TikTok / IG gradient) */
+    .theme-pop .social-card {
+      background: linear-gradient(135deg, #ff512f 0%, #dd2476 50%, #8a2387 100%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 10px 28px rgba(221, 36, 118, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+    }
+    .theme-pop .social-label { color: rgba(255, 255, 255, 0.9); }
+    .theme-pop .social-handle { color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+    /* 8. THEME: NEO-BRUTALISM (Bold black borders, solid offset shadow) */
+    .theme-brutalist .social-card {
+      background: #fef08a;
+      border: 3.5px solid #000000;
+      box-shadow: 5px 5px 0px #000000;
+      color: #000000;
+      border-radius: 12px;
+    }
+    .theme-brutalist .social-icon-box {
+      border: 2px solid #000000;
+      box-shadow: 2px 2px 0px #000000;
+      border-radius: 8px;
+    }
+    .theme-brutalist .social-label { color: #000000; font-weight: 900; }
+    .theme-brutalist .social-handle { color: #000000; font-weight: 900; }
+
+    /* 9. THEME: ESPORTS STEALTH (Angular red cut corners) */
+    .theme-stealth .social-card {
+      background: #0a0a0d;
+      border-left: 4px solid #ef4444;
+      border-right: 2px solid rgba(239, 68, 68, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(239, 68, 68, 0.15);
+      color: #ffffff;
+    }
+    .theme-stealth .social-label { color: #ef4444; font-weight: 800; }
+    .theme-stealth .social-handle { color: #ffffff; }
+
+    /* =========================================================================
+       ANIMATIONS (Slide Up, Slide Right, Fade Scale, 3D Flip, Bounce Pop)
+       ========================================================================= */
+
+    /* Slide Up Animation */
+    .anim-slide-up.enter {
+      animation: animSlideUpIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .anim-slide-up.exit {
+      animation: animSlideUpOut 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+    }
+    @keyframes animSlideUpIn {
+      0% { opacity: 0; transform: translate3d(0, 42px, 0); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes animSlideUpOut {
+      0% { opacity: 1; transform: translate3d(0, 0, 0); }
+      100% { opacity: 0; transform: translate3d(0, -38px, 0); }
+    }
+
+    /* Slide Right Animation */
+    .anim-slide-right.enter {
+      animation: animSlideRightIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .anim-slide-right.exit {
+      animation: animSlideRightOut 0.45s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+    }
+    @keyframes animSlideRightIn {
+      0% { opacity: 0; transform: translate3d(-50px, 0, 0); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes animSlideRightOut {
+      0% { opacity: 1; transform: translate3d(0, 0, 0); }
+      100% { opacity: 0; transform: translate3d(50px, 0, 0); }
+    }
+
+    /* Fade & Scale Animation */
+    .anim-fade.enter {
+      animation: animFadeIn 0.5s ease-out forwards;
+    }
+    .anim-fade.exit {
+      animation: animFadeOut 0.4s ease-in forwards;
+    }
+    @keyframes animFadeIn {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.0); }
+    }
+    @keyframes animFadeOut {
+      0% { opacity: 1; transform: scale(1.0); }
+      100% { opacity: 0; transform: scale(1.06); }
+    }
+
+    /* 3D Flip Card Animation */
+    .anim-flip.enter {
+      animation: animFlipIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .anim-flip.exit {
+      animation: animFlipOut 0.45s ease-in forwards;
+    }
+    @keyframes animFlipIn {
+      0% { opacity: 0; transform: rotateX(85deg); }
+      100% { opacity: 1; transform: rotateX(0deg); }
+    }
+    @keyframes animFlipOut {
+      0% { opacity: 1; transform: rotateX(0deg); }
+      100% { opacity: 0; transform: rotateX(-85deg); }
+    }
+
+    /* Bounce Pop Animation */
+    .anim-bounce.enter {
+      animation: animBounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .anim-bounce.exit {
+      animation: animBounceOut 0.4s ease-in forwards;
+    }
+    @keyframes animBounceIn {
+      0% { opacity: 0; transform: scale(0.5); }
+      70% { transform: scale(1.06); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes animBounceOut {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.75); }
+    }
+
+    /* Hidden state */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="viewport" class="rotator-viewport align-left scale-md theme-glass layout-badge">
+    <div class="rotator-stage">
+      <div id="socialCard" class="social-card anim-slide-up enter">
+        <div id="socialIconBox" class="social-icon-box" style="background:#fe2c55;">
+          <!-- SVG Icon injected via JS -->
+        </div>
+        <div class="social-content">
+          <div id="socialLabel" class="social-label">Follow TikTok</div>
+          <div id="socialHandle" class="social-handle">@streampulse</div>
+        </div>
+        <div id="socialBadge" class="social-badge">TIKTOK</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Official Platform Brand Metadata & SVG Icons
+      const PLATFORMS = {
+        tiktok: {
+          name: 'TikTok',
+          bg: '#fe2c55',
+          color: '#ffffff',
+          badgeText: 'TIKTOK',
+          defaultLabel: 'Follow TikTok',
+          svg: '<svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>'
+        },
+        youtube: {
+          name: 'YouTube',
+          bg: '#ff0000',
+          color: '#ffffff',
+          badgeText: 'YOUTUBE',
+          defaultLabel: 'Subscribe YouTube',
+          svg: '<svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>'
+        },
+        twitch: {
+          name: 'Twitch',
+          bg: '#9146ff',
+          color: '#ffffff',
+          badgeText: 'TWITCH',
+          defaultLabel: 'Follow Twitch',
+          svg: '<svg viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>'
+        },
+        instagram: {
+          name: 'Instagram',
+          bg: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+          color: '#ffffff',
+          badgeText: 'INSTAGRAM',
+          defaultLabel: 'Follow Instagram',
+          svg: '<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>'
+        },
+        discord: {
+          name: 'Discord',
+          bg: '#5865f2',
+          color: '#ffffff',
+          badgeText: 'DISCORD',
+          defaultLabel: 'Join Discord Community',
+          svg: '<svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>'
+        },
+        twitter: {
+          name: 'X (Twitter)',
+          bg: '#000000',
+          color: '#ffffff',
+          badgeText: 'X / TWITTER',
+          defaultLabel: 'Follow on X',
+          svg: '<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+        },
+        kick: {
+          name: 'Kick',
+          bg: '#53fc18',
+          color: '#000000',
+          badgeText: 'KICK',
+          defaultLabel: 'Watch on Kick',
+          svg: '<svg viewBox="0 0 24 24"><path d="M1.333 0v24h21.334V0H1.333zm16.55 18.667h-3.927l-3.327-5.02-1.96 1.96v3.06H5.333V5.333h3.336v6.867l4.98-5.333h4.153l-4.94 5.333 5.021 6.467z"/></svg>'
+        },
+        facebook: {
+          name: 'Facebook',
+          bg: '#1877f2',
+          color: '#ffffff',
+          badgeText: 'FACEBOOK',
+          defaultLabel: 'Follow on Facebook',
+          svg: '<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'
+        },
+        threads: {
+          name: 'Threads',
+          bg: '#101010',
+          color: '#ffffff',
+          badgeText: 'THREADS',
+          defaultLabel: 'Follow on Threads',
+          svg: '<svg viewBox="0 0 24 24"><path d="M12.186 24C5.454 24 0 18.674 0 12.078 0 5.483 5.454.156 12.186.156c6.643 0 11.892 5.143 11.892 11.833 0 .708-.06 1.417-.18 2.115h-4.304a7.994 7.994 0 0 0-.25-1.127c-.662-2.183-2.613-3.666-4.954-3.666-2.923 0-5.27 2.37-5.27 5.32 0 2.951 2.347 5.321 5.27 5.321 1.942 0 3.734-.99 4.71-2.583l3.654 2.222C20.655 22.378 16.742 24 12.186 24z"/></svg>'
+        },
+        spotify: {
+          name: 'Spotify',
+          bg: '#1ed760',
+          color: '#000000',
+          badgeText: 'SPOTIFY',
+          defaultLabel: 'Listen on Spotify',
+          svg: '<svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>'
+        },
+        steam: {
+          name: 'Steam',
+          bg: '#171a21',
+          color: '#ffffff',
+          badgeText: 'STEAM',
+          defaultLabel: 'Play on Steam',
+          svg: '<svg viewBox="0 0 24 24"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.159-3.331-2.69l-4.75-1.962C1.65 19.98 6.38 24 12.021 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zm-4.343 17.511c-1.05 0-1.904-.854-1.904-1.904s.854-1.904 1.904-1.904c1.051 0 1.904.854 1.904 1.904s-.853 1.904-1.904 1.904zm8.307-8.601c0-1.666-1.353-3.02-3.02-3.02-1.666 0-3.019 1.354-3.019 3.02 0 1.665 1.353 3.019 3.019 3.019 1.667 0 3.02-1.354 3.02-3.019z"/></svg>'
+        },
+        website: {
+          name: 'Website / Store',
+          bg: '#06b6d4',
+          color: '#ffffff',
+          badgeText: 'LINK',
+          defaultLabel: 'Visit Website',
+          svg: '<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm7.938 7H16.27a14.28 14.28 0 0 0-1.802-4.282A8.02 8.02 0 0 1 19.938 7zM12 2.046c.86 1.408 1.54 3.109 1.97 4.954H10.03c.43-1.845 1.11-3.546 1.97-4.954zM4.062 7A8.02 8.02 0 0 1 9.532 2.718 14.28 14.28 0 0 0 7.73 7H4.062zm-1.02 5c0-.704.093-1.385.258-2h4.088c-.078.65-.122 1.316-.122 2s.044 1.35.122 2H3.3A7.95 7.95 0 0 1 3.042 12zm1.02 5h3.668c.47 1.63 1.114 3.125 1.802 4.282A8.02 8.02 0 0 1 4.062 17zm7.938 4.954c-.86-1.408-1.54-3.109-1.97-4.954h3.94c-.43 1.845-1.11 3.546-1.97 4.954zm2.468-.672c.688-1.157 1.332-2.652 1.802-4.282h3.668a8.02 8.02 0 0 1-5.47 4.282zm2.846-6.282h4.088c.165.615.258 1.296.258 2s-.093 1.385-.258 2h-4.088c.078-.65.122-1.316.122-2s-.044-1.35-.122-2zm-2.072 0H9.77c-.08-.65-.13-1.316-.13-2s.05-1.35.13-2h4.46c.08.65.13 1.316.13 2s-.05 1.35-.13 2z"/></svg>'
+        }
+      };
+
+      // State
+      let config = {
+        theme: 'glass',
+        animation: 'slide-up',
+        duration: 6,
+        pauseInterval: 0,
+        scale: 'md',
+        layout: 'badge',
+        sound: false,
+        align: 'left',
+        randomize: false,
+        items: [
+          { id: '1', platform: 'tiktok', handle: '@streampulse', label: 'Follow TikTok', enabled: true },
+          { id: '2', platform: 'youtube', handle: 'StreamPulseTV', label: 'Subscribe YouTube', enabled: true },
+          { id: '3', platform: 'instagram', handle: '@streampulse.live', label: 'Follow Instagram', enabled: true },
+          { id: '4', platform: 'discord', handle: 'discord.gg/streampulse', label: 'Join Discord', enabled: true },
+          { id: '5', platform: 'twitch', handle: 'streampulse_live', label: 'Follow Twitch', enabled: true }
+        ]
+      };
+
+      let currentIndex = 0;
+      let rotationTimer = null;
+      let activeItems = [];
+      let isPaused = false;
+      let audioCtx = null;
+
+      const viewportEl = document.getElementById('viewport');
+      const cardEl = document.getElementById('socialCard');
+      const iconBoxEl = document.getElementById('socialIconBox');
+      const labelEl = document.getElementById('socialLabel');
+      const handleEl = document.getElementById('socialHandle');
+      const badgeEl = document.getElementById('socialBadge');
+
+      // Web Audio API Synthesized Clean Chime
+      function playRotateSound() {
+        if (!config.sound) return;
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.26);
+        } catch (e) {
+          // Audio blocked or unsupported
+        }
+      }
+
+      // Apply Config Styling Classes to Viewport
+      function applyViewportClasses() {
+        if (!viewportEl) return;
+        viewportEl.className = 'rotator-viewport';
+        viewportEl.classList.add(`align-${config.align || 'left'}`);
+        viewportEl.classList.add(`scale-${config.scale || 'md'}`);
+        viewportEl.classList.add(`theme-${config.theme || 'glass'}`);
+        viewportEl.classList.add(`layout-${config.layout || 'badge'}`);
+      }
+
+      // Render Active Item on the Card
+      function renderItem(item) {
+        if (!item) return;
+        const meta = PLATFORMS[item.platform] || PLATFORMS.website;
+
+        // Set Icon & Background
+        iconBoxEl.innerHTML = meta.svg;
+        iconBoxEl.style.background = meta.bg;
+        iconBoxEl.style.color = meta.color;
+
+        // Set Texts
+        labelEl.textContent = (item.label && item.label.trim()) ? item.label : meta.defaultLabel;
+        handleEl.textContent = item.handle || '@username';
+        badgeEl.textContent = meta.badgeText || meta.name;
+        badgeEl.style.background = meta.bg;
+        badgeEl.style.color = meta.color;
+
+        // Custom Font for handle based on platform or theme
+        if (config.theme === 'cyberpunk' || item.platform === 'twitch') {
+          handleEl.style.fontFamily = "'JetBrains Mono', monospace";
+        } else if (config.theme === 'retro') {
+          handleEl.style.fontFamily = "'Press Start 2P', monospace";
+        } else {
+          handleEl.style.fontFamily = '';
+        }
+      }
+
+      // Animation Cycle Engine
+      function transitionToNext() {
+        if (activeItems.length === 0) return;
+
+        const animClass = `anim-${config.animation || 'slide-up'}`;
+
+        // 1. Play Exit Animation
+        cardEl.className = `social-card ${animClass} exit`;
+
+        const exitDuration = 450; // ms
+        setTimeout(() => {
+          // Move index
+          currentIndex = (currentIndex + 1) % activeItems.length;
+          const nextItem = activeItems[currentIndex];
+
+          // Check if there is a pause interval between cycles (when wrapping around to first item)
+          const isFullLoopWrap = (currentIndex === 0 && config.pauseInterval > 0);
+
+          if (isFullLoopWrap) {
+            // Hide card during pause interval
+            cardEl.classList.add('hidden');
+            setTimeout(() => {
+              cardEl.classList.remove('hidden');
+              renderItem(nextItem);
+              playRotateSound();
+              cardEl.className = `social-card ${animClass} enter`;
+              scheduleNext();
+            }, config.pauseInterval * 1000);
+          } else {
+            renderItem(nextItem);
+            playRotateSound();
+            cardEl.className = `social-card ${animClass} enter`;
+            scheduleNext();
+          }
+        }, exitDuration);
+      }
+
+      function scheduleNext() {
+        if (rotationTimer) clearTimeout(rotationTimer);
+        if (isPaused || activeItems.length <= 1) return;
+
+        const stayDuration = Math.max(2, Number(config.duration) || 6) * 1000;
+        rotationTimer = setTimeout(transitionToNext, stayDuration);
+      }
+
+      // Refresh and Filter Enabled Items
+      function refreshItems() {
+        activeItems = (config.items || []).filter(item => item && item.enabled !== false);
+        if (config.randomize && activeItems.length > 2) {
+          // simple shuffle
+          activeItems = [...activeItems].sort(() => Math.random() - 0.5);
+        }
+        if (activeItems.length === 0) {
+          // Fallback to sample
+          activeItems = [
+            { id: 'fb1', platform: 'tiktok', handle: '@streampulse', label: 'Follow TikTok', enabled: true },
+            { id: 'fb2', platform: 'youtube', handle: 'StreamPulseTV', label: 'Subscribe YouTube', enabled: true }
+          ];
+        }
+        if (currentIndex >= activeItems.length) {
+          currentIndex = 0;
+        }
+      }
+
+      function startRotator() {
+        applyViewportClasses();
+        refreshItems();
+
+        if (activeItems.length > 0) {
+          renderItem(activeItems[currentIndex]);
+          const animClass = `anim-${config.animation || 'slide-up'}`;
+          cardEl.className = `social-card ${animClass} enter`;
+          scheduleNext();
+        }
+      }
+
+      // Listen for parent messages (for instant live preview in Editor iframe)
+      window.addEventListener('message', (event) => {
+        try {
+          const data = event.data;
+          if (data && data.type === 'UPDATE_CONFIG') {
+            config = { ...config, ...data.config };
+            applyViewportClasses();
+            refreshItems();
+            renderItem(activeItems[currentIndex]);
+            scheduleNext();
+          } else if (data && data.type === 'FORCE_NEXT') {
+            transitionToNext();
+          } else if (data && data.type === 'TOGGLE_PAUSE') {
+            isPaused = !isPaused;
+            if (!isPaused) scheduleNext();
+            else if (rotationTimer) clearTimeout(rotationTimer);
+          }
+        } catch (e) {
+          console.warn('[Social Overlay] Message error:', e);
+        }
+      });
+
+      // Load Config from URL Parameters or API or LocalStorage
+      async function init() {
+        const params = new URLSearchParams(window.location.search);
+
+        // 1. Check for encoded Base64 config (?c=...)
+        const rawB64 = params.get('c') || params.get('config');
+        if (rawB64) {
+          try {
+            const parsed = JSON.parse(decodeURIComponent(escape(atob(rawB64))));
+            config = { ...config, ...parsed };
+            startRotator();
+            return;
+          } catch (e) {
+            console.warn('[Social Overlay] Failed to parse base64 config:', e);
+          }
+        }
+
+        // 2. Check for Profile ID or User Token (?id=... or ?token=...)
+        const profileId = params.get('id');
+        const token = params.get('token');
+        if (profileId || token) {
+          try {
+            const query = profileId ? `id=${encodeURIComponent(profileId)}` : `token=${encodeURIComponent(token)}`;
+            const res = await fetch(`/api/social-rotator/config?${query}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.config) {
+                config = { ...config, ...data.config };
+                // Override with explicit URL params if passed
+                if (params.get('theme')) config.theme = params.get('theme');
+                if (params.get('anim')) config.animation = params.get('anim');
+                if (params.get('scale')) config.scale = params.get('scale');
+                if (params.get('align')) config.align = params.get('align');
+                startRotator();
+                return;
+              }
+            }
+          } catch (e) {
+            console.warn('[Social Overlay] Failed to fetch server config:', e);
+          }
+        }
+
+        // 3. Fallback: Check Direct Query Params (?theme=...&speed=...&scale=...)
+        if (params.get('theme')) config.theme = params.get('theme');
+        if (params.get('anim') || params.get('animation')) config.animation = params.get('anim') || params.get('animation');
+        if (params.get('duration') || params.get('speed')) config.duration = Number(params.get('duration') || params.get('speed')) || 6;
+        if (params.get('pause') || params.get('pauseInterval')) config.pauseInterval = Number(params.get('pause') || params.get('pauseInterval')) || 0;
+        if (params.get('scale')) config.scale = params.get('scale');
+        if (params.get('layout')) config.layout = params.get('layout');
+        if (params.get('align')) config.align = params.get('align');
+        if (params.get('sound') === '1' || params.get('sound') === 'true') config.sound = true;
+
+        // 4. Fallback: LocalStorage (useful when tested in browser)
+        try {
+          const localSaved = localStorage.getItem('streampulse_social_rotator_config');
+          if (localSaved) {
+            const parsed = JSON.parse(localSaved);
+            config = { ...config, ...parsed };
+          }
+        } catch (e) {}
+
+        startRotator();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
