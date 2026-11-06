@@ -739,6 +739,17 @@ body.dark-mode .brand-badge.badge-studio {
   transform: translateX(3px);
 }
 
+.drawer-nav-item.active {
+  background: var(--surface-soft);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15);
+}
+
+.drawer-nav-item.active .drawer-nav-label {
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .drawer-icon-wrap {
   width: 34px;
   height: 34px;

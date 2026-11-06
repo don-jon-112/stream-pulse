@@ -149,9 +149,27 @@
       }
     }
 
+    // Highlight active link based on current path
+    function highlightActiveLink() {
+      if (!drawer) return;
+      const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+      drawer.querySelectorAll('.drawer-nav-item[href]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href) {
+          const linkPath = href.split('?')[0].replace(/\/$/, '') || '/';
+          if (linkPath === currentPath) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        }
+      });
+    }
+
     if (btnOpen) btnOpen.addEventListener('click', openDrawer);
     if (btnClose) btnClose.addEventListener('click', closeDrawer);
     if (backdrop) backdrop.addEventListener('click', closeDrawer);
+    highlightActiveLink();
 
     // Keyboard shortcut: Escape to close drawer and modal, M to toggle drawer
     document.addEventListener('keydown', (e) => {
