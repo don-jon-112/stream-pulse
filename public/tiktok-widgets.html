@@ -27,7 +27,7 @@
 
     /* Page Container */
     .tt-page-wrapper {
-      max-width: 1400px;
+      max-width: 1560px;
       width: 100%;
       margin: 0 auto;
       padding: 24px 20px 60px 20px;
@@ -69,12 +69,18 @@
       line-height: 1.5;
     }
 
-    /* Grid Layout: Wide Settings on Left, Sticky Preview on Right (Identical to /viewers) */
+    /* Grid Layout: 3 Columns (Left Side Menu, Center Settings, Right Sticky Preview) */
     .tt-workspace-grid {
       display: grid;
-      grid-template-columns: 1fr 460px;
-      gap: 28px;
+      grid-template-columns: 280px 1fr 450px;
+      gap: 24px;
       align-items: start;
+    }
+    @media (max-width: 1320px) {
+      .tt-workspace-grid {
+        grid-template-columns: 240px 1fr 410px;
+        gap: 18px;
+      }
     }
     @media (max-width: 1080px) {
       .tt-workspace-grid {
@@ -84,9 +90,124 @@
       .tt-preview-col {
         order: -1;
       }
+      .tt-side-nav-col {
+        position: static !important;
+      }
+      .tt-nav-menu {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+        gap: 8px !important;
+      }
       .preview-sticky-wrap {
         position: static !important;
       }
+    }
+
+    /* Left Side Navigation Menu */
+    .tt-side-nav-col {
+      min-width: 0;
+      position: sticky;
+      top: 86px;
+      z-index: 10;
+    }
+    .tt-side-nav-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-xl, 16px);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .tt-nav-group-header {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--body);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tt-nav-group-icon {
+      font-size: 0.85rem;
+    }
+    .tt-nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tt-side-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--hairline);
+      background: var(--surface-soft, rgba(255, 255, 255, 0.02));
+      color: var(--body);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.18s ease;
+      user-select: none;
+      box-sizing: border-box;
+    }
+    .tt-side-item:hover {
+      color: var(--ink);
+      border-color: var(--tt-pink);
+      background: var(--surface);
+      transform: translateX(2px);
+    }
+    .tt-side-item.active {
+      color: var(--ink);
+      background: rgba(254, 44, 85, 0.08);
+      border-color: var(--tt-pink);
+      box-shadow: 0 0 0 1.5px rgba(254, 44, 85, 0.25);
+    }
+    .tt-side-item.active .tt-side-title {
+      color: var(--tt-pink);
+    }
+    .tt-side-item-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .tt-side-icon {
+      font-size: 1.15rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .tt-side-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .tt-side-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tt-side-sub {
+      font-size: 0.68rem;
+      color: var(--body);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tt-tab-badge {
+      font-size: 0.66rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(254, 44, 85, 0.15);
+      color: var(--tt-pink);
+      flex-shrink: 0;
+      margin-left: 6px;
     }
 
     /* Left Config Column */
@@ -94,7 +215,7 @@
       min-width: 0;
     }
 
-    /* Tabs Container */
+    /* Legacy Tabs Support (if needed) */
     .tt-tabs-group-title {
       font-size: 0.72rem;
       font-weight: 800;
@@ -106,48 +227,13 @@
       align-items: center;
       gap: 6px;
     }
-    .tt-tabs-bar {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      margin-bottom: 14px;
-      scrollbar-width: thin;
-    }
     .tt-tab-btn {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 16px;
       border-radius: 12px;
-      border: 1.5px solid var(--hairline);
-      background: var(--surface);
-      color: var(--body);
-      font-size: 0.85rem;
-      font-weight: 700;
       cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.18s ease;
       user-select: none;
-    }
-    .tt-tab-btn:hover {
-      color: var(--ink);
-      border-color: var(--tt-pink);
-      transform: translateY(-1px);
-    }
-    .tt-tab-btn.active {
-      color: #fff;
-      background: var(--surface);
-      border-color: var(--tt-pink);
-      box-shadow: 0 0 0 2px rgba(254, 44, 85, 0.25);
-    }
-    .tt-tab-badge {
-      font-size: 0.7rem;
-      font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(254, 44, 85, 0.15);
-      color: var(--tt-pink);
     }
 
     /* Section Config Cards (Wide & Spacious) */
@@ -658,62 +744,126 @@
       </p>
     </div>
 
-    <!-- Main Workspace Grid: Config on Left, Sticky Preview on Right -->
+    <!-- Main Workspace Grid: Left Side Menu, Center Config, Right Sticky Preview -->
     <div class="tt-workspace-grid">
 
-      <!-- LEFT COLUMN: WIDGET SELECTOR, SETTINGS & SIMULATOR (1fr) -->
-      <div class="tt-config-col">
+      <!-- 1. LEFT SIDEBAR: WIDGET & GOALS SELECTOR MENU (Sticky) -->
+      <aside class="tt-side-nav-col">
+        <div class="tt-side-nav-card">
+          <!-- Group 1: Interactive Widgets -->
+          <div class="tt-nav-group">
+            <div class="tt-nav-group-header">
+              <span class="tt-nav-group-icon">⚡</span>
+              <span>WIDGET INTERAKTIF</span>
+            </div>
+            <div class="tt-nav-menu">
+              <button class="tt-tab-btn tt-side-item active" data-widget="top-gifter" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">👑</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Top Gifter</span>
+                    <span class="tt-side-sub">Podium Leaderboard</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge">Podium</span>
+              </button>
+              <button class="tt-tab-btn tt-side-item" data-widget="top-likes" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">❤️</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Top Like</span>
+                    <span class="tt-side-sub">Spam Tapper Terbanyak</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge">Tapper</span>
+              </button>
+              <button class="tt-tab-btn tt-side-item" data-widget="gift-jar" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">🫙</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Gift Jar</span>
+                    <span class="tt-side-sub">Fisika Toples Kaca 2D</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge">Fisika 2D</span>
+              </button>
+              <button class="tt-tab-btn tt-side-item" data-widget="like-waterfall" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">🌊</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Like Waterfall</span>
+                    <span class="tt-side-sub">Hujan Love & Avatar</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge">Hujan Love</span>
+              </button>
+              <button class="tt-tab-btn tt-side-item" data-widget="alerts" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">🔔</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Alert TikTok</span>
+                    <span class="tt-side-sub">Gift & Follow Streak</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge">Streak x10</span>
+              </button>
+            </div>
+          </div>
 
-        <!-- Tabs Section with 2 Clean Groups -->
-        <div style="margin-bottom: 22px;">
-          <div class="tt-tabs-group-title">
-            <span>1. WIDGET INTERAKTIF TIKTOK</span>
-          </div>
-          <div class="tt-tabs-bar">
-            <button class="tt-tab-btn active" data-widget="top-gifter">
-              <span>👑 Top Gifter</span>
-              <span class="tt-tab-badge">Podium</span>
-            </button>
-            <button class="tt-tab-btn" data-widget="top-likes">
-              <span>❤️ Top Like</span>
-              <span class="tt-tab-badge">Tapper</span>
-            </button>
-            <button class="tt-tab-btn" data-widget="gift-jar">
-              <span>🫙 Gift Jar</span>
-              <span class="tt-tab-badge">Fisika 2D</span>
-            </button>
-            <button class="tt-tab-btn" data-widget="like-waterfall">
-              <span>🌊 Like Waterfall</span>
-              <span class="tt-tab-badge">Hujan Love</span>
-            </button>
-            <button class="tt-tab-btn" data-widget="alerts">
-              <span>🔔 Alert TikTok</span>
-              <span class="tt-tab-badge">Streak x10</span>
-            </button>
-          </div>
-
-          <div class="tt-tabs-group-title" style="margin-top:14px; color:var(--tt-pink);">
-            <span>2. TARGET SIARAN (GOALS OVERLAY TERPISAH)</span>
-          </div>
-          <div class="tt-tabs-bar">
-            <button class="tt-tab-btn" data-widget="goal-like">
-              <span>❤️ Like Goal</span>
-              <span class="tt-tab-badge" style="background:rgba(254,44,85,0.15); color:var(--tt-pink);">Tap Layar</span>
-            </button>
-            <button class="tt-tab-btn" data-widget="goal-follower">
-              <span>🌟 Follower Goal</span>
-              <span class="tt-tab-badge" style="background:rgba(56,189,248,0.15); color:#0284c7;">Follow Baru</span>
-            </button>
-            <button class="tt-tab-btn" data-widget="goal-viewer">
-              <span>👁️ Viewer Goal</span>
-              <span class="tt-tab-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Penonton</span>
-            </button>
-            <button class="tt-tab-btn" data-widget="goal-gift">
-              <span>💎 Diamond Goal</span>
-              <span class="tt-tab-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Koin Hadiah</span>
-            </button>
+          <!-- Group 2: Goals & Targets -->
+          <div class="tt-nav-group" style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--hairline);">
+            <div class="tt-nav-group-header" style="color:var(--tt-pink);">
+              <span class="tt-nav-group-icon">🎯</span>
+              <span>TARGET SIARAN (GOALS)</span>
+            </div>
+            <div class="tt-nav-menu">
+              <button class="tt-tab-btn tt-side-item" data-widget="goal-like" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">❤️</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Like Goal</span>
+                    <span class="tt-side-sub">Target Tap Layar</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge" style="background:rgba(254,44,85,0.15); color:var(--tt-pink);">Tap Layar</span>
+              </button>
+              <button class="tt-tab-btn tt-side-item" data-widget="goal-follower" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">🌟</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Follower Goal</span>
+                    <span class="tt-side-sub">Target Follow Baru</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge" style="background:rgba(56,189,248,0.15); color:#0284c7;">Follow</span>
+              </button>
+              <button class="tt-tab-btn tt-side-item" data-widget="goal-viewer" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">👁️</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Viewer Goal</span>
+                    <span class="tt-side-sub">Target Penonton Live</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Penonton</span>
+              </button>
+              <button class="tt-tab-btn tt-side-item" data-widget="goal-gift" type="button">
+                <div class="tt-side-item-main">
+                  <span class="tt-side-icon">💎</span>
+                  <div class="tt-side-info">
+                    <span class="tt-side-title">Diamond Goal</span>
+                    <span class="tt-side-sub">Target Koin Hadiah</span>
+                  </div>
+                </div>
+                <span class="tt-tab-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Koin</span>
+              </button>
+            </div>
           </div>
         </div>
+      </aside>
+
+      <!-- 2. CENTER COLUMN: SETTINGS & SIMULATOR (1fr) -->
+      <div class="tt-config-col">
 
         <!-- 1. Widget Settings & Options Card -->
         <div class="config-card">
