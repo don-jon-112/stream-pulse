@@ -2019,7 +2019,8 @@ app.post('/api/user/overlays/duplicate', (req, res) => {
 // Twitch Avatar Resolver
 app.get('/api/twitch/avatar/:username', async (req, res) => {
   const { username } = req.params;
-  const avatar = await streamManager.getTwitchAvatar(username);
+  const userId = req.query.id || null;
+  const avatar = await streamManager.getTwitchAvatar(username, userId);
   res.json({ username, avatar });
 });
 

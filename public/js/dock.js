@@ -855,7 +855,7 @@
     }
     const initial = (authorName[0] || '?').toUpperCase();
     const avatarHtml = author.avatar
-      ? `<img src="${escapeHtml(author.avatar)}" class="dock-chat-avatar" alt="${escapeHtml(authorName)}" loading="lazy" onerror="this.onerror=null; this.outerHTML='<div class=\\'dock-chat-avatar\\'>${initial}</div>'">`
+      ? `<img src="${escapeHtml(author.avatar)}" class="dock-chat-avatar" alt="${escapeHtml(authorName)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null; this.outerHTML='<div class=\\'dock-chat-avatar\\'>${initial}</div>'">`
       : `<div class="dock-chat-avatar">${initial}</div>`;
 
     const platformBadgeHtml = `<span class="platform-badge ${chat.platform}">${chat.platform}</span>`;
