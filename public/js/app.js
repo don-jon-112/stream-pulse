@@ -692,8 +692,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof updateDockShareUrl === 'function') updateDockShareUrl();
   }
 
-  // Cross-tab real-time sync with Overlay Studio
+  // Cross-tab real-time sync with Overlay Studio & Multi-Tab Auth
   window.addEventListener('storage', (e) => {
+    if (e.key === 'streampulse_user_token') {
+      checkUserSession();
+    }
     if (e.key === 'streampulse_user_channels' || e.key === 'streampulse_my_channels' || e.key === 'streampulse_guest_channels') {
       try {
         const ch = JSON.parse(e.newValue || '{}');
@@ -1010,12 +1013,15 @@ document.addEventListener('DOMContentLoaded', () => {
         channelAuthNotice.innerHTML = `
           <div style="color:#f59e0b; font-weight:700; margin-bottom:2px;">🔒 ${window.t ? window.t('auth_guest_mode_title') : 'Mode Tamu (Belum Login)'}</div>
           <div style="color:#94a3b8; font-size:0.72rem; line-height:1.4;">
-            ${window.t ? window.t('auth_guest_mode_desc') : 'Sebagai tamu, input saluran Anda selalu default kosong dan hanya aktif di sesi ini.'} <a href="/studio" style="color:#67e8f9; font-weight:700; text-decoration:underline;">${window.t ? window.t('auth_guest_login_link') : 'Login / Buat Akun'}</a> ${window.t ? window.t('auth_guest_mode_desc_end') : 'untuk menyimpan channel & mengamankan token Twitch secara permanen.'}
+            ${window.t ? window.t('auth_guest_mode_desc') : 'Sebagai tamu, input saluran Anda selalu default kosong dan hanya aktif di sesi ini.'} <a href="/studio?auth=1" style="color:#67e8f9; font-weight:700; text-decoration:underline;">${window.t ? window.t('auth_guest_login_link') : 'Login / Buat Akun'}</a> ${window.t ? window.t('auth_guest_mode_desc_end') : 'untuk menyimpan channel & mengamankan token Twitch secara permanen.'}
           </div>
         `;
       }
     }
   }
+
+  // Initial user session verification on page load
+  checkUserSession();
 
   socket.on('initial_state', (initial) => {
 
@@ -1771,14 +1777,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // MODALS MANAGEMENT & ACCESSIBILITY
   // ==========================================
   const openModal = (m) => {
+    if (!m) return;
     m.classList.add('show');
+    m.classList.add('active');
     if (m === setupModal) {
       updateDockShareUrl();
     }
     const firstInput = m.querySelector('input');
     if (firstInput) setTimeout(() => firstInput.focus(), 100);
   };
-  const closeModal = (m) => m.classList.remove('show');
+  const closeModal = (m) => {
+    if (!m) return;
+    m.classList.remove('show');
+    m.classList.remove('active');
+  };
+
+  window.openModal = openModal;
+  window.closeModal = closeModal;
 
   function updateDockShareUrl() {
     const dockShareUrl = document.getElementById('dockShareUrl');
@@ -1813,9 +1828,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  btnSetupModal.addEventListener('click', () => openModal(setupModal));
-  closeSetupModal.addEventListener('click', () => closeModal(setupModal));
-  btnCancelSetup.addEventListener('click', () => closeModal(setupModal));
+  if (btnSetupModal) btnSetupModal.addEventListener('click', () => openModal(setupModal));
+  if (closeSetupModal) closeSetupModal.addEventListener('click', () => closeModal(setupModal));
+  if (btnCancelSetup) btnCancelSetup.addEventListener('click', () => closeModal(setupModal));
+
+  // Auto-open Setup Modal if ?setup=1 or #setup in URL
+  const shouldOpenSetup = urlParams.get('setup') === '1' ||
+                          window.location.hash === '#setup' ||
+                          window.location.hash === '#channels' ||
+                          window.location.hash === '#sectionChannels';
+  if (shouldOpenSetup && setupModal) {
+    setTimeout(() => {
+      openModal(setupModal);
+    }, 200);
+  }
 
   if (btnConnectTwitch) {
     btnConnectTwitch.addEventListener('click', () => {

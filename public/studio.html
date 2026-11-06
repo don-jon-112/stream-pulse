@@ -1604,21 +1604,26 @@
 
         <div class="form-group">
           <label class="form-label" for="settingTwitch" data-i18n="label_twitch_channel">Twitch Channel</label>
-          <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch" readonly style="background:rgba(0,0,0,0.3); opacity:0.85;">
+          <input type="text" id="settingTwitch" class="form-input" placeholder="Contoh: shroud (tanpa #)" data-i18n-ph="ph_twitch">
         </div>
         <div class="form-group">
           <label class="form-label" for="settingYouTube" data-i18n="label_youtube_channel">YouTube Live Stream</label>
-          <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube" readonly style="background:rgba(0,0,0,0.3); opacity:0.85;">
+          <input type="text" id="settingYouTube" class="form-input" placeholder="Contoh: @Streamer / URL Live" data-i18n-ph="ph_youtube">
         </div>
         <div class="form-group">
           <label class="form-label" for="settingTikTok" data-i18n="label_tiktok_channel">TikTok LIVE Username</label>
-          <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok" readonly style="background:rgba(0,0,0,0.3); opacity:0.85;">
+          <input type="text" id="settingTikTok" class="form-input" placeholder="Contoh: streamer_tiktok (tanpa @)" data-i18n-ph="ph_tiktok">
         </div>
 
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:2px;">
-          <a href="/#sectionChannels" target="_blank" class="btn-icon" style="font-size:0.75rem; padding:6px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; border-color:rgba(99,102,241,0.4); color:#a5b4fc;">
-            <span>⚙️ Buka Atur Channel</span>
-          </a>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" id="btnSaveChannelsStudio" class="btn-icon btn-primary" style="font-size:0.75rem; padding:6px 14px; font-weight:700;">
+              <span>💾 Simpan Saluran</span>
+            </button>
+            <a href="/?setup=1" target="_blank" class="btn-icon" style="font-size:0.75rem; padding:6px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; border-color:rgba(99,102,241,0.4); color:#a5b4fc;" title="Buka dialog pengaturan saluran monitor di Beranda">
+              <span>⚙️ Buka Atur Channel ↗</span>
+            </a>
+          </div>
           <span id="channelSyncStatus" style="font-size:0.72rem; color:#10b981; font-weight:700;" data-i18n="status_channel_synced">✓ Terhubung ke Saluran Akun</span>
         </div>
       </div>
@@ -2889,15 +2894,15 @@
           settingYouTube.value = previewTestingChannels.youtube !== undefined && previewTestingChannels.youtube !== '' ? previewTestingChannels.youtube : settingYouTube.value;
           settingTikTok.value = previewTestingChannels.tiktok !== undefined && previewTestingChannels.tiktok !== '' ? previewTestingChannels.tiktok : settingTikTok.value;
         } else {
-          settingTwitch.readOnly = true;
-          settingYouTube.readOnly = true;
-          settingTikTok.readOnly = true;
+          settingTwitch.readOnly = false;
+          settingYouTube.readOnly = false;
+          settingTikTok.readOnly = false;
           [settingTwitch, settingYouTube, settingTikTok].forEach(el => {
-            el.style.background = 'rgba(0,0,0,0.3)';
-            el.style.opacity = '0.85';
+            el.style.background = 'var(--bg-input, rgba(0,0,0,0.5))';
+            el.style.opacity = '1';
           });
           if (channelModeNotice) {
-            channelModeNotice.innerHTML = `🔒 <strong style="color:#0f172a; font-weight:700;">Mode Sinkronisasi Akun (Default):</strong> Menggunakan saluran dari menu Atur Channel. Inilah yang akan selalu tampil di OBS Studio. Nyalakan switch <strong>"Mode Uji Coba Preview"</strong> di atas jika Anda ingin mencoba username streamer lain untuk testing tampilan.`;
+            channelModeNotice.innerHTML = `🔒 <strong style="color:var(--ink); font-weight:700;">Saluran Live Stream Resmi:</strong> Masukkan username saluran Anda di bawah lalu klik <strong>"Simpan Saluran"</strong> untuk menyinkronkan ke akun cloud Anda dan OBS Studio.`;
           }
           if (channelSyncStatus) {
             channelSyncStatus.style.display = 'inline';
