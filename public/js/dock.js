@@ -997,6 +997,37 @@
     socket.emit('update_channels', payload);
   }
 
+  // Live Network Latency Ping Monitor
+  const dockPingPill = document.getElementById('dock-ping-pill');
+  function measureDockPing() {
+    if (!socket || !socket.connected) {
+      if (dockPingPill) {
+        dockPingPill.textContent = 'Offline';
+        dockPingPill.className = 'dock-ping-pill slow';
+        dockPingPill.title = 'Terputus dari Server';
+      }
+      return;
+    }
+    const start = performance.now();
+    socket.emit('ping_check', () => {
+      const lat = Math.round(performance.now() - start);
+      if (dockPingPill) {
+        dockPingPill.textContent = `${lat}ms`;
+        if (lat < 100) {
+          dockPingPill.className = 'dock-ping-pill';
+          dockPingPill.title = `Latensi Server: ${lat}ms (Optimal / Sangat Lancar)`;
+        } else if (lat < 220) {
+          dockPingPill.className = 'dock-ping-pill moderate';
+          dockPingPill.title = `Latensi Server: ${lat}ms (Normal)`;
+        } else {
+          dockPingPill.className = 'dock-ping-pill slow';
+          dockPingPill.title = `Latensi Server: ${lat}ms (Tinggi / Lambat)`;
+        }
+      }
+    });
+  }
+  setInterval(measureDockPing, 7000);
+
   function initSocket() {
     socket = io({ transports: ['websocket', 'polling'] });
 
@@ -1007,6 +1038,7 @@
         connDot.title = 'Terhubung ke Server StreamPulse';
       }
 
+      measureDockPing();
       syncChannelsWithSocket();
     });
 
@@ -1015,6 +1047,11 @@
       if (connDot) {
         connDot.className = 'dock-status-dot';
         connDot.title = 'Terputus dari Server';
+      }
+      if (dockPingPill) {
+        dockPingPill.textContent = 'Offline';
+        dockPingPill.className = 'dock-ping-pill slow';
+        dockPingPill.title = 'Terputus dari Server';
       }
     });
 

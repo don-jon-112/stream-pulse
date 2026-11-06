@@ -2075,7 +2075,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Dismiss modal on background click
-  [setupModal, demoModal, donateModal].forEach(modal => {
+  [setupModal, demoModal, donateModal, wizardModal].forEach(modal => {
     if (modal) {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal(modal);
@@ -2090,6 +2090,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal(setupModal);
       closeModal(demoModal);
       if (donateModal) closeModal(donateModal);
+      if (wizardModal) closeModal(wizardModal);
       closeSideDrawer();
     } else if ((e.key === 'm' || e.key === 'M') && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
       if (sideDrawer && sideDrawer.classList.contains('active')) {
@@ -2318,6 +2319,286 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.warn('[StreamPulse] Failed to restore saved chat/events:', err);
     }
+  }
+
+  // ==========================================
+  // CONNECTION HEALTH HUD & REALTIME LATENCY
+  // ==========================================
+  const hudConnectionHealth = document.getElementById('hudConnectionHealth');
+  const hudPingVal = document.getElementById('hudPingVal');
+
+  function measureHomepagePing() {
+    if (!socket || !socket.connected) {
+      if (hudConnectionHealth) {
+        hudConnectionHealth.className = 'connection-health-hud status-offline';
+        hudConnectionHealth.title = 'Koneksi Server: Terputus (Mencoba menyambungkan kembali...)';
+      }
+      if (hudPingVal) hudPingVal.textContent = 'Offline';
+      return;
+    }
+    const start = performance.now();
+    socket.emit('ping_check', () => {
+      const lat = Math.round(performance.now() - start);
+      if (!hudPingVal) return;
+      hudPingVal.textContent = `${lat} ms`;
+
+      let quality = 'Optimal';
+      let cls = 'connection-health-hud';
+      if (lat < 100) {
+        quality = 'Optimal';
+      } else if (lat < 220) {
+        quality = 'Normal';
+        cls = 'connection-health-hud status-fair';
+      } else {
+        quality = 'Tinggi / Lambat';
+        cls = 'connection-health-hud status-slow';
+      }
+
+      if (hudConnectionHealth) {
+        hudConnectionHealth.className = cls;
+        const twStatus = state.statuses.twitch || 'idle';
+        const ytStatus = state.statuses.youtube || 'idle';
+        const ttStatus = state.statuses.tiktok || 'idle';
+        hudConnectionHealth.title = `Kesehatan Jaringan: Latensi Server ${lat}ms (${quality}) • Twitch: ${twStatus} • YouTube: ${ytStatus} • TikTok: ${ttStatus}`;
+      }
+    });
+  }
+
+  setInterval(measureHomepagePing, 6000);
+  if (socket) {
+    socket.on('connect', () => {
+      setTimeout(measureHomepagePing, 400);
+    });
+    socket.on('disconnect', () => {
+      measureHomepagePing();
+    });
+  }
+
+  if (hudConnectionHealth) {
+    hudConnectionHealth.addEventListener('click', () => {
+      openModal(setupModal);
+    });
+  }
+
+  // ==========================================
+  // QUICK-START ONBOARDING WIZARD (3 LANGKAH)
+  // ==========================================
+  const wizardModal = document.getElementById('wizardModal');
+  const closeWizardModal = document.getElementById('closeWizardModal');
+  const btnOpenWizard = document.getElementById('btnOpenWizard');
+  const drawerBtnWizard = document.getElementById('drawerBtnWizard');
+
+  const tabStep1 = document.getElementById('tabStep1');
+  const tabStep2 = document.getElementById('tabStep2');
+  const tabStep3 = document.getElementById('tabStep3');
+
+  const wizardStep1 = document.getElementById('wizardStep1');
+  const wizardStep2 = document.getElementById('wizardStep2');
+  const wizardStep3 = document.getElementById('wizardStep3');
+
+  const wizInputTwitch = document.getElementById('wizInputTwitch');
+  const wizInputYouTube = document.getElementById('wizInputYouTube');
+  const wizInputTikTok = document.getElementById('wizInputTikTok');
+
+  const wizObsUrl = document.getElementById('wizObsUrl');
+  const btnWizCopyUrl = document.getElementById('btnWizCopyUrl');
+  const wizCopyIcon = document.getElementById('wizCopyIcon');
+  const wizCopyLabel = document.getElementById('wizCopyLabel');
+
+  const btnWizPrev = document.getElementById('btnWizPrev');
+  const btnWizNext = document.getElementById('btnWizNext');
+  const btnWizSkip = document.getElementById('btnWizSkip');
+  const btnWizFinish = document.getElementById('btnWizFinish');
+
+  let currentWizardStep = 1;
+  let selectedWizardTheme = 'simple';
+
+  function populateWizardFields() {
+    const ch = getStoredUserChannels() || {};
+    if (wizInputTwitch) wizInputTwitch.value = ch.twitch || (inputTwitch ? inputTwitch.value : '');
+    if (wizInputYouTube) wizInputYouTube.value = ch.youtube || (inputYouTube ? inputYouTube.value : '');
+    if (wizInputTikTok) wizInputTikTok.value = ch.tiktok || (inputTikTok ? inputTikTok.value : '');
+  }
+
+  function generateWizardObsUrl() {
+    if (!wizObsUrl) return;
+    const origin = window.location.origin;
+    const tw = (wizInputTwitch ? wizInputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '') : '');
+    const yt = (wizInputYouTube ? wizInputYouTube.value.trim() : '');
+    const tt = (wizInputTikTok ? wizInputTikTok.value.trim().toLowerCase().replace(/^@/, '') : '');
+
+    const params = new URLSearchParams();
+    if (selectedWizardTheme && selectedWizardTheme !== 'simple') {
+      params.set('theme', selectedWizardTheme);
+    }
+    if (tw) params.set('twitch', tw);
+    if (yt) params.set('youtube', yt);
+    if (tt) params.set('tiktok', tt);
+
+    const q = params.toString();
+    wizObsUrl.value = `${origin}/overlay${q ? '?' + q : ''}`;
+  }
+
+  function setWizardStep(step) {
+    currentWizardStep = Math.max(1, Math.min(3, step));
+
+    // Update Steps Nav
+    [tabStep1, tabStep2, tabStep3].forEach((tab, idx) => {
+      if (!tab) return;
+      const tabNum = idx + 1;
+      tab.classList.toggle('active', tabNum === currentWizardStep);
+      tab.classList.toggle('completed', tabNum < currentWizardStep);
+    });
+
+    // Update Panes
+    if (wizardStep1) wizardStep1.classList.toggle('active', currentWizardStep === 1);
+    if (wizardStep2) wizardStep2.classList.toggle('active', currentWizardStep === 2);
+    if (wizardStep3) {
+      wizardStep3.classList.toggle('active', currentWizardStep === 3);
+      if (currentWizardStep === 3) generateWizardObsUrl();
+    }
+
+    // Update Buttons
+    if (btnWizPrev) btnWizPrev.style.display = currentWizardStep > 1 ? 'inline-flex' : 'none';
+    if (btnWizNext) {
+      btnWizNext.style.display = currentWizardStep < 3 ? 'inline-flex' : 'none';
+      btnWizNext.textContent = currentWizardStep === 1 ? 'Lanjut: Pilih Gaya Tema →' : 'Lanjut: Pasang di OBS →';
+    }
+    if (btnWizFinish) btnWizFinish.style.display = currentWizardStep === 3 ? 'inline-flex' : 'none';
+  }
+
+  // Theme selection cards in Step 2
+  document.querySelectorAll('.wizard-theme-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.wizard-theme-card').forEach(c => {
+        c.classList.remove('active');
+        const r = c.querySelector('.wiz-theme-radio');
+        if (r) r.textContent = 'Pilih Tema';
+      });
+      card.classList.add('active');
+      const radio = card.querySelector('.wiz-theme-radio');
+      if (radio) radio.textContent = '✓ Terpilih';
+      selectedWizardTheme = card.dataset.theme || 'simple';
+      generateWizardObsUrl();
+    });
+  });
+
+  // Navigation button listeners
+  if (btnWizNext) {
+    btnWizNext.addEventListener('click', () => {
+      if (currentWizardStep === 1) {
+        if (wizInputTwitch && inputTwitch) inputTwitch.value = wizInputTwitch.value.trim();
+        if (wizInputYouTube && inputYouTube) inputYouTube.value = wizInputYouTube.value.trim();
+        if (wizInputTikTok && inputTikTok) inputTikTok.value = wizInputTikTok.value.trim();
+      }
+      setWizardStep(currentWizardStep + 1);
+    });
+  }
+
+  if (btnWizPrev) {
+    btnWizPrev.addEventListener('click', () => {
+      setWizardStep(currentWizardStep - 1);
+    });
+  }
+
+  [tabStep1, tabStep2, tabStep3].forEach((tab, idx) => {
+    if (tab) {
+      tab.addEventListener('click', () => {
+        setWizardStep(idx + 1);
+      });
+    }
+  });
+
+  // Copy OBS URL in Step 3
+  if (btnWizCopyUrl && wizObsUrl) {
+    btnWizCopyUrl.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(wizObsUrl.value);
+        if (wizCopyIcon) wizCopyIcon.textContent = '✓';
+        if (wizCopyLabel) wizCopyLabel.textContent = 'Disalin!';
+        btnWizCopyUrl.style.background = '#10b981';
+        btnWizCopyUrl.style.borderColor = '#10b981';
+
+        if (typeof spToast === 'function') {
+          spToast('Tautan OBS Studio berhasil disalin ke clipboard!', 'success');
+        }
+
+        setTimeout(() => {
+          if (wizCopyIcon) wizCopyIcon.textContent = '📋';
+          if (wizCopyLabel) wizCopyLabel.textContent = 'Salin URL';
+          btnWizCopyUrl.style.background = '';
+          btnWizCopyUrl.style.borderColor = '';
+        }, 2200);
+      } catch (e) {
+        wizObsUrl.select();
+        document.execCommand('copy');
+        if (typeof spToast === 'function') {
+          spToast('Tautan OBS Studio disalin!', 'success');
+        }
+      }
+    });
+  }
+
+  async function finishWizardWorkflow() {
+    const twitch = (wizInputTwitch ? wizInputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '') : '');
+    const youtube = (wizInputYouTube ? wizInputYouTube.value.trim() : '');
+    const tiktok = (wizInputTikTok ? wizInputTikTok.value.trim().toLowerCase().replace(/^@/, '') : '');
+
+    // Sync to main inputs
+    if (inputTwitch) inputTwitch.value = twitch;
+    if (inputYouTube) inputYouTube.value = youtube;
+    if (inputTikTok) inputTikTok.value = tiktok;
+
+    const chData = { twitch, youtube, tiktok };
+    saveStoredUserChannels(chData);
+    socket.emit('update_channels', { twitch, youtube, tiktok, force: true });
+
+    localStorage.setItem('sp_onboarding_completed', 'true');
+    closeModal(wizardModal);
+    if (typeof spToast === 'function') {
+      spToast('Setup selesai! Selamat streaming dengan StreamPulse! 🚀', 'success');
+    }
+  }
+
+  if (btnWizFinish) {
+    btnWizFinish.addEventListener('click', finishWizardWorkflow);
+  }
+
+  if (btnWizSkip) {
+    btnWizSkip.addEventListener('click', () => {
+      localStorage.setItem('sp_onboarding_completed', 'true');
+      closeModal(wizardModal);
+    });
+  }
+
+  function openWizardModal() {
+    populateWizardFields();
+    setWizardStep(1);
+    openModal(wizardModal);
+  }
+
+  if (btnOpenWizard) {
+    btnOpenWizard.addEventListener('click', openWizardModal);
+  }
+
+  if (drawerBtnWizard) {
+    drawerBtnWizard.addEventListener('click', () => {
+      closeSideDrawer();
+      openWizardModal();
+    });
+  }
+
+  if (closeWizardModal) {
+    closeWizardModal.addEventListener('click', () => {
+      closeModal(wizardModal);
+    });
+  }
+
+  // Auto-open on first visit for new streamers
+  if (!localStorage.getItem('sp_onboarding_completed')) {
+    setTimeout(() => {
+      openWizardModal();
+    }, 1200);
   }
 
   // Restore cache immediately after all components, handlers, and sets are initialized

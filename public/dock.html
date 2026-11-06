@@ -133,6 +133,31 @@
       box-shadow: 0 0 8px var(--success);
     }
 
+    .dock-ping-pill {
+      font-size: 9px;
+      font-weight: 700;
+      font-family: var(--font-mono, monospace);
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      line-height: 1.2;
+      display: inline-block;
+      transition: all 0.3s ease;
+      margin-left: 2px;
+    }
+    .dock-ping-pill.moderate {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .dock-ping-pill.slow {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+
     .dock-header-actions {
       display: flex;
       align-items: center;
@@ -804,6 +829,7 @@
     <div class="dock-top-row">
       <div class="dock-branding">
         <span class="dock-status-dot" id="dock-conn-dot" title="Status Server: Terputus"></span>
+        <span class="dock-ping-pill" id="dock-ping-pill" title="Latensi Jaringan OBS">-- ms</span>
         <div class="dock-logo">
           StreamPulse
           <span class="dock-badge-pro">OBS DOCK</span>
