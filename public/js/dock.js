@@ -1175,3 +1175,74 @@
     const initialTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('streampulse_theme') || 'dark';
     updateDockThemeUI(initialTheme);
   }
+
+  // ==========================================
+  // DOCK SCREEN WAKE LOCK (ALWAYS ON / ANTI-SLEEP)
+  // ==========================================
+  function initDockWakeLock() {
+    const wakelockBtn = document.getElementById('btn-dock-wakelock');
+    const wakelockLabel = document.getElementById('dock-wakelock-label');
+    if (!wakelockBtn) return;
+
+    if (window.screenKeepAlive) {
+      window.screenKeepAlive.onStatusChange((status) => {
+        const isActive = (status === 'active' || status === 'fallback');
+        if (isActive) {
+          wakelockBtn.classList.add('active');
+          wakelockBtn.classList.remove('inactive');
+          if (wakelockLabel) wakelockLabel.textContent = 'Always On';
+          wakelockBtn.title = 'Layar Aktif (Anti-Sleep ON) - Layar dicegah mati atau tidur otomatis';
+        } else {
+          wakelockBtn.classList.remove('active');
+          wakelockBtn.classList.add('inactive');
+          if (wakelockLabel) wakelockLabel.textContent = 'Auto-Sleep';
+          wakelockBtn.title = 'Layar Normal (Auto-Sleep) - Klik untuk mengaktifkan mode Always On';
+        }
+      });
+
+      wakelockBtn.addEventListener('click', async () => {
+        try {
+          await window.screenKeepAlive.toggle();
+        } catch (e) {
+          console.warn('[Dock] Gagal toggle wake lock:', e);
+        }
+      });
+    } else {
+      let nativeLock = null;
+      async function acquireNative() {
+        if ('wakeLock' in navigator && window.isSecureContext) {
+          try {
+            nativeLock = await navigator.wakeLock.request('screen');
+            wakelockBtn.classList.add('active');
+            wakelockBtn.classList.remove('inactive');
+            if (wakelockLabel) wakelockLabel.textContent = 'Always On';
+            nativeLock.addEventListener('release', () => {
+              nativeLock = null;
+              wakelockBtn.classList.remove('active');
+              wakelockBtn.classList.add('inactive');
+              if (wakelockLabel) wakelockLabel.textContent = 'Auto-Sleep';
+            });
+          } catch (err) {}
+        }
+      }
+      acquireNative();
+      wakelockBtn.addEventListener('click', async () => {
+        if (nativeLock) {
+          try { await nativeLock.release(); } catch (e) {}
+          nativeLock = null;
+          wakelockBtn.classList.remove('active');
+          wakelockBtn.classList.add('inactive');
+          if (wakelockLabel) wakelockLabel.textContent = 'Auto-Sleep';
+        } else {
+          await acquireNative();
+        }
+      });
+    }
+  }
+
+  // Auto init wake lock on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDockWakeLock);
+  } else {
+    initDockWakeLock();
+  }

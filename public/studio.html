@@ -22,12 +22,21 @@
       color-scheme: dark;
     }
 
+    html {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
     body {
       background: var(--bg-canvas);
       color: var(--ink);
       min-height: 100vh;
+      width: 100%;
+      max-width: 100vw;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
     }
 
     .studio-header {
@@ -954,6 +963,7 @@
     .obs-link-row { display: flex; gap: 10px; }
     .obs-link-input {
       flex: 1;
+      min-width: 0;
       padding: 10px 14px;
       background: var(--surface-soft);
       border: 1px solid var(--hairline);
@@ -961,6 +971,30 @@
       color: #000000;
       font-family: var(--font-mono);
       font-size: 0.85rem;
+    }
+
+    @media (max-width: 640px) {
+      .obs-link-row {
+        flex-direction: column;
+      }
+      .obs-link-input {
+        width: 100%;
+        min-width: 0;
+      }
+      #btnCopyObsUrl {
+        width: 100%;
+        justify-content: center;
+      }
+      .controls-panel {
+        padding: 14px !important;
+      }
+      .studio-card {
+        padding: 12px !important;
+      }
+      .preview-window,
+      .preview-window iframe#previewIframe {
+        min-height: 360px !important;
+      }
     }
 
     input[type="range"] {

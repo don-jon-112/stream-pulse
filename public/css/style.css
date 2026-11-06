@@ -103,12 +103,20 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-canvas);
   background-image: none;
   color: var(--text-primary);
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -923,10 +931,39 @@ body.dark-mode .brand-badge.badge-studio {
 
     .header-left {
       order: 1;
+      min-width: 0;
     }
 
     .header-right {
       order: 2;
+      flex-shrink: 1;
+      min-width: 0;
+      gap: 5px;
+    }
+
+    @media (max-width: 480px) {
+      .header-right {
+        gap: 3px;
+      }
+      .wakelock-pill {
+        padding: 3px 8px;
+        min-height: 28px;
+        gap: 4px;
+      }
+      .wakelock-text {
+        font-size: 0.62rem;
+      }
+      .btn-theme-toggle {
+        padding: 3px 6px;
+        font-size: 0.7rem;
+      }
+      .btn-lang-toggle {
+        padding: 3px 5px;
+      }
+      #headerUserWidget {
+        padding: 4px 8px !important;
+        font-size: 0.7rem !important;
+      }
     }
   }
 
@@ -1563,6 +1600,9 @@ body.hide-avatars .chat-item {
   color: var(--ink, #000000) !important;
   font-weight: 500;
   user-select: text;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 /* Twitch & 7TV Emotes */
@@ -2945,11 +2985,25 @@ body.dark-mode {
 :root[data-theme="dark"] .modal-content,
 :root[data-theme="dark"] .input-with-icon input,
 :root[data-theme="dark"] .demo-group-badge,
+:root[data-theme="dark"] .mobile-nav,
 :root[data-theme="dark"] .mobile-bottom-nav,
 :root[data-theme="dark"] .sp-popup-card {
   background: var(--bg-card) !important;
   color: var(--ink) !important;
   border-color: var(--hairline) !important;
+}
+
+:root[data-theme="dark"] .mobile-nav {
+  background: #111115 !important;
+  border-top-color: #27272a !important;
+}
+
+:root[data-theme="dark"] .mob-nav-item {
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] .mob-nav-item.active {
+  color: #ffffff !important;
 }
 
 :root[data-theme="dark"] .input-with-icon input {

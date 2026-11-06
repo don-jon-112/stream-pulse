@@ -16,7 +16,20 @@
       --tt-cyan: #00f2fe;
       --tt-pink: #fe2c55;
       --tt-gold: #ffd700;
+      --surface: #ffffff;
+      --surface-soft: #fafafa;
     }
+    :root[data-theme="dark"], body.dark-mode {
+      --surface: #18181b;
+      --surface-soft: #111115;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
     body {
       background: var(--bg-canvas);
       color: var(--ink);
@@ -100,6 +113,45 @@
       }
       .preview-sticky-wrap {
         position: static !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .tt-page-wrapper {
+        padding: 14px 10px 48px 10px;
+      }
+      .tt-nav-menu {
+        grid-template-columns: 1fr !important;
+      }
+      .preview-viewport {
+        height: 350px !important;
+      }
+      .obs-url-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .obs-url-text {
+        width: 100%;
+        min-width: 0;
+      }
+      .btn-copy-url {
+        width: 100%;
+        justify-content: center;
+      }
+      .selector-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
+      .config-card {
+        padding: 14px;
+      }
+      .tt-hero-title {
+        font-size: 1.3rem;
+      }
+      .tt-hero-subtitle {
+        font-size: 0.85rem;
       }
     }
 
