@@ -2327,7 +2327,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   const closeWizardModal = document.getElementById('closeWizardModal');
   const btnOpenWizard = document.getElementById('btnOpenWizard');
-  const drawerBtnWizard = document.getElementById('drawerBtnWizard');
 
   const tabStep1 = document.getElementById('tabStep1');
   const tabStep2 = document.getElementById('tabStep2');
@@ -2520,13 +2519,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnOpenWizard) {
     btnOpenWizard.addEventListener('click', openWizardModal);
-  }
-
-  if (drawerBtnWizard) {
-    drawerBtnWizard.addEventListener('click', () => {
-      closeSideDrawer();
-      openWizardModal();
-    });
   }
 
   if (closeWizardModal) {
