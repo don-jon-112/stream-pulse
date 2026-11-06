@@ -3175,63 +3175,8 @@ body.dark-mode .sp-popup-icon-wrap {
 }
 
 /* =========================================================
-   CONNECTION HEALTH HUD & LATENCY MONITOR
+   QUICK-START ONBOARDING WIZARD MODAL
    ========================================================= */
-.connection-health-hud {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
-  border-radius: 9999px;
-  background: var(--surface-soft, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--hairline, rgba(255, 255, 255, 0.08));
-  font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-secondary, #94a3b8);
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.25s ease;
-}
-.connection-health-hud:hover {
-  background: var(--surface, rgba(255, 255, 255, 0.08));
-  border-color: rgba(99, 102, 241, 0.35);
-  transform: translateY(-1px);
-}
-.hud-ping-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-.hud-ping-val {
-  color: #10b981;
-  transition: color 0.3s ease;
-}
-.connection-health-hud.status-fair .hud-ping-dot {
-  background: #f59e0b;
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
-}
-.connection-health-hud.status-fair .hud-ping-val {
-  color: #f59e0b;
-}
-.connection-health-hud.status-slow .hud-ping-dot {
-  background: #ef4444;
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
-}
-.connection-health-hud.status-slow .hud-ping-val {
-  color: #ef4444;
-}
-.connection-health-hud.status-offline .hud-ping-dot {
-  background: #64748b;
-  box-shadow: none;
-}
-.connection-health-hud.status-offline .hud-ping-val {
-  color: #64748b;
-}
-
 /* Wizard Button CTA in Header */
 .btn-wizard-pill {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15)) !important;

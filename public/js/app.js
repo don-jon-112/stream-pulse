@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const setupModal = document.getElementById('setupModal');
   const demoModal = document.getElementById('demoModal');
   const donateModal = document.getElementById('donateModal');
+  const wizardModal = document.getElementById('wizardModal');
   const closeSetupModal = document.getElementById('closeSetupModal');
   const closeDemoModal = document.getElementById('closeDemoModal');
   const closeDonateModal = document.getElementById('closeDonateModal');
@@ -2322,68 +2323,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // CONNECTION HEALTH HUD & REALTIME LATENCY
-  // ==========================================
-  const hudConnectionHealth = document.getElementById('hudConnectionHealth');
-  const hudPingVal = document.getElementById('hudPingVal');
-
-  function measureHomepagePing() {
-    if (!socket || !socket.connected) {
-      if (hudConnectionHealth) {
-        hudConnectionHealth.className = 'connection-health-hud status-offline';
-        hudConnectionHealth.title = 'Koneksi Server: Terputus (Mencoba menyambungkan kembali...)';
-      }
-      if (hudPingVal) hudPingVal.textContent = 'Offline';
-      return;
-    }
-    const start = performance.now();
-    socket.emit('ping_check', () => {
-      const lat = Math.round(performance.now() - start);
-      if (!hudPingVal) return;
-      hudPingVal.textContent = `${lat} ms`;
-
-      let quality = 'Optimal';
-      let cls = 'connection-health-hud';
-      if (lat < 100) {
-        quality = 'Optimal';
-      } else if (lat < 220) {
-        quality = 'Normal';
-        cls = 'connection-health-hud status-fair';
-      } else {
-        quality = 'Tinggi / Lambat';
-        cls = 'connection-health-hud status-slow';
-      }
-
-      if (hudConnectionHealth) {
-        hudConnectionHealth.className = cls;
-        const twStatus = state.statuses.twitch || 'idle';
-        const ytStatus = state.statuses.youtube || 'idle';
-        const ttStatus = state.statuses.tiktok || 'idle';
-        hudConnectionHealth.title = `Kesehatan Jaringan: Latensi Server ${lat}ms (${quality}) • Twitch: ${twStatus} • YouTube: ${ytStatus} • TikTok: ${ttStatus}`;
-      }
-    });
-  }
-
-  setInterval(measureHomepagePing, 6000);
-  if (socket) {
-    socket.on('connect', () => {
-      setTimeout(measureHomepagePing, 400);
-    });
-    socket.on('disconnect', () => {
-      measureHomepagePing();
-    });
-  }
-
-  if (hudConnectionHealth) {
-    hudConnectionHealth.addEventListener('click', () => {
-      openModal(setupModal);
-    });
-  }
-
-  // ==========================================
   // QUICK-START ONBOARDING WIZARD (3 LANGKAH)
   // ==========================================
-  const wizardModal = document.getElementById('wizardModal');
   const closeWizardModal = document.getElementById('closeWizardModal');
   const btnOpenWizard = document.getElementById('btnOpenWizard');
   const drawerBtnWizard = document.getElementById('drawerBtnWizard');
