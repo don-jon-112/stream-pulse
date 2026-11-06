@@ -34,6 +34,7 @@ try {
     } catch (_) {}
   }
 } catch (_) {}
+
 import express from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
@@ -41,26 +42,25 @@ import cors from 'cors';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-import crypto from 'crypto';
-let nodemailer = null;
-try {
-  const nm = await import('nodemailer');
-  nodemailer = nm.default || nm;
-} catch (_) {}
-
-let argon2 = null;
-try {
-  argon2 = await import('@node-rs/argon2');
-} catch (_) {}
 import { fileURLToPath } from 'url';
 import compression from 'compression';
+
+import { initDefaultDataFiles, readJsonFile, writeJsonFile, USERS_FILE, OVERLAYS_FILE } from './lib/db.js';
+import * as dbModule from './lib/db.js';
+import { decryptToken, getUserFromReq, refreshTwitchToken } from './lib/security.js';
 import { StreamManager } from './lib/streamManager.js';
 import { emoteManager } from './lib/emoteManager.js';
+
+import { createSpotlightRouter } from './routes/spotlight.js';
+import feedbackRouter from './routes/feedback.js';
+import socialRotatorRouter from './routes/socialRotator.js';
+import overlaysRouter from './routes/overlays.js';
+import { createAuthRouter } from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Auto-load .env file jika ada (tanpa perlu install library tambahan)
+// Auto-load .env file jika ada
 const envFilePath = path.join(__dirname, '.env');
 if (fs.existsSync(envFilePath)) {
   try {
@@ -84,93 +84,7 @@ if (fs.existsSync(envFilePath)) {
   }
 }
 
-// Database Paths
-const FEEDBACK_FILE = path.join(__dirname, 'data', 'feedback.json');
-const OVERLAYS_FILE = path.join(__dirname, 'data', 'overlays.json');
-const ADMIN_FILE = path.join(__dirname, 'data', 'admin.json');
-const USERS_FILE = path.join(__dirname, 'data', 'users.json');
-const SOCIAL_ROTATOR_FILE = path.join(__dirname, 'data', 'social_rotator.json');
-
-function readJsonFile(filePath, defaultValue) {
-  try {
-    if (fs.existsSync(filePath)) {
-      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    }
-  } catch (e) {
-    console.warn(`[DB] Error reading ${filePath}:`, e.message);
-  }
-  return defaultValue;
-}
-
-function writeJsonFile(filePath, data) {
-  try {
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-  } catch (e) {
-    console.error(`[DB] Error writing ${filePath}:`, e.message);
-  }
-}
-
 // Inisialisasi default database files jika belum ada
-function initDefaultDataFiles() {
-  const defaultOverlays = {
-    "default": {
-      "id": "default",
-      "name": "Default Simple Overlay",
-      "twitch": "",
-      "youtube": "",
-      "tiktok": "",
-      "theme": "simple",
-      "chatDirection": "bottom",
-      "chatFade": "none",
-      "fontSize": 15,
-      "hideDelay": 0,
-      "showBadges": true,
-      "showAvatars": true,
-      "showAlerts": true,
-      "showEmotes": true,
-      "customCss": "/* Kustomisasi CSS untuk OBS Overlay Anda */\n.overlay-chat-item {\n  /* margin-bottom: 8px; */\n}\n.overlay-chat-text {\n  /* font-weight: 500; */\n}",
-      "customJs": "// Skrip JS kustom (opsional)",
-      "createdAt": 1728560000000,
-      "updatedAt": 1728560000000
-    }
-  };
-
-  if (!fs.existsSync(OVERLAYS_FILE)) {
-    writeJsonFile(OVERLAYS_FILE, defaultOverlays);
-  }
-  if (!fs.existsSync(FEEDBACK_FILE)) {
-    writeJsonFile(FEEDBACK_FILE, []);
-  }
-  if (!fs.existsSync(USERS_FILE)) {
-    writeJsonFile(USERS_FILE, {});
-  }
-  if (!fs.existsSync(SOCIAL_ROTATOR_FILE)) {
-    const defaultSocialRotator = {
-      "default": {
-        "id": "default",
-        "theme": "glass",
-        "animation": "slide-up",
-        "duration": 6,
-        "pauseInterval": 0,
-        "scale": "md",
-        "layout": "badge",
-        "sound": false,
-        "randomize": false,
-        "items": [
-          { "id": "1", "platform": "tiktok", "handle": "@streampulse", "label": "Follow TikTok", "enabled": true },
-          { "id": "2", "platform": "youtube", "handle": "StreamPulseTV", "label": "Subscribe YouTube", "enabled": true },
-          { "id": "3", "platform": "instagram", "handle": "@streampulse.live", "label": "Follow Instagram", "enabled": true },
-          { "id": "4", "platform": "discord", "handle": "discord.gg/streampulse", "label": "Join Discord", "enabled": true },
-          { "id": "5", "platform": "twitch", "handle": "streampulse_live", "label": "Follow Twitch", "enabled": true }
-        ],
-        "updatedAt": 1728560000000
-      }
-    };
-    writeJsonFile(SOCIAL_ROTATOR_FILE, defaultSocialRotator);
-  }
-}
 initDefaultDataFiles();
 
 const app = express();
@@ -189,10 +103,6 @@ app.use(compression());
 app.use(express.json());
 
 // Tiered Caching & Performance Header Configuration:
-// - API secara umum: no-store (real-time data)
-// - HTML: no-cache dengan revalidasi ETag (304 jika tidak berubah)
-// - Media Statis (Gambar, Audio, Font): 1 hari cache + stale-while-revalidate 7 hari
-// - Code Assets (JS, CSS): 1 jam cache dengan revalidasi ETag
 app.use((req, res, next) => {
   if (req.method === 'GET') {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -223,7 +133,12 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // Initialize Stream Manager
 const streamManager = new StreamManager(io);
 
-// State In-Memory Chat Spotlight (Pin Komentar ke Layar OBS) dengan Centralized Server Timer
+// Hubungkan StreamManager dengan Twitch Token Auto-Refresh
+streamManager.setTokenRefreshHandler((ch) => refreshTwitchToken(ch, dbModule));
+
+// ==========================================
+// CHAT SPOTLIGHT (PIN KOMENTAR KE OBS)
+// ==========================================
 let currentSpotlight = null;
 let spotlightServerTimer = null;
 
@@ -254,17 +169,16 @@ function clearServerSpotlight() {
   console.log('[Spotlight] Komentar dilepas (unpinned)');
 }
 
-// Socket.io Connection
+// ==========================================
+// SOCKET.IO REALTIME EVENT BUS
+// ==========================================
 io.on('connection', (socket) => {
-  // Kirim state awal saat client baru terhubung
   socket.emit('initial_state', streamManager.getClientInitialState(socket));
-  
-  // Kirim active spotlight jika ada komentar yang sedang dipin
+
   if (currentSpotlight) {
     socket.emit('spotlight_active', currentSpotlight);
   }
 
-  // Spotlight Socket Events
   socket.on('spotlight_chat', (data) => {
     setServerSpotlight(data);
   });
@@ -279,7 +193,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Update channels yang dipantau oleh client ini
   const handleUpdateChannels = async (data, callback) => {
     let token = data?.twitchToken;
     let cleanTwitch = (data?.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
@@ -287,7 +200,6 @@ io.on('connection', (socket) => {
     let cleanTikTok = streamManager.parseTikTokInput ? streamManager.parseTikTokInput(data?.tiktok) : (data?.tiktok || '').trim().replace(/^@/, '');
     let tiktokSessionId = data?.tiktokSessionId ? String(data.tiktokSessionId).trim() : '';
 
-    // Fallback dari userToken jika client mengirim token user
     if (data?.userToken) {
       const users = readJsonFile(USERS_FILE, {});
       const u = Object.values(users).find(x => x.token === data.userToken);
@@ -302,7 +214,6 @@ io.on('connection', (socket) => {
       }
     }
 
-    // Jika channels kosong atau token tidak ada (misal dari OBS overlay atau preview), cari dari owner overlay
     if (data?.overlayId) {
       const overlays = readJsonFile(OVERLAYS_FILE, {});
       const ovl = overlays[data.overlayId];
@@ -326,7 +237,6 @@ io.on('connection', (socket) => {
       }
     }
 
-    // Auto-match dari database users jika username cocok dengan channel Twitch
     if (!token && cleanTwitch) {
       const users = readJsonFile(USERS_FILE, {});
       const matched = Object.values(users).find(x => {
@@ -364,7 +274,6 @@ io.on('connection', (socket) => {
     }
   };
 
-  // Layer 2: Client-Assisted Stream Relay (OBS CEF / Browser Home IP fallback)
   socket.on('client_stream_relay', (data) => {
     streamManager.handleClientRelay(socket, data);
   });
@@ -372,17 +281,14 @@ io.on('connection', (socket) => {
   socket.on('update_channels', handleUpdateChannels);
   socket.on('set_channels', handleUpdateChannels);
 
-  // Putuskan platform tertentu untuk client ini
   socket.on('disconnect_platform', async ({ platform }) => {
     await streamManager.disconnectClientPlatform(socket, platform);
   });
 
-  // Kirim test / demo event (hanya ke client ini agar tidak mengganggu pengguna lain)
   socket.on('send_test_event', ({ platform, type }) => {
     streamManager.sendTestEvent(platform, type, socket);
   });
 
-  // Kirim chat dari OBS Dock atau UI (saat ini Twitch saja yang aktif)
   socket.on('send_chat_message', async ({ platform, channel, message, userToken }, callback) => {
     try {
       if (platform !== 'twitch') {
@@ -415,17 +321,14 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Bersihkan history event di client ini
   socket.on('clear_events', () => {
     socket.emit('events_cleared');
   });
 
-  // Client disconnect cleanup
   socket.on('disconnect', async () => {
     await streamManager.handleClientDisconnect(socket);
   });
 
-  // Health ping check
   socket.on('ping_check', (callback) => {
     if (typeof callback === 'function') {
       callback();
@@ -433,7 +336,9 @@ io.on('connection', (socket) => {
   });
 });
 
-// HTML Pages
+// ==========================================
+// STATIC HTML PAGES & DOWNLOADS
+// ==========================================
 app.get(['/dock', '/obs-dock', '/browser-dock'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dock.html'));
 });
@@ -442,7 +347,6 @@ app.get(['/in-game-overlay', '/game-overlay', '/hud'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'in-game-overlay.html'));
 });
 
-// Helper: Pastikan file ZIP terakit utuh jika ada parts (untuk deploy di cloud / VPS)
 function ensurePortableZip() {
   const targetZip = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Overlay-Portable.zip');
   const legacyZip = path.join(__dirname, 'public', 'downloads', 'StreamPulse-Portable-Win64.zip');
@@ -464,10 +368,8 @@ function ensurePortableZip() {
   return fs.existsSync(targetZip) ? targetZip : legacyZip;
 }
 
-// Download Portable Executable / Zip (Mini App Overlay Client)
 app.get(['/download', '/download/exe', '/download/portable', '/download/overlay', '/download/streampulse'], (req, res) => {
   const zipFile = ensurePortableZip();
-
   const possibleZipPaths = [
     zipFile,
     path.join(__dirname, 'public', 'downloads', 'StreamPulse-Overlay-Portable.zip'),
@@ -476,14 +378,12 @@ app.get(['/download', '/download/exe', '/download/portable', '/download/overlay'
   ];
 
   const validZip = possibleZipPaths.find(p => p && fs.existsSync(p));
-
   if (validZip) {
     return res.download(validZip, 'StreamPulse-Overlay-Portable.zip');
   } else {
     res.status(404).send('File aplikasi mini overlay portable belum tersedia.');
   }
 });
-
 
 app.get(['/features', '/roadmap'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'features.html'));
@@ -505,7 +405,6 @@ app.get(['/viewers-overlay', '/viewers-widget'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'viewers-overlay.html'));
 });
 
-// Social Media Rotator Suite
 app.get(['/social-rotator', '/socials', '/rotator', '/social-rotator-studio'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'social-rotator.html'));
 });
@@ -514,12 +413,10 @@ app.get(['/social-rotator-overlay', '/social-overlay', '/socials-overlay', '/soc
   res.sendFile(path.join(__dirname, 'public', 'social-rotator-overlay.html'));
 });
 
-// Chat Spotlight / Pin Komentar Suite
 app.get(['/spotlight-overlay', '/chat-spotlight', '/spotlight', '/pin-overlay'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'spotlight-overlay.html'));
 });
 
-// TikTok LIVE Suite & Widgets
 app.get(['/tiktok', '/tiktok-widgets', '/tiktok-studio', '/tiktok-tools'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tiktok-widgets.html'));
 });
@@ -536,21 +433,9 @@ app.get(['/privacy', '/privacy-policy'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
 });
 
-// REST Endpoints
-app.get('/api/spotlight', (req, res) => {
-  res.json({ success: true, spotlight: currentSpotlight });
-});
-
-app.post('/api/spotlight', express.json(), (req, res) => {
-  setServerSpotlight(req.body);
-  res.json({ success: true, spotlight: currentSpotlight });
-});
-
-app.delete('/api/spotlight', (req, res) => {
-  clearServerSpotlight();
-  res.json({ success: true });
-});
-
+// ==========================================
+// CORE REST ENDPOINTS
+// ==========================================
 app.get('/api/status', (req, res) => {
   res.json(streamManager.getInitialState());
 });
@@ -572,7 +457,8 @@ app.post('/api/channels', async (req, res) => {
   const { twitch, twitchToken, youtube, tiktok } = req.body || {};
   let resolvedTwitchToken = twitchToken;
 
-  const user = getUserFromReq(req);
+  const users = readJsonFile(USERS_FILE, {});
+  const user = getUserFromReq(req, users);
   if (user && (!resolvedTwitchToken || resolvedTwitchToken.includes('***') || resolvedTwitchToken.includes('Tersimpan'))) {
     if (user.channels?.twitchTokenEncrypted) {
       resolvedTwitchToken = decryptToken(user.channels.twitchTokenEncrypted);
@@ -585,1496 +471,6 @@ app.post('/api/channels', async (req, res) => {
   res.json({ success: true, state: streamManager.getInitialState() });
 });
 
-// ==========================================
-// FEATURE REQUESTS & KANBAN API
-// ==========================================
-function getAdminPassword() {
-  const adminData = readJsonFile(ADMIN_FILE, null);
-  if (adminData && adminData.password) {
-    return adminData.password;
-  }
-  return process.env.ADMIN_PASSWORD || 'admin123';
-}
-
-function checkAdminAuth(req) {
-  const token = (req.headers['x-admin-key'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
-  return token === getAdminPassword();
-}
-
-app.get('/api/feedback', (req, res) => {
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  // Sembunyikan item yang di-reject dari publik, prioritaskan pinned
-  const publicList = list.filter(x => x.status !== 'rejected');
-  publicList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.createdAt - a.createdAt);
-  res.json(publicList);
-});
-
-app.post('/api/feedback', (req, res) => {
-  const { title, description, category, author } = req.body || {};
-  if (!title || !description) {
-    return res.status(400).json({ error: 'Judul dan deskripsi wajib diisi' });
-  }
-
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  const newItem = {
-    id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-    title: String(title).trim().slice(0, 150),
-    description: String(description).trim().slice(0, 1000),
-    category: ['twitch', 'youtube', 'tiktok', 'overlay', 'core', 'general'].includes(category) ? category : 'general',
-    author: (author ? String(author).trim().slice(0, 50) : 'Streamer Anonymous'),
-    status: 'todo',
-    adminNote: '',
-    pinned: false,
-    upvotes: 1,
-    createdAt: Date.now()
-  };
-
-  list.push(newItem);
-  writeJsonFile(FEEDBACK_FILE, list);
-  res.json({ success: true, item: newItem });
-});
-
-app.post('/api/feedback/:id/upvote', (req, res) => {
-  const { id } = req.params;
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  const item = list.find(x => x.id === id);
-  if (!item) return res.status(404).json({ error: 'Request tidak ditemukan' });
-
-  item.upvotes = (item.upvotes || 0) + 1;
-  writeJsonFile(FEEDBACK_FILE, list);
-  res.json({ success: true, upvotes: item.upvotes });
-});
-
-app.patch('/api/feedback/:id/status', (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body || {};
-  if (!['todo', 'in_progress', 'done'].includes(status)) {
-    return res.status(400).json({ error: 'Status tidak valid (todo, in_progress, done)' });
-  }
-
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  const item = list.find(x => x.id === id);
-  if (!item) return res.status(404).json({ error: 'Request tidak ditemukan' });
-
-  item.status = status;
-  writeJsonFile(FEEDBACK_FILE, list);
-  res.json({ success: true, item });
-});
-
-// ==========================================
-// ADMIN FEATURE MANAGEMENT ENDPOINTS
-// ==========================================
-app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body || {};
-  const currentPassword = getAdminPassword();
-  if (password === currentPassword) {
-    return res.json({ success: true, token: currentPassword });
-  }
-  return res.status(401).json({ error: 'Password Admin salah! Silakan coba lagi.' });
-});
-
-app.post('/api/admin/change-password', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
-  }
-  const { newPassword } = req.body || {};
-  if (!newPassword || String(newPassword).trim().length < 4) {
-    return res.status(400).json({ error: 'Password baru minimal 4 karakter' });
-  }
-  const cleanPass = String(newPassword).trim();
-  writeJsonFile(ADMIN_FILE, { password: cleanPass, updatedAt: Date.now() });
-  res.json({ success: true, token: cleanPass, message: 'Password admin berhasil diubah!' });
-});
-
-app.get('/api/admin/feedback', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
-  }
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.createdAt - a.createdAt);
-  res.json(list);
-});
-
-app.patch('/api/admin/feedback/:id', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
-  }
-  const { id } = req.params;
-  const { status, adminNote, pinned, title, description, category, upvotes } = req.body || {};
-
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  const item = list.find(x => x.id === id);
-  if (!item) return res.status(404).json({ error: 'Request fitur tidak ditemukan' });
-
-  if (status !== undefined) {
-    if (!['todo', 'in_progress', 'done', 'rejected'].includes(status)) {
-      return res.status(400).json({ error: 'Status tidak valid' });
-    }
-    item.status = status;
-  }
-  if (adminNote !== undefined) item.adminNote = String(adminNote).trim().slice(0, 500);
-  if (pinned !== undefined) item.pinned = Boolean(pinned);
-  if (title !== undefined && title.trim()) item.title = String(title).trim().slice(0, 150);
-  if (description !== undefined && description.trim()) item.description = String(description).trim().slice(0, 1000);
-  if (category !== undefined) item.category = category;
-  if (upvotes !== undefined && !isNaN(upvotes)) item.upvotes = Math.max(0, parseInt(upvotes, 10));
-  item.updatedAt = Date.now();
-
-  writeJsonFile(FEEDBACK_FILE, list);
-  res.json({ success: true, item });
-});
-
-app.delete('/api/admin/feedback/:id', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
-  }
-  const { id } = req.params;
-  let list = readJsonFile(FEEDBACK_FILE, []);
-  const initialLen = list.length;
-  list = list.filter(x => x.id !== id);
-  if (list.length === initialLen) return res.status(404).json({ error: 'Request fitur tidak ditemukan' });
-
-  writeJsonFile(FEEDBACK_FILE, list);
-  res.json({ success: true, deletedId: id });
-});
-
-app.post('/api/admin/feedback', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
-  }
-  const { title, description, category, author, status, adminNote, pinned } = req.body || {};
-  if (!title || !description) {
-    return res.status(400).json({ error: 'Judul dan deskripsi wajib diisi' });
-  }
-
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  const newItem = {
-    id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-    title: String(title).trim().slice(0, 150),
-    description: String(description).trim().slice(0, 1000),
-    category: ['twitch', 'youtube', 'tiktok', 'overlay', 'core', 'general'].includes(category) ? category : 'core',
-    author: (author ? String(author).trim().slice(0, 50) : 'Pengembang (Admin)'),
-    status: ['todo', 'in_progress', 'done', 'rejected'].includes(status) ? status : 'todo',
-    adminNote: adminNote ? String(adminNote).trim().slice(0, 500) : '',
-    pinned: Boolean(pinned),
-    upvotes: 5,
-    createdAt: Date.now()
-  };
-
-  list.push(newItem);
-  writeJsonFile(FEEDBACK_FILE, list);
-  res.json({ success: true, item: newItem });
-});
-
-// ==========================================
-// SECURITY HELPERS: ARGON2, AES-256, & RATE LIMITING
-// ==========================================
-const ENCRYPTION_KEY = crypto.createHash('sha256').update(process.env.ENCRYPTION_SECRET || 'streampulse_secure_secret_key_2026').digest(); // 32 bytes
-
-export async function hashPassword(plainPassword) {
-  try {
-    return await argon2.hash(String(plainPassword));
-  } catch (err) {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.scryptSync(String(plainPassword), salt, 64).toString('hex');
-    return `scrypt$${salt}$${hash}`;
-  }
-}
-
-export async function verifyPassword(plainPassword, storedHash) {
-  if (!storedHash || !plainPassword) return false;
-  if (storedHash.startsWith('$argon2')) {
-    try {
-      return await argon2.verify(storedHash, String(plainPassword));
-    } catch (e) {
-      return false;
-    }
-  } else if (storedHash.startsWith('scrypt$')) {
-    const [, salt, hash] = storedHash.split('$');
-    const testHash = crypto.scryptSync(String(plainPassword), salt, 64).toString('hex');
-    return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(testHash, 'hex'));
-  }
-  return storedHash === plainPassword;
-}
-
-export function encryptToken(plainText) {
-  if (!plainText) return '';
-  const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv('aes-256-gcm', ENCRYPTION_KEY, iv);
-  let encrypted = cipher.update(String(plainText), 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  const tag = cipher.getAuthTag();
-  return `${iv.toString('hex')}:${tag.toString('hex')}:${encrypted}`;
-}
-
-export function decryptToken(encryptedString) {
-  if (!encryptedString || !encryptedString.includes(':')) return encryptedString || '';
-  try {
-    const [ivHex, tagHex, encrypted] = encryptedString.split(':');
-    const decipher = crypto.createDecipheriv('aes-256-gcm', ENCRYPTION_KEY, Buffer.from(ivHex, 'hex'));
-    decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
-  } catch (err) {
-    console.warn('[Security] Gagal mendecrypt token:', err.message);
-    return '';
-  }
-}
-
-// ==========================================
-// TWITCH CLIENT CREDENTIALS & AUTO-REFRESH
-// ==========================================
-const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'sea3yunko17ptmjkwf98imtypufch4';
-const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET || 'q341sygmjw843bik91y6p79cr91pz2';
-
-export async function refreshTwitchToken(usernameOrChannel) {
-  if (!usernameOrChannel) return null;
-  const cleanTarget = String(usernameOrChannel).trim().toLowerCase().replace(/^[#@]/, '');
-  const users = readJsonFile(USERS_FILE, {});
-
-  // Cari user berdasarkan username akun atau channel Twitch yang tersimpan
-  const user = Object.values(users).find(u => {
-    const twitchCh = (u.channels?.twitch || '').toLowerCase().replace(/^[#@]/, '');
-    const uname = (u.username || '').toLowerCase();
-    return twitchCh === cleanTarget || uname === cleanTarget;
-  });
-
-  if (!user || !user.channels?.twitchRefreshTokenEncrypted) {
-    return null;
-  }
-
-  const refreshToken = decryptToken(user.channels.twitchRefreshTokenEncrypted);
-  if (!refreshToken) {
-    return null;
-  }
-
-  try {
-    console.log(`[Twitch Token Refresh] 🔄 Memperbarui access token Twitch untuk "${user.username}" (#${user.channels.twitch || cleanTarget})...`);
-    const res = await fetch('https://id.twitch.tv/oauth2/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: TWITCH_CLIENT_ID,
-        client_secret: TWITCH_CLIENT_SECRET,
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken
-      }).toString()
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error(`[Twitch Token Refresh] ❌ Refresh gagal (${res.status}):`, errText);
-      return null;
-    }
-
-    const data = await res.json();
-    const newAccessToken = data.access_token;
-    const newRefreshToken = data.refresh_token;
-
-    user.channels.twitchTokenEncrypted = encryptToken(newAccessToken);
-    if (newRefreshToken) {
-      user.channels.twitchRefreshTokenEncrypted = encryptToken(newRefreshToken);
-    }
-    users[user.username] = user;
-    writeJsonFile(USERS_FILE, users);
-
-    console.log(`[Twitch Token Refresh] ✅ Token Twitch berhasil diperbarui otomatis tanpa relogin! (#${user.channels.twitch})`);
-    return newAccessToken;
-  } catch (err) {
-    console.error(`[Twitch Token Refresh] Exception:`, err.message);
-    return null;
-  }
-}
-
-// Hubungkan StreamManager dengan Twitch Token Auto-Refresh
-streamManager.setTokenRefreshHandler(refreshTwitchToken);
-
-// In-Memory Rate Limiting & Verification Code Store (dengan pembersihan TTL otomatis berkala)
-const verificationStore = new Map(); // email -> { code, expiresAt }
-const rateLimitStore = new Map(); // key -> { count, resetAt }
-
-// Bersihkan entri kedaluwarsa secara berkala setiap 10 menit agar memori server tidak bocor
-setInterval(() => {
-  const now = Date.now();
-  for (const [email, data] of verificationStore.entries()) {
-    if (data?.expiresAt && now > data.expiresAt) {
-      verificationStore.delete(email);
-    }
-  }
-  for (const [key, data] of rateLimitStore.entries()) {
-    if (data?.resetAt && now > data.resetAt) {
-      rateLimitStore.delete(key);
-    }
-  }
-}, 10 * 60 * 1000).unref();
-
-function isRateLimited(key, maxAttempts) {
-  const now = Date.now();
-  const entry = rateLimitStore.get(key);
-  if (!entry) return { allowed: true };
-  if (now > entry.resetAt) {
-    rateLimitStore.delete(key);
-    return { allowed: true };
-  }
-  if (entry.count >= maxAttempts) {
-    const waitHours = Math.ceil((entry.resetAt - now) / 3600000);
-    const waitMinutes = Math.ceil((entry.resetAt - now) / 60000);
-    return {
-      allowed: false,
-      waitTime: waitHours > 1 ? `${waitHours} jam` : `${waitMinutes} menit`
-    };
-  }
-  return { allowed: true, remaining: maxAttempts - entry.count };
-}
-
-function recordFailedAttempt(key, maxAttempts, windowMs) {
-  const now = Date.now();
-  const entry = rateLimitStore.get(key) || { count: 0, resetAt: now + windowMs };
-  if (now > entry.resetAt) {
-    entry.count = 1;
-    entry.resetAt = now + windowMs;
-  } else {
-    entry.count++;
-  }
-  rateLimitStore.set(key, entry);
-}
-
-function checkRateLimit(key, maxAttempts, windowMs) {
-  const check = isRateLimited(key, maxAttempts);
-  if (!check.allowed) return check;
-  recordFailedAttempt(key, maxAttempts, windowMs);
-  return check;
-}
-
-// Mail Transporter Setup
-const mailTransporter = (process.env.SMTP_HOST && nodemailer) ? nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '465', 10),
-  secure: (process.env.SMTP_PORT === '465' || !process.env.SMTP_PORT),
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-}) : null;
-
-async function sendVerificationEmail(email, code) {
-  if (mailTransporter && process.env.SMTP_USER) {
-    try {
-      await mailTransporter.sendMail({
-        from: process.env.SMTP_FROM || `"StreamPulse" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: `Kode Verifikasi Pendaftaran StreamPulse: ${code}`,
-        html: `
-          <div style="font-family:sans-serif; max-width:480px; margin:auto; background:#0d111b; color:#f8fafc; padding:24px; border-radius:12px; border:1px solid #6366f1;">
-            <h2 style="color:#67e8f9; margin-top:0;">StreamPulse Verification Code</h2>
-            <p style="font-size:0.9rem; line-height:1.5;">Gunakan kode verifikasi berikut untuk menyelesaikan pendaftaran akun StreamPulse Anda:</p>
-            <div style="text-align:center; padding:16px; background:#1e1b4b; border-radius:8px; font-size:2.2rem; font-weight:800; letter-spacing:6px; color:#fbbf24; margin:20px 0;">
-              ${code}
-            </div>
-            <p style="font-size:0.8rem; color:#94a3b8;">Kode ini berlaku selama 15 menit. Jika Anda tidak merasa mendaftar di StreamPulse, abaikan email ini.</p>
-          </div>
-        `
-      });
-      return true;
-    } catch (e) {
-      console.warn('[SMTP] Error sending mail:', e.message);
-    }
-  }
-
-  // Fallback Dev / Server Log
-  console.log(`\n======================================================`);
-  console.log(`📧 [EMAIL VERIFIKASI STREAMPULSE]`);
-  console.log(`   Tujuan: ${email}`);
-  console.log(`   Kode:   ${code}`);
-  console.log(`   (Atur SMTP_HOST, SMTP_USER, SMTP_PASS di .env untuk kirim email nyata via SMTP)`);
-  console.log(`======================================================\n`);
-  return true;
-}
-
-// ==========================================
-// USER AUTH & OVERLAY LIMITS (MAX 3 PER USER)
-// ==========================================
-function getUserFromReq(req) {
-  const token = (req.headers['x-user-token'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
-  if (!token) return null;
-  const users = readJsonFile(USERS_FILE, {});
-  return Object.values(users).find(u => u.token === token) || null;
-}
-
-// 1. Send Email Verification Code
-app.post('/api/auth/send-code', async (req, res) => {
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'ip';
-  const { email } = req.body || {};
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim())) {
-    return res.status(400).json({ error: 'Format alamat email tidak valid!' });
-  }
-
-  const cleanEmail = String(email).trim().toLowerCase();
-
-  // Rate limit: Max 5 attempts per 1 hour per IP/email
-  const limitCheck = checkRateLimit(`send_code_${cleanEmail}_${clientIp}`, 5, 3600000);
-  if (!limitCheck.allowed) {
-    return res.status(429).json({ error: `Terlalu banyak permintaan verifikasi. Silakan coba lagi dalam ${limitCheck.waitTime}.` });
-  }
-
-  const users = readJsonFile(USERS_FILE, {});
-  const emailExists = Object.values(users).some(u => u.email === cleanEmail);
-  if (emailExists) {
-    return res.status(400).json({ error: 'Email ini sudah terdaftar! Silakan login.' });
-  }
-
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-  verificationStore.set(cleanEmail, {
-    code,
-    expiresAt: Date.now() + (15 * 60 * 1000) // 15 mins
-  });
-
-  await sendVerificationEmail(cleanEmail, code);
-
-  res.json({
-    success: true,
-    message: `Kode verifikasi 6 digit telah dikirim ke ${cleanEmail}. Periksa kotak masuk / spam email Anda!`,
-    isDevMode: !mailTransporter,
-    devCode: !mailTransporter ? code : undefined
-  });
-});
-
-// 2. Register Account with Argon2
-app.post('/api/auth/register', async (req, res) => {
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'ip';
-  const { username, email, password, code } = req.body || {};
-
-  if (!username || !email || !password || !code) {
-    return res.status(400).json({ error: 'Semua kolom (username, email, password, dan kode verifikasi) wajib diisi!' });
-  }
-
-  const cleanUser = String(username).trim().toLowerCase();
-  const cleanEmail = String(email).trim().toLowerCase();
-
-  if (!/^[a-zA-Z0-9_-]{3,20}$/.test(cleanUser)) {
-    return res.status(400).json({ error: 'Username harus 3-20 karakter alfanumerik (a-z, 0-9, _, -)' });
-  }
-  if (String(password).length < 4) {
-    return res.status(400).json({ error: 'Password minimal 4 karakter' });
-  }
-
-  // Verify Code
-  const vEntry = verificationStore.get(cleanEmail);
-  if (!vEntry || vEntry.expiresAt < Date.now()) {
-    return res.status(400).json({ error: 'Kode verifikasi kedaluwarsa atau belum diminta. Silakan minta kode baru.' });
-  }
-  if (vEntry.code !== String(code).trim()) {
-    return res.status(400).json({ error: 'Kode verifikasi salah! Periksa kembali email Anda.' });
-  }
-
-  const users = readJsonFile(USERS_FILE, {});
-  if (users[cleanUser]) {
-    return res.status(400).json({ error: 'Username ini sudah digunakan! Silakan pilih username lain.' });
-  }
-  if (Object.values(users).some(u => u.email === cleanEmail)) {
-    return res.status(400).json({ error: 'Email ini sudah terdaftar! Silakan login.' });
-  }
-
-  verificationStore.delete(cleanEmail);
-
-  // Argon2 password hash
-  const hashedPassword = await hashPassword(password);
-  const token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
-
-  const newUser = {
-    username: cleanUser,
-    email: cleanEmail,
-    password: hashedPassword,
-    token,
-    overlayIds: [],
-    channels: {
-      twitch: '',
-      youtube: '',
-      tiktok: '',
-      twitchTokenEncrypted: ''
-    },
-    createdAt: Date.now()
-  };
-
-  users[cleanUser] = newUser;
-  writeJsonFile(USERS_FILE, users);
-
-  res.json({
-    success: true,
-    user: {
-      username: newUser.username,
-      email: newUser.email,
-      token: newUser.token,
-      overlayIds: newUser.overlayIds,
-      channels: {
-        twitch: '',
-        youtube: '',
-        tiktok: '',
-        hasTwitchToken: false
-      }
-    }
-  });
-});
-
-// 3. Login with Argon2 & Rate Limiting
-app.post('/api/auth/login', async (req, res) => {
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'ip';
-  const { usernameOrEmail, password } = req.body || {};
-
-  if (!usernameOrEmail || !password) {
-    return res.status(400).json({ error: 'Username/Email dan password wajib diisi!' });
-  }
-
-  const cleanQuery = String(usernameOrEmail).trim().toLowerCase();
-  const isLocal = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp.includes('127.0.0.1');
-  const maxAttempts = isLocal ? 20 : 7;
-  const rateLimitKey = `login_${cleanQuery}_${clientIp}`;
-
-  // Rate limit check
-  const limitCheck = isRateLimited(rateLimitKey, maxAttempts);
-  if (!limitCheck.allowed) {
-    return res.status(429).json({ error: `Terlalu banyak percobaan login gagal. Demi keamanan, silakan coba lagi dalam ${limitCheck.waitTime}.` });
-  }
-
-  const users = readJsonFile(USERS_FILE, {});
-  const user = users[cleanQuery] || Object.values(users).find(u => 
-    (u.username && u.username.toLowerCase() === cleanQuery) || 
-    (u.email && u.email.toLowerCase() === cleanQuery)
-  );
-
-  if (!user) {
-    recordFailedAttempt(rateLimitKey, maxAttempts, 15 * 60 * 1000);
-    return res.status(401).json({ error: 'Akun dengan username atau email tersebut tidak ditemukan!' });
-  }
-
-  const passwordValid = await verifyPassword(password, user.password);
-  if (!passwordValid) {
-    recordFailedAttempt(rateLimitKey, maxAttempts, 15 * 60 * 1000);
-    return res.status(401).json({ error: 'Password salah! Periksa kembali password Anda.' });
-  }
-
-  // Clear rate limit on successful login
-  rateLimitStore.delete(rateLimitKey);
-
-  if (!user.token) {
-    user.token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
-    users[user.username] = user;
-    writeJsonFile(USERS_FILE, users);
-  }
-
-  res.json({
-    success: true,
-    user: {
-      username: user.username,
-      email: user.email || '',
-      token: user.token,
-      overlayIds: user.overlayIds || [],
-      channels: {
-        twitch: user.channels?.twitch || '',
-        twitchDisplayName: user.channels?.twitchDisplayName || '',
-        twitchAvatar: user.channels?.twitchAvatar || '',
-        twitchUserId: user.channels?.twitchUserId || '',
-        youtube: user.channels?.youtube || '',
-        youtubeTitle: user.channels?.youtubeTitle || '',
-        youtubeAvatar: user.channels?.youtubeAvatar || '',
-        youtubeChannelId: user.channels?.youtubeChannelId || '',
-        tiktok: user.channels?.tiktok || '',
-        tiktokSessionId: user.channels?.tiktokSessionId || '',
-        hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
-        hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
-      }
-    }
-  });
-});
-
-// 4. Current User Profile
-app.get('/api/user/me', (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) {
-    return res.status(401).json({ error: 'Belum login' });
-  }
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  const userOverlays = (user.overlayIds || []).map(id => overlays[id] || { id, theme: 'glass' });
-
-  res.json({
-    username: user.username,
-    email: user.email || '',
-    token: user.token,
-    overlayIds: user.overlayIds || [],
-    overlays: userOverlays,
-    channels: {
-      twitch: user.channels?.twitch || '',
-      twitchDisplayName: user.channels?.twitchDisplayName || '',
-      twitchAvatar: user.channels?.twitchAvatar || '',
-      twitchUserId: user.channels?.twitchUserId || '',
-      youtube: user.channels?.youtube || '',
-      youtubeTitle: user.channels?.youtubeTitle || '',
-      youtubeAvatar: user.channels?.youtubeAvatar || '',
-      youtubeChannelId: user.channels?.youtubeChannelId || '',
-      tiktok: user.channels?.tiktok || '',
-      tiktokSessionId: user.channels?.tiktokSessionId || '',
-      hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
-      hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
-    },
-    maxLimit: 3
-  });
-});
-
-// 4b. OBS Dock Auto-Config Endpoint (Accepts ?token=... or ?user=...)
-app.get('/api/dock/config', (req, res) => {
-  const token = (req.query.token || '').trim();
-  const username = (req.query.user || req.query.username || '').trim().toLowerCase();
-
-  const users = readJsonFile(USERS_FILE, {});
-  let matchedUser = null;
-
-  if (token) {
-    matchedUser = Object.values(users).find(u => u.token === token);
-  }
-  if (!matchedUser && username) {
-    matchedUser = Object.values(users).find(u => (u.username || '').toLowerCase() === username);
-  }
-
-  if (matchedUser) {
-    return res.json({
-      success: true,
-      username: matchedUser.username,
-      userToken: matchedUser.token,
-      channels: {
-        twitch: matchedUser.channels?.twitch || '',
-        twitchDisplayName: matchedUser.channels?.twitchDisplayName || '',
-        youtube: matchedUser.channels?.youtube || '',
-        tiktok: matchedUser.channels?.tiktok || '',
-        tiktokSessionId: matchedUser.channels?.tiktokSessionId || '',
-        hasTwitchToken: Boolean(matchedUser.channels?.twitchTokenEncrypted)
-      }
-    });
-  }
-
-  res.status(404).json({ success: false, error: 'User tidak ditemukan' });
-});
-
-// 5. Save User Homepage Channels with Encrypted OAuth Token
-app.post('/api/user/channels', (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk menyimpan saluran Anda.' });
-
-  const { twitch, youtube, tiktok, twitchToken, tiktokSessionId } = req.body || {};
-  const users = readJsonFile(USERS_FILE, {});
-  const currentUser = users[user.username] || user;
-
-  if (!currentUser.channels) currentUser.channels = {};
-  if (twitch !== undefined) currentUser.channels.twitch = String(twitch).trim();
-  if (youtube !== undefined) currentUser.channels.youtube = String(youtube).trim();
-  if (tiktok !== undefined) currentUser.channels.tiktok = streamManager.parseTikTokInput ? streamManager.parseTikTokInput(tiktok) : String(tiktok).trim();
-  if (tiktokSessionId !== undefined) {
-    currentUser.channels.tiktokSessionId = String(tiktokSessionId).trim();
-    if (currentUser.channels.tiktokSessionId) {
-      globalThis._activeTikTokSessionId = currentUser.channels.tiktokSessionId;
-    }
-  }
-
-  // Encrypt OAuth Token if provided and not masked placeholder
-  const isMaskedToken = String(twitchToken).includes('***') || String(twitchToken).includes('••••') || String(twitchToken).includes('Tersimpan');
-  if (twitchToken !== undefined && !isMaskedToken && String(twitchToken).trim()) {
-    currentUser.channels.twitchTokenEncrypted = encryptToken(String(twitchToken).trim());
-  } else if (twitchToken === '') {
-    currentUser.channels.twitchTokenEncrypted = '';
-  }
-
-  users[currentUser.username] = currentUser;
-  writeJsonFile(USERS_FILE, users);
-
-  // Auto-sync channels to user's saved overlay slots
-  if (Array.isArray(currentUser.overlayIds) && currentUser.overlayIds.length > 0) {
-    const overlays = readJsonFile(OVERLAYS_FILE, {});
-    let ovlUpdated = false;
-    for (const ovlId of currentUser.overlayIds) {
-      if (overlays[ovlId]) {
-        if (twitch !== undefined) overlays[ovlId].twitch = currentUser.channels.twitch || '';
-        if (youtube !== undefined) overlays[ovlId].youtube = currentUser.channels.youtube || '';
-        if (tiktok !== undefined) overlays[ovlId].tiktok = currentUser.channels.tiktok || '';
-        overlays[ovlId].updatedAt = Date.now();
-        ovlUpdated = true;
-      }
-    }
-    if (ovlUpdated) writeJsonFile(OVERLAYS_FILE, overlays);
-  }
-
-  res.json({
-    success: true,
-    message: 'Konfigurasi saluran berhasil disimpan ke akun Anda!',
-    channels: {
-      twitch: currentUser.channels.twitch || '',
-      youtube: currentUser.channels.youtube || '',
-      tiktok: currentUser.channels.tiktok || '',
-      tiktokSessionId: currentUser.channels.tiktokSessionId || '',
-      hasTwitchToken: Boolean(currentUser.channels.twitchTokenEncrypted)
-    }
-  });
-});
-
-// ==========================================
-// TWITCH OAUTH 2.0 AUTHORIZATION CODE FLOW
-// ==========================================
-const twitchOauthStates = new Map(); // state -> { userToken, redirectUri, createdAt }
-
-function getTwitchRedirectUri(req) {
-  if (process.env.TWITCH_REDIRECT_URI) {
-    return process.env.TWITCH_REDIRECT_URI;
-  }
-
-  // 1. Cek dari parameter query browser (paling akurat karena berasal langsung dari window.location.origin)
-  if (req.query?.redirect_origin) {
-    try {
-      const parsed = new URL(req.query.redirect_origin);
-      return `${parsed.origin}/auth/twitch/callback`;
-    } catch (e) {}
-  }
-
-  // 2. Cek dari Referer header jika user mengakses lewat browser
-  if (req.headers.referer) {
-    try {
-      const parsed = new URL(req.headers.referer);
-      return `${parsed.origin}/auth/twitch/callback`;
-    } catch (e) {}
-  }
-
-  // 3. Cek dari Forwarded Host & Proto (Cloudflare / Nginx reverse proxy)
-  const fwdHost = req.headers['x-forwarded-host'];
-  if (fwdHost) {
-    const proto = req.headers['x-forwarded-proto'] || 'https';
-    return `${proto}://${fwdHost}/auth/twitch/callback`;
-  }
-
-  // 4. Fallback ke req.headers.host
-  const host = req.headers.host || 'localhost:3000';
-  let proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
-  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
-    proto = 'https';
-  }
-  return `${proto}://${host}/auth/twitch/callback`;
-}
-
-// 1. Inisiasi OAuth Login Twitch
-app.get('/auth/twitch', (req, res) => {
-  if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) {
-    return res.status(500).send('Twitch Client ID / Secret belum dikonfigurasi di server.');
-  }
-
-  const redirectUri = getTwitchRedirectUri(req);
-  const userToken = req.query.userToken || '';
-  const state = crypto.randomBytes(16).toString('hex');
-
-  // Bersihkan state usang (>15 menit)
-  const now = Date.now();
-  for (const [st, val] of twitchOauthStates.entries()) {
-    if (now - val.createdAt > 15 * 60 * 1000) {
-      twitchOauthStates.delete(st);
-    }
-  }
-
-  twitchOauthStates.set(state, { userToken, redirectUri, createdAt: now });
-
-  const scopes = [
-    'channel:read:redemptions',
-    'chat:read',
-    'chat:edit',
-    'user:read:chat',
-    'user:write:chat',
-    'moderator:read:followers'
-  ];
-
-  const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes.join(' '))}&state=${state}`;
-
-  res.redirect(authUrl);
-});
-
-// 2. Callback OAuth Twitch
-app.get('/auth/twitch/callback', async (req, res) => {
-  const { code, state, error, error_description } = req.query;
-
-  if (error) {
-    console.warn('[Twitch OAuth] Auth error dari Twitch:', error, error_description);
-    return res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>Twitch Auth Gagal</title></head>
-      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
-        <h3>Gagal Menghubungkan Twitch</h3>
-        <p>${error_description || error}</p>
-        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
-        <script>
-          if (window.opener) {
-            window.opener.postMessage({ type: 'TWITCH_AUTH_ERROR', error: '${error}' }, '*');
-          }
-        </script>
-      </body>
-      </html>
-    `);
-  }
-
-  const stateData = twitchOauthStates.get(state);
-  if (!stateData) {
-    return res.status(400).send('State token tidak valid atau telah kedaluwarsa. Silakan coba login kembali.');
-  }
-  twitchOauthStates.delete(state);
-
-  try {
-    // Tukar code dengan token
-    const tokenRes = await fetch('https://id.twitch.tv/oauth2/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: TWITCH_CLIENT_ID,
-        client_secret: TWITCH_CLIENT_SECRET,
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: stateData.redirectUri
-      }).toString()
-    });
-
-    if (!tokenRes.ok) {
-      const errText = await tokenRes.text();
-      throw new Error(`Token exchange failed (${tokenRes.status}): ${errText}`);
-    }
-
-    const tokenData = await tokenRes.json();
-    const accessToken = tokenData.access_token;
-    const refreshToken = tokenData.refresh_token;
-
-    // Ambil profil user broadcaster dari Twitch Helix
-    const userRes = await fetch('https://api.twitch.tv/helix/users', {
-      headers: {
-        'Client-Id': TWITCH_CLIENT_ID,
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-
-    if (!userRes.ok) {
-      const errText = await userRes.text();
-      throw new Error(`Failed to fetch Twitch user profile (${userRes.status}): ${errText}`);
-    }
-
-    const userData = await userRes.json();
-    const broadcaster = userData.data?.[0];
-    if (!broadcaster) {
-      throw new Error('Data profil streamer Twitch tidak ditemukan.');
-    }
-
-    const twitchLogin = broadcaster.login.toLowerCase();
-    const twitchDisplayName = broadcaster.display_name;
-    const twitchUserId = broadcaster.id;
-    const twitchAvatar = broadcaster.profile_image_url;
-
-    // Simpan ke akun user jika user terdaftar
-    if (stateData.userToken) {
-      const users = readJsonFile(USERS_FILE, {});
-      const linkedUser = Object.values(users).find(u => u.token === stateData.userToken);
-      if (linkedUser) {
-        if (!linkedUser.channels) linkedUser.channels = {};
-        linkedUser.channels.twitch = twitchLogin;
-        linkedUser.channels.twitchDisplayName = twitchDisplayName;
-        linkedUser.channels.twitchUserId = twitchUserId;
-        linkedUser.channels.twitchAvatar = twitchAvatar;
-        linkedUser.channels.twitchTokenEncrypted = encryptToken(accessToken);
-        if (refreshToken) {
-          linkedUser.channels.twitchRefreshTokenEncrypted = encryptToken(refreshToken);
-        }
-        users[linkedUser.username] = linkedUser;
-        writeJsonFile(USERS_FILE, users);
-      }
-    }
-
-    // Berikan respons HTML yang mengirim auth data ke jendela utama dan menutup popup
-    res.send(`
-      <!DOCTYPE html>
-      <html lang="id">
-      <head>
-        <meta charset="UTF-8">
-        <title>Twitch Berhasil Terhubung</title>
-        <style>
-          body {
-            background: #0b0e17;
-            color: #f8fafc;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-          }
-          .card {
-            background: rgba(30, 27, 75, 0.7);
-            border: 1px solid #6366f1;
-            padding: 28px 32px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 380px;
-          }
-          .avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 3px solid #10b981;
-            margin-bottom: 12px;
-            object-fit: cover;
-          }
-          h2 { margin: 0 0 6px 0; color: #a855f7; font-size: 1.3rem; }
-          p { margin: 4px 0 16px 0; color: #94a3b8; font-size: 0.85rem; }
-          .badge {
-            display: inline-block;
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <img class="avatar" src="${twitchAvatar}" alt="${twitchDisplayName}">
-          <h2>${twitchDisplayName}</h2>
-          <span class="badge">✓ Twitch Terhubung</span>
-          <p>Channel Points EventSub siap aktif.<br>Jendela ini akan menutup otomatis...</p>
-        </div>
-        <script>
-          const authPayload = {
-            type: 'TWITCH_AUTH_SUCCESS',
-            twitch: '${twitchLogin}',
-            displayName: '${twitchDisplayName}',
-            userId: '${twitchUserId}',
-            avatar: '${twitchAvatar}',
-            token: '${accessToken}'
-          };
-          if (window.opener) {
-            window.opener.postMessage(authPayload, '*');
-            setTimeout(() => {
-              window.close();
-            }, 700);
-          } else {
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 1200);
-          }
-        </script>
-      </body>
-      </html>
-    `);
-  } catch (err) {
-    console.error('[Twitch OAuth] Callback exception:', err);
-    res.status(500).send(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>Twitch Auth Error</title></head>
-      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
-        <h3>Terjadi Kesalahan Saat Otentikasi Twitch</h3>
-        <p>${err.message}</p>
-        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
-      </body>
-      </html>
-    `);
-  }
-});
-
-// 3. Putuskan / Disconnect Twitch dari Akun
-app.post('/api/user/twitch/disconnect', (req, res) => {
-  const user = getUserFromReq(req);
-  if (user) {
-    const users = readJsonFile(USERS_FILE, {});
-    const currentUser = users[user.username] || user;
-    if (currentUser.channels) {
-      currentUser.channels.twitch = '';
-      currentUser.channels.twitchDisplayName = '';
-      currentUser.channels.twitchUserId = '';
-      currentUser.channels.twitchAvatar = '';
-      currentUser.channels.twitchTokenEncrypted = '';
-      currentUser.channels.twitchRefreshTokenEncrypted = '';
-    }
-    users[currentUser.username] = currentUser;
-    writeJsonFile(USERS_FILE, users);
-  }
-  res.json({ success: true, message: 'Twitch berhasil diputuskan.' });
-});
-
-// ==========================================
-// YOUTUBE (GOOGLE) OAUTH 2.0 AUTHORIZATION CODE FLOW
-// ==========================================
-const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID || '';
-const YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET || '';
-const youtubeOauthStates = new Map(); // state -> { userToken, redirectUri, createdAt }
-
-function getYouTubeRedirectUri(req) {
-  if (process.env.YOUTUBE_REDIRECT_URI) {
-    return process.env.YOUTUBE_REDIRECT_URI;
-  }
-  if (req.query?.redirect_origin) {
-    try {
-      const parsed = new URL(req.query.redirect_origin);
-      return `${parsed.origin}/auth/youtube/callback`;
-    } catch (e) {}
-  }
-  if (req.headers.referer) {
-    try {
-      const parsed = new URL(req.headers.referer);
-      return `${parsed.origin}/auth/youtube/callback`;
-    } catch (e) {}
-  }
-  const fwdHost = req.headers['x-forwarded-host'];
-  if (fwdHost) {
-    const proto = req.headers['x-forwarded-proto'] || 'https';
-    return `${proto}://${fwdHost}/auth/youtube/callback`;
-  }
-  const host = req.headers.host || 'localhost:3000';
-  let proto = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http');
-  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
-    proto = 'https';
-  }
-  return `${proto}://${host}/auth/youtube/callback`;
-}
-
-// 1. Inisiasi OAuth Login YouTube
-app.get('/auth/youtube', (req, res) => {
-  if (!YOUTUBE_CLIENT_ID || !YOUTUBE_CLIENT_SECRET) {
-    return res.status(500).send('YouTube Client ID / Secret belum dikonfigurasi di server.');
-  }
-
-  const redirectUri = getYouTubeRedirectUri(req);
-  const userToken = req.query.userToken || '';
-  const state = crypto.randomBytes(16).toString('hex');
-
-  // Bersihkan state usang (>15 menit)
-  const now = Date.now();
-  for (const [st, val] of youtubeOauthStates.entries()) {
-    if (now - val.createdAt > 15 * 60 * 1000) {
-      youtubeOauthStates.delete(st);
-    }
-  }
-
-  youtubeOauthStates.set(state, { userToken, redirectUri, createdAt: now });
-
-  const scopes = [
-    'https://www.googleapis.com/auth/youtube.readonly',
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'openid'
-  ];
-
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(YOUTUBE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes.join(' '))}&access_type=offline&prompt=consent&state=${state}`;
-
-  res.redirect(authUrl);
-});
-
-// 2. Callback OAuth YouTube
-app.get('/auth/youtube/callback', async (req, res) => {
-  const { code, state, error, error_description } = req.query;
-
-  if (error) {
-    console.warn('[YouTube OAuth] Auth error dari Google:', error, error_description);
-    return res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>YouTube Auth Gagal</title></head>
-      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
-        <h3>Gagal Menghubungkan Akun YouTube</h3>
-        <p>${error_description || error}</p>
-        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
-        <script>
-          if (window.opener) {
-            window.opener.postMessage({ type: 'YOUTUBE_AUTH_ERROR', error: '${error}' }, '*');
-          }
-        </script>
-      </body>
-      </html>
-    `);
-  }
-
-  const stateData = youtubeOauthStates.get(state);
-  if (!stateData) {
-    return res.status(400).send('State token tidak valid atau telah kedaluwarsa. Silakan coba login kembali.');
-  }
-  youtubeOauthStates.delete(state);
-
-  try {
-    // Tukar code dengan token Google
-    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: YOUTUBE_CLIENT_ID,
-        client_secret: YOUTUBE_CLIENT_SECRET,
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: stateData.redirectUri
-      }).toString()
-    });
-
-    if (!tokenRes.ok) {
-      const errText = await tokenRes.text();
-      throw new Error(`Token exchange failed (${tokenRes.status}): ${errText}`);
-    }
-
-    const tokenData = await tokenRes.json();
-    const accessToken = tokenData.access_token;
-    const refreshToken = tokenData.refresh_token;
-
-    // Ambil data channel YouTube milik pengguna
-    const ytRes = await fetch('https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&mine=true', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-
-    if (!ytRes.ok) {
-      const errText = await ytRes.text();
-      throw new Error(`Gagal mengambil profil YouTube (${ytRes.status}): ${errText}`);
-    }
-
-    const ytData = await ytRes.json();
-    const channel = ytData.items?.[0];
-
-    if (!channel) {
-      throw new Error('Akun Google ini belum memiliki Channel YouTube. Pastikan Anda sudah membuat channel YouTube di akun ini.');
-    }
-
-    const channelId = channel.id;
-    const channelTitle = channel.snippet.title;
-    const customUrl = channel.snippet.customUrl || '';
-    const avatar = channel.snippet.thumbnails?.default?.url || channel.snippet.thumbnails?.medium?.url || '';
-    const youtubeTarget = customUrl || channelId || channelTitle;
-
-    // Simpan ke akun user jika login
-    if (stateData.userToken) {
-      const users = readJsonFile(USERS_FILE, {});
-      const linkedUser = Object.values(users).find(u => u.token === stateData.userToken);
-      if (linkedUser) {
-        if (!linkedUser.channels) linkedUser.channels = {};
-        linkedUser.channels.youtube = youtubeTarget;
-        linkedUser.channels.youtubeChannelId = channelId;
-        linkedUser.channels.youtubeTitle = channelTitle;
-        linkedUser.channels.youtubeAvatar = avatar;
-        linkedUser.channels.youtubeTokenEncrypted = encryptToken(accessToken);
-        if (refreshToken) {
-          linkedUser.channels.youtubeRefreshTokenEncrypted = encryptToken(refreshToken);
-        }
-        users[linkedUser.username] = linkedUser;
-        writeJsonFile(USERS_FILE, users);
-      }
-    }
-
-    // Return HTML popup success
-    res.send(`
-      <!DOCTYPE html>
-      <html lang="id">
-      <head>
-        <meta charset="UTF-8">
-        <title>YouTube Berhasil Terhubung</title>
-        <style>
-          body {
-            background: #0b0e17;
-            color: #f8fafc;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-          }
-          .card {
-            background: rgba(30, 27, 75, 0.7);
-            border: 1px solid #ef4444;
-            padding: 28px 32px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 380px;
-          }
-          .avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 3px solid #ef4444;
-            margin-bottom: 12px;
-            object-fit: cover;
-          }
-          h2 { margin: 0 0 6px 0; color: #f87171; font-size: 1.3rem; }
-          p { margin: 4px 0 16px 0; color: #94a3b8; font-size: 0.85rem; }
-          .badge {
-            display: inline-block;
-            background: rgba(239, 68, 68, 0.15);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <img class="avatar" src="${avatar}" alt="${channelTitle}">
-          <h2>${channelTitle}</h2>
-          <span class="badge">✓ YouTube Terhubung</span>
-          <p>Live stream channel siap dipantau.<br>Jendela ini akan menutup otomatis...</p>
-        </div>
-        <script>
-          const authPayload = {
-            type: 'YOUTUBE_AUTH_SUCCESS',
-            channelId: '${channelId}',
-            title: '${channelTitle.replace(/'/g, "\\'")}',
-            customUrl: '${customUrl}',
-            target: '${youtubeTarget}',
-            avatar: '${avatar}',
-            token: '${accessToken}'
-          };
-          if (window.opener) {
-            window.opener.postMessage(authPayload, '*');
-            setTimeout(() => {
-              window.close();
-            }, 700);
-          } else {
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 1200);
-          }
-        </script>
-      </body>
-      </html>
-    `);
-  } catch (err) {
-    console.error('[YouTube OAuth] Callback exception:', err);
-    res.status(500).send(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>YouTube Auth Error</title></head>
-      <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
-        <h3>Terjadi Kesalahan Saat Otentikasi YouTube</h3>
-        <p>${err.message}</p>
-        <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
-      </body>
-      </html>
-    `);
-  }
-});
-
-// 3. Putuskan / Disconnect YouTube dari Akun
-app.post('/api/user/youtube/disconnect', (req, res) => {
-  const user = getUserFromReq(req);
-  if (user) {
-    const users = readJsonFile(USERS_FILE, {});
-    const currentUser = users[user.username] || user;
-    if (currentUser.channels) {
-      currentUser.channels.youtube = '';
-      currentUser.channels.youtubeTitle = '';
-      currentUser.channels.youtubeAvatar = '';
-      currentUser.channels.youtubeChannelId = '';
-      currentUser.channels.youtubeTokenEncrypted = '';
-      currentUser.channels.youtubeRefreshTokenEncrypted = '';
-    }
-    users[currentUser.username] = currentUser;
-    writeJsonFile(USERS_FILE, users);
-  }
-  res.json({ success: true, message: 'YouTube berhasil diputuskan.' });
-});
-
-// 6. Generate New Overlay (Max 3 Slots)
-app.post('/api/user/overlays/generate', (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) {
-    return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk membuat overlay baru.' });
-  }
-
-  const users = readJsonFile(USERS_FILE, {});
-  const currentUser = users[user.username] || user;
-  if (!currentUser.overlayIds) currentUser.overlayIds = [];
-
-  if (currentUser.overlayIds.length >= 5) {
-    return res.status(400).json({
-      error: 'Batas kuota 5 Overlay per akun telah tercapai! Anda dapat mengedit salah satu dari 5 overlay yang ada atau menghapusnya untuk membuat yang baru.'
-    });
-  }
-
-  const newId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  overlays[newId] = {
-    id: newId,
-    name: newId,
-    owner: currentUser.username,
-    theme: 'glass',
-    chatDirection: 'bottom',
-    chatFade: 'none',
-    fontSize: 15,
-    hideDelay: 0,
-    showBadges: true,
-    showAvatars: true,
-    showEmotes: true,
-    showAlerts: true,
-    maskLinks: false,
-    maxMessages: 15,
-    customCss: '',
-    customJs: '',
-    updatedAt: Date.now()
-  };
-
-  currentUser.overlayIds.push(newId);
-  users[currentUser.username] = currentUser;
-
-  writeJsonFile(OVERLAYS_FILE, overlays);
-  writeJsonFile(USERS_FILE, users);
-
-  res.json({
-    success: true,
-    id: newId,
-    overlay: overlays[newId],
-    count: currentUser.overlayIds.length,
-    maxLimit: 5
-  });
-});
-
-// 7. Load / Claim Existing Overlay
-app.post('/api/user/overlays/claim', (req, res) => {
-  const user = getUserFromReq(req);
-  const { urlOrId } = req.body || {};
-  if (!urlOrId) return res.status(400).json({ error: 'URL atau ID Overlay tidak boleh kosong' });
-
-  let targetId = String(urlOrId).trim();
-  try {
-    if (targetId.includes('?id=')) {
-      const u = new URL(targetId, 'http://localhost');
-      targetId = u.searchParams.get('id') || targetId;
-    } else if (targetId.startsWith('http')) {
-      const u = new URL(targetId);
-      targetId = u.searchParams.get('id') || targetId;
-    }
-  } catch (e) {}
-
-  targetId = targetId.replace(/[^a-zA-Z0-9_-]/g, '');
-  if (!targetId) return res.status(400).json({ error: 'Format URL/ID tidak valid' });
-
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  if (!overlays[targetId]) {
-    return res.status(404).json({ error: `Overlay dengan ID "${targetId}" tidak ditemukan!` });
-  }
-
-  if (user) {
-    const users = readJsonFile(USERS_FILE, {});
-    const currentUser = users[user.username] || user;
-    if (overlays[targetId].owner && overlays[targetId].owner !== currentUser.username) {
-      return res.status(403).json({ error: 'Akses ditolak: Slot ID ini sudah terdaftar sebagai milik akun lain.' });
-    }
-    if (!currentUser.overlayIds) currentUser.overlayIds = [];
-    if (!currentUser.overlayIds.includes(targetId)) {
-      if (currentUser.overlayIds.length >= 5) {
-        return res.status(400).json({
-          error: 'Slot overlay Anda penuh (maksimal 5). Hapus salah satu terlebih dahulu untuk menautkan ID ini.'
-        });
-      }
-      currentUser.overlayIds.push(targetId);
-      users[currentUser.username] = currentUser;
-      writeJsonFile(USERS_FILE, users);
-    }
-  }
-
-  res.json({ success: true, id: targetId, overlay: overlays[targetId] });
-});
-
-// 8. Delete Single Overlay Slot
-app.delete('/api/user/overlays/:id', (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: 'Belum login' });
-  const { id } = req.params;
-
-  const users = readJsonFile(USERS_FILE, {});
-  const currentUser = users[user.username] || user;
-  if (!currentUser.overlayIds) currentUser.overlayIds = [];
-  currentUser.overlayIds = currentUser.overlayIds.filter(x => x !== id);
-  users[currentUser.username] = currentUser;
-  writeJsonFile(USERS_FILE, users);
-
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  if (overlays[id] && (overlays[id].owner === currentUser.username || !overlays[id].owner)) {
-    delete overlays[id];
-    writeJsonFile(OVERLAYS_FILE, overlays);
-  }
-
-  res.json({ success: true, remaining: currentUser.overlayIds });
-});
-
-// Rename Single Overlay Slot
-app.patch('/api/user/overlays/:id/rename', (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: 'Belum login' });
-  const { id } = req.params;
-  const { name } = req.body || {};
-
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  if (!overlays[id] || (overlays[id].owner && overlays[id].owner !== user.username)) {
-    return res.status(404).json({ error: 'Slot overlay tidak ditemukan atau bukan milik Anda' });
-  }
-
-  overlays[id].name = String(name || '').trim();
-  overlays[id].updatedAt = Date.now();
-  writeJsonFile(OVERLAYS_FILE, overlays);
-
-  res.json({ success: true, id, name: overlays[id].name, overlay: overlays[id] });
-});
-
-// Duplicate Existing Overlay Slot (Max 3 Slots per Account)
-app.post('/api/user/overlays/duplicate', (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk menduplikat overlay.' });
-
-  const { sourceId } = req.body || {};
-  if (!sourceId) return res.status(400).json({ error: 'Source ID overlay wajib disertakan.' });
-
-  const users = readJsonFile(USERS_FILE, {});
-  const currentUser = users[user.username] || user;
-  if (!currentUser.overlayIds) currentUser.overlayIds = [];
-
-  if (currentUser.overlayIds.length >= 5) {
-    return res.status(400).json({
-      error: 'Batas kuota 5 Overlay per akun telah tercapai! Hapus salah satu slot terlebih dahulu untuk menduplikat.'
-    });
-  }
-
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  const sourceOverlay = overlays[sourceId] || overlays['default'] || {};
-
-  const newId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
-  const sourceName = sourceOverlay.name || sourceId;
-  const newName = `${sourceName} (Copy)`;
-
-  overlays[newId] = {
-    ...sourceOverlay,
-    id: newId,
-    name: newName,
-    owner: currentUser.username,
-    updatedAt: Date.now()
-  };
-
-  currentUser.overlayIds.push(newId);
-  users[currentUser.username] = currentUser;
-
-  writeJsonFile(OVERLAYS_FILE, overlays);
-  writeJsonFile(USERS_FILE, users);
-
-  res.json({
-    success: true,
-    id: newId,
-    overlay: overlays[newId],
-    count: currentUser.overlayIds.length,
-    maxLimit: 5
-  });
-});
-
-// Twitch Avatar Resolver
 app.get('/api/twitch/avatar/:username', async (req, res) => {
   const { username } = req.params;
   const userId = req.query.id || null;
@@ -2082,329 +478,28 @@ app.get('/api/twitch/avatar/:username', async (req, res) => {
   res.json({ username, avatar });
 });
 
-// 9. Permanent Account Deletion (GDPR / Privacy Compliance)
-app.delete('/api/user/account', async (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) return res.status(401).json({ error: 'Silakan login terlebih dahulu untuk menghapus akun.' });
-
-  const { password } = req.body || {};
-  if (!password) {
-    return res.status(400).json({ error: 'Konfirmasi password diperlukan untuk menghapus akun.' });
-  }
-
-  const users = readJsonFile(USERS_FILE, {});
-  const currentUser = users[user.username];
-  if (!currentUser) return res.status(404).json({ error: 'User tidak ditemukan' });
-
-  const passwordValid = await verifyPassword(password, currentUser.password);
-  if (!passwordValid) {
-    return res.status(401).json({ error: 'Password konfirmasi salah! Akun tidak dihapus.' });
-  }
-
-  // Delete all user overlays
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  (currentUser.overlayIds || []).forEach(oId => {
-    delete overlays[oId];
-  });
-  writeJsonFile(OVERLAYS_FILE, overlays);
-
-  // Delete user record
-  delete users[user.username];
-  writeJsonFile(USERS_FILE, users);
-
-  res.json({
-    success: true,
-    message: 'Akun Anda beserta seluruh data saluran dan overlay telah dihapus secara permanen dari server StreamPulse.'
-  });
-});
-
 // ==========================================
-// OBS OVERLAY PROFILES API
+// MOUNT MODULAR SUB-ROUTERS
 // ==========================================
-app.get('/api/overlays', (req, res) => {
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  const list = Object.keys(overlays).map(id => ({
-    id,
-    theme: overlays[id].theme || 'glass',
-    twitch: overlays[id].twitch || '',
-    youtube: overlays[id].youtube || '',
-    tiktok: overlays[id].tiktok || '',
-    updatedAt: overlays[id].updatedAt || 0
-  }));
-  res.json(list);
-});
+app.use('/api', createSpotlightRouter({
+  getSpotlight: () => currentSpotlight,
+  setSpotlight: setServerSpotlight,
+  clearSpotlight: clearServerSpotlight
+}));
+app.use('/api', feedbackRouter);
+app.use('/api', socialRotatorRouter);
+app.use('/api', overlaysRouter);
+app.use(createAuthRouter(streamManager));
 
-app.get('/api/overlays/:id', (req, res) => {
-  const { id } = req.params;
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  const profile = overlays[id] || (id === 'default' ? overlays['default'] : null);
-  if (profile) {
-    const clone = { ...profile };
-    if (clone.owner) {
-      const users = readJsonFile(USERS_FILE, {});
-      const u = users[clone.owner];
-      if (u && u.channels) {
-        if (!clone.twitch && u.channels.twitch) clone.twitch = u.channels.twitch;
-        if (!clone.youtube && u.channels.youtube) clone.youtube = u.channels.youtube;
-        if (!clone.tiktok && u.channels.tiktok) clone.tiktok = u.channels.tiktok;
-      }
-    }
-    return res.json(clone);
-  }
-  res.json({ id, theme: 'glass', fontSize: 15, hideDelay: 0, customCss: '', customJs: '' });
-});
-
-app.post('/api/overlays', (req, res) => {
-  const user = getUserFromReq(req);
-  if (!user) {
-    return res.status(401).json({ error: 'Akses ditolak: Hanya pengguna yang telah login yang dapat menyimpan konfigurasi overlay OBS.' });
-  }
-
-  const data = req.body || {};
-  const id = data.id && /^[a-zA-Z0-9_-]+$/.test(data.id) ? data.id : `ovl_${Math.random().toString(36).substr(2, 8)}`;
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-
-  const users = readJsonFile(USERS_FILE, {});
-  const currentUser = users[user.username] || user;
-  if (!currentUser.overlayIds) currentUser.overlayIds = [];
-
-  // Keamanan Penjagaan Kepemilikan Slot:
-  if (overlays[id]) {
-    const isOwner = (overlays[id].owner === currentUser.username) || (currentUser.overlayIds.includes(id));
-    if (!isOwner) {
-      return res.status(403).json({
-        error: `Akses ditolak: Slot ID "${id}" bukan milik akun Anda dan tidak dapat Anda ubah/overwrite.`
-      });
-    }
-  } else {
-    // ID baru yang belum ada di database, verifikasi kuota 5 slot per akun
-    if (!currentUser.overlayIds.includes(id)) {
-      if (currentUser.overlayIds.length >= 5) {
-        return res.status(400).json({ error: 'Batas kuota 5 slot overlay telah tercapai. Anda dapat memilih salah satu slot yang ada untuk di-overwrite atau hapus slot yang tidak digunakan.' });
-      }
-      currentUser.overlayIds.push(id);
-      users[user.username] = currentUser;
-      writeJsonFile(USERS_FILE, users);
-    }
-  }
-
-  const existingName = (overlays[id] && overlays[id].name) ? overlays[id].name : undefined;
-
-  overlays[id] = {
-    ...overlays[id],
-    ...data,
-    id,
-    owner: currentUser.username,
-    updatedAt: Date.now()
-  };
-
-  // Pastikan nama kustom tidak ter-reset menjadi ID atau string kosong saat user menyimpan setting
-  if (data.name && String(data.name).trim() && String(data.name).trim() !== id) {
-    overlays[id].name = String(data.name).trim();
-  } else if (existingName) {
-    overlays[id].name = existingName;
-  }
-
-  writeJsonFile(OVERLAYS_FILE, overlays);
-  res.json({ success: true, id, overlay: overlays[id], overlayIds: currentUser.overlayIds });
-});
-
-// ==========================================
-// SOCIAL MEDIA ROTATOR CONFIG API
-// ==========================================
-app.get('/api/social-rotator/config', (req, res) => {
-  const rotators = readJsonFile(SOCIAL_ROTATOR_FILE, {});
-  const id = (req.query.id || '').trim();
-  const token = (req.query.token || '').trim();
-  const username = (req.query.user || req.query.username || '').trim().toLowerCase();
-
-  // 1. Match by profile ID
-  if (id && rotators[id]) {
-    return res.json({ success: true, id, config: rotators[id] });
-  }
-
-  // 2. Match by user token or username
-  if (token || username) {
-    const users = readJsonFile(USERS_FILE, {});
-    let matchedUser = null;
-    if (token) matchedUser = Object.values(users).find(u => u.token === token);
-    if (!matchedUser && username) matchedUser = Object.values(users).find(u => (u.username || '').toLowerCase() === username);
-
-    if (matchedUser && matchedUser.socialRotatorId && rotators[matchedUser.socialRotatorId]) {
-      return res.json({ success: true, id: matchedUser.socialRotatorId, config: rotators[matchedUser.socialRotatorId] });
-    }
-  }
-
-  // 3. Fallback to default
-  const defaultConfig = rotators['default'] || {
-    theme: 'glass',
-    animation: 'slide-up',
-    duration: 6,
-    pauseInterval: 0,
-    scale: 'md',
-    layout: 'badge',
-    sound: false,
-    randomize: false,
-    items: [
-      { id: '1', platform: 'tiktok', handle: '@streampulse', label: 'Follow TikTok', enabled: true },
-      { id: '2', platform: 'youtube', handle: 'StreamPulseTV', label: 'Subscribe YouTube', enabled: true },
-      { id: '3', platform: 'instagram', handle: '@streampulse.live', label: 'Follow Instagram', enabled: true },
-      { id: '4', platform: 'discord', handle: 'discord.gg/streampulse', label: 'Join Discord', enabled: true },
-      { id: '5', platform: 'twitch', handle: 'streampulse_live', label: 'Follow Twitch', enabled: true }
-    ],
-    updatedAt: Date.now()
-  };
-
-  res.json({ success: true, id: 'default', config: defaultConfig });
-});
-
-app.post('/api/social-rotator/config', (req, res) => {
-  const rotators = readJsonFile(SOCIAL_ROTATOR_FILE, {});
-  const user = getUserFromReq(req);
-  let id = (req.body.id || '').trim();
-
-  if (!id || id === 'default') {
-    if (user && user.socialRotatorId) {
-      id = user.socialRotatorId;
-    } else {
-      id = `soc_${Math.random().toString(36).substr(2, 8)}`;
-    }
-  }
-
-  const config = {
-    id,
-    theme: req.body.theme || 'glass',
-    animation: req.body.animation || 'slide-up',
-    duration: Number(req.body.duration) || 6,
-    pauseInterval: Number(req.body.pauseInterval) || 0,
-    scale: req.body.scale || 'md',
-    layout: req.body.layout || 'badge',
-    sound: Boolean(req.body.sound),
-    randomize: Boolean(req.body.randomize),
-    items: Array.isArray(req.body.items) ? req.body.items : [],
-    updatedAt: Date.now()
-  };
-
-  rotators[id] = config;
-  writeJsonFile(SOCIAL_ROTATOR_FILE, rotators);
-
-  if (user) {
-    const users = readJsonFile(USERS_FILE, {});
-    const currentUser = users[user.username] || user;
-    currentUser.socialRotatorId = id;
-    users[user.username] = currentUser;
-    writeJsonFile(USERS_FILE, users);
-  }
-
-  res.json({ success: true, id, config });
-});
-
-// ==========================================
-// ADMIN USER & OVERLAY MONITORING ENDPOINTS
-// ==========================================
-app.get('/api/admin/users', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak' });
-  }
-  const users = readJsonFile(USERS_FILE, {});
-  const list = Object.values(users).map(u => ({
-    username: u.username,
-    createdAt: u.createdAt || 0,
-    overlayCount: (u.overlayIds || []).length,
-    overlayIds: u.overlayIds || []
-  }));
-  res.json(list);
-});
-
-app.delete('/api/admin/users/:username', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak' });
-  }
-  const { username } = req.params;
-  const users = readJsonFile(USERS_FILE, {});
-  if (!users[username]) return res.status(404).json({ error: 'User tidak ditemukan' });
-
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  (users[username].overlayIds || []).forEach(id => {
-    delete overlays[id];
-  });
-  delete users[username];
-
-  writeJsonFile(USERS_FILE, users);
-  writeJsonFile(OVERLAYS_FILE, overlays);
-  res.json({ success: true, deletedUser: username });
-});
-
-app.get('/api/admin/all-overlays', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak' });
-  }
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  const list = Object.keys(overlays).map(id => ({
-    id,
-    owner: overlays[id].owner || 'Publik / Anonim',
-    theme: overlays[id].theme || 'glass',
-    twitch: overlays[id].twitch || '',
-    youtube: overlays[id].youtube || '',
-    tiktok: overlays[id].tiktok || '',
-    updatedAt: overlays[id].updatedAt || 0
-  }));
-  res.json(list);
-});
-
-app.delete('/api/admin/overlays/:id', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak' });
-  }
-  const { id } = req.params;
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-  if (!overlays[id]) return res.status(404).json({ error: 'Overlay tidak ditemukan' });
-  delete overlays[id];
-  writeJsonFile(OVERLAYS_FILE, overlays);
-
-  const users = readJsonFile(USERS_FILE, {});
-  for (const u of Object.values(users)) {
-    if (u.overlayIds && u.overlayIds.includes(id)) {
-      u.overlayIds = u.overlayIds.filter(x => x !== id);
-    }
-  }
-  writeJsonFile(USERS_FILE, users);
-
-  res.json({ success: true, deletedId: id });
-});
-
-app.get('/api/admin/system-stats', (req, res) => {
-  if (!checkAdminAuth(req)) {
-    return res.status(401).json({ error: 'Akses ditolak' });
-  }
-  const mem = process.memoryUsage();
-  res.json({
-    uptime: Math.floor(process.uptime()),
-    ramRssMb: Math.round(mem.rss / 1024 / 1024),
-    ramHeapMb: Math.round(mem.heapUsed / 1024 / 1024),
-    nodeVersion: process.version,
-    platform: process.platform,
-    port: PORT
-  });
-});
-
-// Start Server & display local IP for mobile access
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.log(`\n[Server] Port ${PORT} sudah aktif. Menggunakan server yang sedang berjalan.`);
-  } else {
-    console.error('[Server] Server error:', err);
-  }
-});
-
+// Start HTTP Server
 server.listen(PORT, '0.0.0.0', () => {
-  const networkInterfaces = os.networkInterfaces();
-  const localIps = [];
-
-  for (const name of Object.keys(networkInterfaces)) {
-    for (const net of networkInterfaces[name]) {
+  const nets = os.networkInterfaces();
+  let localIp = 'localhost';
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
       if (net.family === 'IPv4' && !net.internal) {
-        localIps.push(net.address);
+        localIp = net.address;
+        break;
       }
     }
   }
@@ -2412,12 +507,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n==================================================`);
   console.log(`🚀 StreamPulse MultiChat Server Aktif!`);
   console.log(`   - Local PC:   http://localhost:${PORT}`);
-  if (localIps.length > 0) {
-    console.log(`   - Akses HP:   http://${localIps[0]}:${PORT}`);
-    localIps.forEach((ip, idx) => {
-      if (idx > 0) console.log(`                 http://${ip}:${PORT}`);
-    });
-  }
+  console.log(`   - Akses HP:   http://${localIp}:${PORT}`);
   console.log(`==================================================\n`);
 });
-
