@@ -1020,32 +1020,42 @@
       color: #ffffff;
     }
 
-    /* Pin Action Button on Chat Items */
+    /* Pin Action Button & Timestamp in Chat Items (Timestamp under Pin Button) */
     .dock-chat-item {
       position: relative;
+    }
+    .dock-chat-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 2px;
+      margin-left: auto;
+      flex-shrink: 0;
+      padding-top: 1px;
     }
     .dock-pin-btn {
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-dim);
-      font-size: 12px;
+      font-size: 13px;
       cursor: pointer;
-      padding: 1px 5px;
+      padding: 1px 4px;
       border-radius: 4px;
-      line-height: 1.2;
+      line-height: 1;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      justify-content: center;
       transition: all 0.15s ease;
-      margin-left: auto;
-      opacity: 0.65;
+      opacity: 0.7;
     }
     .dock-chat-item:hover .dock-pin-btn,
     .dock-pin-btn:hover {
       opacity: 1;
       color: #f59e0b;
-      background: rgba(245, 158, 11, 0.1);
+      background: rgba(245, 158, 11, 0.12);
       border-color: rgba(245, 158, 11, 0.25);
+      transform: scale(1.1);
     }
     .dock-chat-item.is-pinned {
       border-color: rgba(245, 158, 11, 0.7) !important;
@@ -1055,6 +1065,13 @@
       color: #f59e0b;
       opacity: 1;
       background: rgba(245, 158, 11, 0.2);
+    }
+    .dock-chat-actions .dock-time-label {
+      margin-left: 0;
+      font-size: 9.5px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      line-height: 1.2;
     }
 
     /* Spotlight Modal specific styles */
@@ -1205,18 +1222,6 @@
           <div class="drawer-nav-text">
             <span class="drawer-nav-label">Social Media Rotator <span style="font-size:0.62rem; background:rgba(168,85,247,0.2); color:#a855f7; padding:1px 5px; border-radius:4px; font-weight:800; margin-left:4px;">NEW</span></span>
             <span class="drawer-nav-desc">Rotator akun sosial media animasi untuk OBS</span>
-          </div>
-        </a>
-
-        <a href="/spotlight-overlay" target="_blank" class="drawer-nav-item">
-          <div class="drawer-icon-wrap" style="color:#f59e0b; background:rgba(245,158,11,0.14);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-            </svg>
-          </div>
-          <div class="drawer-nav-text">
-            <span class="drawer-nav-label">Chat Spotlight Overlay <span style="font-size:0.62rem; background:rgba(245,158,11,0.2); color:#f59e0b; padding:1px 5px; border-radius:4px; font-weight:800; margin-left:4px;">NEW</span></span>
-            <span class="drawer-nav-desc">Overlay pin komentar pilihan ke siaran live</span>
           </div>
         </a>
 
@@ -1573,10 +1578,6 @@
           <label class="dock-checkbox-label">
             <input type="checkbox" id="spotlight-setting-platform" checked>
             <span>Tampilkan Badge Platform (Twitch / YouTube / TikTok)</span>
-          </label>
-          <label class="dock-checkbox-label">
-            <input type="checkbox" id="spotlight-setting-sound" checked>
-            <span>Mainkan Efek Suara Chime Saat Pin</span>
           </label>
         </div>
 

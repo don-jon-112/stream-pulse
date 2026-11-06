@@ -89,7 +89,6 @@
   const spotlightSettingAnimation = document.getElementById('spotlight-setting-animation');
   const spotlightSettingAvatar = document.getElementById('spotlight-setting-avatar');
   const spotlightSettingPlatform = document.getElementById('spotlight-setting-platform');
-  const spotlightSettingSound = document.getElementById('spotlight-setting-sound');
 
   const btnTestSpotlightDemo = document.getElementById('btn-test-spotlight-demo');
   const btnUnpinSpotlightModal = document.getElementById('btn-unpin-spotlight-modal');
@@ -880,10 +879,12 @@
           ${platformBadgeHtml}
           ${badgesHtml}
           <span class="dock-author-name" style="color: ${escapeHtml(authorColor)}">${escapeHtml(authorName)}</span>
-          <span class="dock-time-label">${formatTime(chat.timestamp)}</span>
-          <button type="button" class="dock-pin-btn" title="Pin ke Layar OBS (Chat Spotlight)" aria-label="Pin Komentar">⭐</button>
         </div>
         <div class="dock-chat-text">${formattedText}</div>
+      </div>
+      <div class="dock-chat-actions">
+        <button type="button" class="dock-pin-btn" title="Pin ke Layar OBS (Chat Spotlight)" aria-label="Pin Komentar">⭐</button>
+        <span class="dock-time-label">${formatTime(chat.timestamp)}</span>
       </div>
     `;
 
@@ -1275,14 +1276,15 @@
   // ==========================================
   // CHAT SPOTLIGHT / PIN KOMENTAR KE LAYAR OBS
   // ==========================================
+  let spotlightAutoDismissTimer = null;
+
   function getSpotlightSettings() {
     const defaults = {
       theme: 'frost',
       duration: 12,
       animation: 'bounce',
       showAvatar: true,
-      showPlatform: true,
-      sound: true
+      showPlatform: true
     };
     try {
       const saved = localStorage.getItem(SPOTLIGHT_STORAGE_KEY);
@@ -1304,7 +1306,6 @@
     if (spotlightSettingAnimation) spotlightSettingAnimation.value = s.animation || 'bounce';
     if (spotlightSettingAvatar) spotlightSettingAvatar.checked = s.showAvatar !== false;
     if (spotlightSettingPlatform) spotlightSettingPlatform.checked = s.showPlatform !== false;
-    if (spotlightSettingSound) spotlightSettingSound.checked = s.sound !== false;
 
     if (spotlightUrlInput) {
       spotlightUrlInput.value = window.location.origin + '/spotlight-overlay';
@@ -1317,13 +1318,17 @@
       duration: spotlightSettingDuration ? parseInt(spotlightSettingDuration.value, 10) : 12,
       animation: spotlightSettingAnimation ? spotlightSettingAnimation.value : 'bounce',
       showAvatar: spotlightSettingAvatar ? spotlightSettingAvatar.checked : true,
-      showPlatform: spotlightSettingPlatform ? spotlightSettingPlatform.checked : true,
-      sound: spotlightSettingSound ? spotlightSettingSound.checked : true
+      showPlatform: spotlightSettingPlatform ? spotlightSettingPlatform.checked : true
     };
   }
 
   function updatePinnedBannerUI(data) {
     currentSpotlightMessage = data;
+    if (spotlightAutoDismissTimer) {
+      clearTimeout(spotlightAutoDismissTimer);
+      spotlightAutoDismissTimer = null;
+    }
+
     if (!pinnedBanner) return;
 
     if (!data) {
@@ -1346,9 +1351,21 @@
         el.classList.remove('is-pinned');
       }
     });
+
+    // Otomatis lepas pin saat durasi limit tercapai
+    const durationSec = parseInt(data.duration, 10) || 0;
+    if (durationSec > 0) {
+      spotlightAutoDismissTimer = setTimeout(() => {
+        unpinSpotlight();
+      }, durationSec * 1000);
+    }
   }
 
   function clearPinnedBannerUI() {
+    if (spotlightAutoDismissTimer) {
+      clearTimeout(spotlightAutoDismissTimer);
+      spotlightAutoDismissTimer = null;
+    }
     currentSpotlightMessage = null;
     if (pinnedBanner) pinnedBanner.style.display = 'none';
     document.querySelectorAll('.dock-chat-item.is-pinned').forEach(el => el.classList.remove('is-pinned'));
@@ -1380,8 +1397,7 @@
       duration: parseInt(settings.duration, 10),
       animation: settings.animation,
       showAvatar: settings.showAvatar,
-      showPlatform: settings.showPlatform,
-      sound: settings.sound
+      showPlatform: settings.showPlatform
     };
 
     if (socket && socket.connected) {
@@ -1417,8 +1433,7 @@
       duration: settings.duration,
       animation: settings.animation,
       showAvatar: settings.showAvatar,
-      showPlatform: settings.showPlatform,
-      sound: settings.sound
+      showPlatform: settings.showPlatform
     };
 
     if (socket && socket.connected) {
@@ -1461,7 +1476,7 @@
       });
     }
 
-    [spotlightSettingTheme, spotlightSettingDuration, spotlightSettingAnimation, spotlightSettingAvatar, spotlightSettingPlatform, spotlightSettingSound].forEach(el => {
+    [spotlightSettingTheme, spotlightSettingDuration, spotlightSettingAnimation, spotlightSettingAvatar, spotlightSettingPlatform].forEach(el => {
       if (el) {
         el.addEventListener('change', () => {
           saveSpotlightSettings(readSpotlightSettingsFromUI());

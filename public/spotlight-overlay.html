@@ -413,55 +413,11 @@
 
       let timerId = null;
       let timerAnimFrame = null;
-      let audioCtx = null;
 
       // URL parameters override
       const urlParams = new URLSearchParams(window.location.search);
       const urlTheme = urlParams.get('theme');
       const urlDuration = urlParams.get('duration') ? parseInt(urlParams.get('duration'), 10) : null;
-      const urlSound = urlParams.get('sound');
-
-      // Play chime sound using Web Audio API
-      function playChime() {
-        try {
-          if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          }
-          if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-          }
-
-          const now = audioCtx.currentTime;
-
-          // Note 1: E5 (659.25 Hz)
-          const osc1 = audioCtx.createOscillator();
-          const gain1 = audioCtx.createGain();
-          osc1.type = 'sine';
-          osc1.frequency.setValueAtTime(659.25, now);
-          gain1.gain.setValueAtTime(0, now);
-          gain1.gain.linearRampToValueAtTime(0.2, now + 0.03);
-          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-          osc1.connect(gain1);
-          gain1.connect(audioCtx.destination);
-          osc1.start(now);
-          osc1.stop(now + 0.45);
-
-          // Note 2: B5 (987.77 Hz) slightly delayed
-          const osc2 = audioCtx.createOscillator();
-          const gain2 = audioCtx.createGain();
-          osc2.type = 'sine';
-          osc2.frequency.setValueAtTime(987.77, now + 0.08);
-          gain2.gain.setValueAtTime(0, now + 0.08);
-          gain2.gain.linearRampToValueAtTime(0.25, now + 0.11);
-          gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
-          osc2.connect(gain2);
-          gain2.connect(audioCtx.destination);
-          osc2.start(now + 0.08);
-          osc2.stop(now + 0.65);
-        } catch (e) {
-          console.warn('[Spotlight] Audio chime warning:', e);
-        }
-      }
 
       function escapeHtml(str) {
         if (!str) return '';
@@ -549,12 +505,6 @@
           textEl.textContent = data.text || '';
         }
 
-        // Sound Chime
-        const shouldPlaySound = urlSound !== null ? (urlSound === 'true' || urlSound === '1') : (data.sound !== false);
-        if (shouldPlaySound) {
-          playChime();
-        }
-
         // Show card with animation
         card.classList.remove('exiting');
         card.classList.add('visible');
@@ -576,6 +526,9 @@
               timerAnimFrame = requestAnimationFrame(updateTimer);
             } else {
               hideSpotlight();
+              if (socket && socket.connected) {
+                socket.emit('spotlight_clear');
+              }
             }
           }
 
@@ -608,16 +561,6 @@
       socket.on('spotlight_clear', () => {
         hideSpotlight();
       });
-
-      // Enable audio context on any user click if previewing inside browser
-      window.addEventListener('click', () => {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-      }, { once: true });
 
     })();
   </script>
