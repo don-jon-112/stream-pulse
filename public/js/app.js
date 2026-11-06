@@ -1395,6 +1395,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cache ID pesan untuk mencegah tampilan duplikat di homepage
   const processedChatMessageIds = new Set();
+  const recentChatContentKeys = new Map(); // [contentKey -> timestamp] mencegah replay pesan TikTok saat reconnect
 
   
   // ==========================================
@@ -1460,8 +1461,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function addChatMessage(chat) {
     if (!chat) return;
 
-    // Cegah duplikasi pesan di chat monitoring
-    const dedupeKey = chat.id || `${chat.platform || ''}_${chat.author?.name || ''}_${chat.text || ''}`;
+    const author = chat.author || {};
+    const authorName = author.name || 'Anonymous';
+    const normUser = (authorName || author.username || '').trim().toLowerCase();
+    const normText = (chat.text || '').trim().toLowerCase();
+    const contentKey = `${chat.platform || ''}:${normUser}:${normText}`;
+    const now = Date.now();
+
+    // Bersihkan cache lama lebih dari 60 detik
+    for (const [k, t] of recentChatContentKeys.entries()) {
+      if (now - t > 60000) recentChatContentKeys.delete(k);
+    }
+
+    // Cegah replay pesan ganda dari reconnect TikTok dalam 15 detik
+    if (recentChatContentKeys.has(contentKey) && (now - recentChatContentKeys.get(contentKey) < 15000)) {
+      return;
+    }
+    recentChatContentKeys.set(contentKey, now);
+
+    // Cegah duplikasi ID pesan di chat monitoring
+    const dedupeKey = chat.id || `${chat.platform || ''}_${authorName}_${chat.text || ''}`;
     if (processedChatMessageIds.has(dedupeKey)) return;
     processedChatMessageIds.add(dedupeKey);
     if (processedChatMessageIds.size > 500) {

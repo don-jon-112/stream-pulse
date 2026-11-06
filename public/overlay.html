@@ -2555,6 +2555,7 @@
 
       // Cache ID pesan untuk mencegah tampilan duplikat di OBS overlay
       const processedOverlayMsgIds = new Set();
+      const recentOverlayContentKeys = new Map(); // [contentKey -> timestamp] mencegah replay chat saat reconnect TikTok
 
       // Cache untuk mencegah duplikasi alert (Bits, Superchat, Gift, Redeem) antara new_event dan new_chat
       const recentRedeemKeys = new Set();
@@ -2615,17 +2616,32 @@
       function addOverlayMessage(item) {
         if (!item) return;
 
-        // Cegah duplikasi pesan chat
-        const dedupeKey = item.id || `${item.platform || ''}_${item.author?.name || ''}_${item.text || ''}`;
+        const author = item.author || {};
+        const authorName = author.name || 'Anonymous';
+        const normUser = (authorName || author.username || '').trim().toLowerCase();
+        const normText = (item.text || '').trim().toLowerCase();
+        const contentKey = `${item.platform || ''}:${normUser}:${normText}`;
+        const now = Date.now();
+
+        // Bersihkan cache pesan yang lebih dari 60 detik
+        for (const [k, t] of recentOverlayContentKeys.entries()) {
+          if (now - t > 60000) recentOverlayContentKeys.delete(k);
+        }
+
+        // Cegah duplikasi replay pesan yang sama dari reconnect TikTok dalam 15 detik
+        if (recentOverlayContentKeys.has(contentKey) && (now - recentOverlayContentKeys.get(contentKey) < 15000)) {
+          return;
+        }
+        recentOverlayContentKeys.set(contentKey, now);
+
+        // Cegah duplikasi ID pesan chat
+        const dedupeKey = item.id || `${item.platform || ''}_${authorName}_${item.text || ''}`;
         if (processedOverlayMsgIds.has(dedupeKey)) return;
         processedOverlayMsgIds.add(dedupeKey);
         while (processedOverlayMsgIds.size > 150) {
           const first = processedOverlayMsgIds.values().next().value;
           processedOverlayMsgIds.delete(first);
         }
-
-        const author = item.author || {};
-        const authorName = author.name || 'Anonymous';
 
         // Neon outline customization
         let neonColor = config.neonOutlineColor || '#00f2fe';
@@ -3085,7 +3101,7 @@
           twitch: config.twitch || '',
           youtube: config.youtube || '',
           tiktok: config.tiktok || '',
-          force: true
+          force: false
         };
         socket._pendingChannelUpdate = null;
         socket.emit('update_channels', payload);

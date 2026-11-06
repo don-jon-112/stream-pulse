@@ -415,7 +415,7 @@ app.get(['/tiktok', '/tiktok-widgets', '/tiktok-studio', '/tiktok-tools'], (req,
   res.sendFile(path.join(__dirname, 'public', 'tiktok-widgets.html'));
 });
 
-app.get(['/tiktok-overlay', '/tiktok-top-gifter', '/tiktok-top-likes', '/tiktok-gift-jar', '/tiktok-like-waterfall', '/tiktok-alerts'], (req, res) => {
+app.get(['/tiktok-overlay', '/tiktok-top-gifter', '/tiktok-top-likes', '/tiktok-gift-jar', '/tiktok-like-waterfall', '/tiktok-alerts', '/tiktok-goals'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tiktok-overlay.html'));
 });
 
