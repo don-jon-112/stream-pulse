@@ -126,6 +126,7 @@
     const drawerUserAvatar = document.getElementById('drawerUserAvatar');
     const drawerUserName = document.getElementById('drawerUserName');
     const drawerUserRole = document.getElementById('drawerUserRole');
+    const drawerUserHero = document.getElementById('drawerUserHero');
 
     function openDrawer() {
       if (drawer) drawer.classList.add('active');
@@ -205,6 +206,7 @@
             });
             if (res.ok) {
               const u = await res.json();
+              if (drawerUserHero) drawerUserHero.href = '/studio';
               if (drawerUserName) drawerUserName.textContent = u.username || 'Streamer Terdaftar';
               if (drawerUserRole) {
                 const chNames = [
@@ -231,6 +233,7 @@
           if (drawerUserRole) drawerUserRole.textContent = 'Mode Tamu (Tersimpan Lokal)';
           if (drawerUserAvatar) drawerUserAvatar.textContent = activeName.charAt(0).toUpperCase();
         } else {
+          if (drawerUserHero) drawerUserHero.href = '/studio?auth=1';
           if (drawerUserName) drawerUserName.textContent = 'Streamer Tamu';
           if (drawerUserRole) drawerUserRole.textContent = 'Mode Tamu • Klik untuk Login';
           if (drawerUserAvatar) drawerUserAvatar.textContent = '👤';

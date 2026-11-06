@@ -769,14 +769,13 @@ streamManager.setTokenRefreshHandler(refreshTwitchToken);
 const verificationStore = new Map(); // email -> { code, expiresAt }
 const rateLimitStore = new Map(); // key -> { count, resetAt }
 
-function checkRateLimit(key, maxAttempts, windowMs) {
+function isRateLimited(key, maxAttempts) {
   const now = Date.now();
-  const entry = rateLimitStore.get(key) || { count: 0, resetAt: now + windowMs };
+  const entry = rateLimitStore.get(key);
+  if (!entry) return { allowed: true };
   if (now > entry.resetAt) {
-    entry.count = 1;
-    entry.resetAt = now + windowMs;
-    rateLimitStore.set(key, entry);
-    return { allowed: true, remaining: maxAttempts - 1 };
+    rateLimitStore.delete(key);
+    return { allowed: true };
   }
   if (entry.count >= maxAttempts) {
     const waitHours = Math.ceil((entry.resetAt - now) / 3600000);
@@ -786,9 +785,26 @@ function checkRateLimit(key, maxAttempts, windowMs) {
       waitTime: waitHours > 1 ? `${waitHours} jam` : `${waitMinutes} menit`
     };
   }
-  entry.count++;
-  rateLimitStore.set(key, entry);
   return { allowed: true, remaining: maxAttempts - entry.count };
+}
+
+function recordFailedAttempt(key, maxAttempts, windowMs) {
+  const now = Date.now();
+  const entry = rateLimitStore.get(key) || { count: 0, resetAt: now + windowMs };
+  if (now > entry.resetAt) {
+    entry.count = 1;
+    entry.resetAt = now + windowMs;
+  } else {
+    entry.count++;
+  }
+  rateLimitStore.set(key, entry);
+}
+
+function checkRateLimit(key, maxAttempts, windowMs) {
+  const check = isRateLimited(key, maxAttempts);
+  if (!check.allowed) return check;
+  recordFailedAttempt(key, maxAttempts, windowMs);
+  return check;
 }
 
 // Mail Transporter Setup
@@ -971,27 +987,35 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   const cleanQuery = String(usernameOrEmail).trim().toLowerCase();
+  const isLocal = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp.includes('127.0.0.1');
+  const maxAttempts = isLocal ? 20 : 7;
+  const rateLimitKey = `login_${cleanQuery}_${clientIp}`;
 
-  // Rate limit: Max 5 failed attempts per 15 minutes
-  const limitCheck = checkRateLimit(`login_${cleanQuery}_${clientIp}`, 5, 15 * 60 * 1000);
+  // Rate limit check
+  const limitCheck = isRateLimited(rateLimitKey, maxAttempts);
   if (!limitCheck.allowed) {
     return res.status(429).json({ error: `Terlalu banyak percobaan login gagal. Demi keamanan, silakan coba lagi dalam ${limitCheck.waitTime}.` });
   }
 
   const users = readJsonFile(USERS_FILE, {});
-  const user = users[cleanQuery] || Object.values(users).find(u => u.email === cleanQuery);
+  const user = users[cleanQuery] || Object.values(users).find(u => 
+    (u.username && u.username.toLowerCase() === cleanQuery) || 
+    (u.email && u.email.toLowerCase() === cleanQuery)
+  );
 
   if (!user) {
+    recordFailedAttempt(rateLimitKey, maxAttempts, 15 * 60 * 1000);
     return res.status(401).json({ error: 'Akun dengan username atau email tersebut tidak ditemukan!' });
   }
 
   const passwordValid = await verifyPassword(password, user.password);
   if (!passwordValid) {
+    recordFailedAttempt(rateLimitKey, maxAttempts, 15 * 60 * 1000);
     return res.status(401).json({ error: 'Password salah! Periksa kembali password Anda.' });
   }
 
   // Clear rate limit on successful login
-  rateLimitStore.delete(`login_${cleanQuery}_${clientIp}`);
+  rateLimitStore.delete(rateLimitKey);
 
   if (!user.token) {
     user.token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;

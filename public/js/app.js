@@ -987,8 +987,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (headerUserWidget) {
       if (currentUser && userToken) {
+        headerUserWidget.href = '/studio';
         headerUserWidget.innerHTML = `<span>👤 ${currentUser.username}</span>`;
       } else {
+        headerUserWidget.href = '/studio?auth=1';
         headerUserWidget.innerHTML = `<span>${window.t ? window.t('nav_login') : '🔐 Login / Akun'}</span>`;
       }
     }
@@ -1496,8 +1498,6 @@ document.addEventListener('DOMContentLoaded', () => {
     item.dataset.platform = chat.platform;
     item.dataset.isEvent = 'false';
 
-    const author = chat.author || {};
-    const authorName = author.name || 'Anonymous';
     const isDarkTheme = isDarkModeActive();
     let authorColor = ensureContrastForLightBg(author.color, '#0f172a');
     if (chat.platform === 'tiktok') {
