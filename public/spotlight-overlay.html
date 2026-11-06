@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>StreamPulse - Chat Spotlight Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: transparent !important;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #spotlight-root {
+      width: 100%;
+      max-width: 680px;
+      position: relative;
+    }
+
+    /* CARD BASE */
+    .spotlight-card {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      padding: 16px 20px;
+      display: none;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.96);
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    }
+
+    .spotlight-card.visible {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .spotlight-card.exiting {
+      opacity: 0 !important;
+      transform: translateY(-15px) scale(0.95) !important;
+      transition: opacity 0.3s ease, transform 0.3s ease !important;
+    }
+
+    /* THEME 1: FROST GLASS */
+    .theme-frost {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.25), 0 0 25px rgba(99, 102, 241, 0.2);
+    }
+    .theme-frost .spotlight-tag {
+      background: rgba(99, 102, 241, 0.25);
+      color: #c7d2fe;
+      border: 1px solid rgba(129, 140, 248, 0.4);
+    }
+    .theme-frost .author-name {
+      color: #ffffff;
+    }
+    .theme-frost .spotlight-text {
+      color: #f1f5f9;
+    }
+    .theme-frost .timer-fill {
+      background: linear-gradient(90deg, #6366f1, #38bdf8);
+    }
+
+    /* THEME 2: CYBERPUNK NEON */
+    .theme-cyberpunk {
+      background: rgba(10, 10, 18, 0.94);
+      border: 2px solid #00f2fe;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.45), 0 0 40px rgba(254, 44, 85, 0.2), inset 0 0 15px rgba(0, 242, 254, 0.15);
+      border-radius: 12px;
+    }
+    .theme-cyberpunk .spotlight-tag {
+      background: #fe2c55;
+      color: #ffffff;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      box-shadow: 0 0 10px rgba(254, 44, 85, 0.6);
+    }
+    .theme-cyberpunk .author-name {
+      color: #00f2fe;
+      text-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+    }
+    .theme-cyberpunk .spotlight-text {
+      color: #ffffff;
+    }
+    .theme-cyberpunk .timer-fill {
+      background: linear-gradient(90deg, #fe2c55, #00f2fe);
+      box-shadow: 0 0 8px #00f2fe;
+    }
+
+    /* THEME 3: GOLDEN VIP */
+    .theme-vip {
+      background: linear-gradient(145deg, rgba(24, 18, 10, 0.94), rgba(35, 25, 12, 0.95));
+      border: 1.5px solid #f59e0b;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.35);
+    }
+    .theme-vip .spotlight-tag {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+      color: #ffffff;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    }
+    .theme-vip .author-name {
+      color: #fde68a;
+      text-shadow: 0 1px 4px rgba(217, 119, 6, 0.4);
+    }
+    .theme-vip .spotlight-text {
+      color: #fffbeb;
+    }
+    .theme-vip .timer-fill {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b, #ea580c);
+    }
+
+    /* THEME 4: MINIMAL OBSIDIAN */
+    .theme-minimal {
+      background: rgba(18, 18, 22, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+    }
+    .theme-minimal .spotlight-tag {
+      background: #ffffff;
+      color: #000000;
+      font-weight: 700;
+    }
+    .theme-minimal .author-name {
+      color: #ffffff;
+    }
+    .theme-minimal .spotlight-text {
+      color: #f3f4f6;
+    }
+    .theme-minimal .timer-fill {
+      background: #ffffff;
+    }
+
+    /* THEME 5: POP SUNSET */
+    .theme-pop {
+      background: linear-gradient(135deg, rgba(30, 20, 50, 0.94), rgba(45, 20, 40, 0.94));
+      border: 1.5px solid rgba(236, 72, 153, 0.6);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(236, 72, 153, 0.25);
+    }
+    .theme-pop .spotlight-tag {
+      background: linear-gradient(90deg, #ec4899, #f97316);
+      color: #ffffff;
+      font-weight: 800;
+      box-shadow: 0 2px 10px rgba(236, 72, 153, 0.45);
+    }
+    .theme-pop .author-name {
+      color: #f472b6;
+    }
+    .theme-pop .spotlight-text {
+      color: #ffffff;
+    }
+    .theme-pop .timer-fill {
+      background: linear-gradient(90deg, #ec4899, #f97316);
+    }
+
+    /* CARD HEADER */
+    .spotlight-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .spotlight-user-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .spotlight-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 17px;
+      color: #ffffff;
+    }
+
+    .spotlight-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .author-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .author-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+
+    .author-handle {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      line-height: 1.2;
+    }
+    .platform-badge.twitch { background: rgba(145, 70, 255, 0.25); color: #c084fc; border: 1px solid rgba(145, 70, 255, 0.4); }
+    .platform-badge.youtube { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .platform-badge.tiktok { background: rgba(0, 242, 254, 0.2); color: #38bdf8; border: 1px solid rgba(0, 242, 254, 0.4); }
+    .platform-badge.general { background: rgba(255, 255, 255, 0.15); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.2); }
+
+    .spotlight-tag {
+      font-size: 0.68rem;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* CARD BODY / TEXT */
+    .spotlight-body {
+      padding-left: 2px;
+    }
+
+    .spotlight-text {
+      font-size: 1.22rem;
+      line-height: 1.45;
+      font-weight: 600;
+      word-break: break-word;
+      letter-spacing: -0.2px;
+    }
+
+    .spotlight-text img.dock-emote,
+    .spotlight-text img.chat-emote {
+      height: 30px;
+      vertical-align: -6px;
+      margin: 0 2px;
+      object-fit: contain;
+    }
+
+    /* TIMER PROGRESS BAR */
+    .spotlight-timer-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      display: none;
+    }
+
+    .spotlight-timer-bar.active {
+      display: block;
+    }
+
+    .timer-fill {
+      width: 100%;
+      height: 100%;
+      transform-origin: left center;
+      transition: width linear;
+    }
+
+    /* ANIMATIONS */
+    .anim-bounce.visible {
+      animation: springBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .anim-slide.visible {
+      animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .anim-pop.visible {
+      animation: popZoom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes springBounce {
+      0% {
+        opacity: 0;
+        transform: translateY(-40px) scale(0.9);
+      }
+      70% {
+        opacity: 1;
+        transform: translateY(6px) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes slideDown {
+      0% {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes popZoom {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="spotlight-root">
+    <div id="spotlight-card" class="spotlight-card theme-frost anim-bounce">
+      <div class="spotlight-header">
+        <div class="spotlight-user-row">
+          <div id="spotlight-avatar" class="spotlight-avatar">👤</div>
+          <div class="spotlight-meta">
+            <div class="author-name-row">
+              <span id="spotlight-platform" class="platform-badge tiktok">TikTok</span>
+              <span id="spotlight-author" class="author-name">Viewer</span>
+              <span id="spotlight-handle" class="author-handle"></span>
+            </div>
+          </div>
+        </div>
+        <div class="spotlight-tag" id="spotlight-tag">
+          <span>⭐</span>
+          <span>PINNED</span>
+        </div>
+      </div>
+
+      <div class="spotlight-body">
+        <div id="spotlight-text" class="spotlight-text">
+          Pesan komentar akan tampil di sini saat dipin oleh streamer.
+        </div>
+      </div>
+
+      <div class="spotlight-timer-bar" id="spotlight-timer-bar">
+        <div class="timer-fill" id="timer-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/socket.io.min.js"></script>
+  <script>
+    (function() {
+      const card = document.getElementById('spotlight-card');
+      const avatarEl = document.getElementById('spotlight-avatar');
+      const platformEl = document.getElementById('spotlight-platform');
+      const authorEl = document.getElementById('spotlight-author');
+      const handleEl = document.getElementById('spotlight-handle');
+      const textEl = document.getElementById('spotlight-text');
+      const timerBar = document.getElementById('spotlight-timer-bar');
+      const timerFill = document.getElementById('timer-fill');
+
+      let timerId = null;
+      let timerAnimFrame = null;
+      let audioCtx = null;
+
+      // URL parameters override
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlTheme = urlParams.get('theme');
+      const urlDuration = urlParams.get('duration') ? parseInt(urlParams.get('duration'), 10) : null;
+      const urlSound = urlParams.get('sound');
+
+      // Play chime sound using Web Audio API
+      function playChime() {
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+
+          const now = audioCtx.currentTime;
+
+          // Note 1: E5 (659.25 Hz)
+          const osc1 = audioCtx.createOscillator();
+          const gain1 = audioCtx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(659.25, now);
+          gain1.gain.setValueAtTime(0, now);
+          gain1.gain.linearRampToValueAtTime(0.2, now + 0.03);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+          osc1.connect(gain1);
+          gain1.connect(audioCtx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.45);
+
+          // Note 2: B5 (987.77 Hz) slightly delayed
+          const osc2 = audioCtx.createOscillator();
+          const gain2 = audioCtx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(987.77, now + 0.08);
+          gain2.gain.setValueAtTime(0, now + 0.08);
+          gain2.gain.linearRampToValueAtTime(0.25, now + 0.11);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+          osc2.connect(gain2);
+          gain2.connect(audioCtx.destination);
+          osc2.start(now + 0.08);
+          osc2.stop(now + 0.65);
+        } catch (e) {
+          console.warn('[Spotlight] Audio chime warning:', e);
+        }
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function hideSpotlight() {
+        if (timerId) {
+          clearTimeout(timerId);
+          timerId = null;
+        }
+        if (timerAnimFrame) {
+          cancelAnimationFrame(timerAnimFrame);
+          timerAnimFrame = null;
+        }
+
+        if (card.classList.contains('visible')) {
+          card.classList.add('exiting');
+          setTimeout(() => {
+            card.classList.remove('visible', 'exiting');
+          }, 320);
+        }
+      }
+
+      function showSpotlight(data) {
+        if (!data) {
+          hideSpotlight();
+          return;
+        }
+
+        if (timerId) clearTimeout(timerId);
+        if (timerAnimFrame) cancelAnimationFrame(timerAnimFrame);
+
+        // Apply theme
+        const theme = urlTheme || data.theme || 'frost';
+        card.className = `spotlight-card theme-${theme} anim-${data.animation || 'bounce'}`;
+
+        // Author name & color
+        const authorName = data.author?.name || data.author || 'Viewer';
+        authorEl.textContent = authorName;
+        if (data.author?.color) {
+          authorEl.style.color = data.author.color;
+        } else {
+          authorEl.style.color = '';
+        }
+
+        // Username / Handle
+        if (data.author?.username && data.author.username !== authorName) {
+          handleEl.textContent = '@' + data.author.username.replace(/^@/, '');
+          handleEl.style.display = 'inline';
+        } else {
+          handleEl.textContent = '';
+          handleEl.style.display = 'none';
+        }
+
+        // Platform
+        const platform = (data.platform || 'general').toLowerCase();
+        if (data.showPlatform !== false) {
+          platformEl.className = `platform-badge ${platform}`;
+          platformEl.textContent = platform;
+          platformEl.style.display = 'inline-flex';
+        } else {
+          platformEl.style.display = 'none';
+        }
+
+        // Avatar
+        if (data.showAvatar !== false) {
+          avatarEl.style.display = 'flex';
+          const avatarUrl = data.author?.avatar;
+          if (avatarUrl && avatarUrl.startsWith('http')) {
+            avatarEl.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(authorName)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='👤'">`;
+          } else {
+            avatarEl.textContent = authorName.charAt(0).toUpperCase() || '👤';
+          }
+        } else {
+          avatarEl.style.display = 'none';
+        }
+
+        // Message Text (Support raw formatted text with HTML emotes if provided)
+        if (data.formattedText) {
+          textEl.innerHTML = data.formattedText;
+        } else {
+          textEl.textContent = data.text || '';
+        }
+
+        // Sound Chime
+        const shouldPlaySound = urlSound !== null ? (urlSound === 'true' || urlSound === '1') : (data.sound !== false);
+        if (shouldPlaySound) {
+          playChime();
+        }
+
+        // Show card with animation
+        card.classList.remove('exiting');
+        card.classList.add('visible');
+
+        // Duration timer
+        const durationSec = (urlDuration !== null && !isNaN(urlDuration)) ? urlDuration : (parseInt(data.duration, 10) || 0);
+
+        if (durationSec > 0) {
+          timerBar.classList.add('active');
+          const totalMs = durationSec * 1000;
+          const startTime = performance.now();
+
+          function updateTimer(now) {
+            const elapsed = now - startTime;
+            const remainingRatio = Math.max(0, 1 - (elapsed / totalMs));
+            timerFill.style.width = (remainingRatio * 100).toFixed(2) + '%';
+
+            if (elapsed < totalMs) {
+              timerAnimFrame = requestAnimationFrame(updateTimer);
+            } else {
+              hideSpotlight();
+            }
+          }
+
+          timerAnimFrame = requestAnimationFrame(updateTimer);
+        } else {
+          timerBar.classList.remove('active');
+        }
+      }
+
+      // Socket.io Connection
+      const socket = io();
+
+      socket.on('connect', () => {
+        console.log('[Spotlight Overlay] Terhubung ke server StreamPulse');
+        socket.emit('get_spotlight', (activeData) => {
+          if (activeData) {
+            showSpotlight(activeData);
+          }
+        });
+      });
+
+      socket.on('spotlight_active', (data) => {
+        if (data) showSpotlight(data);
+      });
+
+      socket.on('spotlight_chat', (data) => {
+        showSpotlight(data);
+      });
+
+      socket.on('spotlight_clear', () => {
+        hideSpotlight();
+      });
+
+      // Enable audio context on any user click if previewing inside browser
+      window.addEventListener('click', () => {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }, { once: true });
+
+    })();
+  </script>
+</body>
+</html>

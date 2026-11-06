@@ -950,6 +950,149 @@
       cursor: pointer;
     }
 
+    /* Pinned Spotlight Banner in Dock */
+    .dock-pinned-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.16), rgba(99, 102, 241, 0.12));
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 8px;
+      margin-top: 6px;
+      animation: fadeIn 0.2s ease-out;
+    }
+    :root[data-theme="dark"] .dock-pinned-banner {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.22), rgba(99, 102, 241, 0.18));
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+    .dock-pinned-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    .dock-pinned-star {
+      font-size: 15px;
+      color: #f59e0b;
+      flex-shrink: 0;
+    }
+    .dock-pinned-text-wrap {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      line-height: 1.3;
+    }
+    .dock-pinned-tag {
+      font-size: 9px;
+      font-weight: 800;
+      color: #f59e0b;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .dock-pinned-snippet {
+      font-size: 11.5px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dock-pinned-snippet strong {
+      color: #38bdf8;
+    }
+    .dock-pinned-unpin-btn {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .dock-pinned-unpin-btn:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    /* Pin Action Button on Chat Items */
+    .dock-chat-item {
+      position: relative;
+    }
+    .dock-pin-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 1px 5px;
+      border-radius: 4px;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+      margin-left: auto;
+      opacity: 0.65;
+    }
+    .dock-chat-item:hover .dock-pin-btn,
+    .dock-pin-btn:hover {
+      opacity: 1;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .dock-chat-item.is-pinned {
+      border-color: rgba(245, 158, 11, 0.7) !important;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+    .dock-chat-item.is-pinned .dock-pin-btn {
+      color: #f59e0b;
+      opacity: 1;
+      background: rgba(245, 158, 11, 0.2);
+    }
+
+    /* Spotlight Modal specific styles */
+    .dock-form-row {
+      display: flex;
+      gap: 10px;
+    }
+    .dock-form-row > * {
+      flex: 1;
+    }
+    .dock-modal-select {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: var(--text-base);
+      outline: none;
+      width: 100%;
+    }
+    :root[data-theme="dark"] .dock-modal-select {
+      background: #18181b;
+      border-color: #27272a;
+      color: #f8fafc;
+    }
+    .dock-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .dock-checkbox-label input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: #f59e0b;
+    }
+
   </style>
 
   <script>
@@ -1062,6 +1205,18 @@
           <div class="drawer-nav-text">
             <span class="drawer-nav-label">Social Media Rotator <span style="font-size:0.62rem; background:rgba(168,85,247,0.2); color:#a855f7; padding:1px 5px; border-radius:4px; font-weight:800; margin-left:4px;">NEW</span></span>
             <span class="drawer-nav-desc">Rotator akun sosial media animasi untuk OBS</span>
+          </div>
+        </a>
+
+        <a href="/spotlight-overlay" target="_blank" class="drawer-nav-item">
+          <div class="drawer-icon-wrap" style="color:#f59e0b; background:rgba(245,158,11,0.14);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </div>
+          <div class="drawer-nav-text">
+            <span class="drawer-nav-label">Chat Spotlight Overlay <span style="font-size:0.62rem; background:rgba(245,158,11,0.2); color:#f59e0b; padding:1px 5px; border-radius:4px; font-weight:800; margin-left:4px;">NEW</span></span>
+            <span class="drawer-nav-desc">Overlay pin komentar pilihan ke siaran live</span>
           </div>
         </a>
 
@@ -1181,6 +1336,11 @@
           <span class="dock-wakelock-dot"></span>
         </button>
 
+        <!-- Chat Spotlight Settings Modal -->
+        <button class="dock-btn-icon" id="btn-dock-spotlight-modal" title="⭐ Pengaturan Chat Spotlight (Pin Komentar ke OBS)">
+          ⭐
+        </button>
+
         <button class="dock-btn-icon" id="btn-dock-theme" title="Ganti Mode Gelap / Terang">
           <span id="dock-theme-icon">☀️</span>
         </button>
@@ -1235,6 +1395,20 @@
         <button class="filter-chip" data-filter="event">Event/Donasi</button>
       </div>
       <div class="dock-stats-label" id="dock-counter-label">0 tersimpan (No Limit)</div>
+    </div>
+
+    <!-- PINNED SPOTLIGHT BANNER -->
+    <div class="dock-pinned-banner" id="dock-pinned-banner" style="display: none;">
+      <div class="dock-pinned-info">
+        <span class="dock-pinned-star">⭐</span>
+        <div class="dock-pinned-text-wrap">
+          <span class="dock-pinned-tag">SPOTLIGHT OBS AKTIF</span>
+          <span class="dock-pinned-snippet" id="dock-pinned-snippet">
+            <strong id="dock-pinned-author">Viewer</strong>: <span id="dock-pinned-text">Pesan</span>
+          </span>
+        </div>
+      </div>
+      <button type="button" class="dock-pinned-unpin-btn" id="btn-unpin-banner" title="Lepas Pin dari Layar Overlay">✕ Lepas</button>
     </div>
   </header>
 
@@ -1327,6 +1501,103 @@
       <div class="dock-modal-footer">
         <button type="button" class="dock-btn-cancel" id="btn-cancel-dock-settings">Batal</button>
         <button type="button" class="dock-btn-save" id="btn-save-dock-settings">Simpan & Sambungkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DOCK CHAT SPOTLIGHT / PIN KOMENTAR SETTINGS -->
+  <div id="dock-spotlight-modal" class="dock-modal-backdrop" style="display: none;">
+    <div class="dock-modal-content" style="max-width: 420px;">
+      <div class="dock-modal-header">
+        <div class="dock-modal-title">
+          <span style="font-size: 1.1rem;">⭐</span>
+          <span>Chat Spotlight / Pin Komentar</span>
+        </div>
+        <button type="button" class="dock-modal-close" id="btn-close-spotlight-modal">&times;</button>
+      </div>
+
+      <div class="dock-modal-body">
+        <!-- OBS URL Field -->
+        <div class="dock-form-field">
+          <label class="dock-form-label">Link Browser Source OBS</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="spotlight-overlay-url-input" class="dock-modal-input" readonly style="flex:1; font-family: monospace; font-size: 0.72rem; background: var(--bg-card); cursor: text;" value="">
+            <button type="button" class="dock-btn-save" id="btn-copy-spotlight-url" style="padding: 4px 12px; font-size: 0.72rem; white-space: nowrap;">Salin</button>
+          </div>
+          <div style="font-size: 0.68rem; color: var(--text-dim); margin-top: 2px;">
+            Pasang di OBS: Tambah Browser Source, ukuran <strong>650 × 250 px</strong> (atau sesuaikan).
+          </div>
+        </div>
+
+        <!-- Theme & Duration Row -->
+        <div class="dock-form-row" style="margin-top: 4px;">
+          <div class="dock-form-field">
+            <label class="dock-form-label">Tema Tampilan</label>
+            <select id="spotlight-setting-theme" class="dock-modal-select">
+              <option value="frost">Frost Glass (Translucent)</option>
+              <option value="cyberpunk">Cyberpunk Neon</option>
+              <option value="vip">Golden VIP (Emas Mewah)</option>
+              <option value="minimal">Minimal Obsidian</option>
+              <option value="pop">Pop Sunset (Gradien)</option>
+            </select>
+          </div>
+
+          <div class="dock-form-field">
+            <label class="dock-form-label">Durasi Tampil di Layar</label>
+            <select id="spotlight-setting-duration" class="dock-modal-select">
+              <option value="0">Manual (Sampai dilepas)</option>
+              <option value="8">8 Detik</option>
+              <option value="12" selected>12 Detik (Rekomendasi)</option>
+              <option value="20">20 Detik</option>
+              <option value="30">30 Detik</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Animation Style -->
+        <div class="dock-form-field" style="margin-top: 2px;">
+          <label class="dock-form-label">Animasi Masuk</label>
+          <select id="spotlight-setting-animation" class="dock-modal-select">
+            <option value="bounce">Bounce In (Pegas Halus)</option>
+            <option value="slide">Slide Down (Meluncur Halus)</option>
+            <option value="pop">Zoom Pop (Membesar Cepat)</option>
+          </select>
+        </div>
+
+        <!-- Checkbox Options -->
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px; padding: 6px 0;">
+          <label class="dock-checkbox-label">
+            <input type="checkbox" id="spotlight-setting-avatar" checked>
+            <span>Tampilkan Foto Profil / Avatar Pengirim</span>
+          </label>
+          <label class="dock-checkbox-label">
+            <input type="checkbox" id="spotlight-setting-platform" checked>
+            <span>Tampilkan Badge Platform (Twitch / YouTube / TikTok)</span>
+          </label>
+          <label class="dock-checkbox-label">
+            <input type="checkbox" id="spotlight-setting-sound" checked>
+            <span>Mainkan Efek Suara Chime Saat Pin</span>
+          </label>
+        </div>
+
+        <!-- Quick Actions & Test -->
+        <div style="display: flex; gap: 8px; margin-top: 4px; padding-top: 8px; border-top: 1px dashed var(--border-color);">
+          <button type="button" class="dock-btn-cancel" id="btn-test-spotlight-demo" style="flex:1; border-color: rgba(99,102,241,0.4); color: #818cf8; font-weight: 600;">
+            🧪 Coba Pin Demo
+          </button>
+          <button type="button" class="dock-btn-cancel" id="btn-unpin-spotlight-modal" style="flex:1; border-color: rgba(239,68,68,0.4); color: #ef4444; font-weight: 600;">
+            ✕ Lepas Pin Saat Ini
+          </button>
+        </div>
+
+        <!-- Cara Pin Help Note -->
+        <div style="font-size: 0.69rem; color: var(--text-muted); background: var(--bg-hover); padding: 6px 10px; border-radius: 6px; line-height: 1.4; margin-top: 2px;">
+          💡 <strong>Tips:</strong> Pada daftar chat di dock ini, cukup klik icon bintang (<strong>⭐</strong>) di samping kanan komentar untuk langsung menampilkan komentar tersebut ke layar OBS Anda!
+        </div>
+      </div>
+
+      <div class="dock-modal-footer">
+        <button type="button" class="dock-btn-save" id="btn-save-spotlight-modal">Tutup & Simpan</button>
       </div>
     </div>
   </div>

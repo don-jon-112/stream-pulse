@@ -76,6 +76,33 @@
   const dockWarningText = document.getElementById('dock-warning-text');
   const btnDismissAuthWarning = document.getElementById('btn-dismiss-auth-warning');
 
+  // Chat Spotlight Elements
+  const btnSpotlightModal = document.getElementById('btn-dock-spotlight-modal');
+  const spotlightModal = document.getElementById('dock-spotlight-modal');
+  const btnCloseSpotlightModal = document.getElementById('btn-close-spotlight-modal');
+  const btnSaveSpotlightModal = document.getElementById('btn-save-spotlight-modal');
+  const spotlightUrlInput = document.getElementById('spotlight-overlay-url-input');
+  const btnCopySpotlightUrl = document.getElementById('btn-copy-spotlight-url');
+
+  const spotlightSettingTheme = document.getElementById('spotlight-setting-theme');
+  const spotlightSettingDuration = document.getElementById('spotlight-setting-duration');
+  const spotlightSettingAnimation = document.getElementById('spotlight-setting-animation');
+  const spotlightSettingAvatar = document.getElementById('spotlight-setting-avatar');
+  const spotlightSettingPlatform = document.getElementById('spotlight-setting-platform');
+  const spotlightSettingSound = document.getElementById('spotlight-setting-sound');
+
+  const btnTestSpotlightDemo = document.getElementById('btn-test-spotlight-demo');
+  const btnUnpinSpotlightModal = document.getElementById('btn-unpin-spotlight-modal');
+
+  // Pinned Banner Elements
+  const pinnedBanner = document.getElementById('dock-pinned-banner');
+  const pinnedAuthorEl = document.getElementById('dock-pinned-author');
+  const pinnedTextEl = document.getElementById('dock-pinned-text');
+  const btnUnpinBanner = document.getElementById('btn-unpin-banner');
+
+  let currentSpotlightMessage = null;
+  const SPOTLIGHT_STORAGE_KEY = 'streampulse_spotlight_settings';
+
   // Filter chips
   const filterChips = document.querySelectorAll('.filter-chip');
 
@@ -841,6 +868,11 @@
       formattedText = parseMessageText(chat.text, chat.platform, chat.emotes);
     }
 
+    item.dataset.chatId = String(chat.id || '');
+    if (currentSpotlightMessage && String(currentSpotlightMessage.id) === String(chat.id)) {
+      item.classList.add('is-pinned');
+    }
+
     item.innerHTML = `
       ${avatarHtml}
       <div class="dock-chat-body">
@@ -849,10 +881,19 @@
           ${badgesHtml}
           <span class="dock-author-name" style="color: ${escapeHtml(authorColor)}">${escapeHtml(authorName)}</span>
           <span class="dock-time-label">${formatTime(chat.timestamp)}</span>
+          <button type="button" class="dock-pin-btn" title="Pin ke Layar OBS (Chat Spotlight)" aria-label="Pin Komentar">⭐</button>
         </div>
         <div class="dock-chat-text">${formattedText}</div>
       </div>
     `;
+
+    const pinBtn = item.querySelector('.dock-pin-btn');
+    if (pinBtn) {
+      pinBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pinChatToSpotlight(chat, item);
+      });
+    }
 
     // Filter display
     if (currentFilter === 'event') {
@@ -1216,6 +1257,247 @@
         }
       }
     });
+
+    // Chat Spotlight Events
+    socket.on('spotlight_active', (data) => {
+      if (data) updatePinnedBannerUI(data);
+    });
+
+    socket.on('spotlight_chat', (data) => {
+      updatePinnedBannerUI(data);
+    });
+
+    socket.on('spotlight_clear', () => {
+      clearPinnedBannerUI();
+    });
+  }
+
+  // ==========================================
+  // CHAT SPOTLIGHT / PIN KOMENTAR KE LAYAR OBS
+  // ==========================================
+  function getSpotlightSettings() {
+    const defaults = {
+      theme: 'frost',
+      duration: 12,
+      animation: 'bounce',
+      showAvatar: true,
+      showPlatform: true,
+      sound: true
+    };
+    try {
+      const saved = localStorage.getItem(SPOTLIGHT_STORAGE_KEY);
+      if (saved) return Object.assign({}, defaults, JSON.parse(saved));
+    } catch (e) {}
+    return defaults;
+  }
+
+  function saveSpotlightSettings(settings) {
+    try {
+      localStorage.setItem(SPOTLIGHT_STORAGE_KEY, JSON.stringify(settings));
+    } catch (e) {}
+  }
+
+  function loadSpotlightSettingsToUI() {
+    const s = getSpotlightSettings();
+    if (spotlightSettingTheme) spotlightSettingTheme.value = s.theme || 'frost';
+    if (spotlightSettingDuration) spotlightSettingDuration.value = s.duration !== undefined ? String(s.duration) : '12';
+    if (spotlightSettingAnimation) spotlightSettingAnimation.value = s.animation || 'bounce';
+    if (spotlightSettingAvatar) spotlightSettingAvatar.checked = s.showAvatar !== false;
+    if (spotlightSettingPlatform) spotlightSettingPlatform.checked = s.showPlatform !== false;
+    if (spotlightSettingSound) spotlightSettingSound.checked = s.sound !== false;
+
+    if (spotlightUrlInput) {
+      spotlightUrlInput.value = window.location.origin + '/spotlight-overlay';
+    }
+  }
+
+  function readSpotlightSettingsFromUI() {
+    return {
+      theme: spotlightSettingTheme ? spotlightSettingTheme.value : 'frost',
+      duration: spotlightSettingDuration ? parseInt(spotlightSettingDuration.value, 10) : 12,
+      animation: spotlightSettingAnimation ? spotlightSettingAnimation.value : 'bounce',
+      showAvatar: spotlightSettingAvatar ? spotlightSettingAvatar.checked : true,
+      showPlatform: spotlightSettingPlatform ? spotlightSettingPlatform.checked : true,
+      sound: spotlightSettingSound ? spotlightSettingSound.checked : true
+    };
+  }
+
+  function updatePinnedBannerUI(data) {
+    currentSpotlightMessage = data;
+    if (!pinnedBanner) return;
+
+    if (!data) {
+      pinnedBanner.style.display = 'none';
+      document.querySelectorAll('.dock-chat-item.is-pinned').forEach(el => el.classList.remove('is-pinned'));
+      return;
+    }
+
+    const author = data.author?.name || data.author || 'Viewer';
+    const text = data.text || '';
+    if (pinnedAuthorEl) pinnedAuthorEl.textContent = author;
+    if (pinnedTextEl) pinnedTextEl.textContent = text;
+    pinnedBanner.style.display = 'flex';
+
+    // Highlight chat item in dock if present
+    document.querySelectorAll('.dock-chat-item').forEach(el => {
+      if (data.id && el.dataset.chatId === String(data.id)) {
+        el.classList.add('is-pinned');
+      } else {
+        el.classList.remove('is-pinned');
+      }
+    });
+  }
+
+  function clearPinnedBannerUI() {
+    currentSpotlightMessage = null;
+    if (pinnedBanner) pinnedBanner.style.display = 'none';
+    document.querySelectorAll('.dock-chat-item.is-pinned').forEach(el => el.classList.remove('is-pinned'));
+  }
+
+  function pinChatToSpotlight(chat, chatElement) {
+    if (!chat) return;
+    const settings = getSpotlightSettings();
+    let formatted = '';
+    if (chat.platform === 'youtube' && Array.isArray(chat.messageParts) && chat.messageParts.length > 0) {
+      formatted = formatYouTubeMessage(chat);
+    } else {
+      formatted = parseMessageText(chat.text, chat.platform, chat.emotes);
+    }
+
+    const payload = {
+      id: chat.id || ('chat_' + Date.now()),
+      platform: chat.platform || 'general',
+      author: {
+        name: chat.author?.name || chat.author || 'Viewer',
+        username: chat.author?.username || '',
+        avatar: chat.author?.avatar || '',
+        color: chat.author?.color || '#38bdf8'
+      },
+      text: chat.text || '',
+      formattedText: formatted,
+      timestamp: chat.timestamp || Date.now(),
+      theme: settings.theme,
+      duration: parseInt(settings.duration, 10),
+      animation: settings.animation,
+      showAvatar: settings.showAvatar,
+      showPlatform: settings.showPlatform,
+      sound: settings.sound
+    };
+
+    if (socket && socket.connected) {
+      socket.emit('spotlight_chat', payload);
+    }
+    updatePinnedBannerUI(payload);
+  }
+
+  function unpinSpotlight() {
+    if (socket && socket.connected) {
+      socket.emit('spotlight_clear');
+    }
+    clearPinnedBannerUI();
+  }
+
+  function sendDemoSpotlight() {
+    const settings = readSpotlightSettingsFromUI();
+    saveSpotlightSettings(settings);
+
+    const demoPayload = {
+      id: 'demo_' + Date.now(),
+      platform: 'tiktok',
+      author: {
+        name: 'StreamPulse VIP Fan ⭐',
+        username: 'streampulse_fan',
+        avatar: '',
+        color: '#fe2c55'
+      },
+      text: 'Halo bang! Overlay spotlight ini mantap banget, pin komentar jadi gampang di OBS! 🔥✨',
+      formattedText: 'Halo bang! Overlay spotlight ini mantap banget, pin komentar jadi gampang di OBS! 🔥✨',
+      timestamp: Date.now(),
+      theme: settings.theme,
+      duration: settings.duration,
+      animation: settings.animation,
+      showAvatar: settings.showAvatar,
+      showPlatform: settings.showPlatform,
+      sound: settings.sound
+    };
+
+    if (socket && socket.connected) {
+      socket.emit('spotlight_chat', demoPayload);
+    }
+    updatePinnedBannerUI(demoPayload);
+  }
+
+  function initSpotlight() {
+    loadSpotlightSettingsToUI();
+
+    if (btnSpotlightModal && spotlightModal) {
+      btnSpotlightModal.addEventListener('click', () => {
+        loadSpotlightSettingsToUI();
+        spotlightModal.style.display = 'flex';
+      });
+    }
+
+    if (btnCloseSpotlightModal && spotlightModal) {
+      btnCloseSpotlightModal.addEventListener('click', () => {
+        spotlightModal.style.display = 'none';
+      });
+    }
+
+    if (btnSaveSpotlightModal && spotlightModal) {
+      btnSaveSpotlightModal.addEventListener('click', () => {
+        const s = readSpotlightSettingsFromUI();
+        saveSpotlightSettings(s);
+        spotlightModal.style.display = 'none';
+      });
+    }
+
+    if (spotlightModal) {
+      spotlightModal.addEventListener('click', (e) => {
+        if (e.target === spotlightModal) {
+          const s = readSpotlightSettingsFromUI();
+          saveSpotlightSettings(s);
+          spotlightModal.style.display = 'none';
+        }
+      });
+    }
+
+    [spotlightSettingTheme, spotlightSettingDuration, spotlightSettingAnimation, spotlightSettingAvatar, spotlightSettingPlatform, spotlightSettingSound].forEach(el => {
+      if (el) {
+        el.addEventListener('change', () => {
+          saveSpotlightSettings(readSpotlightSettingsFromUI());
+        });
+      }
+    });
+
+    if (btnCopySpotlightUrl && spotlightUrlInput) {
+      btnCopySpotlightUrl.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(spotlightUrlInput.value);
+          const orig = btnCopySpotlightUrl.textContent;
+          btnCopySpotlightUrl.textContent = 'Tersalin!';
+          btnCopySpotlightUrl.style.background = '#10b981';
+          setTimeout(() => {
+            btnCopySpotlightUrl.textContent = orig;
+            btnCopySpotlightUrl.style.background = '';
+          }, 2000);
+        } catch (err) {
+          spotlightUrlInput.select();
+          document.execCommand('copy');
+        }
+      });
+    }
+
+    if (btnTestSpotlightDemo) {
+      btnTestSpotlightDemo.addEventListener('click', sendDemoSpotlight);
+    }
+
+    if (btnUnpinSpotlightModal) {
+      btnUnpinSpotlightModal.addEventListener('click', unpinSpotlight);
+    }
+
+    if (btnUnpinBanner) {
+      btnUnpinBanner.addEventListener('click', unpinSpotlight);
+    }
   }
 
   // ==========================================
@@ -1225,6 +1507,7 @@
   restorePersistedHistory();
   loadGlobalEmotes();
   verifyTwitchAuthWithServer();
+  initSpotlight();
   initSocket();
 
 })();

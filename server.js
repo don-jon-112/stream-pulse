@@ -204,10 +204,37 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // Initialize Stream Manager
 const streamManager = new StreamManager(io);
 
+// State In-Memory Chat Spotlight (Pin Komentar ke Layar OBS)
+let currentSpotlight = null;
+
 // Socket.io Connection
 io.on('connection', (socket) => {
   // Kirim state awal saat client baru terhubung
   socket.emit('initial_state', streamManager.getClientInitialState(socket));
+  
+  // Kirim active spotlight jika ada komentar yang sedang dipin
+  if (currentSpotlight) {
+    socket.emit('spotlight_active', currentSpotlight);
+  }
+
+  // Spotlight Socket Events
+  socket.on('spotlight_chat', (data) => {
+    currentSpotlight = data;
+    io.emit('spotlight_chat', data);
+    console.log(`[Spotlight] Komentar dipin: "${data?.author?.name || 'User'}": "${(data?.text || '').substring(0, 35)}..."`);
+  });
+
+  socket.on('spotlight_clear', () => {
+    currentSpotlight = null;
+    io.emit('spotlight_clear');
+    console.log('[Spotlight] Komentar dilepas (unpinned)');
+  });
+
+  socket.on('get_spotlight', (callback) => {
+    if (typeof callback === 'function') {
+      callback(currentSpotlight);
+    }
+  });
 
   // Update channels yang dipantau oleh client ini
   const handleUpdateChannels = async (data, callback) => {
@@ -444,6 +471,11 @@ app.get(['/social-rotator-overlay', '/social-overlay', '/socials-overlay', '/soc
   res.sendFile(path.join(__dirname, 'public', 'social-rotator-overlay.html'));
 });
 
+// Chat Spotlight / Pin Komentar Suite
+app.get(['/spotlight-overlay', '/chat-spotlight', '/spotlight', '/pin-overlay'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'spotlight-overlay.html'));
+});
+
 // TikTok LIVE Suite & Widgets
 app.get(['/tiktok', '/tiktok-widgets', '/tiktok-studio', '/tiktok-tools'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tiktok-widgets.html'));
@@ -462,6 +494,22 @@ app.get(['/privacy', '/privacy-policy'], (req, res) => {
 });
 
 // REST Endpoints
+app.get('/api/spotlight', (req, res) => {
+  res.json({ success: true, spotlight: currentSpotlight });
+});
+
+app.post('/api/spotlight', express.json(), (req, res) => {
+  currentSpotlight = req.body;
+  io.emit('spotlight_chat', currentSpotlight);
+  res.json({ success: true, spotlight: currentSpotlight });
+});
+
+app.delete('/api/spotlight', (req, res) => {
+  currentSpotlight = null;
+  io.emit('spotlight_clear');
+  res.json({ success: true });
+});
+
 app.get('/api/status', (req, res) => {
   res.json(streamManager.getInitialState());
 });
