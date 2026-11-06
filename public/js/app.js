@@ -43,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btnThemeToggle');
     if (!btn) return;
     if (theme === 'dark') {
-      btn.innerHTML = '<span class="theme-icon">☀️</span> <span class="theme-text">Light</span>';
+      btn.innerHTML = '<span class="theme-icon">☀️</span>';
       btn.setAttribute('title', 'Beralih ke Mode Terang (Light Mode)');
     } else {
-      btn.innerHTML = '<span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>';
+      btn.innerHTML = '<span class="theme-icon">🌙</span>';
       btn.setAttribute('title', 'Beralih ke Mode Gelap (Dark Mode)');
     }
   }

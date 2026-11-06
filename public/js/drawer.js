@@ -208,9 +208,55 @@
       }
     });
 
+    // Drawer Logout Button in Footer
+    function initDrawerLogout() {
+      const footer = drawer ? drawer.querySelector('.drawer-footer') : null;
+      let btn = document.getElementById('drawerBtnLogout');
+      if (!btn && footer) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = 'drawerBtnLogout';
+        btn.className = 'btn-drawer-logout';
+        btn.title = 'Keluar dari akun';
+        btn.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span id="drawerLogoutLabel">Keluar Akun (Logout)</span>
+        `;
+        const footerInfo = footer.querySelector('.drawer-footer-info');
+        if (footerInfo) footer.insertBefore(btn, footerInfo);
+        else footer.appendChild(btn);
+      }
+
+      if (btn && !btn.dataset.bound) {
+        btn.dataset.bound = 'true';
+        btn.addEventListener('click', () => {
+          const hasToken = Boolean(localStorage.getItem('streampulse_user_token'));
+          const confirmMsg = hasToken
+            ? 'Apakah Anda yakin ingin keluar dari akun?'
+            : 'Keluar dan bersihkan sesi saluran yang tersimpan di browser ini?';
+          if (confirm(confirmMsg)) {
+            localStorage.removeItem('streampulse_user_token');
+            localStorage.removeItem('streampulse_user_channels');
+            localStorage.removeItem('streampulse_my_channels');
+            localStorage.removeItem('streampulse_guest_channels');
+            closeDrawer();
+            window.location.reload();
+          }
+        });
+      }
+    }
+
+    initDrawerLogout();
+
     // Synchronize User profile from localStorage or API
     async function syncUserProfile() {
       try {
+        initDrawerLogout();
+        const drawerLogoutLabel = document.getElementById('drawerLogoutLabel');
         const userToken = localStorage.getItem('streampulse_user_token');
         const rawChannels = localStorage.getItem('streampulse_user_channels') ||
                             localStorage.getItem('streampulse_my_channels') ||
@@ -226,6 +272,9 @@
               const u = await res.json();
               if (drawerUserHero) drawerUserHero.href = '/studio';
               if (drawerUserName) drawerUserName.textContent = u.username || 'Streamer Terdaftar';
+              if (drawerLogoutLabel && u.username) {
+                drawerLogoutLabel.textContent = `Keluar (${u.username})`;
+              }
               if (drawerUserRole) {
                 const chNames = [
                   u.channels?.twitch ? `@${u.channels.twitch}` : '',
@@ -245,6 +294,9 @@
         }
 
         // Guest / unauthenticated fallback
+        if (drawerLogoutLabel) {
+          drawerLogoutLabel.textContent = 'Keluar Akun (Logout)';
+        }
         const activeName = channels.twitch || channels.tiktok || channels.youtube;
         if (activeName) {
           if (drawerUserName) drawerUserName.textContent = activeName;

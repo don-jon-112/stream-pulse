@@ -787,6 +787,30 @@ body.dark-mode .brand-badge.badge-studio {
   background: var(--surface-soft);
 }
 
+.btn-drawer-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-drawer-logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
+}
+
 .drawer-footer-info {
   display: flex;
   flex-direction: column;
@@ -2992,17 +3016,22 @@ body.dark-mode {
 .btn-theme-toggle {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   background: var(--surface-soft);
   color: var(--ink);
   border: 1px solid var(--hairline);
-  padding: 5px 12px;
+  padding: 6px 10px;
   border-radius: var(--radius-full);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-fast);
   user-select: none;
+}
+
+.btn-theme-toggle .theme-text {
+  display: none !important;
 }
 
 .btn-theme-toggle:hover {

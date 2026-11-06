@@ -1501,6 +1501,22 @@
         </a>
       </div>
     </div>
+
+    <!-- Drawer Footer -->
+    <div class="drawer-footer">
+      <button type="button" id="drawerBtnLogout" class="btn-drawer-logout" title="Keluar dari akun">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span id="drawerLogoutLabel">Keluar Akun (Logout)</span>
+      </button>
+      <div class="drawer-footer-info">
+        <span class="drawer-footer-title">StreamPulse MultiChat PRO</span>
+        <span class="drawer-footer-sub">v1.0.0 • All Systems Active</span>
+      </div>
+    </div>
   </aside>
 
   <!-- Studio Layout -->
@@ -2999,23 +3015,8 @@
               <span style="font-size:0.8rem; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:4px 10px; border-radius:999px; color:#a5b4fc; font-weight:700;">
                 👤 ${currentUser.username} (${count}/5 ${window.t ? window.t('studio_slots_used_text') : 'Slot'})
               </span>
-              <button id="btnLogoutUser" class="btn-icon" style="font-size:0.75rem; padding:4px 10px; border-radius:999px; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); cursor:pointer;" title="Keluar dari akun">
-                ${window.t ? window.t('studio_logout_btn') : 'Logout'}
-              </button>
             </div>
           `;
-          const btnLogout = document.getElementById('btnLogoutUser');
-          if (btnLogout) {
-            btnLogout.addEventListener('click', () => {
-              userToken = '';
-              currentUser = null;
-              localStorage.removeItem('streampulse_user_token');
-              renderUserStatus();
-              renderSlotsList([]);
-              switchProfile('default');
-              spAlert(window.t ? window.t('toast_logged_out_guest') : 'Telah keluar dari akun. Mode Tamu aktif.', window.t ? window.t('dialog_info') : 'Info', 'info');
-            });
-          }
 
           // Unlocked UI for Logged-In User
           if (guestOverlayLockedCard) guestOverlayLockedCard.style.display = 'none';
@@ -5300,8 +5301,8 @@
         function updateThemeBtn() {
           const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
           btnThemeToggle.innerHTML = isDark
-            ? '<span class="theme-icon">☀️</span> <span class="theme-text">Light</span>'
-            : '<span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>';
+            ? '<span class="theme-icon">☀️</span>'
+            : '<span class="theme-icon">🌙</span>';
         }
         btnThemeToggle.addEventListener('click', () => {
           const isDark = document.documentElement.getAttribute('data-theme') === 'dark';

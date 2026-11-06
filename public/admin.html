@@ -672,6 +672,14 @@
 
     <!-- Drawer Footer -->
     <div class="drawer-footer">
+      <button type="button" id="drawerBtnLogout" class="btn-drawer-logout" title="Keluar dari akun">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span id="drawerLogoutLabel">Keluar Akun (Logout)</span>
+      </button>
       <div class="drawer-footer-info">
         <span class="drawer-footer-title">StreamPulse MultiChat PRO</span>
         <span class="drawer-footer-sub">v1.0.0 • All Systems Active</span>
@@ -705,7 +713,6 @@
         <!-- Dark / Light Mode Toggle Button -->
         <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
           <span class="theme-icon">☀️</span>
-          <span class="theme-text">Light</span>
         </button>
 
       <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
@@ -1640,8 +1647,8 @@
       function updateBtn(theme) {
         if (!btn) return;
         btn.innerHTML = theme === 'dark'
-          ? '<span class="theme-icon">☀️</span> <span class="theme-text">Light</span>'
-          : '<span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>';
+          ? '<span class="theme-icon">☀️</span>'
+          : '<span class="theme-icon">🌙</span>';
       }
       if (btn) {
         btn.addEventListener('click', () => {
