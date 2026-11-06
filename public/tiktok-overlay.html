@@ -995,6 +995,13 @@
       else if (pathname.includes('alert')) activeWidget = 'alerts';
       else if (pathname.includes('goal')) activeWidget = 'goals';
 
+      // Support direct goal-* widget keys (e.g. goal-like, goal-follower, goal-viewer, goal-gift)
+      let goalTypeParam = urlParams.get('goal_type');
+      if (activeWidget.startsWith('goal-')) {
+        goalTypeParam = activeWidget.replace('goal-', '');
+        activeWidget = 'goals';
+      }
+
       const config = {
         widget: activeWidget,
         channel: urlParams.get('channel') || '',
@@ -1007,7 +1014,7 @@
         volume: parseInt(urlParams.get('volume') || '75', 10) / 100,
         layout: urlParams.get('layout') || 'podium', // 'podium' or 'list'
         // Goals Configuration
-        goalType: urlParams.get('goal_type') || 'like', // 'like', 'follower', 'viewer', 'gift'
+        goalType: goalTypeParam || urlParams.get('goal_type') || 'like', // 'like', 'follower', 'viewer', 'gift'
         goalTheme: urlParams.get('theme') || 'neon',
         goalTitle: urlParams.get('title') || '',
         goalTarget: parseInt(urlParams.get('target') || '1000', 10),
