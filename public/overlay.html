@@ -2842,15 +2842,19 @@
       function addOverlayEvent(evt) {
         if (!evt) return;
 
-        // Filter event TikTok berdasarkan pengaturan checkbox
-        if (evt.platform === 'tiktok') {
+        const isSimEvt = Boolean(evt.isSim || (evt.id && String(evt.id).startsWith('sim_')));
+
+        // Filter event TikTok berdasarkan pengaturan checkbox (simulasi preview tetap ditampilkan agar streamer dapat menguji tampilan)
+        if (evt.platform === 'tiktok' && !isSimEvt) {
           if (evt.eventType === 'like' && config.showTikTokLikes === false) return;
           if (evt.eventType === 'gift' && config.showTikTokGifts === false) return;
           if (evt.eventType === 'follow' && config.showTikTokFollow === false) return;
         }
 
         const isTwitchRedeem = (evt.platform === 'twitch') && evt.eventType === 'redeem';
-        if (!config.showAlerts && !isTwitchRedeem) return;
+        const isTikTokEvent = (evt.platform === 'tiktok');
+        // Jangan blokir event jika simulasi preview, atau jika event TikTok/Redeem yang telah diizinkan
+        if (!config.showAlerts && !isSimEvt && !isTwitchRedeem && !isTikTokEvent) return;
 
         const evtKey = evt.id || `${evt.platform || ''}_${evt.eventType || ''}_${evt.author || ''}_${evt.detail || ''}_${evt.message || ''}`;
         if (processedOverlayEventIds.has(evtKey)) return;

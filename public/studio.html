@@ -4688,379 +4688,270 @@
       startPreviewSimulationLoop();
 
 
-      btnTestChat.addEventListener('click', () => {
-        const iframeDoc = previewIframe.contentWindow;
-        if (iframeDoc && iframeDoc.document) {
+      // Helper function to dispatch simulated test chat and events to preview iframe via CustomEvent & postMessage
+      function sendSimToOverlay(type, data) {
+        if (!previewIframe || !previewIframe.contentWindow) return;
+        try {
+          const event = new CustomEvent('socket_sim', {
+            detail: { type, data }
+          });
+          previewIframe.contentWindow.dispatchEvent(event);
+        } catch (_) {}
+        try {
+          previewIframe.contentWindow.postMessage({
+            type: 'socket_sim',
+            subType: type,
+            data: data
+          }, '*');
+        } catch (_) {}
+      }
+
+      if (btnTestChat) {
+        btnTestChat.addEventListener('click', () => {
           const sample = testChatUsers[testChatIdx % testChatUsers.length];
           testChatIdx++;
-          const event = new CustomEvent('socket_sim', {
-            detail: {
-              type: 'chat',
-              data: {
-                id: 'sim_chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                isSim: true,
-                platform: sample.platform || 'twitch',
-                author: {
-                  name: sample.name,
-                  avatar: sample.avatar || '',
-                  color: sample.color || '',
-                  badges: sample.badges || {},
-                  isMod: !!sample.isMod,
-                  isSub: !!sample.isSub,
-                  isOwner: !!sample.isOwner,
-                  isBroadcaster: !!sample.isBroadcaster,
-                  memberBadge: sample.memberBadge || ''
-                },
-                text: sample.text,
-                timestamp: Date.now()
-              }
-            }
+          sendSimToOverlay('chat', {
+            id: 'sim_chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            isSim: true,
+            platform: sample.platform || 'twitch',
+            author: {
+              name: sample.name,
+              avatar: sample.avatar || '',
+              color: sample.color || '',
+              badges: sample.badges || {},
+              isMod: !!sample.isMod,
+              isSub: !!sample.isSub,
+              isOwner: !!sample.isOwner,
+              isBroadcaster: !!sample.isBroadcaster,
+              memberBadge: sample.memberBadge || ''
+            },
+            text: sample.text,
+            timestamp: Date.now()
           });
-          iframeDoc.dispatchEvent(event);
-        }
-      });
+        });
+      }
 
-      btnTestLinkChat.addEventListener('click', () => {
-        const iframeDoc = previewIframe.contentWindow;
-        if (iframeDoc && iframeDoc.document) {
-          const event = new CustomEvent('socket_sim', {
-            detail: {
-              type: 'chat',
-              data: {
-                id: 'sim_link_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                isSim: true,
-                platform: 'twitch',
-                author: {
-                  name: 'Chatter123',
-                  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
-                  color: '#38bdf8'
-                },
-                text: 'Cek gameplay mantap ini https://youtube.com/watch?v=123 dan https://discord.gg/xyz gan!',
-                timestamp: Date.now()
-              }
-            }
+      if (btnTestLinkChat) {
+        btnTestLinkChat.addEventListener('click', () => {
+          sendSimToOverlay('chat', {
+            id: 'sim_link_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            isSim: true,
+            platform: 'twitch',
+            author: {
+              name: 'Chatter123',
+              avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
+              color: '#38bdf8'
+            },
+            text: 'Cek gameplay mantap ini https://youtube.com/watch?v=123 dan https://discord.gg/xyz gan!',
+            timestamp: Date.now()
           });
-          iframeDoc.dispatchEvent(event);
-        }
-      });
+        });
+      }
 
-      btnTestTwitchVip.addEventListener('click', () => {
-        const iframeDoc = previewIframe.contentWindow;
-        if (iframeDoc && iframeDoc.document) {
-          const event = new CustomEvent('socket_sim', {
-            detail: {
-              type: 'chat',
-              data: {
-                id: 'sim_vip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                isSim: true,
-                platform: 'twitch',
-                author: {
-                  name: 'ProGamerVIP',
-                  avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&h=100&fit=crop&crop=face',
-                  color: '#00f2fe',
-                  badges: { vip: '1', moderator: '1' }
-                },
-                text: 'Halo halo! Suaranya jernih banget bang!',
-                timestamp: Date.now()
-              }
-            }
+      if (btnTestTwitchVip) {
+        btnTestTwitchVip.addEventListener('click', () => {
+          sendSimToOverlay('chat', {
+            id: 'sim_vip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            isSim: true,
+            platform: 'twitch',
+            author: {
+              name: 'ProGamerVIP',
+              avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&h=100&fit=crop&crop=face',
+              color: '#00f2fe',
+              badges: { vip: '1', moderator: '1' }
+            },
+            text: 'Halo halo! Suaranya jernih banget bang!',
+            timestamp: Date.now()
           });
-          iframeDoc.dispatchEvent(event);
-        }
-      });
+        });
+      }
 
       if (btnTestTwitchFollow) {
         btnTestTwitchFollow.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_follow_twitch_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'twitch',
-                  eventType: 'follow',
-                  title: 'Twitch Follower Baru!',
-                  author: 'TwitchFan_ID',
-                  detail: 'Baru saja mengikuti stream! 💜',
-                  badge: '💜 FOLLOW'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_follow_twitch_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'twitch',
+            eventType: 'follow',
+            title: 'Twitch Follower Baru!',
+            author: 'TwitchFan_ID',
+            detail: 'Baru saja mengikuti stream! 💜',
+            badge: '💜 FOLLOW'
+          });
         });
       }
 
       if (btnTestRedeemHighlight) {
         btnTestRedeemHighlight.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'chat',
-                data: {
-                  id: `sim_highlight_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'twitch',
-                  isRedeem: true,
-                  isHighlight: true,
-                  redeemDetail: 'Highlight My Message',
-                  author: {
-                    name: 'VipChatter',
-                    color: '#a855f7',
-                    badges: { vip: '1' }
-                  },
-                  text: 'Pesan ini di-highlight dengan Twitch Channel Points! 🔥',
-                  timestamp: Date.now()
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('chat', {
+            id: `sim_highlight_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'twitch',
+            isRedeem: true,
+            isHighlight: true,
+            redeemDetail: 'Highlight My Message',
+            author: {
+              name: 'VipChatter',
+              color: '#a855f7',
+              badges: { vip: '1' }
+            },
+            text: 'Pesan ini di-highlight dengan Twitch Channel Points! 🔥',
+            timestamp: Date.now()
+          });
         });
       }
 
-      btnTestAlert.addEventListener('click', () => {
-        const iframeDoc = previewIframe.contentWindow;
-        if (iframeDoc && iframeDoc.document) {
-          const event = new CustomEvent('socket_sim', {
-            detail: {
-              type: 'event',
-              data: {
-                id: 'sim_sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                isSim: true,
-                platform: 'twitch',
-                eventType: 'subscription',
-                title: 'Twitch New Subscriber!',
-                author: 'SultanGamer',
-                detail: 'Berlangganan Tier 1 Sub! ⭐',
-                message: 'Semangat terus streamingnya bang!'
-              }
-            }
+      if (btnTestAlert) {
+        btnTestAlert.addEventListener('click', () => {
+          sendSimToOverlay('event', {
+            id: 'sim_sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            isSim: true,
+            platform: 'twitch',
+            eventType: 'subscription',
+            title: 'Twitch New Subscriber!',
+            author: 'SultanGamer',
+            detail: 'Berlangganan Tier 1 Sub! ⭐',
+            message: 'Semangat terus streamingnya bang!'
           });
-          iframeDoc.dispatchEvent(event);
-        }
-      });
+        });
+      }
 
       if (btnTestCheer) {
         btnTestCheer.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_cheer_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'twitch',
-                  eventType: 'cheer',
-                  title: 'Twitch Bits Cheer!',
-                  author: 'Budi_Gamer',
-                  detail: '300 Bits 💎',
-                  message: 'cheer300 GG WP streamer mantap!',
-                  badge: '💎 BITS'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_cheer_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'twitch',
+            eventType: 'cheer',
+            title: 'Twitch Bits Cheer!',
+            author: 'Budi_Gamer',
+            detail: '300 Bits 💎',
+            message: 'cheer300 GG WP streamer mantap!',
+            badge: '💎 BITS'
+          });
         });
       }
 
       if (btnTestRaid) {
         btnTestRaid.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_raid_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'twitch',
-                  eventType: 'raid',
-                  title: 'Twitch Incoming Raid!',
-                  author: 'RivalStreamer',
-                  detail: 'Raid bersama 150 penonton! 🔥',
-                  badge: '🚀 RAID'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_raid_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'twitch',
+            eventType: 'raid',
+            title: 'Twitch Incoming Raid!',
+            author: 'RivalStreamer',
+            detail: 'Raid bersama 150 penonton! 🔥',
+            badge: '🚀 RAID'
+          });
         });
       }
 
       if (btnTestSuperchat) {
         btnTestSuperchat.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_superchat_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'youtube',
-                  eventType: 'superchat',
-                  title: 'YouTube Super Chat!',
-                  author: 'IndoGamer99',
-                  detail: 'Rp 50.000',
-                  message: 'Terus semangat live-nya bang, kontennya seru!',
-                  color: '#e65100',
-                  badge: '💰 Rp 50.000'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_superchat_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'youtube',
+            eventType: 'superchat',
+            title: 'YouTube Super Chat!',
+            author: 'IndoGamer99',
+            detail: 'Rp 50.000',
+            message: 'Terus semangat live-nya bang, kontennya seru!',
+            color: '#e65100',
+            badge: '💰 Rp 50.000'
+          });
         });
       }
 
       if (btnTestYtMember) {
         btnTestYtMember.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_member_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'youtube',
-                  eventType: 'member',
-                  title: 'YouTube Member Milestone / Join!',
-                  author: 'CaptainPro',
-                  detail: 'Member for 6 months! ⭐',
-                  badge: '⭐ MEMBER'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_member_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'youtube',
+            eventType: 'member',
+            title: 'YouTube Member Milestone / Join!',
+            author: 'CaptainPro',
+            detail: 'Member for 6 months! ⭐',
+            badge: '⭐ MEMBER'
+          });
         });
       }
 
       if (btnTestTikTokGift) {
         btnTestTikTokGift.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_gift_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'tiktok',
-                  eventType: 'gift',
-                  title: 'TikTok Gift!',
-                  author: 'Siti_Cantik',
-                  detail: 'Rose x10',
-                  badge: '🎁 Rose x10',
-                  diamonds: 10
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_gift_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'tiktok',
+            eventType: 'gift',
+            title: 'TikTok Gift!',
+            author: 'Siti_Cantik',
+            detail: 'Rose x10',
+            badge: '🎁 Rose x10',
+            diamonds: 10
+          });
         });
       }
 
       if (btnTestTikTokLikes) {
         btnTestTikTokLikes.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_likes_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'tiktok',
-                  eventType: 'like',
-                  title: 'TikTok Likes!',
-                  author: 'Rian_TikToker',
-                  detail: 'Mengirim 50 likes! ❤️',
-                  badge: '❤️ +50'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_likes_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'tiktok',
+            eventType: 'like',
+            title: 'TikTok Likes!',
+            author: 'Rian_TikToker',
+            detail: 'Mengirim 50 likes! ❤️',
+            badge: '❤️ +50'
+          });
         });
       }
 
       if (btnTestTikTokFollow) {
         btnTestTikTokFollow.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_follow_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'tiktok',
-                  eventType: 'follow',
-                  title: 'TikTok Follow!',
-                  author: 'Siti_Nurhaliza',
-                  detail: 'Mulai mengikuti streamer! 🌟',
-                  badge: '➕ Follow'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_follow_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'tiktok',
+            eventType: 'follow',
+            title: 'TikTok Follow!',
+            author: 'Siti_Nurhaliza',
+            detail: 'Mulai mengikuti streamer! 🌟',
+            badge: '➕ Follow'
+          });
         });
       }
 
       if (btnTestRedeem) {
         btnTestRedeem.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_redeem_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'twitch',
-                  eventType: 'redeem',
-                  title: 'Twitch Channel Points Redeem!',
-                  author: 'Joo_Nathan_Botz',
-                  detail: 'Hydrate / Minum Air (500 Points)',
-                  message: 'Jangan lupa minum air bang!'
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_redeem_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'twitch',
+            eventType: 'redeem',
+            title: 'Twitch Channel Points Redeem!',
+            author: 'Joo_Nathan_Botz',
+            detail: 'Hydrate / Minum Air (500 Points)',
+            message: 'Jangan lupa minum air bang!'
+          });
         });
       }
 
       if (btnTestRedeemNoText) {
         btnTestRedeemNoText.addEventListener('click', () => {
-          const iframeDoc = previewIframe.contentWindow;
-          if (iframeDoc && iframeDoc.document) {
-            const event = new CustomEvent('socket_sim', {
-              detail: {
-                type: 'event',
-                data: {
-                  id: `sim_redeem_notext_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-                  isSim: true,
-                  platform: 'twitch',
-                  eventType: 'redeem',
-                  title: 'Twitch Channel Points Redeem!',
-                  author: 'Joo_Nathan_Botz',
-                  detail: 'Hydrate / Minum Air (500 Points)',
-                  message: ''
-                }
-              }
-            });
-            iframeDoc.dispatchEvent(event);
-          }
+          sendSimToOverlay('event', {
+            id: `sim_redeem_notext_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+            isSim: true,
+            platform: 'twitch',
+            eventType: 'redeem',
+            title: 'Twitch Channel Points Redeem!',
+            author: 'Joo_Nathan_Botz',
+            detail: 'Hydrate / Minum Air (500 Points)',
+            message: ''
+          });
         });
       }
 
