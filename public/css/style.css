@@ -6,32 +6,32 @@
    ========================================================================== */
 :root {
   /* Brand & Accent */
-  --primary: #000000;
+  --primary: #0f172a;
   --on-primary: #ffffff;
-  --ink: #000000;
-  --ink-deep: #090909;
-  --charcoal: #525252;
-  --body: #737373;
-  --mute: #a3a3a3;
+  --ink: #0f172a;
+  --ink-deep: #020617;
+  --charcoal: #334155;
+  --body: #475569;
+  --mute: #64748b;
 
-  /* Surfaces & Canvas */
-  --bg-canvas: #ffffff;
+  /* Surfaces & Canvas (Crisp Soft Canvas + Pure White Elevated Cards) */
+  --bg-canvas: #f1f5f9;
   --bg-panel: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #fafafa;
+  --bg-card-hover: #f8fafc;
   --bg-elevated: #ffffff;
   --bg-input: #ffffff;
-  --surface-soft: #fafafa;
+  --surface-soft: #f8fafc;
   --surface-card: #ffffff;
-  --surface-dark: #171717;
+  --surface-dark: #0f172a;
   --on-dark: #ffffff;
-  --on-dark-mute: rgba(255, 255, 255, 0.7);
+  --on-dark-mute: rgba(255, 255, 255, 0.75);
 
-  /* Hairlines & Borders */
-  --hairline: #e5e5e5;
-  --hairline-strong: #d4d4d4;
-  --border-subtle: #e5e5e5;
-  --border-glass: #e5e5e5;
+  /* Hairlines & Borders - Clear, crisp contrast */
+  --hairline: #e2e8f0;
+  --hairline-strong: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --border-glass: rgba(0, 0, 0, 0.08);
   --border-glow: transparent;
 
   /* Typography */
@@ -39,16 +39,16 @@
   --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'JetBrains Mono', monospace;
 
-  --text-primary: #000000;
-  --text-secondary: #737373;
-  --text-tertiary: #a3a3a3;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
   --text-inverse: #ffffff;
 
   /* Brand / Action Pill */
-  --accent-primary: #000000;
-  --accent-primary-hover: #171717;
+  --accent-primary: #0f172a;
+  --accent-primary-hover: #1e293b;
   --accent-glow: transparent;
-  --primary-gradient: #000000;
+  --primary-gradient: #0f172a;
 
   /* Platform Tints (Refined, minimal borders) */
   --twitch: #9146ff;
@@ -838,27 +838,28 @@ body.dark-mode .brand-badge.badge-studio {
 }
 
 .btn-icon {
-  background: var(--bg-canvas);
-  border: 1px solid var(--hairline);
-  color: var(--ink);
-  padding: 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--hairline-strong);
+  color: var(--charcoal);
+  padding: 6px 14px;
   border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
   font-family: var(--font-body);
   height: 36px;
   min-height: 36px;
   transition: all var(--transition-fast);
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .btn-icon:hover {
   background: var(--surface-soft);
-  border-color: var(--hairline-strong);
+  color: var(--ink);
+  border-color: var(--charcoal);
   transform: none;
 }
 
@@ -866,6 +867,7 @@ body.dark-mode .brand-badge.badge-studio {
   background: var(--surface-soft);
   border-color: var(--primary);
   color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* Universal Black Pill Primary CTA */
@@ -953,15 +955,28 @@ body.dark-mode .brand-badge.badge-studio {
       padding-top: 6px;
       margin-top: 2px;
       border-top: 1px solid var(--hairline);
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-      flex-wrap: nowrap;
+      overflow-x: visible;
+      flex-wrap: wrap;
       gap: 6px;
     }
 
-    .header-center::-webkit-scrollbar {
-      display: none;
+    .header-center .platform-chips {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .header-center .platform-chip {
+      padding: 3px 8px;
+      font-size: 0.68rem;
+      min-height: 28px;
+    }
+
+    .header-center .btn-wizard-pill,
+    .header-center .btn-quick-setup {
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      min-height: 28px;
     }
 
     .header-left {
@@ -974,6 +989,8 @@ body.dark-mode .brand-badge.badge-studio {
       flex-shrink: 1;
       min-width: 0;
       gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     @media (max-width: 480px) {
@@ -991,13 +1008,19 @@ body.dark-mode .brand-badge.badge-studio {
       .btn-theme-toggle {
         padding: 3px 6px;
         font-size: 0.7rem;
+        min-height: 28px;
       }
       .btn-lang-toggle {
         padding: 3px 5px;
+        min-height: 28px;
       }
       #headerUserWidget {
         padding: 4px 8px !important;
         font-size: 0.7rem !important;
+        min-height: 28px !important;
+      }
+      .btn-label-responsive {
+        display: none !important;
       }
     }
   }
@@ -1085,92 +1108,96 @@ body.dark-mode .brand-badge.badge-studio {
 
 @media (max-width: 768px) {
   .chat-toolbar {
-    padding: 8px 10px;
+    padding: 10px;
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
 
+  .toolbar-filters,
   .toolbar-left {
     display: flex;
     align-items: center;
     gap: 6px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
     width: 100%;
     max-width: 100%;
-    padding-bottom: 2px;
-    flex-wrap: nowrap;
-  }
-
-  .toolbar-left::-webkit-scrollbar {
-    display: none;
+    overflow-x: visible;
   }
 
   .filter-btn {
     padding: 4px 10px;
     font-size: 0.72rem;
-    min-height: 28px;
+    min-height: 30px;
     flex-shrink: 0;
   }
 
+  .toolbar-actions,
   .toolbar-right {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    flex-direction: column;
+    gap: 8px;
     width: 100%;
     max-width: 100%;
-    padding-bottom: 2px;
-    flex-wrap: nowrap;
-  }
-
-  .toolbar-right::-webkit-scrollbar {
-    display: none;
-  }
-
-  .toolbar-right .btn-icon,
-  .toolbar-right .density-toggle,
-  .toolbar-right .limit-selector,
-  .toolbar-right .search-box {
-    flex-shrink: 0;
-  }
-
-  #btnOrderToggle {
-    padding: 4px 8px !important;
-    font-size: 0.7rem !important;
-    min-height: 30px !important;
-  }
-
-  #btnToggleAvatars {
-    padding: 4px 8px !important;
-    font-size: 0.7rem !important;
-    min-height: 30px !important;
-  }
-
-  .limit-selector {
-    padding: 2px 6px;
-    min-height: 30px;
+    overflow-x: visible;
   }
 
   .search-box {
-    min-width: 120px;
-    max-width: 180px;
-    height: 30px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 34px;
   }
 
   .search-box input {
-    font-size: 0.72rem;
-    padding: 4px 8px 4px 26px;
+    font-size: 0.78rem;
+    padding: 6px 12px 6px 30px;
   }
 
   .search-box svg {
     left: 8px;
     width: 13px;
     height: 13px;
+  }
+
+  .toolbar-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+    overflow-x: visible;
+  }
+
+  .toolbar-tools .btn-icon {
+    padding: 4px 8px !important;
+    font-size: 0.7rem !important;
+    min-height: 32px !important;
+  }
+
+  .limit-selector {
+    padding: 2px 6px;
+    min-height: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .btn-label-responsive {
+    display: none !important;
+  }
+
+  .toolbar-tools {
+    justify-content: space-between;
+  }
+
+  .toolbar-tools .btn-icon {
+    min-width: 34px;
+    justify-content: center;
+  }
+
+  .limit-selector .limit-label {
+    display: none;
   }
 }
 
@@ -1220,51 +1247,58 @@ body.hide-avatars .chat-item {
   gap: 10px;
 }
 
+.toolbar-filters,
 .toolbar-left {
   display: flex;
   align-items: center;
   gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  max-width: 100%;
-}
-
-.toolbar-left::-webkit-scrollbar {
-  display: none;
+  flex-wrap: wrap;
 }
 
 .filter-btn {
-  background: var(--bg-canvas);
-  border: 1px solid var(--hairline);
-  color: var(--body);
+  background: var(--bg-card);
+  border: 1px solid var(--hairline-strong);
+  color: var(--charcoal);
   padding: 6px 14px;
   border-radius: var(--radius-full);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
   min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .filter-btn:hover {
   background: var(--surface-soft);
   color: var(--ink);
-  border-color: var(--hairline-strong);
+  border-color: var(--charcoal);
 }
 
 .filter-btn.active {
   background: var(--primary);
   border-color: var(--primary);
   color: var(--on-primary);
-  box-shadow: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
+.toolbar-actions,
 .toolbar-right {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 /* Search Box (Ollama Search Pill) */
@@ -2962,37 +2996,37 @@ body.dark-mode {
 
   /* Brand & Accent */
   --primary: #ffffff;
-  --on-primary: #000000;
+  --on-primary: #09090b;
   --ink: #f8fafc;
   --ink-deep: #ffffff;
-  --charcoal: #cbd5e1;
-  --body: #94a3b8;
-  --mute: #64748b;
+  --charcoal: #e2e8f0;
+  --body: #cbd5e1;
+  --mute: #94a3b8;
 
-  /* Surfaces & Canvas (OLED & Charcoal Slate) */
+  /* Surfaces & Canvas (True OLED Black Canvas + Well-delineated Elevated Panels) */
   --bg-canvas: #09090b;
-  --bg-panel: #111115;
-  --bg-card: #18181b;
-  --bg-card-hover: #202025;
-  --bg-elevated: #1e1e24;
-  --bg-input: #121216;
-  --surface-soft: #18181b;
-  --surface-card: #141417;
+  --bg-panel: #13141a;
+  --bg-card: #181a23;
+  --bg-card-hover: #222532;
+  --bg-elevated: #1e212c;
+  --bg-input: #111217;
+  --surface-soft: #1b1e28;
+  --surface-card: #15171f;
   --surface-dark: #000000;
   --on-dark: #ffffff;
-  --on-dark-mute: rgba(255, 255, 255, 0.7);
+  --on-dark-mute: rgba(255, 255, 255, 0.75);
 
-  /* Hairlines & Borders */
-  --hairline: #27272a;
-  --hairline-strong: #3f3f46;
-  --border-subtle: #27272a;
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(255, 255, 255, 0.04);
+  /* Hairlines & Borders - Crisp visible separation */
+  --hairline: #2e3344;
+  --hairline-strong: #444b62;
+  --border-subtle: #2e3344;
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-glow: rgba(255, 255, 255, 0.06);
 
   /* Typography */
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-tertiary: #64748b;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
   --text-inverse: #09090b;
 
   /* Brand / Action Pill */
@@ -3002,14 +3036,14 @@ body.dark-mode {
   --primary-gradient: #ffffff;
 
   /* Platform Tints in Dark Mode */
-  --twitch-glass: #171226;
-  --twitch-border: #3b2866;
+  --twitch-glass: #1a142e;
+  --twitch-border: #4a3480;
 
-  --youtube-glass: #241113;
-  --youtube-border: #5c1d22;
+  --youtube-glass: #291215;
+  --youtube-border: #6d2229;
 
-  --tiktok-glass: #0e151e;
-  --tiktok-border: #1e293b;
+  --tiktok-glass: #0e1724;
+  --tiktok-border: #22324b;
 }
 
 /* Theme Toggle Button Style */
@@ -3052,8 +3086,8 @@ body.dark-mode {
 }
 
 :root[data-theme="dark"] .mobile-nav {
-  background: #111115 !important;
-  border-top-color: #27272a !important;
+  background: #13141a !important;
+  border-top-color: #2e3344 !important;
 }
 
 :root[data-theme="dark"] .mob-nav-item {
@@ -3061,7 +3095,88 @@ body.dark-mode {
 }
 
 :root[data-theme="dark"] .mob-nav-item.active {
+  color: #38bdf8 !important;
+}
+
+:root[data-theme="dark"] .btn-icon,
+:root[data-theme="dark"] .filter-btn {
+  background: #1c1f2b !important;
+  border-color: #353b4e !important;
+  color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root[data-theme="dark"] .btn-icon:hover,
+:root[data-theme="dark"] .filter-btn:hover {
+  background: #252a3a !important;
+  border-color: #4c546f !important;
   color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .filter-btn.active {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #09090b !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2) !important;
+}
+
+:root[data-theme="dark"] .filter-btn[data-filter="twitch"].active {
+  background: #9146ff !important;
+  border-color: #9146ff !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .filter-btn[data-filter="youtube"].active {
+  background: #ff0033 !important;
+  border-color: #ff0033 !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .filter-btn[data-filter="tiktok"].active {
+  background: linear-gradient(135deg, #00f2fe, #fe2c55) !important;
+  border-color: transparent !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+:root[data-theme="dark"] .filter-btn[data-filter="events"].active {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #000000 !important;
+}
+
+:root[data-theme="dark"] .btn-icon.active {
+  background: rgba(99, 102, 241, 0.25) !important;
+  border-color: #818cf8 !important;
+  color: #c7d2fe !important;
+}
+
+:root[data-theme="dark"] .density-toggle,
+:root[data-theme="dark"] .limit-selector select,
+:root[data-theme="dark"] .search-box input {
+  background: #14161f !important;
+  border-color: #33384a !important;
+  color: #f8fafc !important;
+}
+
+:root[data-theme="dark"] .density-btn {
+  color: #94a3b8 !important;
+}
+
+:root[data-theme="dark"] .density-btn.active {
+  background: #232736 !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .platform-chip {
+  background: #181a23 !important;
+  border-color: #33384a !important;
+  color: #f8fafc !important;
+}
+
+:root[data-theme="dark"] .platform-chip:hover {
+  background: #222532 !important;
+  border-color: #4c546f !important;
 }
 
 :root[data-theme="dark"] .input-with-icon input {
