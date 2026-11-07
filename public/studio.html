@@ -1621,7 +1621,7 @@
         </button>
       </div>
 
-      <!-- 0. GENERATE & MANAGE OVERLAY (MAX 3 SLOTS PER USER - LOGGED IN ONLY) -->
+      <!-- 0. GENERATE & MANAGE OVERLAY (MAX 5 SLOTS PER USER - LOGGED IN ONLY) -->
       <div id="overlayManagerCard" class="overlay-manager-card">
         
         <!-- Slot Management (Quota Limited 5 Slots) -->
@@ -3048,7 +3048,7 @@
           obsFinalUrl.value = window.t ? window.t('studio_guest_obs_url') : '🔒 Khusus Pengguna Login - Silakan Login / Daftar untuk Mendapatkan & Menyalin URL OBS';
           obsUrlStatusBadge.textContent = window.t ? window.t('studio_obs_login_req') : '🔒 Memerlukan Login';
           obsUrlStatusBadge.style.color = '#f87171';
-          obsUrlHelpText.innerHTML = window.t ? window.t('studio_guest_help_text') : '🔒 <em>Tombol Simpan, Salin URL, dan Kuota 3 Slot OBS hanya tersedia untuk streamer yang telah login. Silakan daftar/login untuk menggunakan fitur ini.</em>';
+          obsUrlHelpText.innerHTML = window.t ? window.t('studio_guest_help_text') : '🔒 <em>Tombol Simpan, Salin URL, dan Kuota 5 Slot OBS hanya tersedia untuk streamer yang telah login. Silakan daftar/login untuk menggunakan fitur ini.</em>';
 
           activeOverlayIdBadge.textContent = window.t ? window.t('studio_guest_badge') : 'preview (guest)';
           renderSlotsList([]);

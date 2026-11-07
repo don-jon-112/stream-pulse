@@ -301,7 +301,7 @@ export function createAuthRouter(streamManager) {
         hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
         hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
       },
-      maxLimit: 3
+      maxLimit: 5
     });
   });
 
