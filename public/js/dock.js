@@ -566,6 +566,9 @@
       }
       localStorage.setItem(STORAGE_KEY_HISTORY_SIG, newSig);
       updateChannelUI();
+      // Sinkronkan selalu ke socket dan verifikasi sesi pada setiap branch inisialisasi
+      syncChannelsWithSocket();
+      verifyTwitchAuthWithServer();
     };
 
     // 1. Prioritas Utama: Konfigurasi Akun dari Server jika parameter token / user ada di URL atau tersimpan di local storage
@@ -601,8 +604,6 @@
             }
 
             finishInit();
-            syncChannelsWithSocket();
-            verifyTwitchAuthWithServer();
             showFeedback(`✓ Terhubung ke akun @${cfg.username}`, 'success', 3000);
             return;
           }
@@ -1165,12 +1166,21 @@
   function syncChannelsWithSocket() {
     if (!socket || !socket.connected) return;
     const homepageChannels = readHomepageChannels();
+    const tw = (currentChannels.twitch || homepageChannels.twitch || '').trim().toLowerCase().replace(/^[#@]/, '');
+    const yt = (currentChannels.youtube || homepageChannels.youtube || '').trim();
+    const tt = (currentChannels.tiktok || homepageChannels.tiktok || '').trim().replace(/^@/, '');
+
+    currentChannels.twitch = tw;
+    currentChannels.youtube = yt;
+    currentChannels.tiktok = tt;
+
     const payload = {
-      twitch: currentChannels.twitch,
-      youtube: currentChannels.youtube,
-      tiktok: currentChannels.tiktok,
+      twitch: tw,
+      youtube: yt,
+      tiktok: tt,
       tiktokSessionId: homepageChannels.tiktokSessionId || localStorage.getItem('streampulse_tiktok_session') || '',
-      userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || ''
+      userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '',
+      force: true
     };
     // Kirim event update_channels dan set_channels untuk kompatibilitas penuh
     socket.emit('update_channels', payload);
@@ -1287,6 +1297,7 @@
       if (payload.platform === 'twitch') viewerCounts.twitch = count;
       if (payload.platform === 'youtube') viewerCounts.youtube = count;
       if (payload.platform === 'tiktok') viewerCounts.tiktok = count;
+      console.log(`[Dock Viewer Count] ${payload.platform}: ${count}`);
       updateViewerDisplay();
     });
 
