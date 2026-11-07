@@ -1161,51 +1161,86 @@
       }
 
       // ========================================================
-      // WIDGET 1: TOP GIFTER STATE & RENDERER
+      // WIDGET 1: TOP GIFTER STATE & RENDERER (100% REAL LIVE DATA)
       // ========================================================
-      // Clean up legacy poisoned dummy data from localStorage if running in live OBS mode
-      if (!isPreview) {
-        try {
-          const oldG = localStorage.getItem('streampulse_tt_gifters');
-          if (oldG && oldG.includes('Sultan_Jakarta')) localStorage.removeItem('streampulse_tt_gifters');
-          const oldL = localStorage.getItem('streampulse_tt_likes');
-          if (oldL && oldL.includes('Tapper_Pro')) localStorage.removeItem('streampulse_tt_likes');
-        } catch (e) {}
-      }
-
-      const gifterStorageKey = isPreview ? 'streampulse_preview_tt_gifters' : `streampulse_live_tt_gifters_${config.channel || 'default'}`;
-      let gifterData = [];
+      // Clean up any legacy dummy/poisoned data from storage completely
       try {
-        const saved = isPreview ? localStorage.getItem(gifterStorageKey) : sessionStorage.getItem(gifterStorageKey);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) gifterData = parsed;
+        ['streampulse_preview_tt_gifters', 'streampulse_tt_gifters'].forEach(key => {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        });
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && k.includes('tt_gifters')) {
+            const v = localStorage.getItem(k);
+            if (v && (v.includes('Sultan_Jakarta') || v.includes('Rina_Cute') || v.includes('Budi_Gamer'))) {
+              localStorage.removeItem(k);
+            }
+          }
         }
       } catch (e) {}
 
-      // Seed default sultan data ONLY in preview mode so preview iframe is immediately lively
-      if (isPreview && (!gifterData || gifterData.length === 0)) {
-        gifterData = [
-          { name: 'Sultan_Jakarta', diamonds: 15400, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=sultan' },
-          { name: 'Rina_Cute', diamonds: 8200, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=rina' },
-          { name: 'Budi_Gamer', diamonds: 3500, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=budi' },
-          { name: 'Andi_Stream', diamonds: 1200, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=andi' },
-          { name: 'Tiktok_Fan99', diamonds: 450, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=fan99' }
-        ];
-      }
+      const gifterStorageKey = `streampulse_live_tt_gifters_${config.channel || 'default'}`;
+      let gifterData = [];
+      try {
+        const saved = sessionStorage.getItem(gifterStorageKey) || localStorage.getItem(gifterStorageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            // Filter out any lingering dummy entries
+            gifterData = parsed.filter(g => g && g.name !== 'Sultan_Jakarta' && g.name !== 'Rina_Cute' && g.name !== 'Budi_Gamer');
+          }
+        }
+      } catch (e) {}
 
+      // Strictly NO dummy data seeding! If empty, empty state will be displayed until real gifts arrive.
       function saveGifters() {
         try {
-          if (isPreview) {
-            localStorage.setItem(gifterStorageKey, JSON.stringify(gifterData));
-          } else {
-            sessionStorage.setItem(gifterStorageKey, JSON.stringify(gifterData));
-          }
+          const clean = gifterData.filter(g => g && g.name !== 'Sultan_Jakarta' && g.name !== 'Rina_Cute');
+          sessionStorage.setItem(gifterStorageKey, JSON.stringify(clean));
+          localStorage.setItem(gifterStorageKey, JSON.stringify(clean));
         } catch (e) {}
       }
 
-      function handleGiftEvent(event) {
+      // Sync initial real gifter data from server
+      async function syncInitialTopGifters() {
+        try {
+          const ch = encodeURIComponent(config.channel || '');
+          const res = await fetch(`/api/tiktok/top-gifters?channel=${ch}`, {
+            signal: AbortSignal.timeout(3000)
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.gifters) && data.gifters.length > 0) {
+              gifterData = data.gifters.filter(g => g && g.name !== 'Sultan_Jakarta' && g.name !== 'Rina_Cute');
+              saveGifters();
+              renderTopGifter();
+              return;
+            }
+          }
+        } catch (e) {}
+
+        // Fallback: check /api/events for any real TikTok gifts in the current session
+        try {
+          const evRes = await fetch('/api/events', { signal: AbortSignal.timeout(3000) });
+          if (evRes.ok) {
+            const evData = await evRes.json();
+            if (Array.isArray(evData.events)) {
+              const gifts = evData.events.filter(e => (e.eventType === 'gift' || e.type === 'gift') && e.platform === 'tiktok');
+              if (gifts.length > 0) {
+                gifts.forEach(g => handleGiftEvent(g, false));
+                saveGifters();
+                renderTopGifter();
+              }
+            }
+          }
+        } catch (err) {}
+      }
+      syncInitialTopGifters();
+
+      function handleGiftEvent(event, shouldRender = true) {
         const author = event.author || 'User';
+        if (author === 'Sultan_Jakarta' || author === 'Rina_Cute' || author === 'Budi_Gamer') return; // ignore legacy dummy
         const diamonds = Number(event.diamonds) || 10;
         const avatar = getAvatar(author, event.avatar);
 
@@ -1224,7 +1259,7 @@
         // Sort descending
         gifterData.sort((a, b) => b.diamonds - a.diamonds);
         saveGifters();
-        renderTopGifter();
+        if (shouldRender) renderTopGifter();
       }
 
       function renderTopGifter() {
@@ -1248,8 +1283,8 @@
             </div>
             <div class="empty-state" style="padding:28px 12px; text-align:center;">
               <div style="font-size:1.8rem; margin-bottom:4px;">👑</div>
-              <div style="font-weight:700; color:#fff; font-size:0.9rem;">Menunggu Sultan Live</div>
-              <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); margin-top:3px;">Kirim gift untuk menempati podium #1! 🎁</div>
+              <div style="font-weight:700; color:#fff; font-size:0.9rem;">Belum Ada Gift Masuk</div>
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); margin-top:3px;">Kirim gift saat live untuk menempati podium #1! 🎁</div>
             </div>
           `;
           return;
@@ -1371,36 +1406,32 @@
       }
 
       // ========================================================
-      // WIDGET 2: TOP LIKE STATE & RENDERER
+      // WIDGET 2: TOP LIKE STATE & RENDERER (100% REAL LIVE DATA)
       // ========================================================
-      const likeStorageKey = isPreview ? 'streampulse_preview_tt_likes' : `streampulse_live_tt_likes_${config.channel || 'default'}`;
+      try {
+        ['streampulse_preview_tt_likes', 'streampulse_tt_likes'].forEach(key => {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        });
+      } catch (e) {}
+
+      const likeStorageKey = `streampulse_live_tt_likes_${config.channel || 'default'}`;
       let likeData = [];
       try {
-        const saved = isPreview ? localStorage.getItem(likeStorageKey) : sessionStorage.getItem(likeStorageKey);
+        const saved = sessionStorage.getItem(likeStorageKey) || localStorage.getItem(likeStorageKey);
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) likeData = parsed;
+          if (Array.isArray(parsed)) {
+            likeData = parsed.filter(l => l && l.name !== 'Tapper_Pro' && l.name !== 'MegaSpammer');
+          }
         }
       } catch (e) {}
 
-      // Seed default tapper data ONLY in preview mode so preview iframe is immediately lively
-      if (isPreview && (!likeData || likeData.length === 0)) {
-        likeData = [
-          { name: 'Tapper_Pro', likes: 1840, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=tapper' },
-          { name: 'MegaSpammer', likes: 1250, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=spammer' },
-          { name: 'Siti_Love', likes: 980, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=siti' },
-          { name: 'Audrey_ID', likes: 620, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=audrey' },
-          { name: 'Gamer_Keren', likes: 310, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=keren' }
-        ];
-      }
-
       function saveLikes() {
         try {
-          if (isPreview) {
-            localStorage.setItem(likeStorageKey, JSON.stringify(likeData));
-          } else {
-            sessionStorage.setItem(likeStorageKey, JSON.stringify(likeData));
-          }
+          const clean = likeData.filter(l => l && l.name !== 'Tapper_Pro');
+          sessionStorage.setItem(likeStorageKey, JSON.stringify(clean));
+          localStorage.setItem(likeStorageKey, JSON.stringify(clean));
         } catch (e) {}
       }
 
@@ -2328,6 +2359,12 @@
               });
             }
           }
+        });
+
+        socket.on('tiktok_gifters_cleared', () => {
+          gifterData = [];
+          saveGifters();
+          renderTopGifter();
         });
       } catch (err) {
         console.warn('Socket.io connection fallback:', err);

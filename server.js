@@ -448,6 +448,24 @@ app.get('/api/events', (req, res) => {
   });
 });
 
+app.get('/api/tiktok/top-gifters', (req, res) => {
+  const channel = req.query.channel || '';
+  const topGifters = streamManager.getTikTokTopGifters ? streamManager.getTikTokTopGifters(channel) : [];
+  res.json({
+    channel,
+    total: topGifters.length,
+    gifters: topGifters
+  });
+});
+
+app.post('/api/tiktok/reset-gifters', (req, res) => {
+  const channel = req.body?.channel || '';
+  if (streamManager.clearTikTokTopGifters) {
+    streamManager.clearTikTokTopGifters(channel);
+  }
+  res.json({ success: true, message: 'Top gifters reset successfully' });
+});
+
 app.get('/api/emotes/global', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
   res.json(emoteManager.getGlobalEmotes ? emoteManager.getGlobalEmotes() : {});

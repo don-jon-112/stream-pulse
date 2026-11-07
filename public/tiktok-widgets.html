@@ -1472,8 +1472,11 @@
             sendToIframe('sim_gift', { author: name, diamonds: 5000, detail: 'Singa TikTok x1' });
             showToast(`👑 ${name} menempati peringkat 1!`);
           };
-          document.getElementById('btnResetGifters').onclick = () => {
+          document.getElementById('btnResetGifters').onclick = async () => {
             sendToIframe('reset_data', {}, { target: 'gifter' });
+            try {
+              await fetch('/api/tiktok/reset-gifters', { method: 'POST' });
+            } catch (e) {}
             showToast('🗑️ Data Top Gifter dikosongkan.');
           };
 
