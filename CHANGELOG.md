@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.1] - 2026-11-11
+
+### Fixed
+- **Old Chat Fade-Out Transparency (`chatFade`)**: Fixed broken transparency effect by switching from flaky container CSS mask gradient to reliable per-bubble opacity scaling with hardware-accelerated transitions. Old messages now smoothly and visibly fade according to the configured intensity (0% to 95%).
+- **Studio Chat Fade Text Contrast**: Resolved hardcoded dark text color in Studio chat fade label to adapt seamlessly with dark mode.
+
+---
+
 ## [2.1.0] - 2026-11-11
 
 ### Added
@@ -111,3 +119,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Initial Release**: Core real-time multi-chat aggregation engine combining Twitch, YouTube Live, and TikTok LIVE into a unified feed.
 - **WebSocket Gateway**: High-throughput Socket.IO event pipeline broadcasting chat and event streams to browser clients.
 - **Basic Overlay**: Foundational OBS chat overlay browser source with basic animation and styling.
+

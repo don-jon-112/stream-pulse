@@ -2353,49 +2353,48 @@
         return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
       }
 
-      // Efek Gradasi Transparansi Chat Lama (Hardware-Accelerated CSS Mask Gradient)
+      // Efek Gradasi Transparansi Chat Lama (Makin lama makin transparan)
       function updateChatFade() {
+        if (!container) return;
         const rawFade = config.chatFade !== undefined ? config.chatFade : 'none';
 
         // Interpretasi setting: 'none' -> 0, 'smooth' -> 50, 'steep' -> 90, atau angka manual 0..95
         let fadeIntensity = 0;
         if (rawFade === 'smooth') fadeIntensity = 50;
         else if (rawFade === 'steep') fadeIntensity = 90;
-        else if (rawFade === 'none' || rawFade === false) fadeIntensity = 0;
+        else if (rawFade === 'none' || rawFade === false || rawFade === '0') fadeIntensity = 0;
         else if (!isNaN(parseInt(rawFade, 10))) fadeIntensity = parseInt(rawFade, 10);
 
         fadeIntensity = Math.max(0, Math.min(95, fadeIntensity));
 
-        const activeCount = container.children.length;
-        if (fadeIntensity === 0 || activeCount <= 1) {
-          container.style.maskImage = 'none';
-          container.style.webkitMaskImage = 'none';
+        // Bersihkan maskImage agar tidak mengganggu rendering container/box
+        container.style.maskImage = 'none';
+        container.style.webkitMaskImage = 'none';
+
+        const items = Array.from(container.children).filter(el => el.classList && el.classList.contains('overlay-item') && !el.classList.contains('fade-out'));
+        const total = items.length;
+
+        if (fadeIntensity === 0 || total <= 1) {
+          items.forEach(el => {
+            el.style.removeProperty('--chat-fade-opacity');
+            el.style.setProperty('opacity', '1', 'important');
+          });
           return;
         }
 
-        // Terapkan gradien alfa pada container: GPU Chromium meng-composite secara native
+        // Semakin tinggi intensity, semakin pudar chat terlama (minOpacity turun dari 1.0 ke 0.04)
         const ratio = fadeIntensity / 100;
-        const minAlpha = Math.max(0.04, 1.0 - (ratio * 0.95)).toFixed(2);
-        const stopPoint = Math.min(85, Math.max(25, 20 + Math.round(ratio * 55)));
+        const minOpacity = Math.max(0.04, 1.0 - (ratio * 0.96));
+        const power = 1.0 + (ratio * 1.5);
 
-        const isTop = container.classList.contains('direction-top');
-        const isHorizontal = container.classList.contains('direction-horizontal');
-
-        let gradient = '';
-        if (isHorizontal) {
-          if (config.horizontalDirection === 'left') {
-            gradient = `linear-gradient(to left, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
-          } else {
-            gradient = `linear-gradient(to right, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
-          }
-        } else if (isTop) {
-          gradient = `linear-gradient(to top, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
-        } else {
-          gradient = `linear-gradient(to bottom, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
-        }
-
-        container.style.maskImage = gradient;
-        container.style.webkitMaskImage = gradient;
+        items.forEach((el, index) => {
+          // index: 0 (terlama) -> total - 1 (terbaru)
+          const progress = index / (total - 1);
+          const op = minOpacity + (1.0 - minOpacity) * Math.pow(progress, power);
+          const formattedOp = Math.max(0.04, Math.min(1.0, op)).toFixed(2);
+          el.style.setProperty('--chat-fade-opacity', formattedOp);
+          el.style.setProperty('opacity', formattedOp, 'important');
+        });
       }
 
       function applyVisualConfig() {
