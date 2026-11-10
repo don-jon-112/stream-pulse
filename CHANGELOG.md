@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.4] - 2026-11-11
+
+### Refactored & Modularized
+- **Centralized Side Navigation Drawer (`public/js/drawer.js`)**: Migrated the side navigation menu into a modular, self-injecting component across all StreamPulse pages.
+- **Removed HTML Duplication**: Purged over 1,770 lines of redundant drawer markup from 9 web pages (`index.html`, `admin.html`, `dock.html`, `features.html`, `privacy.html`, `social-rotator.html`, `studio.html`, `tiktok-widgets.html`, and `viewers.html`).
+- **Single Source of Truth for App Version**: Navigation menu items and the application version number (`v2.1.4`) are now defined once inside `public/js/drawer.js`, guaranteeing consistency everywhere with zero markup drift.
+
+---
+
 ## [2.1.3] - 2026-11-11
 
 ### Security & Cleanup
