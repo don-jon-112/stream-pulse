@@ -1,3 +1,5 @@
+import './lib/env.js';
+
 // Polyfill zlib & worker_threads for Node.js < 22 (fixes Undici v7/v8 crashes on Node 18/20)
 import { createRequire as _topCreateRequire } from 'node:module';
 try {
@@ -59,30 +61,6 @@ import { createAuthRouter } from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Auto-load .env file jika ada
-const envFilePath = path.join(__dirname, '.env');
-if (fs.existsSync(envFilePath)) {
-  try {
-    const envLines = fs.readFileSync(envFilePath, 'utf8').split(/\r?\n/);
-    envLines.forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) return;
-      const idx = trimmed.indexOf('=');
-      if (idx !== -1) {
-        const key = trimmed.slice(0, idx).trim();
-        let val = trimmed.slice(idx + 1).trim();
-        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-          val = val.slice(1, -1);
-        }
-        process.env[key] = val;
-      }
-    });
-    console.log('[Config] Berhasil memuat konfigurasi dari file .env');
-  } catch (err) {
-    console.warn('[Config] Gagal memuat file .env:', err.message);
-  }
-}
 
 // Inisialisasi default database files jika belum ada
 initDefaultDataFiles();
