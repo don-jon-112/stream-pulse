@@ -817,28 +817,23 @@
     
     <div class="hero-banner">
       <div class="hero-text">
-        <div class="hero-tag">✨ COMMUNITY DRIVEN ROADMAP</div>
-        <h1 data-i18n="feat_hero_title">Papan Kanban & Usulan Fitur</h1>
+        <div class="hero-tag">✨ DEVELOPMENT ROADMAP</div>
+        <h1 data-i18n="feat_hero_title">Papan Kanban Roadmap</h1>
         <p data-i18n="feat_hero_desc">
-          Pantau progres pengembangan StreamPulse secara transparan. Anda bebas mengusulkan fitur baru atau memberi suara (upvote 👍) pada fitur yang paling Anda inginkan!
+          Pantau progres pengembangan StreamPulse secara transparan. Anda dapat melihat fitur yang direncanakan, sedang dikerjakan, dan memberi suara (upvote 👍) pada fitur yang paling Anda nantikan!
         </p>
-      </div>
-      <div>
-        <button id="btnHeroRequest" class="nav-btn nav-btn-primary" style="padding: 12px 24px; font-size:0.9rem;">
-          <span data-i18n="feat_hero_cta">💡 Ajukan Ide Sekarang</span>
-        </button>
       </div>
     </div>
 
     <!-- The 3 Columns: TODO, IN PROGRESS, DONE -->
     <div class="kanban-board">
       
-      <!-- 1. TODO / USULAN MASUK -->
+      <!-- 1. TODO / RENCANA FITUR -->
       <section class="kanban-column todo">
         <div class="column-header">
           <div class="column-title-group">
             <span style="color:#818cf8;">📋</span>
-            <span data-i18n="feat_col_todo">TODO / Usulan Masuk</span>
+            <span data-i18n="feat_col_todo">TODO / Rencana Fitur</span>
           </div>
           <span id="badgeCountTodo" class="column-badge">0</span>
         </div>
@@ -878,57 +873,6 @@
     </div>
   </main>
 
-  <!-- MODAL: AJUKAN FITUR BARU -->
-  <div id="requestModal" class="modal-backdrop">
-    <div class="modal-content" style="max-width: 520px;">
-      <div class="modal-header">
-        <div class="modal-title" style="color: #818cf8;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-          </svg>
-          <span data-i18n="feat_modal_title">Ajukan Usulan Fitur</span>
-        </div>
-        <button id="closeRequestModal" class="modal-close">&times;</button>
-      </div>
-
-      <form id="formNewRequest" class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
-        <div class="channel-field">
-          <label class="channel-label" for="reqTitle" data-i18n="feat_req_title_label">Judul Fitur *</label>
-          <input type="text" id="reqTitle" required placeholder="Contoh: Filter kata-kata kasar / Blacklist kata..." data-i18n-ph="feat_req_title_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; border:1px solid var(--hairline); border-radius:9999px; font-size:0.88rem; outline:none;">
-        </div>
-
-        <div class="channel-field">
-          <label class="channel-label" for="reqCategory" data-i18n="feat_req_cat_label">Kategori Platform</label>
-          <select id="reqCategory" style="width:100%; height:40px; padding:8px 16px; border:1px solid var(--hairline); border-radius:9999px; font-size:0.88rem; outline:none; cursor:pointer;">
-            <option value="twitch">🟣 Twitch</option>
-            <option value="youtube">🔴 YouTube Live</option>
-            <option value="tiktok">🎵 TikTok LIVE</option>
-            <option value="overlay">🖥️ OBS Chat Overlay</option>
-            <option value="core">⚡ Performa / Sistem Inti</option>
-            <option value="general">✨ Umum / Lainnya</option>
-          </select>
-        </div>
-
-        <div class="channel-field">
-          <label class="channel-label" for="reqAuthor" data-i18n="feat_req_author_label">Nama Anda / Streamer (Opsional)</label>
-          <input type="text" id="reqAuthor" placeholder="Contoh: Budi Streamer / Anonim" data-i18n-ph="feat_req_author_ph" autocomplete="off" style="width:100%; height:40px; padding:8px 16px; border:1px solid var(--hairline); border-radius:9999px; font-size:0.88rem; outline:none;">
-        </div>
-
-        <div class="channel-field">
-          <label class="channel-label" for="reqDesc" data-i18n="feat_req_desc_label">Deskripsi Fitur *</label>
-          <textarea id="reqDesc" required rows="4" placeholder="Jelaskan bagaimana fitur ini bekerja dan mengapa berguna untuk streaming Anda..." data-i18n-ph="feat_req_desc_ph" style="width:100%; padding:12px 16px; border:1px solid var(--hairline); border-radius:12px; font-size:0.88rem; resize:vertical; font-family:var(--font-body); outline:none;"></textarea>
-        </div>
-
-        <div class="modal-footer" style="padding:14px 0 0 0; background:transparent;">
-          <button type="button" id="btnCancelRequest" class="btn-icon" data-i18n="dialog_cancel">Batal</button>
-          <button type="submit" id="btnSubmitRequest" class="btn-primary">
-            <span data-i18n="feat_req_submit_btn">Kirim Usulan 🚀</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- Ollama Minimal Footer -->
   <footer class="ollama-footer">
     <div class="ollama-footer-links">
@@ -960,38 +904,7 @@
       const badgeCountInProgress = document.getElementById('badgeCountInProgress');
       const badgeCountDone = document.getElementById('badgeCountDone');
 
-      const requestModal = document.getElementById('requestModal');
-      const btnOpenRequestModal = document.getElementById('btnOpenRequestModal');
-      const btnHeroRequest = document.getElementById('btnHeroRequest');
-      const closeRequestModal = document.getElementById('closeRequestModal');
-      const btnCancelRequest = document.getElementById('btnCancelRequest');
-      const formNewRequest = document.getElementById('formNewRequest');
-
       const votedSet = new Set(JSON.parse(localStorage.getItem('streampulse_voted_requests') || '[]'));
-
-      const openModal = () => {
-        requestModal.classList.add('show');
-        requestModal.classList.add('active');
-        requestModal.style.display = 'flex';
-      };
-      const closeModal = () => {
-        requestModal.classList.remove('show');
-        requestModal.classList.remove('active');
-        requestModal.style.display = 'none';
-      };
-
-      document.querySelectorAll('#btnHeroRequest, #btnOpenRequestModal, .btn-open-request-modal').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          openModal();
-        });
-      });
-      [closeRequestModal, btnCancelRequest].forEach(btn => {
-        if (btn) btn.addEventListener('click', closeModal);
-      });
-      requestModal.addEventListener('click', (e) => {
-        if (e.target === requestModal) closeModal();
-      });
 
       function escapeHtml(str) {
         if (!str) return '';
@@ -1097,40 +1010,10 @@
         badgeCountInProgress.textContent = countInProgress;
         badgeCountDone.textContent = countDone;
 
-        if (countTodo === 0) listTodo.innerHTML = '<div style="font-size:0.75rem; color:var(--text-tertiary); text-align:center; padding:20px;">Belum ada usulan baru</div>';
+        if (countTodo === 0) listTodo.innerHTML = '<div style="font-size:0.75rem; color:var(--text-tertiary); text-align:center; padding:20px;">Belum ada rencana baru</div>';
         if (countInProgress === 0) listInProgress.innerHTML = '<div style="font-size:0.75rem; color:var(--text-tertiary); text-align:center; padding:20px;">Belum ada fitur dalam progres</div>';
         if (countDone === 0) listDone.innerHTML = '<div style="font-size:0.75rem; color:var(--text-tertiary); text-align:center; padding:20px;">Belum ada fitur selesai</div>';
       }
-
-      formNewRequest.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('reqTitle').value.trim();
-        const description = document.getElementById('reqDesc').value.trim();
-        const category = document.getElementById('reqCategory').value;
-        const author = document.getElementById('reqAuthor').value.trim();
-
-        if (!title || !description) return;
-
-        try {
-          const res = await fetch('/api/feedback', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, category, author })
-          });
-
-          if (res.ok) {
-            formNewRequest.reset();
-            closeModal();
-            fetchFeedback();
-            spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? '🚀 Suggestion submitted successfully!' : '🚀 Usulan berhasil dikirim!', 'success');
-          } else {
-            spAlert(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Failed to submit feature request.' : 'Gagal mengirim usulan fitur.', window.t ? window.t('dialog_error') : 'Error', 'danger');
-          }
-        } catch (err) {
-          console.error(err);
-          spAlert(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Network error occurred.' : 'Terjadi kesalahan jaringan.', window.t ? window.t('dialog_error') : 'Error', 'danger');
-        }
-      });
 
       // Load pertama kali
       fetchFeedback();
