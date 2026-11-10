@@ -2089,43 +2089,28 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mobNavDonate) mobNavDonate.addEventListener('click', () => openModal(donateModal));
 
   // ==========================================
-  // SLIDING SIDE DRAWER CONTROLS
+  // SLIDING SIDE DRAWER CONTROLS (Delegated to /js/drawer.js)
   // ==========================================
-  const btnSideDrawerOpen = document.getElementById('btnSideDrawerOpen');
-  const btnCloseSideDrawer = document.getElementById('btnCloseSideDrawer');
-  const sideDrawerBackdrop = document.getElementById('sideDrawerBackdrop');
-  const sideDrawer = document.getElementById('sideDrawer');
-  const drawerBtnSetup = document.getElementById('drawerBtnSetup');
-  const drawerBtnDonate = document.getElementById('drawerBtnDonate');
-
   function openSideDrawer() {
-    if (sideDrawer) sideDrawer.classList.add('active');
-    if (sideDrawerBackdrop) sideDrawerBackdrop.classList.add('active');
-    if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'false');
+    if (window.StreamPulseDrawer?.open) {
+      window.StreamPulseDrawer.open();
+    } else {
+      const d = document.getElementById('sideDrawer');
+      const b = document.getElementById('sideDrawerBackdrop');
+      if (d) d.classList.add('active');
+      if (b) b.classList.add('active');
+    }
   }
 
   function closeSideDrawer() {
-    if (sideDrawer) sideDrawer.classList.remove('active');
-    if (sideDrawerBackdrop) sideDrawerBackdrop.classList.remove('active');
-    if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'true');
-  }
-
-  if (btnSideDrawerOpen) btnSideDrawerOpen.addEventListener('click', openSideDrawer);
-  if (btnCloseSideDrawer) btnCloseSideDrawer.addEventListener('click', closeSideDrawer);
-  if (sideDrawerBackdrop) sideDrawerBackdrop.addEventListener('click', closeSideDrawer);
-
-  if (drawerBtnSetup) {
-    drawerBtnSetup.addEventListener('click', () => {
-      closeSideDrawer();
-      openModal(setupModal);
-    });
-  }
-
-  if (drawerBtnDonate) {
-    drawerBtnDonate.addEventListener('click', () => {
-      closeSideDrawer();
-      if (donateModal) openModal(donateModal);
-    });
+    if (window.StreamPulseDrawer?.close) {
+      window.StreamPulseDrawer.close();
+    } else {
+      const d = document.getElementById('sideDrawer');
+      const b = document.getElementById('sideDrawerBackdrop');
+      if (d) d.classList.remove('active');
+      if (b) b.classList.remove('active');
+    }
   }
 
   // Dismiss modal on background click
@@ -2147,10 +2132,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (wizardModal) closeModal(wizardModal);
       closeSideDrawer();
     } else if ((e.key === 'm' || e.key === 'M') && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
-      if (sideDrawer && sideDrawer.classList.contains('active')) {
-        closeSideDrawer();
+      if (window.StreamPulseDrawer?.toggle) {
+        window.StreamPulseDrawer.toggle();
       } else {
-        openSideDrawer();
+        const d = document.getElementById('sideDrawer');
+        if (d && d.classList.contains('active')) {
+          closeSideDrawer();
+        } else {
+          openSideDrawer();
+        }
       }
     }
   });
