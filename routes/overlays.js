@@ -4,6 +4,11 @@ import { getUserFromReq } from '../lib/security.js';
 
 const router = express.Router();
 
+let ioInstance = null;
+export function setOverlaysIo(io) {
+  ioInstance = io;
+}
+
 function getAdminPassword() {
   const adminData = readJsonFile(ADMIN_FILE, null);
   if (adminData && adminData.password) {
@@ -125,6 +130,9 @@ router.post('/overlays', (req, res) => {
   }
 
   writeJsonFile(OVERLAYS_FILE, overlays);
+  if (ioInstance) {
+    ioInstance.emit('overlay_updated', { id, overlay: overlays[id] });
+  }
   res.json({ success: true, id, overlay: overlays[id], overlayIds: currentUser.overlayIds });
 });
 

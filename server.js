@@ -56,7 +56,7 @@ import { emoteManager } from './lib/emoteManager.js';
 import { createSpotlightRouter } from './routes/spotlight.js';
 import feedbackRouter from './routes/feedback.js';
 import socialRotatorRouter from './routes/socialRotator.js';
-import overlaysRouter from './routes/overlays.js';
+import overlaysRouter, { setOverlaysIo } from './routes/overlays.js';
 import { createAuthRouter } from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -110,6 +110,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // Initialize Stream Manager
 const streamManager = new StreamManager(io);
+setOverlaysIo(io);
 
 // Hubungkan StreamManager dengan Twitch Token Auto-Refresh
 streamManager.setTokenRefreshHandler((ch) => refreshTwitchToken(ch, dbModule));

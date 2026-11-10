@@ -3899,54 +3899,13 @@
           obsFinalUrl.value = '🔒 Khusus Pengguna Login - Silakan Login / Daftar untuk Mendapatkan & Menyalin URL OBS';
           return;
         }
-        let fullUrl = `${window.location.origin}/overlay?id=${profileId}`;
-        const tw = officialChannels.twitch || (settingTwitch ? settingTwitch.value.trim() : '');
-        const yt = officialChannels.youtube || (settingYouTube ? settingYouTube.value.trim() : '');
-        const tt = officialChannels.tiktok || (settingTikTok ? settingTikTok.value.trim() : '');
-        if (tw) fullUrl += `&twitch=${encodeURIComponent(tw)}`;
-        if (yt) fullUrl += `&youtube=${encodeURIComponent(yt)}`;
-        if (tt) fullUrl += `&tiktok=${encodeURIComponent(tt)}`;
-        if (settingTheme && settingTheme.value) fullUrl += `&theme=${encodeURIComponent(settingTheme.value)}`;
-        if (settingFontSize && settingFontSize.value) fullUrl += `&fontSize=${settingFontSize.value}`;
-        if (settingHideDelay && settingHideDelay.value && settingHideDelay.value !== '0') fullUrl += `&hideDelay=${settingHideDelay.value}`;
-        if (settingMaxMessages && settingMaxMessages.value && settingMaxMessages.value !== '15') fullUrl += `&maxMessages=${settingMaxMessages.value}`;
-        const rVal = (settingChatRounded && settingChatRounded.dataset && settingChatRounded.dataset.val) ? settingChatRounded.dataset.val : (settingChatRounded ? settingChatRounded.value : '');
-        if (rVal && rVal !== '12') fullUrl += `&rounded=${encodeURIComponent(rVal)}`;
-        const aSize = (settingAvatarSize && settingAvatarSize.dataset && settingAvatarSize.dataset.val) ? settingAvatarSize.dataset.val : (settingAvatarSize ? settingAvatarSize.value : '');
-        if (aSize && aSize !== 'auto') fullUrl += `&avatarSize=${encodeURIComponent(aSize)}`;
-        if (settingChatAlign && settingChatAlign.value === 'right') fullUrl += '&align=right';
-        if (getSelectedChatDirection() === 'top') fullUrl += '&direction=top';
-        if (getSelectedChatDirection() === 'horizontal') {
-          fullUrl += '&direction=horizontal';
-          const hDir = getSelectedHorizontalDirection();
-          if (hDir === 'left') fullUrl += '&hDir=left';
-        }
-        if (getSelectedChatFade() !== 'none') fullUrl += `&fade=${getSelectedChatFade()}`;
-        if (settingBgColor && settingBgColor.value !== '#0d111b') fullUrl += `&bgColor=${encodeURIComponent(settingBgColor.value)}`;
-        if (settingBgOpacity && settingBgOpacity.value !== '88') fullUrl += `&bgOpacity=${settingBgOpacity.value}`;
-        if (settingTextColor && settingTextColor.value !== '#e2e8f0') fullUrl += `&textColor=${encodeURIComponent(settingTextColor.value)}`;
-        if (settingAuthorColor && settingAuthorColor.value !== '#67e8f9') fullUrl += `&authorColor=${encodeURIComponent(settingAuthorColor.value)}`;
-        if (settingUseTwitchColors && !settingUseTwitchColors.checked) fullUrl += '&useTwitchColors=0';
-        if (settingContainerBgOpacity && parseInt(settingContainerBgOpacity.value, 10) > 0) {
-          fullUrl += `&containerBg=${encodeURIComponent(settingContainerBgColor.value)}&containerOpacity=${settingContainerBgOpacity.value}`;
-        }
-        if (!settingShowTikTokLikes.checked) fullUrl += '&ttLikes=0';
-        if (!settingShowTikTokGifts.checked) fullUrl += '&ttGifts=0';
-        if (settingShowTikTokFollow && !settingShowTikTokFollow.checked) fullUrl += '&ttFollow=0';
-        if (!settingShowTwitchBadges.checked) fullUrl += '&twitchBadges=0';
-        if (!settingShowYtBadges.checked) fullUrl += '&ytBadges=0';
-        if (settingShowPlatformIcons && !settingShowPlatformIcons.checked) fullUrl += '&platformIcons=0';
-        if (settingShowAvatars && !settingShowAvatars.checked) fullUrl += '&avatars=0';
-        if (settingFontFamily && settingFontFamily.value && settingFontFamily.value !== 'default') {
-          fullUrl += `&font=${encodeURIComponent(settingFontFamily.value)}`;
-        }
-        obsFinalUrl.value = fullUrl;
+        obsFinalUrl.value = `${window.location.origin}/overlay?id=${profileId}`;
 
         if (obsUrlHelpText && currentUser) {
           if (getSelectedChatDirection() === 'horizontal') {
-            obsUrlHelpText.innerHTML = '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → <strong>Rekomendasi Running Text: Width: 1920 (atau 1280), Height: 70 - 90 px</strong> (posisikan di tepi bawah atau atas layar).</em>';
+            obsUrlHelpText.innerHTML = '✨ <strong>URL Permanen & Live Sync:</strong> Tempel link ini sekali di Browser Source OBS Studio (Width: 1920/1280, Height: 70 - 90 px). <em>Setiap kali Anda mengklik tombol "Simpan Overlay", OBS akan langsung terupdate otomatis secara real-time tanpa perlu copy ulang URL atau me-refresh OBS!</em>';
           } else {
-            obsUrlHelpText.innerHTML = window.t ? window.t('obs_help_text') : '💡 <em>Di OBS Studio: Tambah Source → pilih <strong>Browser</strong> → tempel link di atas → atur Width: 600, Height: 800.</em>';
+            obsUrlHelpText.innerHTML = '✨ <strong>URL Permanen & Live Sync:</strong> Tempel link ini sekali di Browser Source OBS Studio (Width: 600, Height: 800). <em>Setiap kali Anda mengklik tombol "Simpan Overlay", OBS akan langsung terupdate otomatis secara real-time tanpa perlu copy ulang URL atau me-refresh OBS!</em>';
           }
         }
       }

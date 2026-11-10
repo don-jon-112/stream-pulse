@@ -2206,11 +2206,19 @@
         document.body.style.fontFamily = `'${fontName}', system-ui, -apple-system, sans-serif`;
       }
 
-      // Apply Theme & Font Size & Font Family
-      const activeTheme = config.theme || 'simple';
-      if (activeTheme !== 'glass') {
-        document.body.classList.add(`theme-${activeTheme}`);
+      function applyTheme(themeName) {
+        const classes = Array.from(document.body.classList);
+        classes.forEach(c => {
+          if (c.startsWith('theme-')) {
+            document.body.classList.remove(c);
+          }
+        });
+        const t = themeName || 'simple';
+        if (t !== 'glass') {
+          document.body.classList.add(`theme-${t}`);
+        }
       }
+
       function applyChatRounded(val) {
         if (val === undefined || val === null || val === '') {
           document.body.removeAttribute('data-has-custom-radius');
@@ -2239,6 +2247,88 @@
         document.documentElement.style.setProperty('--avatar-size', `${num}px`);
       }
 
+      function applyFullConfig(newCfg, isInitial = false) {
+        if (!newCfg) return;
+        const oldTwitch = config.twitch;
+        const oldYoutube = config.youtube;
+        const oldTiktok = config.tiktok;
+
+        config = { ...config, ...newCfg };
+
+        if (newCfg.theme !== undefined) {
+          applyTheme(newCfg.theme);
+        }
+
+        if (newCfg.showPlatformIcons !== undefined) {
+          if (newCfg.showPlatformIcons === false) {
+            document.body.classList.add('hide-platform-icons');
+          } else {
+            document.body.classList.remove('hide-platform-icons');
+          }
+        }
+
+        if (newCfg.showAvatars !== undefined) {
+          if (newCfg.showAvatars === false) {
+            document.body.classList.add('hide-avatars');
+          } else {
+            document.body.classList.remove('hide-avatars');
+          }
+        }
+
+        if (newCfg.fontSize !== undefined && newCfg.fontSize) {
+          document.documentElement.style.fontSize = `${newCfg.fontSize}px`;
+        }
+
+        if (newCfg.fontFamily !== undefined) {
+          applyFontFamily(newCfg.fontFamily);
+        }
+
+        if (newCfg.chatRounded !== undefined) {
+          applyChatRounded(newCfg.chatRounded);
+        }
+
+        if (newCfg.avatarSize !== undefined) {
+          applyAvatarSize(newCfg.avatarSize);
+        }
+
+        if (newCfg.customCss !== undefined && customCssEl) {
+          customCssEl.textContent = newCfg.customCss;
+        }
+
+        if (newCfg.customJs !== undefined && !isInitial) {
+          if (newCfg.customJs) {
+            try {
+              const fn = new Function('config', 'socket', newCfg.customJs);
+              fn(config, socket);
+            } catch (err) {
+              console.error('[Overlay Custom JS Live Error]:', err);
+            }
+          }
+        }
+
+        applyVisualConfig();
+
+        if (newCfg.twitch !== undefined || newCfg.youtube !== undefined || newCfg.tiktok !== undefined) {
+          const hasChanged = config.twitch !== oldTwitch || config.youtube !== oldYoutube || config.tiktok !== oldTiktok;
+          if (hasChanged && typeof socket !== 'undefined' && socket) {
+            const channelPayload = {
+              overlayId: profileId,
+              twitch: config.twitch || '',
+              youtube: config.youtube || '',
+              tiktok: config.tiktok || '',
+              force: true
+            };
+            if (socket.connected) {
+              socket.emit('update_channels', channelPayload);
+            } else {
+              socket._pendingChannelUpdate = channelPayload;
+            }
+          }
+        }
+      }
+
+      // Apply initial theme & settings
+      applyTheme(config.theme || 'simple');
       if (config.showPlatformIcons === false) {
         document.body.classList.add('hide-platform-icons');
       }
@@ -3271,6 +3361,13 @@
         addOverlayEvent(evt);
       });
 
+      // Realtime Settings Sync from Studio via WebSockets (Instant update without refreshing OBS)
+      socket.on('overlay_updated', (data) => {
+        if (data && data.id === profileId && data.overlay) {
+          applyFullConfig(data.overlay);
+        }
+      });
+
       // Listen for preview test simulations from Overlay Studio
       window.addEventListener('socket_sim', (e) => {
         const { type, data } = e.detail || {};
@@ -3312,83 +3409,20 @@
         if (e.data.type === 'update_preview_config') {
           const newCfg = e.data.config;
           if (!newCfg) return;
-          const oldTwitch = config.twitch;
-          const oldYoutube = config.youtube;
-          const oldTiktok = config.tiktok;
-          config = { ...config, ...newCfg };
           _previewChannelsOverridden = true;
-          if (newCfg.showTwitchBadges !== undefined) config.showTwitchBadges = newCfg.showTwitchBadges;
-          if (newCfg.showYtBadges !== undefined) config.showYtBadges = newCfg.showYtBadges;
-          if (newCfg.showPlatformIcons !== undefined) {
-            config.showPlatformIcons = newCfg.showPlatformIcons;
-            if (config.showPlatformIcons === false) {
-              document.body.classList.add('hide-platform-icons');
+          applyFullConfig(newCfg);
+          if (e.data.forceChannelSync && typeof socket !== 'undefined' && socket) {
+            const channelPayload = {
+              overlayId: profileId,
+              twitch: config.twitch || '',
+              youtube: config.youtube || '',
+              tiktok: config.tiktok || '',
+              force: true
+            };
+            if (socket.connected) {
+              socket.emit('update_channels', channelPayload);
             } else {
-              document.body.classList.remove('hide-platform-icons');
-            }
-          }
-          if (newCfg.showAvatars !== undefined) {
-            config.showAvatars = newCfg.showAvatars;
-            if (config.showAvatars === false) {
-              document.body.classList.add('hide-avatars');
-            } else {
-              document.body.classList.remove('hide-avatars');
-            }
-          }
-          if (newCfg.showTikTokLikes !== undefined) config.showTikTokLikes = newCfg.showTikTokLikes;
-          if (newCfg.showTikTokGifts !== undefined) config.showTikTokGifts = newCfg.showTikTokGifts;
-          if (newCfg.showTikTokFollow !== undefined) config.showTikTokFollow = newCfg.showTikTokFollow;
-          if (newCfg.chatDirection !== undefined) config.chatDirection = newCfg.chatDirection;
-          if (newCfg.horizontalDirection !== undefined) config.horizontalDirection = newCfg.horizontalDirection;
-          if (newCfg.chatRounded !== undefined) {
-            config.chatRounded = newCfg.chatRounded;
-            applyChatRounded(config.chatRounded);
-          }
-          if (newCfg.avatarSize !== undefined) {
-            config.avatarSize = newCfg.avatarSize;
-            applyAvatarSize(config.avatarSize);
-          }
-          if (newCfg.chatFade !== undefined) config.chatFade = newCfg.chatFade;
-          if (newCfg.theme) {
-            document.body.className = newCfg.theme === 'glass' ? '' : `theme-${newCfg.theme}`;
-          }
-          if (newCfg.fontSize) {
-            document.documentElement.style.fontSize = `${newCfg.fontSize}px`;
-          }
-          if (newCfg.fontFamily !== undefined) {
-            config.fontFamily = newCfg.fontFamily;
-            applyFontFamily(config.fontFamily);
-          }
-          if (newCfg.customCss !== undefined && customCssEl) {
-            customCssEl.textContent = newCfg.customCss;
-          }
-          if (newCfg.customJs !== undefined) {
-            config.customJs = newCfg.customJs;
-            if (newCfg.customJs) {
-              try {
-                const fn = new Function('config', 'socket', newCfg.customJs);
-                fn(config, socket);
-              } catch (err) {
-                console.error('[Overlay Custom JS Live Error]:', err);
-              }
-            }
-          }
-          applyVisualConfig();
-          // If channels were updated in Studio, immediately update Socket.io live subscription
-          if (newCfg.twitch !== undefined || newCfg.youtube !== undefined || newCfg.tiktok !== undefined) {
-            const hasChanged = config.twitch !== oldTwitch || config.youtube !== oldYoutube || config.tiktok !== oldTiktok;
-            if (hasChanged || e.data.forceChannelSync) {
-              const channelPayload = {
-                twitch: config.twitch || '',
-                youtube: config.youtube || '',
-                tiktok: config.tiktok || '',
-                force: true
-              };
-              if (socket && socket.connected) {
-                socket.emit('update_channels', channelPayload);
-              } else if (socket) {
-                socket._pendingChannelUpdate = channelPayload;
-              }
+              socket._pendingChannelUpdate = channelPayload;
             }
           }
         }
