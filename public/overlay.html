@@ -1432,7 +1432,7 @@
     body.theme-simple .overlay-item {
       display: inline-flex;
       flex-direction: row;
-      align-items: center;
+      align-items: flex-start;
       gap: 6px;
       padding: 4px 12px 4px 5px;
       border-radius: 9999px;
@@ -1458,6 +1458,8 @@
       border-radius: 50%;
       font-size: 0.72rem;
       margin: 0;
+      align-self: flex-start;
+      margin-top: 1px;
       flex-shrink: 0;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
     }
@@ -2059,6 +2061,15 @@
     body[data-has-custom-radius="true"].theme-glass_v2 .overlay-item {
       border-radius: var(--bubble-radius) !important;
     }
+
+    /* Custom Avatar Size for themes displaying profile pictures */
+    body[data-has-custom-avatar-size="true"] .overlay-avatar {
+      width: var(--avatar-size) !important;
+      height: var(--avatar-size) !important;
+      min-width: var(--avatar-size) !important;
+      min-height: var(--avatar-size) !important;
+      font-size: calc(var(--avatar-size) * 0.42) !important;
+    }
   </style>
 
   <!-- Injected User Custom CSS -->
@@ -2085,6 +2096,7 @@
         horizontalDirection: urlParams.get('hDir') || urlParams.get('horizontalDirection') || 'right',
         chatFade: urlParams.get('fade') || 'none',
         chatRounded: urlParams.get('rounded') !== null ? urlParams.get('rounded') : '12',
+        avatarSize: urlParams.get('avatarSize') || '',
         fontFamily: urlParams.get('font') || urlParams.get('fontFamily') || '',
         fontSize: parseInt(urlParams.get('fontSize') || '15', 10),
         hideDelay: parseInt(urlParams.get('hideDelay') || '0', 10),
@@ -2137,6 +2149,7 @@
             hideDelay: urlParams.get('hideDelay') !== null ? parseInt(urlParams.get('hideDelay'), 10) : (profile.hideDelay !== undefined ? profile.hideDelay : config.hideDelay),
             maxMessages: urlParams.get('maxMessages') ? parseInt(urlParams.get('maxMessages'), 10) : (profile.maxMessages || config.maxMessages || 15),
             chatRounded: urlParams.get('rounded') !== null ? urlParams.get('rounded') : (profile.chatRounded !== undefined ? profile.chatRounded : config.chatRounded),
+            avatarSize: urlParams.get('avatarSize') || profile.avatarSize || config.avatarSize || '',
             showTikTokLikes: urlParams.get('ttLikes') !== null 
               ? (urlParams.get('ttLikes') !== '0') 
               : (profile.showTikTokLikes !== undefined ? profile.showTikTokLikes : true),
@@ -2215,6 +2228,17 @@
         document.documentElement.style.setProperty('--bubble-radius', radiusStr);
       }
 
+      function applyAvatarSize(size) {
+        if (!size || size === 'auto' || size === '0' || isNaN(parseInt(size, 10))) {
+          document.body.removeAttribute('data-has-custom-avatar-size');
+          document.documentElement.style.removeProperty('--avatar-size');
+          return;
+        }
+        const num = parseInt(size, 10);
+        document.body.setAttribute('data-has-custom-avatar-size', 'true');
+        document.documentElement.style.setProperty('--avatar-size', `${num}px`);
+      }
+
       if (config.showPlatformIcons === false) {
         document.body.classList.add('hide-platform-icons');
       }
@@ -2228,6 +2252,7 @@
         applyFontFamily(config.fontFamily);
       }
       applyChatRounded(config.chatRounded);
+      applyAvatarSize(config.avatarSize);
 
       function hexToRgba(hex, alpha = 0.88) {
         if (!hex || hex === 'transparent') return 'transparent';
@@ -2302,6 +2327,7 @@
           }
         }
         applyChatRounded(config.chatRounded);
+        applyAvatarSize(config.avatarSize);
 
         updateChatFade();
 
@@ -3317,6 +3343,10 @@
           if (newCfg.chatRounded !== undefined) {
             config.chatRounded = newCfg.chatRounded;
             applyChatRounded(config.chatRounded);
+          }
+          if (newCfg.avatarSize !== undefined) {
+            config.avatarSize = newCfg.avatarSize;
+            applyAvatarSize(config.avatarSize);
           }
           if (newCfg.chatFade !== undefined) config.chatFade = newCfg.chatFade;
           if (newCfg.theme) {

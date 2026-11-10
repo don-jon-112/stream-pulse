@@ -1955,6 +1955,27 @@
           </div>
         </div>
 
+        <!-- Setting Ukuran Avatar / Profile Picture -->
+        <div class="form-group" id="wrapperAvatarSize">
+          <div class="form-label">
+            <span>Ukuran Foto Profil (Avatar Size)</span>
+            <span id="labelAvatarSize" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">Bawaan Tema</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <input type="range" id="settingAvatarSize" min="16" max="64" step="2" value="32" style="width:100%;">
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin-top:6px;">
+            <button type="button" class="btn-action-sm btn-avatar-size-preset" data-val="auto" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Bawaan</button>
+            <button type="button" class="btn-action-sm btn-avatar-size-preset" data-val="20" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Kecil (20px)</button>
+            <button type="button" class="btn-action-sm btn-avatar-size-preset" data-val="28" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Standar (28px)</button>
+            <button type="button" class="btn-action-sm btn-avatar-size-preset" data-val="36" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Sedang (36px)</button>
+            <button type="button" class="btn-action-sm btn-avatar-size-preset" data-val="48" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Besar (48px)</button>
+          </div>
+          <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:5px;">
+            💡 <em>Mengatur diameter foto profil untuk semua tema yang menampilkan avatar viewer.</em>
+          </div>
+        </div>
+
         <div class="form-group">
           <div class="form-label">
             <span data-i18n="sec_hide_delay">Durasi Pesan Menghilang (Auto-Hide)</span>
@@ -2733,6 +2754,9 @@
       const labelFontSize = document.getElementById('labelFontSize');
       const settingChatRounded = document.getElementById('settingChatRounded');
       const labelChatRounded = document.getElementById('labelChatRounded');
+      const settingAvatarSize = document.getElementById('settingAvatarSize');
+      const labelAvatarSize = document.getElementById('labelAvatarSize');
+      const wrapperAvatarSize = document.getElementById('wrapperAvatarSize');
       const wrapperHorizontalOptions = document.getElementById('wrapperHorizontalOptions');
       const settingHideDelay = document.getElementById('settingHideDelay');
       const labelHideDelay = document.getElementById('labelHideDelay');
@@ -3670,6 +3694,16 @@
                 settingChatRounded.value = parseInt(rVal, 10) || 12;
               }
             }
+            if (data.avatarSize !== undefined && settingAvatarSize) {
+              const aVal = String(data.avatarSize);
+              if (!aVal || aVal === 'auto' || aVal === '0') {
+                settingAvatarSize.dataset.val = 'auto';
+                settingAvatarSize.value = 32;
+              } else {
+                settingAvatarSize.dataset.val = aVal;
+                settingAvatarSize.value = parseInt(aVal, 10) || 32;
+              }
+            }
             if (data.maskLinks !== undefined) settingMaskLinks.checked = data.maskLinks;
             if (data.showTwitchBadges !== undefined) {
               settingShowTwitchBadges.checked = data.showTwitchBadges;
@@ -3767,6 +3801,14 @@
             labelChatRounded.textContent = `${rVal}px`;
           }
         }
+        if (labelAvatarSize && settingAvatarSize) {
+          const aVal = (settingAvatarSize.dataset && settingAvatarSize.dataset.val) ? settingAvatarSize.dataset.val : settingAvatarSize.value;
+          if (!aVal || aVal === 'auto' || aVal === '0') {
+            labelAvatarSize.textContent = 'Bawaan Tema';
+          } else {
+            labelAvatarSize.textContent = `${aVal}px`;
+          }
+        }
       }
 
       function getOverlayConfig(forSave = false) {
@@ -3804,6 +3846,7 @@
           horizontalDirection: getSelectedHorizontalDirection(),
           chatFade: getSelectedChatFade(),
           chatRounded: (settingChatRounded && settingChatRounded.dataset && settingChatRounded.dataset.val) ? settingChatRounded.dataset.val : (settingChatRounded ? settingChatRounded.value : '12'),
+          avatarSize: (settingAvatarSize && settingAvatarSize.dataset && settingAvatarSize.dataset.val && settingAvatarSize.dataset.val !== 'auto') ? parseInt(settingAvatarSize.dataset.val, 10) : '',
           bgColor: settingBgColor ? settingBgColor.value : '#0d111b',
           bgOpacity: settingBgOpacity ? parseInt(settingBgOpacity.value, 10) : 88,
           textColor: settingTextColor ? settingTextColor.value : '#e2e8f0',
@@ -3869,6 +3912,8 @@
         if (settingMaxMessages && settingMaxMessages.value && settingMaxMessages.value !== '15') fullUrl += `&maxMessages=${settingMaxMessages.value}`;
         const rVal = (settingChatRounded && settingChatRounded.dataset && settingChatRounded.dataset.val) ? settingChatRounded.dataset.val : (settingChatRounded ? settingChatRounded.value : '');
         if (rVal && rVal !== '12') fullUrl += `&rounded=${encodeURIComponent(rVal)}`;
+        const aSize = (settingAvatarSize && settingAvatarSize.dataset && settingAvatarSize.dataset.val) ? settingAvatarSize.dataset.val : (settingAvatarSize ? settingAvatarSize.value : '');
+        if (aSize && aSize !== 'auto') fullUrl += `&avatarSize=${encodeURIComponent(aSize)}`;
         if (settingChatAlign && settingChatAlign.value === 'right') fullUrl += '&align=right';
         if (getSelectedChatDirection() === 'top') fullUrl += '&direction=top';
         if (getSelectedChatDirection() === 'horizontal') {
@@ -4097,10 +4142,36 @@
         });
       });
 
+      if (settingAvatarSize) {
+        settingAvatarSize.addEventListener('input', () => {
+          settingAvatarSize.dataset.val = settingAvatarSize.value;
+          updateLabels();
+          updateUrl();
+          refreshPreview();
+        });
+      }
+
+      document.querySelectorAll('.btn-avatar-size-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-val');
+          if (settingAvatarSize) {
+            settingAvatarSize.dataset.val = val;
+            if (val === 'auto') {
+              settingAvatarSize.value = 32;
+            } else {
+              settingAvatarSize.value = parseInt(val, 10) || 32;
+            }
+          }
+          updateLabels();
+          updateUrl();
+          refreshPreview();
+        });
+      });
+
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingFontFamily, settingChatAlign, settingFontSize, settingChatRounded, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowPlatformIcons, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
+      [settingTheme, settingFontFamily, settingChatAlign, settingFontSize, settingChatRounded, settingAvatarSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowPlatformIcons, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
         if (el) {
           el.addEventListener('change', () => {
             updateLabels();
@@ -4316,6 +4387,10 @@
         if (settingChatRounded) {
           settingChatRounded.value = 12;
           settingChatRounded.dataset.val = '12';
+        }
+        if (settingAvatarSize) {
+          settingAvatarSize.dataset.val = 'auto';
+          settingAvatarSize.value = 32;
         }
         setSelectedHorizontalDirection('right');
 
@@ -4577,14 +4652,20 @@
           }
         }
 
+        const themesWithoutAvatars = ['glitch', 'glass-v2', 'bubbles-v2', 'paper-v2'];
+        const noAvatar = themesWithoutAvatars.includes(normKey);
         if (settingShowAvatars) {
-          if (normKey === 'glitch') {
+          if (noAvatar) {
             settingShowAvatars.disabled = true;
             if (settingShowAvatars.closest('.toggle-row')) settingShowAvatars.closest('.toggle-row').style.opacity = '0.4';
           } else {
             settingShowAvatars.disabled = false;
             if (settingShowAvatars.closest('.toggle-row')) settingShowAvatars.closest('.toggle-row').style.opacity = '1';
           }
+        }
+        if (wrapperAvatarSize) {
+          wrapperAvatarSize.style.opacity = noAvatar ? '0.4' : '1';
+          wrapperAvatarSize.title = noAvatar ? 'Tema ini tidak menampilkan foto profil' : '';
         }
 
         // Show/hide Neon configuration card
