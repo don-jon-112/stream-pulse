@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.3] - 2026-11-11
+
+### Security & Cleanup
+- **Feedback Endpoint Lockdown**: Permanently disabled public `POST /api/feedback` to eliminate automated bot/crawler spam submissions.
+- **Auto-Purge ZEN_STORAGE Spam**: Implemented an automated sanitizer that detects and removes spam probe items (such as `ZEN_STORAGE` session dumps) from `feedback.json` upon server boot and data retrieval.
+
+---
+
 ## [2.1.2] - 2026-11-11
 
 ### Changed

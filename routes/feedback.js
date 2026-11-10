@@ -16,11 +16,39 @@ function checkAdminAuth(req) {
   return token === getAdminPassword();
 }
 
+function sanitizeFeedbackList(list) {
+  if (!Array.isArray(list)) return [];
+  return list.filter(x => {
+    if (!x || !x.title || !x.description) return false;
+    const t = String(x.title).toLowerCase();
+    const d = String(x.description).toLowerCase();
+    // Bersihkan probe bot scanner (ZEN_STORAGE, bot injection, session dump)
+    if (t.includes('zen_storage') || d.includes('zen_storage') || d.includes('"origin":') || d.includes('"href":') || d.includes('"ls":{}')) {
+      return false;
+    }
+    return true;
+  });
+}
+
+// Auto-purge spam saat module dimuat
+try {
+  const currentList = readJsonFile(FEEDBACK_FILE, []);
+  const sanitized = sanitizeFeedbackList(currentList);
+  if (sanitized.length !== currentList.length) {
+    writeJsonFile(FEEDBACK_FILE, sanitized);
+  }
+} catch (_) {}
+
 // ==========================================
 // PUBLIC FEATURE REQUESTS
 // ==========================================
 router.get('/feedback', (req, res) => {
-  const list = readJsonFile(FEEDBACK_FILE, []);
+  let list = readJsonFile(FEEDBACK_FILE, []);
+  const cleanList = sanitizeFeedbackList(list);
+  if (cleanList.length !== list.length) {
+    writeJsonFile(FEEDBACK_FILE, cleanList);
+    list = cleanList;
+  }
   // Sembunyikan item yang di-reject dari publik, prioritaskan pinned
   const publicList = list.filter(x => x.status !== 'rejected');
   publicList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.createdAt - a.createdAt);
@@ -28,28 +56,8 @@ router.get('/feedback', (req, res) => {
 });
 
 router.post('/feedback', (req, res) => {
-  const { title, description, category, author } = req.body || {};
-  if (!title || !description) {
-    return res.status(400).json({ error: 'Judul dan deskripsi wajib diisi' });
-  }
-
-  const list = readJsonFile(FEEDBACK_FILE, []);
-  const newItem = {
-    id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-    title: String(title).trim().slice(0, 150),
-    description: String(description).trim().slice(0, 1000),
-    category: ['twitch', 'youtube', 'tiktok', 'overlay', 'core', 'general'].includes(category) ? category : 'general',
-    author: (author ? String(author).trim().slice(0, 50) : 'Streamer Anonymous'),
-    status: 'todo',
-    adminNote: '',
-    pinned: false,
-    upvotes: 1,
-    createdAt: Date.now()
-  };
-
-  list.push(newItem);
-  writeJsonFile(FEEDBACK_FILE, list);
-  res.json({ success: true, item: newItem });
+  // Pengajuan usulan ide publik telah dinonaktifkan untuk mencegah bot/crawler spam
+  return res.status(403).json({ error: 'Pengajuan usulan ide publik telah dinonaktifkan.' });
 });
 
 router.post('/feedback/:id/upvote', (req, res) => {
@@ -108,7 +116,12 @@ router.get('/admin/feedback', (req, res) => {
   if (!checkAdminAuth(req)) {
     return res.status(401).json({ error: 'Akses ditolak: Diperlukan autentikasi admin' });
   }
-  const list = readJsonFile(FEEDBACK_FILE, []);
+  let list = readJsonFile(FEEDBACK_FILE, []);
+  const cleanList = sanitizeFeedbackList(list);
+  if (cleanList.length !== list.length) {
+    writeJsonFile(FEEDBACK_FILE, cleanList);
+    list = cleanList;
+  }
   list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.upvotes || 0) - (a.upvotes || 0) || b.createdAt - a.createdAt);
   res.json(list);
 });
