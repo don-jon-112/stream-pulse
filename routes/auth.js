@@ -167,12 +167,37 @@ export function createAuthRouter(streamManager) {
     const hashedPassword = await hashPassword(password);
     const token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
 
+    const initialSlotId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+    const overlays = readJsonFile(OVERLAYS_FILE, {});
+    overlays[initialSlotId] = {
+      id: initialSlotId,
+      name: 'Slot 1 (Utama)',
+      owner: cleanUser,
+      theme: 'glass',
+      chatDirection: 'bottom',
+      chatFade: 'none',
+      horizontalDirection: 'right',
+      chatRounded: 12,
+      fontSize: 15,
+      hideDelay: 0,
+      showBadges: true,
+      showAvatars: true,
+      showEmotes: true,
+      showAlerts: true,
+      maskLinks: false,
+      maxMessages: 15,
+      customCss: '',
+      customJs: '',
+      updatedAt: Date.now()
+    };
+    writeJsonFile(OVERLAYS_FILE, overlays);
+
     const newUser = {
       username: cleanUser,
       email: cleanEmail,
       password: hashedPassword,
       token,
-      overlayIds: [],
+      overlayIds: [initialSlotId],
       channels: {
         twitch: '',
         youtube: '',
@@ -279,6 +304,36 @@ export function createAuthRouter(streamManager) {
       return res.status(401).json({ error: 'Belum login' });
     }
     const overlays = readJsonFile(OVERLAYS_FILE, {});
+
+    if (!user.overlayIds || user.overlayIds.length === 0) {
+      const initialSlotId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+      overlays[initialSlotId] = {
+        id: initialSlotId,
+        name: 'Slot 1 (Utama)',
+        owner: user.username,
+        theme: 'glass',
+        chatDirection: 'bottom',
+        chatFade: 'none',
+        horizontalDirection: 'right',
+        chatRounded: 12,
+        fontSize: 15,
+        hideDelay: 0,
+        showBadges: true,
+        showAvatars: true,
+        showEmotes: true,
+        showAlerts: true,
+        maskLinks: false,
+        maxMessages: 15,
+        customCss: '',
+        customJs: '',
+        updatedAt: Date.now()
+      };
+      user.overlayIds = [initialSlotId];
+      users[user.username] = user;
+      writeJsonFile(OVERLAYS_FILE, overlays);
+      writeJsonFile(USERS_FILE, users);
+    }
+
     const userOverlays = (user.overlayIds || []).map(id => overlays[id] || { id, theme: 'glass' });
 
     res.json({

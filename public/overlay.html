@@ -87,6 +87,11 @@
       pointer-events: none;
     }
 
+    #overlayChatContainer.direction-horizontal.h-from-left {
+      flex-direction: row-reverse !important;
+      justify-content: flex-end !important;
+    }
+
     #overlayChatContainer.direction-horizontal .overlay-item {
       display: inline-flex !important;
       flex-direction: row !important;
@@ -94,8 +99,11 @@
       max-width: none !important;
       flex-shrink: 0 !important;
       padding: 6px 14px !important;
-      border-radius: 9999px !important;
       animation: overlaySlideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    }
+
+    #overlayChatContainer.direction-horizontal.h-from-left .overlay-item {
+      animation: overlaySlideInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) both !important;
     }
 
     #overlayChatContainer.direction-horizontal .overlay-body {
@@ -134,9 +142,26 @@
       }
     }
 
-    #overlayChatContainer.direction-horizontal .overlay-item.fade-out {
+    @keyframes overlaySlideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px) scale(0.96);
+      }
+      to {
+        opacity: var(--chat-fade-opacity, 1);
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    #overlayChatContainer.direction-horizontal:not(.h-from-left) .overlay-item.fade-out,
+    #overlayChatContainer.direction-horizontal.h-from-right .overlay-item.fade-out {
       opacity: 0 !important;
       transform: translateX(-30px) scale(0.95) !important;
+    }
+
+    #overlayChatContainer.direction-horizontal.h-from-left .overlay-item.fade-out {
+      opacity: 0 !important;
+      transform: translateX(30px) scale(0.95) !important;
     }
 
     #overlayChatContainer.align-right {
@@ -2005,6 +2030,35 @@
     .cartoon-role-badge {
       display: none;
     }
+
+    /* ====================================================================
+       PENGATURAN CUSTOM ROUNDED BUBBLE CHAT (Berlaku khusus untuk 10 tema)
+       simple, bubble, classic, compact, high-contrast, glass, minimal-outline,
+       neon, paper, glass-v2
+       ==================================================================== */
+    body[data-has-custom-radius="true"].theme-simple .overlay-item,
+    body[data-has-custom-radius="true"].theme-bubbles .overlay-item,
+    body[data-has-custom-radius="true"].theme-bubbles-v2 .overlay-item,
+    body[data-has-custom-radius="true"].theme-bubbles_v2 .overlay-item,
+    body[data-has-custom-radius="true"].theme-classic .overlay-item,
+    body[data-has-custom-radius="true"].theme-compact .overlay-item,
+    body[data-has-custom-radius="true"].theme-high-contrast .overlay-item,
+    body[data-has-custom-radius="true"].theme-high_contrast .overlay-item,
+    body[data-has-custom-radius="true"].theme-glass .overlay-item,
+    body[data-has-custom-radius="true"]:not([class*="theme-"]) .overlay-item,
+    body[data-has-custom-radius="true"].theme-minimal-outline .overlay-item,
+    body[data-has-custom-radius="true"].theme-minimal_outline .overlay-item,
+    body[data-has-custom-radius="true"].theme-minimal .overlay-item,
+    body[data-has-custom-radius="true"].theme-neon .overlay-item,
+    body[data-has-custom-radius="true"].theme-cyberpunk .overlay-item,
+    body[data-has-custom-radius="true"].theme-paper .overlay-item,
+    body[data-has-custom-radius="true"].theme-paper-v2 .overlay-item,
+    body[data-has-custom-radius="true"].theme-paper_v2 .overlay-item,
+    body[data-has-custom-radius="true"].theme-light .overlay-item,
+    body[data-has-custom-radius="true"].theme-glass-v2 .overlay-item,
+    body[data-has-custom-radius="true"].theme-glass_v2 .overlay-item {
+      border-radius: var(--bubble-radius) !important;
+    }
   </style>
 
   <!-- Injected User Custom CSS -->
@@ -2028,10 +2082,13 @@
         theme: urlParams.get('theme') || 'simple',
         chatAlign: urlParams.get('align') || 'left',
         chatDirection: urlParams.get('direction') || 'bottom',
+        horizontalDirection: urlParams.get('hDir') || urlParams.get('horizontalDirection') || 'right',
         chatFade: urlParams.get('fade') || 'none',
+        chatRounded: urlParams.get('rounded') !== null ? urlParams.get('rounded') : '12',
         fontFamily: urlParams.get('font') || urlParams.get('fontFamily') || '',
         fontSize: parseInt(urlParams.get('fontSize') || '15', 10),
         hideDelay: parseInt(urlParams.get('hideDelay') || '0', 10),
+        maxMessages: parseInt(urlParams.get('maxMessages') || '15', 10),
         showBadges: urlParams.get('badges') !== '0',
         showTwitchBadges: urlParams.get('twitchBadges') !== '0',
         showYtBadges: urlParams.get('ytBadges') !== '0',
@@ -2072,8 +2129,14 @@
           config = {
             ...config,
             ...profile,
+            theme: urlParams.get('theme') || profile.theme || config.theme || 'simple',
             chatDirection: urlParams.get('direction') || profile.chatDirection || config.chatDirection || 'bottom',
+            horizontalDirection: urlParams.get('hDir') || urlParams.get('horizontalDirection') || profile.horizontalDirection || config.horizontalDirection || 'right',
             chatFade: urlParams.get('fade') || profile.chatFade || config.chatFade || 'none',
+            fontSize: urlParams.get('fontSize') ? parseInt(urlParams.get('fontSize'), 10) : (profile.fontSize !== undefined ? profile.fontSize : config.fontSize),
+            hideDelay: urlParams.get('hideDelay') !== null ? parseInt(urlParams.get('hideDelay'), 10) : (profile.hideDelay !== undefined ? profile.hideDelay : config.hideDelay),
+            maxMessages: urlParams.get('maxMessages') ? parseInt(urlParams.get('maxMessages'), 10) : (profile.maxMessages || config.maxMessages || 15),
+            chatRounded: urlParams.get('rounded') !== null ? urlParams.get('rounded') : (profile.chatRounded !== undefined ? profile.chatRounded : config.chatRounded),
             showTikTokLikes: urlParams.get('ttLikes') !== null 
               ? (urlParams.get('ttLikes') !== '0') 
               : (profile.showTikTokLikes !== undefined ? profile.showTikTokLikes : true),
@@ -2135,6 +2198,23 @@
       if (activeTheme !== 'glass') {
         document.body.classList.add(`theme-${activeTheme}`);
       }
+      function applyChatRounded(val) {
+        if (val === undefined || val === null || val === '') {
+          document.body.removeAttribute('data-has-custom-radius');
+          document.documentElement.style.removeProperty('--bubble-radius');
+          return;
+        }
+        let radiusStr = '';
+        if (String(val).toLowerCase() === 'pill' || String(val) === '9999' || parseInt(val, 10) >= 999) {
+          radiusStr = '9999px';
+        } else {
+          const num = parseInt(val, 10);
+          radiusStr = !isNaN(num) ? `${num}px` : String(val);
+        }
+        document.body.setAttribute('data-has-custom-radius', 'true');
+        document.documentElement.style.setProperty('--bubble-radius', radiusStr);
+      }
+
       if (config.showPlatformIcons === false) {
         document.body.classList.add('hide-platform-icons');
       }
@@ -2147,6 +2227,7 @@
       if (config.fontFamily) {
         applyFontFamily(config.fontFamily);
       }
+      applyChatRounded(config.chatRounded);
 
       function hexToRgba(hex, alpha = 0.88) {
         if (!hex || hex === 'transparent') return 'transparent';
@@ -2187,7 +2268,11 @@
 
         let gradient = '';
         if (isHorizontal) {
-          gradient = `linear-gradient(to right, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
+          if (config.horizontalDirection === 'left') {
+            gradient = `linear-gradient(to left, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
+          } else {
+            gradient = `linear-gradient(to right, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
+          }
         } else if (isTop) {
           gradient = `linear-gradient(to top, rgba(0,0,0,${minAlpha}) 0%, rgba(0,0,0,1) ${stopPoint}%)`;
         } else {
@@ -2205,12 +2290,18 @@
           container.classList.remove('align-right');
         }
 
-        container.classList.remove('direction-top', 'direction-horizontal');
+        container.classList.remove('direction-top', 'direction-horizontal', 'h-from-left', 'h-from-right');
         if (config.chatDirection === 'top') {
           container.classList.add('direction-top');
         } else if (config.chatDirection === 'horizontal') {
           container.classList.add('direction-horizontal');
+          if (config.horizontalDirection === 'left') {
+            container.classList.add('h-from-left');
+          } else {
+            container.classList.add('h-from-right');
+          }
         }
+        applyChatRounded(config.chatRounded);
 
         updateChatFade();
 
@@ -3222,6 +3313,11 @@
           if (newCfg.showTikTokGifts !== undefined) config.showTikTokGifts = newCfg.showTikTokGifts;
           if (newCfg.showTikTokFollow !== undefined) config.showTikTokFollow = newCfg.showTikTokFollow;
           if (newCfg.chatDirection !== undefined) config.chatDirection = newCfg.chatDirection;
+          if (newCfg.horizontalDirection !== undefined) config.horizontalDirection = newCfg.horizontalDirection;
+          if (newCfg.chatRounded !== undefined) {
+            config.chatRounded = newCfg.chatRounded;
+            applyChatRounded(config.chatRounded);
+          }
           if (newCfg.chatFade !== undefined) config.chatFade = newCfg.chatFade;
           if (newCfg.theme) {
             document.body.className = newCfg.theme === 'glass' ? '' : `theme-${newCfg.theme}`;

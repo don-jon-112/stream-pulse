@@ -1934,6 +1934,27 @@
           <input type="range" id="settingFontSize" min="12" max="28" value="15" style="width:100%;">
         </div>
 
+        <!-- Setting Rounded Bubble Chat -->
+        <div class="form-group" id="wrapperChatRounded">
+          <div class="form-label">
+            <span>Kelengkungan Sudut Bubble (Rounded)</span>
+            <span id="labelChatRounded" style="color:#0f172a; font-weight:700; font-family:var(--font-mono); background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #e2e8f0;">12px</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <input type="range" id="settingChatRounded" min="0" max="36" step="2" value="12" style="width:100%;">
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; margin-top:6px;">
+            <button type="button" class="btn-action-sm btn-rounded-preset" data-val="0" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Kotak (0px)</button>
+            <button type="button" class="btn-action-sm btn-rounded-preset" data-val="6" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Kecil (6px)</button>
+            <button type="button" class="btn-action-sm btn-rounded-preset" data-val="12" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Sedang (12px)</button>
+            <button type="button" class="btn-action-sm btn-rounded-preset" data-val="20" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Bulat (20px)</button>
+            <button type="button" class="btn-action-sm btn-rounded-preset" data-val="9999" style="padding:4px 2px; font-size:0.7rem; text-align:center;">Pill (Full)</button>
+          </div>
+          <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:5px;">
+            💡 <em>Berlaku untuk tema: Simple Single-Line, Bubble, Classic, Compact, High Contrast, Glass, Minimal Outline, Neon, Paper, Glass v2.</em>
+          </div>
+        </div>
+
         <div class="form-group">
           <div class="form-label">
             <span data-i18n="sec_hide_delay">Durasi Pesan Menghilang (Auto-Hide)</span>
@@ -1979,6 +2000,28 @@
                 <span data-i18n="opt_dir_horizontal">➡️ Menyamping (Running Text / Ticker)</span>
               </label>
             </div>
+
+            <!-- SUB-OPTIONS FOR HORIZONTAL FLOW -->
+            <div id="wrapperHorizontalOptions" style="display:none; margin-top:8px; padding:10px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-sm);">
+              <div style="font-size:0.78rem; font-weight:700; margin-bottom:6px; color:var(--ink);">
+                ↔️ Arah Kemunculan Pesan Menyamping:
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <label class="radio-option-card" id="cardHDirRight">
+                  <input type="radio" name="horizontalDirection" value="right" checked>
+                  <span>👉 Dari Kanan (Geser ke Kiri)</span>
+                </label>
+                <label class="radio-option-card" id="cardHDirLeft">
+                  <input type="radio" name="horizontalDirection" value="left">
+                  <span>👈 Dari Kiri (Geser ke Kanan)</span>
+                </label>
+              </div>
+              <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:5px;">
+                💡 <strong>Dari Kanan</strong>: Pesan baru meluncur dari sisi kanan layar OBS.<br>
+                💡 <strong>Dari Kiri</strong>: Pesan baru meluncur dari sisi kiri layar OBS.
+              </div>
+            </div>
+
             <div style="font-size:0.7rem; color:var(--text-tertiary); margin-top:4px;" data-i18n-html="tip_chat_direction">
               💡 <strong>Bawah</strong>: Pesan baru di dasar layar. <strong>Atas</strong>: Pesan baru di puncak layar. <strong>Menyamping</strong>: Format pita running text horizontal mengalir dari kanan ke kiri (Rekomendasi OBS: Width 1920, Height 70-90 px).
             </div>
@@ -2688,6 +2731,9 @@
       const labelFontFamilyBadge = document.getElementById('labelFontFamilyBadge');
       const settingFontSize = document.getElementById('settingFontSize');
       const labelFontSize = document.getElementById('labelFontSize');
+      const settingChatRounded = document.getElementById('settingChatRounded');
+      const labelChatRounded = document.getElementById('labelChatRounded');
+      const wrapperHorizontalOptions = document.getElementById('wrapperHorizontalOptions');
       const settingHideDelay = document.getElementById('settingHideDelay');
       const labelHideDelay = document.getElementById('labelHideDelay');
       const settingMaxMessages = document.getElementById('settingMaxMessages');
@@ -2749,6 +2795,20 @@
         if (labelChatDirection) {
           labelChatDirection.textContent = target === 'top' ? 'Atas (Top-Down)' : (target === 'horizontal' ? 'Menyamping / Running Text' : 'Bawah (Default)');
         }
+        if (wrapperHorizontalOptions) {
+          wrapperHorizontalOptions.style.display = (target === 'horizontal') ? 'block' : 'none';
+        }
+      }
+
+      function getSelectedHorizontalDirection() {
+        const checked = document.querySelector('input[name="horizontalDirection"]:checked');
+        return checked ? checked.value : 'right';
+      }
+
+      function setSelectedHorizontalDirection(val) {
+        const target = val === 'left' ? 'left' : 'right';
+        const radio = document.querySelector(`input[name="horizontalDirection"][value="${target}"]`);
+        if (radio) radio.checked = true;
       }
 
       function updateChatFadeLabels(num) {
@@ -3599,6 +3659,17 @@
             if (data.fontSize !== undefined) settingFontSize.value = data.fontSize;
             if (data.hideDelay !== undefined) settingHideDelay.value = data.hideDelay;
             if (data.maxMessages !== undefined) settingMaxMessages.value = data.maxMessages;
+            if (data.horizontalDirection !== undefined) setSelectedHorizontalDirection(data.horizontalDirection);
+            if (data.chatRounded !== undefined && settingChatRounded) {
+              const rVal = String(data.chatRounded);
+              if (rVal === '9999' || rVal === 'pill') {
+                settingChatRounded.dataset.val = '9999';
+                settingChatRounded.value = 36;
+              } else {
+                settingChatRounded.dataset.val = rVal;
+                settingChatRounded.value = parseInt(rVal, 10) || 12;
+              }
+            }
             if (data.maskLinks !== undefined) settingMaskLinks.checked = data.maskLinks;
             if (data.showTwitchBadges !== undefined) {
               settingShowTwitchBadges.checked = data.showTwitchBadges;
@@ -3686,6 +3757,16 @@
           const opt = settingFontFamily.options[settingFontFamily.selectedIndex];
           labelFontFamilyBadge.textContent = opt ? opt.text.split('(')[0].trim() : settingFontFamily.value;
         }
+        if (labelChatRounded && settingChatRounded) {
+          const rVal = (settingChatRounded.dataset && settingChatRounded.dataset.val) ? settingChatRounded.dataset.val : settingChatRounded.value;
+          if (rVal === '9999' || rVal === 'pill') {
+            labelChatRounded.textContent = 'Pill / Kapsul (Full)';
+          } else if (rVal === '0') {
+            labelChatRounded.textContent = 'Kotak (0px)';
+          } else {
+            labelChatRounded.textContent = `${rVal}px`;
+          }
+        }
       }
 
       function getOverlayConfig(forSave = false) {
@@ -3720,7 +3801,9 @@
           authorTiktokColor: settingAuthorTiktokColor ? settingAuthorTiktokColor.value : '#ffffff',
           chatAlign: settingChatAlign ? settingChatAlign.value : 'left',
           chatDirection: getSelectedChatDirection(),
+          horizontalDirection: getSelectedHorizontalDirection(),
           chatFade: getSelectedChatFade(),
+          chatRounded: (settingChatRounded && settingChatRounded.dataset && settingChatRounded.dataset.val) ? settingChatRounded.dataset.val : (settingChatRounded ? settingChatRounded.value : '12'),
           bgColor: settingBgColor ? settingBgColor.value : '#0d111b',
           bgOpacity: settingBgOpacity ? parseInt(settingBgOpacity.value, 10) : 88,
           textColor: settingTextColor ? settingTextColor.value : '#e2e8f0',
@@ -3780,9 +3863,19 @@
         if (tw) fullUrl += `&twitch=${encodeURIComponent(tw)}`;
         if (yt) fullUrl += `&youtube=${encodeURIComponent(yt)}`;
         if (tt) fullUrl += `&tiktok=${encodeURIComponent(tt)}`;
+        if (settingTheme && settingTheme.value) fullUrl += `&theme=${encodeURIComponent(settingTheme.value)}`;
+        if (settingFontSize && settingFontSize.value) fullUrl += `&fontSize=${settingFontSize.value}`;
+        if (settingHideDelay && settingHideDelay.value && settingHideDelay.value !== '0') fullUrl += `&hideDelay=${settingHideDelay.value}`;
+        if (settingMaxMessages && settingMaxMessages.value && settingMaxMessages.value !== '15') fullUrl += `&maxMessages=${settingMaxMessages.value}`;
+        const rVal = (settingChatRounded && settingChatRounded.dataset && settingChatRounded.dataset.val) ? settingChatRounded.dataset.val : (settingChatRounded ? settingChatRounded.value : '');
+        if (rVal && rVal !== '12') fullUrl += `&rounded=${encodeURIComponent(rVal)}`;
         if (settingChatAlign && settingChatAlign.value === 'right') fullUrl += '&align=right';
         if (getSelectedChatDirection() === 'top') fullUrl += '&direction=top';
-        if (getSelectedChatDirection() === 'horizontal') fullUrl += '&direction=horizontal';
+        if (getSelectedChatDirection() === 'horizontal') {
+          fullUrl += '&direction=horizontal';
+          const hDir = getSelectedHorizontalDirection();
+          if (hDir === 'left') fullUrl += '&hDir=left';
+        }
         if (getSelectedChatFade() !== 'none') fullUrl += `&fade=${getSelectedChatFade()}`;
         if (settingBgColor && settingBgColor.value !== '#0d111b') fullUrl += `&bgColor=${encodeURIComponent(settingBgColor.value)}`;
         if (settingBgOpacity && settingBgOpacity.value !== '88') fullUrl += `&bgOpacity=${settingBgOpacity.value}`;
@@ -3938,6 +4031,16 @@
         }
 
         const cfg = getOverlayConfig(true);
+        // Jika profileId saat ini adalah 'default', arahkan ke slot milik user jika ada, atau biarkan server generate slot baru
+        if (cfg.id === 'default') {
+          const userSlots = currentUser.overlays || currentUser.overlayIds || [];
+          const firstSlot = userSlots.length > 0 ? (typeof userSlots[0] === 'object' ? userSlots[0].id : userSlots[0]) : null;
+          if (firstSlot && firstSlot !== 'default') {
+            cfg.id = firstSlot;
+          } else {
+            delete cfg.id;
+          }
+        }
         try {
           const res = await fetch('/api/overlays', {
             method: 'POST',
@@ -3972,10 +4075,32 @@
 
       // Input change listeners
       settingFontSize.addEventListener('input', updateLabels);
+      if (settingChatRounded) {
+        settingChatRounded.addEventListener('input', () => {
+          settingChatRounded.dataset.val = settingChatRounded.value;
+          updateLabels();
+          updateUrl();
+          refreshPreview();
+        });
+      }
+
+      document.querySelectorAll('.btn-rounded-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-val');
+          if (settingChatRounded) {
+            settingChatRounded.dataset.val = val;
+            settingChatRounded.value = (val === '9999' || val === 'pill') ? 36 : (parseInt(val, 10) || 0);
+          }
+          updateLabels();
+          updateUrl();
+          refreshPreview();
+        });
+      });
+
       settingHideDelay.addEventListener('input', updateLabels);
       settingMaxMessages.addEventListener('input', updateLabels);
 
-      [settingTheme, settingFontFamily, settingChatAlign, settingFontSize, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowPlatformIcons, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
+      [settingTheme, settingFontFamily, settingChatAlign, settingFontSize, settingChatRounded, settingHideDelay, settingMaxMessages, settingMaskLinks, settingShowPlatformIcons, settingShowTwitchBadges, settingShowYtBadges, settingShowAvatars, settingShowEmotes, settingShowAlerts, settingShowTikTokLikes, settingShowTikTokGifts, settingShowTikTokFollow].forEach(el => {
         if (el) {
           el.addEventListener('change', () => {
             updateLabels();
@@ -3988,6 +4113,13 @@
       document.querySelectorAll('input[name="chatDirection"]').forEach(r => {
         r.addEventListener('change', () => {
           setSelectedChatDirection(r.value);
+          updateUrl();
+          refreshPreview();
+        });
+      });
+
+      document.querySelectorAll('input[name="horizontalDirection"]').forEach(r => {
+        r.addEventListener('change', () => {
           updateUrl();
           refreshPreview();
         });
@@ -4181,6 +4313,11 @@
         settingFontSize.value = 15;
         settingHideDelay.value = 0;
         settingMaxMessages.value = 15;
+        if (settingChatRounded) {
+          settingChatRounded.value = 12;
+          settingChatRounded.dataset.val = '12';
+        }
+        setSelectedHorizontalDirection('right');
 
         if (settingMaskLinks) settingMaskLinks.checked = false;
         if (settingShowPlatformIcons) settingShowPlatformIcons.checked = true;

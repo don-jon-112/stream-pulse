@@ -61,19 +61,39 @@ router.post('/overlays', (req, res) => {
   }
 
   const data = req.body || {};
-  const id = data.id && /^[a-zA-Z0-9_-]+$/.test(data.id) ? data.id : `ovl_${Math.random().toString(36).substr(2, 8)}`;
-  const overlays = readJsonFile(OVERLAYS_FILE, {});
-
   const currentUser = users[user.username] || user;
   if (!currentUser.overlayIds) currentUser.overlayIds = [];
+
+  let id = data.id && /^[a-zA-Z0-9_-]+$/.test(data.id) ? data.id : null;
+  const overlays = readJsonFile(OVERLAYS_FILE, {});
+
+  // Jika ID adalah 'default' atau kosong, jangan menimpa slot global 'default'
+  if (!id || id === 'default') {
+    if (currentUser.overlayIds.length > 0) {
+      id = currentUser.overlayIds[0];
+    } else {
+      id = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+    }
+  }
 
   // Keamanan Penjagaan Kepemilikan Slot:
   if (overlays[id]) {
     const isOwner = (overlays[id].owner === currentUser.username) || (currentUser.overlayIds.includes(id));
     if (!isOwner) {
-      return res.status(403).json({
-        error: `Akses ditolak: Slot ID "${id}" bukan milik akun Anda dan tidak dapat Anda ubah/overwrite.`
-      });
+      // Jika id adalah default atau milik akun lain, jangan overwrite milik orang lain/global
+      if (currentUser.overlayIds.length > 0) {
+        id = currentUser.overlayIds[0];
+      } else {
+        if (currentUser.overlayIds.length >= 5) {
+          return res.status(403).json({
+            error: `Akses ditolak: Slot ID "${id}" bukan milik akun Anda dan kuota 5 slot telah penuh.`
+          });
+        }
+        id = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+        currentUser.overlayIds.push(id);
+        users[user.username] = currentUser;
+        writeJsonFile(USERS_FILE, users);
+      }
     }
   } else {
     // ID baru yang belum ada di database, verifikasi kuota 5 slot per akun
