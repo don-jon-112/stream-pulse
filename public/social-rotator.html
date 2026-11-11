@@ -38,32 +38,6 @@
       flex-direction: column;
     }
 
-    /* Header Nav */
-    .rotator-nav-header {
-      min-height: 56px;
-      height: 56px;
-      padding: 0 20px;
-      background: var(--bg-canvas);
-      border-bottom: 1px solid var(--hairline);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .rotator-header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .rotator-header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
 
     /* Main Container */
     .rotator-page-wrapper {
@@ -615,32 +589,44 @@
 </head>
 <body>
 
-  <!-- Top App Navigation -->
-  <header class="rotator-nav-header">
-    <div class="rotator-header-left">
-      <button id="btnSideDrawerOpen" class="btn-drawer-toggle" title="Menu Navigasi StreamPulse (M)" aria-label="Buka Menu Samping">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-
-      <a href="/" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
-        <div class="brand-logo" style="width:28px; height:28px;">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+  <!-- Top Navigation Bar (Standard StreamPulse Header) -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="header-left">
+        <!-- Hamburger Menu Button -->
+        <button id="btnSideDrawerOpen" class="btn-drawer-toggle" aria-label="Buka Menu Samping" title="Buka Menu Samping (Tekan 'M')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
-        </div>
-        <span style="font-weight:900; font-size:1.1rem; letter-spacing:-0.01em;">StreamPulse</span>
-        <span style="font-size:0.65rem; background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 6px; border-radius:4px; font-weight:800;">ROTATOR</span>
-      </a>
-    </div>
+        </button>
 
-    <div class="rotator-header-right">
-      <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
-        <span class="theme-icon">☀️</span>
-      </button>
+        <!-- Brand -->
+        <a href="/" class="brand-section" id="brandSection" style="text-decoration:none;">
+          <div class="brand-logo" title="StreamPulse MultiChat">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="brand-info">
+            <div class="brand-title-row">
+              <span class="brand-title">StreamPulse</span>
+              <span class="brand-badge" style="background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.3);">SOCIAL ROTATOR</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="header-right">
+        <!-- Dark / Light Mode Toggle Button -->
+        <button type="button" id="btnThemeToggle" class="btn-theme-toggle" title="Ganti Mode Gelap / Terang">
+          <span class="theme-icon">☀️</span>
+        </button>
+
+        <!-- Language Switcher -->
+        <button type="button" id="btnLangToggle" class="btn-lang-toggle" title="Ganti Bahasa (Switch to English)">
+          <span style="font-size:1.1rem; line-height:1;">🇮🇩</span>
+        </button>
+      </div>
     </div>
   </header>
   <!-- Side Drawer & Backdrop dynamically injected by /js/drawer.js -->
