@@ -613,8 +613,8 @@
       border-left-color: #818cf8 !important;
     }
 
-    /* Twitch Viewer Bot Research Simulator (Admin Only) */
-    .research-hero-card {
+    /* Twitch Viewer Bot Research Simulator (Interactive App - Admin Only) */
+    .sim-hero-card {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
       border: 1px solid var(--hairline);
       border-radius: 14px;
@@ -624,85 +624,239 @@
       gap: 16px;
     }
 
-    .research-meta-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-    }
-
-    .research-chip {
+    .sim-status-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 9999px;
-      background: var(--surface-card);
-      border: 1px solid var(--hairline);
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .research-progress-wrap {
-      background: var(--surface-card);
-      border: 1px solid var(--hairline);
-      border-radius: 12px;
-      padding: 16px 20px;
-    }
-
-    .research-progress-bar-bg {
-      width: 100%;
-      height: 10px;
-      background: var(--surface-soft);
-      border-radius: 9999px;
-      overflow: hidden;
-      margin: 10px 0 6px 0;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(148, 163, 184, 0.15);
+      color: #94a3b8;
       border: 1px solid var(--hairline);
     }
 
-    .research-progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #6366f1, #a855f7, #10b981);
-      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    .sim-status-pill.running {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.3);
     }
 
-    .research-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+    .sim-status-pill.paused {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border-color: rgba(245, 158, 11, 0.3);
     }
 
-    @media (max-width: 900px) {
-      .research-grid-2 {
-        grid-template-columns: 1fr;
-      }
+    .sim-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
     }
 
-    .phase-card {
+    .sim-status-pill.running .sim-status-dot {
+      animation: simPulse 1.4s ease infinite;
+    }
+
+    @keyframes simPulse {
+      0% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.25); }
+      100% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    .sim-control-panel {
       background: var(--surface-card);
       border: 1px solid var(--hairline);
       border-radius: 12px;
       padding: 20px;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .phase-card:hover {
-      border-color: var(--hairline-strong);
-    }
-
-    .phase-header {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--hairline);
+      flex-direction: column;
+      gap: 16px;
     }
 
-    .phase-title {
-      font-size: 1rem;
+    .sim-preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sim-preset-btn {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--body);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sim-preset-btn:hover {
+      border-color: var(--primary);
+      color: var(--ink);
+    }
+
+    .sim-preset-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+    }
+
+    .sim-config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: flex-end;
+    }
+
+    .sim-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sim-control-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sim-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .sim-stat-card {
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sim-stat-card .sim-stat-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sim-stat-card .sim-stat-val {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .sim-stat-card .sim-stat-sub {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .sim-workbench {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 1024px) {
+      .sim-workbench {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sim-terminal-box {
+      background: #090b10;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px 14px;
+      height: 380px;
+      overflow-y: auto;
+      font-family: var(--font-mono, monospace);
+      font-size: 0.74rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .sim-terminal-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.45;
+      word-break: break-all;
+    }
+
+    .sim-log-time {
+      color: #64748b;
+      flex-shrink: 0;
+    }
+
+    .sim-log-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+
+    .sim-log-badge.NORMAL { background: rgba(16,185,129,0.2); color: #34d399; }
+    .sim-log-badge.SPIKE { background: rgba(245,158,11,0.25); color: #fbbf24; }
+    .sim-log-badge.DROP { background: rgba(239,68,68,0.25); color: #f87171; }
+    .sim-log-badge.RECONNECT { background: rgba(6,182,212,0.2); color: #22d3ee; }
+    .sim-log-badge.JITTER { background: rgba(168,85,247,0.2); color: #c084fc; }
+    .sim-log-badge.SYSTEM { background: rgba(148,163,184,0.2); color: #cbd5e1; }
+
+    .sim-client-table-wrap {
+      max-height: 380px;
+      overflow-y: auto;
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      background: var(--surface-card);
+    }
+
+    .sim-client-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.76rem;
+    }
+
+    .sim-client-table th {
+      position: sticky;
+      top: 0;
+      background: var(--surface-soft);
+      padding: 8px 10px;
+      font-weight: 700;
+      text-align: left;
+      color: var(--ink);
+      border-bottom: 1px solid var(--hairline);
+      z-index: 1;
+    }
+
+    .sim-client-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--hairline);
+      color: var(--body);
+    }
+
+    .sim-client-table tr:hover td {
+      background: var(--surface-soft);
+    }
       font-weight: 800;
       color: var(--ink);
       display: flex;
@@ -816,6 +970,8 @@
     }
   </style>
 
+  <!-- Socket.IO for Real-time Simulator Telemetry -->
+  <script src="/js/socket.io.min.js"></script>
   <script>
     (function() {
       var saved = localStorage.getItem('streampulse_theme') || 'dark';
@@ -919,7 +1075,8 @@
 
       <div class="nav-label" style="margin-top:10px;">Lab Riset & R&D (Private)</div>
       <button class="nav-item" data-tab="tabViewerResearch">
-        <span>🧪</span> <span>Viewer Simulator Plan</span>
+        <span>🧪</span> <span>Viewer Bot Simulator</span>
+        <span id="navSimBadge" class="badge-admin" style="margin-left:auto; font-size:0.65rem; padding:1px 6px; background:rgba(100,116,139,0.2); color:var(--text-secondary);">STANDBY</span>
       </button>
 
       <div style="margin-top:auto; padding-top:14px; border-top:1px solid var(--hairline);">
@@ -1133,643 +1290,242 @@
         </div>
       </section>
 
-      <!-- TAB 6: TWITCH VIEWER BOT RESEARCH SIMULATOR (VPS DEV PLAN - ADMIN ONLY) -->
+      <!-- TAB 6: TWITCH VIEWER BOT RESEARCH SIMULATOR (INTERACTIVE APP - ADMIN ONLY) -->
       <section id="tabViewerResearch" class="tab-content">
         <!-- TOP HERO -->
-        <div class="research-hero-card">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+        <div class="sim-hero-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px;">
             <div>
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
                 <span style="font-size:1.4rem;">🧪</span>
                 <h2 style="font-size:1.35rem; font-weight:800; color:var(--ink); margin:0;">Twitch Viewer Bot Research Simulator</h2>
                 <span class="badge-admin" style="background:rgba(99,102,241,0.15); color:var(--primary); font-weight:800;">ADMIN R&D ONLY</span>
+                <span id="simStatusPill" class="sim-status-pill">
+                  <span class="sim-status-dot"></span>
+                  <span id="simStatusText">IDLE (STANDBY)</span>
+                </span>
               </div>
               <p style="font-size:0.85rem; color:var(--text-secondary); margin:0; line-height:1.5;">
-                Pelan Pengembangan VPS & Riset Simulasi Lalu Lintas Jaringan (Concurrent WebSocket/HTTP Client Testing).
+                Engine riset lalu lintas jaringan & simulasi virtual client konkuren (WebSocket / HTTP Mock Stream Testing).
               </p>
             </div>
 
-            <div style="display:flex; align-items:center; gap:8px;">
-              <button type="button" id="btnSelectAllResearchChecklist" class="btn-icon" style="font-size:0.75rem;">
-                <span>✅ Centang Semua</span>
+            <!-- Master Action Controls -->
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <button type="button" id="btnSimStart" class="btn-icon btn-primary" style="font-weight:700;">
+                <span>▶️ Mulai Simulasi</span>
               </button>
-              <button type="button" id="btnResetResearchChecklist" class="btn-icon" style="font-size:0.75rem;">
-                <span>🔄 Reset Checklist</span>
+              <button type="button" id="btnSimPause" class="btn-icon" style="font-weight:600;" disabled>
+                <span>⏸️ Jeda</span>
+              </button>
+              <button type="button" id="btnSimStop" class="btn-icon" style="color:#ef4444; border-color:rgba(239,68,68,0.3); font-weight:600;" disabled>
+                <span>⏹️ Hentikan & Flush</span>
+              </button>
+              <button type="button" id="btnSimRefresh" class="btn-icon" title="Refresh Telemetri">
+                <span>🔄</span>
               </button>
             </div>
           </div>
-
-          <div class="research-meta-chips">
-            <span class="research-chip">🏷️ <strong>Tipe Proyek:</strong> Networking & Traffic Simulation</span>
-            <span class="research-chip">🐍 <strong>Bahasa:</strong> Python 3.12+</span>
-            <span class="research-chip">🐧 <strong>Deployment:</strong> Linux VPS + Docker</span>
-            <span class="research-chip">⚡ <strong>Dashboard:</strong> FastAPI + React</span>
-            <span class="research-chip">🐘 <strong>Database:</strong> PostgreSQL + Redis</span>
-            <span class="research-chip">📊 <strong>Monitoring:</strong> Prometheus + Grafana</span>
-          </div>
-
-          <!-- Real-Time Progress Bar -->
-          <div class="research-progress-wrap">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-size:0.85rem; font-weight:700; color:var(--ink);">Progres Pelaksanaan Proyek</span>
-              <span id="researchProgressBadge" class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">0% SELESAI</span>
-            </div>
-            <div class="research-progress-bar-bg">
-              <div id="researchProgressBar" class="research-progress-bar-fill"></div>
-            </div>
-            <div id="researchProgressText" style="font-size:0.75rem; color:var(--text-secondary);">
-              0 dari 44 tugas selesai (0%)
-            </div>
-          </div>
         </div>
 
-        <!-- SECURITY & ETHICAL CALLOUT (MANDATORY) -->
-        <div class="security-callout">
-          <div style="display:flex; align-items:flex-start; gap:12px;">
-            <span style="font-size:1.5rem; line-height:1;">🛡️</span>
-            <div>
-              <h3 style="font-size:0.95rem; font-weight:800; color:#b45309; margin:0 0 6px 0;">Persyaratan Keamanan & Batasan Riset (Security Guidelines)</h3>
-              <p style="font-size:0.82rem; color:var(--ink); margin:0 0 8px 0; line-height:1.5;">
-                Platform riset ini dirancang <strong>hanya untuk pengujian internal pada server tes privat</strong> milik sendiri. Patuhi rambu-rambu berikut:
-              </p>
-              <ul style="margin:0; padding-left:18px; font-size:0.8rem; color:var(--body); line-height:1.6;">
-                <li>Hanya simulasikan traffic ke server tes privat terkontrol (loopback/internal test environment).</li>
-                <li><strong>Dilarang keras</strong> mengotomatisasi sesi viewer langsung ke platform live Twitch resmi.</li>
-                <li><strong>Dilarang keras</strong> mencoba membobol atau mengelabuhi sistem deteksi bot pihak ketiga.</li>
-                <li><strong>Dilarang keras</strong> menggunakan jaringan residential proxy untuk memanipulasi jumlah viewership publik.</li>
-                <li>Wajib mengamankan API key dan kredensial server simulasi.</li>
-                <li>Wajib menerapkan autentikasi ketat untuk dashboard kontrol simulasi.</li>
-                <li>Terapkan batasan koneksi dan kuota resource VPS secara ketat agar server tidak crash.</li>
-                <li>Cegah endpoint stress-testing agar tidak dapat diakses secara publik tanpa token rahasia.</li>
-              </ul>
+        <!-- SIMULATION CONFIGURATION & PRESETS -->
+        <div class="sim-control-panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="font-size:0.85rem; font-weight:800; color:var(--ink);">
+              <span>⚙️ Preset & Konfigurasi Beban Trafik (Private Server)</span>
+            </div>
+            <!-- Quick Preset Chips -->
+            <div class="sim-preset-chips">
+              <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600;">Presets:</span>
+              <button type="button" class="sim-preset-btn" data-preset="10">Small (10)</button>
+              <button type="button" class="sim-preset-btn active" data-preset="50">Medium (50)</button>
+              <button type="button" class="sim-preset-btn" data-preset="100">Large (100)</button>
+              <button type="button" class="sim-preset-btn" data-preset="250">Stress (250)</button>
+              <button type="button" class="sim-preset-btn" data-preset="500">Extreme (500)</button>
             </div>
           </div>
-        </div>
 
-        <!-- 1. PROJECT OVERVIEW & 2. SYSTEM ARCHITECTURE -->
-        <div class="research-grid-2">
-          <!-- Overview -->
-          <div class="admin-panel-box">
-            <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 8px 0;">1. Ringkasan Proyek (Overview)</h3>
-            <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6; margin:0 0 12px 0;">
-              Membangun platform riset mandiri (self-hosted) yang mensimulasikan koneksi virtual viewer ke server tes streaming terkontrol milik pribadi.
-            </p>
-            <div style="font-size:0.8rem; font-weight:700; color:var(--ink); margin-bottom:6px;">Tujuan Riset:</div>
-            <ul style="margin:0; padding-left:18px; font-size:0.8rem; color:var(--body); line-height:1.6;">
-              <li>Memahami cara kerja virtual client berskala besar.</li>
-              <li>Menganalisis komunikasi konkurensi tinggi via HTTP dan WebSocket.</li>
-              <li>Manajemen siklus hidup sesi (session lifecycle management).</li>
-              <li>Pola lalu lintas jaringan dan konsumsi sumber daya VPS (RAM, CPU, I/O).</li>
-              <li>Klasifikasi pola trafik dan deteksi anomali lonjakan (anomaly detection).</li>
-            </ul>
-          </div>
-
-          <!-- Architecture Flow -->
-          <div class="admin-panel-box">
-            <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 8px 0;">2. Arsitektur Sistem</h3>
-            <div class="arch-diagram">
-              <div class="arch-box">🖥️ Linux VPS (Docker Host)</div>
-              <span class="arch-arrow">↓</span>
-              <div class="arch-box">🎛️ Control Dashboard (React Web UI)</div>
-              <span class="arch-arrow">↓</span>
-              <div class="arch-box">⚡ FastAPI Backend (Async REST/WS API)</div>
-              <span class="arch-arrow">↓</span>
-              <div class="arch-box">⚙️ Simulation Manager (Client Pool Orchestrator)</div>
-              <span class="arch-arrow">↓</span>
-              <div class="arch-step-row">
-                <div class="arch-box">👥 Virtual Client Pool</div>
-                <span class="arch-arrow">⟷</span>
-                <div class="arch-box">🌐 Private Test Server</div>
+          <div class="sim-config-grid">
+            <!-- Target Viewer Count -->
+            <div class="sim-control-group">
+              <div class="sim-control-label">
+                <span>Target Virtual Viewers</span>
+                <span id="simValCountDisplay" style="color:var(--primary); font-weight:800;">50</span>
               </div>
-              <span class="arch-arrow">↓</span>
-              <div class="arch-step-row">
-                <div class="arch-box">🐘 PostgreSQL + Redis</div>
-                <span class="arch-arrow">⟷</span>
-                <div class="arch-box">📊 Prometheus + Grafana</div>
+              <input type="range" id="simInputCount" min="1" max="500" value="50" step="1" style="width:100%; accent-color:var(--primary); cursor:pointer;">
+            </div>
+
+            <!-- Ramp-up Speed -->
+            <div class="sim-control-group">
+              <div class="sim-control-label">
+                <span>Kecepatan Ramp-Up</span>
+                <span style="color:var(--text-secondary); font-weight:400;">(Client baru / detik)</span>
+              </div>
+              <select id="simSelectRamp" class="search-input" style="height:36px; padding:0 10px; font-size:0.82rem;">
+                <option value="5">5 viewers / detik (Stabil)</option>
+                <option value="10" selected>10 viewers / detik (Normal)</option>
+                <option value="25">25 viewers / detik (Cepat)</option>
+                <option value="50">50 viewers / detik (Burst Spike)</option>
+              </select>
+            </div>
+
+            <!-- Heartbeat Interval -->
+            <div class="sim-control-group">
+              <div class="sim-control-label">
+                <span>Interval Heartbeat Ping</span>
+                <span style="color:var(--text-secondary); font-weight:400;">(Tiap client)</span>
+              </div>
+              <select id="simSelectHeartbeat" class="search-input" style="height:36px; padding:0 10px; font-size:0.82rem;">
+                <option value="2">2 detik (Agresif / High RPS)</option>
+                <option value="5" selected>5 detik (Standar Real-time)</option>
+                <option value="10">10 detik (Hemat Resource)</option>
+                <option value="15">15 detik (Santai)</option>
+              </select>
+            </div>
+
+            <!-- Simulated Drop Rate -->
+            <div class="sim-control-group">
+              <div class="sim-control-label">
+                <span>Simulasi Putus / Packet Drop</span>
+                <span id="simValDropDisplay" style="color:#ef4444; font-weight:800;">2%</span>
+              </div>
+              <input type="range" id="simInputDrop" min="0" max="20" value="2" step="1" style="width:100%; accent-color:#ef4444; cursor:pointer;">
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px; font-size:0.75rem; color:var(--text-secondary); padding-top:8px; border-top:1px solid var(--hairline); flex-wrap:wrap;">
+            <span>🌐 <strong>Private Test Endpoint:</strong> <code>GET /api/simulator/mock-stream</code> (Loopback Internal)</span>
+            <span style="margin-left:auto;">Channel Mock: <code id="simTargetChannelDisplay">research_mock_channel</code></span>
+          </div>
+        </div>
+
+        <!-- REAL-TIME KPI STATS -->
+        <div class="sim-stats-grid">
+          <!-- Active Viewers -->
+          <div class="sim-stat-card" style="border-left:3px solid #6366f1;">
+            <span class="sim-stat-title">👥 Virtual Viewers</span>
+            <div class="sim-stat-val">
+              <span id="simStatActive" style="color:var(--primary);">0</span>
+              <span style="font-size:0.85rem; color:var(--text-tertiary); font-weight:500;">/ <span id="simStatTarget">50</span></span>
+            </div>
+            <div class="sim-stat-sub">Peak: <strong id="simStatPeak">0</strong> viewers</div>
+          </div>
+
+          <!-- Latency -->
+          <div class="sim-stat-card" style="border-left:3px solid #10b981;">
+            <span class="sim-stat-title">⚡ Latensi RTT Rata-rata</span>
+            <div class="sim-stat-val">
+              <span id="simStatLatency">0</span> <span style="font-size:0.85rem; font-weight:600;">ms</span>
+            </div>
+            <div class="sim-stat-sub">Min: <span id="simStatMinPing">0</span>ms | Max: <span id="simStatMaxPing">0</span>ms</div>
+          </div>
+
+          <!-- Connection Health -->
+          <div class="sim-stat-card" style="border-left:3px solid #f59e0b;">
+            <span class="sim-stat-title">📶 Sesi & Stabilitas</span>
+            <div class="sim-stat-val">
+              <span id="simStatSuccess" style="color:#10b981;">0</span>
+            </div>
+            <div class="sim-stat-sub">Drops: <span id="simStatDrops" style="color:#ef4444;">0</span> | Reconnect: <span id="simStatReconnects" style="color:#38bdf8;">0</span></div>
+          </div>
+
+          <!-- Throughput -->
+          <div class="sim-stat-card" style="border-left:3px solid #06b6d4;">
+            <span class="sim-stat-title">🔄 Throughput Traffic</span>
+            <div class="sim-stat-val">
+              <span id="simStatRps">0</span> <span style="font-size:0.85rem; font-weight:600;">req/s</span>
+            </div>
+            <div class="sim-stat-sub">ACK: <span id="simStatAcks">0</span> ack/s</div>
+          </div>
+
+          <!-- VPS / Process Load -->
+          <div class="sim-stat-card" style="border-left:3px solid #a855f7;">
+            <span class="sim-stat-title">🖥️ Beban Server VPS</span>
+            <div class="sim-stat-val">
+              <span id="simStatHeap">0</span> <span style="font-size:0.85rem; font-weight:600;">MB</span>
+            </div>
+            <div class="sim-stat-sub">OS Load: <span id="simStatOsLoad">0.00</span> | Free: <span id="simStatOsFree">0</span>MB</div>
+          </div>
+        </div>
+
+        <!-- SIMULATOR WORKBENCH (SPLIT PANELS) -->
+        <div class="sim-workbench">
+          <!-- LEFT: Virtual Client Pool Table -->
+          <div class="admin-panel-box" style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <div style="font-size:0.88rem; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:6px;">
+                <span>👥 Virtual Client Pool</span>
+                <span id="simPoolCountBadge" class="badge-admin" style="font-size:0.7rem; padding:1px 6px;">0 Online</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <input type="text" id="simSearchClient" placeholder="Cari Client ID..." class="search-input" style="height:30px; font-size:0.75rem; width:140px; padding:0 8px;">
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 3. TECHNOLOGY STACK -->
-        <div class="admin-panel-box">
-          <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 12px 0;">3. Technology Stack</h3>
-          <div style="overflow-x:auto;">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Komponen</th>
-                  <th>Teknologi</th>
-                  <th>Peran & Kegunaan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Operating System</strong></td>
-                  <td>Ubuntu 24.04 LTS</td>
-                  <td>Sistem operasi VPS berstabilitas tinggi dan modern kernel</td>
-                </tr>
-                <tr>
-                  <td><strong>Programming</strong></td>
-                  <td>Python 3.12+</td>
-                  <td>Runtime utama klien virtual (asyncio, httpx, websockets)</td>
-                </tr>
-                <tr>
-                  <td><strong>Backend</strong></td>
-                  <td>FastAPI</td>
-                  <td>API RESTful performa tinggi untuk kontrol simulasi & metrik</td>
-                </tr>
-                <tr>
-                  <td><strong>Frontend</strong></td>
-                  <td>React (Tailwind / Shadcn)</td>
-                  <td>Dashboard interaktif kontrol status dan jumlah viewer</td>
-                </tr>
-                <tr>
-                  <td><strong>Database</strong></td>
-                  <td>PostgreSQL 16</td>
-                  <td>Penyimpanan riwayat sesi, log tes, dan metrik latensi</td>
-                </tr>
-                <tr>
-                  <td><strong>Cache & Queue</strong></td>
-                  <td>Redis</td>
-                  <td>Broker pesan real-time dan state cache concurrent client</td>
-                </tr>
-                <tr>
-                  <td><strong>Containerization</strong></td>
-                  <td>Docker & Docker Compose</td>
-                  <td>Isolasi lingkungan dan kemudahan deploy multikontainer</td>
-                </tr>
-                <tr>
-                  <td><strong>Reverse Proxy</strong></td>
-                  <td>Caddy</td>
-                  <td>Otomatisasi SSL (HTTPS/WSS) dan proteksi reverse proxy ringan</td>
-                </tr>
-                <tr>
-                  <td><strong>Monitoring</strong></td>
-                  <td>Prometheus</td>
-                  <td>Pengumpulan time-series metrics performa server & latensi</td>
-                </tr>
-                <tr>
-                  <td><strong>Visualization</strong></td>
-                  <td>Grafana</td>
-                  <td>Dashboard visual grafik utilisasi CPU, RAM, koneksi & RPS</td>
-                </tr>
-                <tr>
-                  <td><strong>Testing Suite</strong></td>
-                  <td>Pytest + Locust</td>
-                  <td>Pengujian unit kode dan pengujian beban (load stress test)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- 4. DEVELOPMENT PHASES (INTERACTIVE CHECKLIST) -->
-        <div>
-          <h3 style="font-size:1.15rem; font-weight:800; color:var(--ink); margin:0 0 14px 0;">4. Tahapan Pengembangan (Development Phases Checklist)</h3>
-
-          <!-- Phase 1: VPS Infrastructure -->
-          <div class="phase-card">
-            <div class="phase-header">
-              <h4 class="phase-title">
-                <span>Phase 1</span>
-                <span>Infrastruktur VPS</span>
-              </h4>
-              <span class="phase-badge" style="background:rgba(99,102,241,0.15); color:var(--primary);">P0 • FOUNDATION</span>
-            </div>
-            <ul class="task-list">
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_update" class="task-checkbox research-task-chk">
-                <label for="chk_p1_update" class="task-label">Perbarui paket sistem Ubuntu (apt update & apt upgrade).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_ssh" class="task-checkbox research-task-chk">
-                <label for="chk_p1_ssh" class="task-label">Konfigurasi autentikasi SSH berbasis Public Key & nonaktifkan password root login.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_ufw" class="task-checkbox research-task-chk">
-                <label for="chk_p1_ufw" class="task-label">Konfigurasi Firewall (UFW) hanya membuka port SSH, HTTP (80), dan HTTPS (443).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_docker" class="task-checkbox research-task-chk">
-                <label for="chk_p1_docker" class="task-label">Pasang Docker Engine dan Docker Compose plugin resmi.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_git" class="task-checkbox research-task-chk">
-                <label for="chk_p1_git" class="task-label">Pasang Git dan konfigurasikan akses repository.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_dirs" class="task-checkbox research-task-chk">
-                <label for="chk_p1_dirs" class="task-label">Konfigurasi struktur direktori proyek dan izin akses pengguna (non-root user).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_env" class="task-checkbox research-task-chk">
-                <label for="chk_p1_env" class="task-label">Konfigurasi file environment variables (.env.example & .env aman).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p1_backup" class="task-checkbox research-task-chk">
-                <label for="chk_p1_backup" class="task-label">Siapkan cron job pencadangan otomatis (automated backup script).</label>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Phase 2: Private Test Server -->
-          <div class="phase-card">
-            <div class="phase-header">
-              <h4 class="phase-title">
-                <span>Phase 2</span>
-                <span>Server Tes Privat (Streaming-like Environment)</span>
-              </h4>
-              <span class="phase-badge" style="background:rgba(99,102,241,0.15); color:var(--primary);">P0 • CORE</span>
-            </div>
-            <ul class="task-list">
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_http" class="task-checkbox research-task-chk">
-                <label for="chk_p2_http" class="task-label">Buat endpoint HTTP simulasi status siaran (/api/v1/stream/status & viewer list).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_ws" class="task-checkbox research-task-chk">
-                <label for="chk_p2_ws" class="task-label">Buat endpoint WebSocket (/ws/stream/viewers) dengan dukungan ribuan koneksi konkuren.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_client_handle" class="task-checkbox research-task-chk">
-                <label for="chk_p2_client_handle" class="task-label">Implementasi penanganan koneksi masuk klien (handshake & token validation).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_lifecycle" class="task-checkbox research-task-chk">
-                <label for="chk_p2_lifecycle" class="task-label">Manajemen siklus hidup koneksi (connect, heartbeat/ping, disconnect).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_session_id" class="task-checkbox research-task-chk">
-                <label for="chk_p2_session_id" class="task-label">Identifikasi sesi unik untuk setiap virtual viewer (UUID / Session Token).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_active_counter" class="task-checkbox research-task-chk">
-                <label for="chk_p2_active_counter" class="task-label">Penghitung koneksi aktif atomik di memori (Redis / in-memory atomic counter).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_disconnect" class="task-checkbox research-task-chk">
-                <label for="chk_p2_disconnect" class="task-label">Penanganan disconnect yang bersih dan pembaruan counter seketika.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p2_logging" class="task-checkbox research-task-chk">
-                <label for="chk_p2_logging" class="task-label">Sistem pencatatan event server (Structured JSON logging untuk Prometheus/Loki).</label>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Phase 3: Virtual Client Simulator -->
-          <div class="phase-card">
-            <div class="phase-header">
-              <h4 class="phase-title">
-                <span>Phase 3</span>
-                <span>Virtual Client Simulator (Python-based Engine)</span>
-              </h4>
-              <span class="phase-badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">P1 • SIMULATOR</span>
-            </div>
-            <ul class="task-list">
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_create" class="task-checkbox research-task-chk">
-                <label for="chk_p3_create" class="task-label">Buat kelas VirtualClient berbasis asyncio & aiohttp/websockets.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_count" class="task-checkbox research-task-chk">
-                <label for="chk_p3_count" class="task-label">Konfigurasi jumlah target klien yang dapat diatur dinamis lewat parameter/API.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_conn_disconn" class="task-checkbox research-task-chk">
-                <label for="chk_p3_conn_disconn" class="task-label">Mekanisme penyambungan dan pemutusan klien terjadwal secara bertahap (ramp-up & ramp-down).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_duration" class="task-checkbox research-task-chk">
-                <label for="chk_p3_duration" class="task-label">Simulasi durasi tonton acak mengikuti distribusi Gaussian (meniru penonton manusia).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_heartbeat" class="task-checkbox research-task-chk">
-                <label for="chk_p3_heartbeat" class="task-label">Simulasi pesan heartbeat/ping periodik berkala (misal tiap 20-30 detik).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_random_dc" class="task-checkbox research-task-chk">
-                <label for="chk_p3_random_dc" class="task-label">Simulasi diskoneksi acak dan reconnect otomatis dengan jitter waktu.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_fail_track" class="task-checkbox research-task-chk">
-                <label for="chk_p3_fail_track" class="task-label">Pelacakan kegagalan koneksi (timeout, connection refused, drops).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p3_latency" class="task-checkbox research-task-chk">
-                <label for="chk_p3_latency" class="task-label">Pengumpulan statistik round-trip latency (min, max, p50, p95, p99).</label>
-              </li>
-            </ul>
-
-            <!-- Presets Table -->
-            <div style="margin-top:16px;">
-              <div style="font-size:0.8rem; font-weight:700; color:var(--ink); margin-bottom:6px;">Tabel Skala Preset Simulasi (Hanya untuk Server Privat):</div>
-              <table class="data-table">
+            <!-- Table Container -->
+            <div class="sim-client-table-wrap">
+              <table class="sim-client-table">
                 <thead>
                   <tr>
-                    <th>Preset Level</th>
-                    <th>Virtual Clients</th>
-                    <th>Kebutuhan Sumber Daya VPS</th>
+                    <th style="width:36px;">#</th>
+                    <th>Client ID</th>
+                    <th>Region</th>
+                    <th>IP Simulasi</th>
+                    <th>Status</th>
+                    <th>Ping</th>
+                    <th>Uptime</th>
+                    <th style="text-align:right;">Aksi</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="simClientTableBody">
                   <tr>
-                    <td><span class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Small</span></td>
-                    <td><strong>10 Clients</strong></td>
-                    <td>Minimal (1 vCPU, 512MB RAM)</td>
-                  </tr>
-                  <tr>
-                    <td><span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">Medium</span></td>
-                    <td><strong>50 Clients</strong></td>
-                    <td>Rendah (1 vCPU, 1GB RAM)</td>
-                  </tr>
-                  <tr>
-                    <td><span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Large</span></td>
-                    <td><strong>100 Clients</strong></td>
-                    <td>Sedang (2 vCPU, 2GB RAM)</td>
-                  </tr>
-                  <tr>
-                    <td><span class="phase-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Stress</span></td>
-                    <td><strong>250 Clients</strong></td>
-                    <td>Tinggi (2-4 vCPU, 4GB RAM)</td>
-                  </tr>
-                  <tr>
-                    <td><span class="phase-badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Extreme</span></td>
-                    <td><strong>500 Clients</strong></td>
-                    <td>Sangat Tinggi (4+ vCPU, 8GB RAM, tuning ulimit)</td>
+                    <td colspan="8" style="text-align:center; padding:32px 10px; color:var(--text-tertiary);">
+                      Simulasi sedang standby. Tekan <strong>▶️ Mulai Simulasi</strong> untuk menjalankan virtual client pool.
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- Phase 4: Monitoring Dashboard -->
-          <div class="phase-card">
-            <div class="phase-header">
-              <h4 class="phase-title">
-                <span>Phase 4</span>
-                <span>Web Dashboard & Metrik Real-Time</span>
-              </h4>
-              <span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">P2 • DASHBOARD</span>
+          <!-- RIGHT: Anomaly Detection Engine & Traffic Stream -->
+          <div class="admin-panel-box" style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <div style="font-size:0.88rem; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:6px;">
+                <span>🛡️ Anomaly Detector & Traffic Log</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <button type="button" id="btnSimClearLogs" class="btn-icon" style="font-size:0.72rem; padding:3px 8px;">
+                  <span>🗑️ Bersihkan</span>
+                </button>
+              </div>
             </div>
-            <ul class="task-list">
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_metrics" class="task-checkbox research-task-chk">
-                <label for="chk_p4_metrics" class="task-label">Panel metrik live: Active Clients, Total Connections, Success vs Failed rate.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_latency" class="task-checkbox research-task-chk">
-                <label for="chk_p4_latency" class="task-label">Grafik latensi rata-rata real-time (Average Latency & Response time).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_rps" class="task-checkbox research-task-chk">
-                <label for="chk_p4_rps" class="task-label">Indikator Incoming Requests/detik & Outgoing WebSocket Messages/detik.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_host_stats" class="task-checkbox research-task-chk">
-                <label for="chk_p4_host_stats" class="task-label">Monitor utilisasi CPU VPS, pemakaian RAM, dan Network Bandwidth I/O.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_page1" class="task-checkbox research-task-chk">
-                <label for="chk_p4_page1" class="task-label">Halaman 1: <strong>Overview</strong> (Ringkasan KPI dan status server aktif).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_page2" class="task-checkbox research-task-chk">
-                <label for="chk_p4_page2" class="task-label">Halaman 2: <strong>Active Sessions</strong> (Tabel detail sesi virtual viewer yang sedang terhubung).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_page3" class="task-checkbox research-task-chk">
-                <label for="chk_p4_page3" class="task-label">Halaman 3: <strong>Traffic Analytics</strong> (Grafik distribusi paket & throughput jaringan).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_page4" class="task-checkbox research-task-chk">
-                <label for="chk_p4_page4" class="task-label">Halaman 4: <strong>Simulation Controls</strong> (Slider jumlah viewer, tombol Start/Pause/Stop, pilihan Preset).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_page5" class="task-checkbox research-task-chk">
-                <label for="chk_p4_page5" class="task-label">Halaman 5: <strong>Server Health</strong> (Diagnostik service Docker, container status & memory leak check).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p4_page6" class="task-checkbox research-task-chk">
-                <label for="chk_p4_page6" class="task-label">Halaman 6: <strong>Event Logs</strong> (Log audit live stream dan error stack trace).</label>
-              </li>
-            </ul>
-          </div>
 
-          <!-- Phase 5: Traffic Pattern Analysis & Anomaly Detection -->
-          <div class="phase-card">
-            <div class="phase-header">
-              <h4 class="phase-title">
-                <span>Phase 5</span>
-                <span>Analisis Pola Trafik & Deteksi Anomali</span>
-              </h4>
-              <span class="phase-badge" style="background:rgba(236,72,153,0.15); color:#ec4899;">P3 • RESEARCH</span>
+            <!-- Terminal Window -->
+            <div id="simTerminal" class="sim-terminal-box">
+              <div class="sim-terminal-line" style="color:#64748b;">
+                <span>[SYSTEM] Anomaly Detection & Traffic Classifier siap memantau paket simulasi...</span>
+              </div>
             </div>
-            <ul class="task-list">
-              <li class="task-item">
-                <input type="checkbox" id="chk_p5_freq" class="task-checkbox research-task-chk">
-                <label for="chk_p5_freq" class="task-label">Analisis frekuensi koneksi (Connection frequency & arrival rates).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p5_dur" class="task-checkbox research-task-chk">
-                <label for="chk_p5_dur" class="task-label">Analisis lama durasi sesi (Session duration distribution).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p5_reconn" class="task-checkbox research-task-chk">
-                <label for="chk_p5_reconn" class="task-label">Analisis frekuensi rekoneksi berulang (Repeated reconnection intervals).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p5_vol" class="task-checkbox research-task-chk">
-                <label for="chk_p5_vol" class="task-label">Analisis volume payload pesan dan interval pesan (Request volume & message jitter).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p5_spikes" class="task-checkbox research-task-chk">
-                <label for="chk_p5_spikes" class="task-label">Deteksi lonjakan koneksi abnormal (Abnormal connection spikes detection).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p5_rules" class="task-checkbox research-task-chk">
-                <label for="chk_p5_rules" class="task-label">Implementasi rule-based classifier sederhana (Normal Traffic, Unusual Frequency, Rapid Reconnects, Suspicious Short Sessions).</label>
-              </li>
-            </ul>
-          </div>
 
-          <!-- Phase 6: Performance Testing -->
-          <div class="phase-card">
-            <div class="phase-header">
-              <h4 class="phase-title">
-                <span>Phase 6</span>
-                <span>Pengujian Performa & Skalabilitas</span>
-              </h4>
-              <span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">P2 • BENCHMARK</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-secondary); padding:4px 2px 0 2px;">
+              <span>Klasifikasi: <strong style="color:#34d399;">NORMAL</strong> • <strong style="color:#fbbf24;">SPIKE</strong> • <strong style="color:#f87171;">DROP</strong> • <strong style="color:#22d3ee;">RECONNECT</strong> • <strong style="color:#c084fc;">JITTER</strong></span>
+              <span>Auto-scroll: <strong style="color:var(--primary);">Aktif</strong></span>
             </div>
-            <ul class="task-list">
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_10" class="task-checkbox research-task-chk">
-                <label for="chk_p6_10" class="task-label">Uji coba beban 10 klien virtual (Baseline test).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_50" class="task-checkbox research-task-chk">
-                <label for="chk_p6_50" class="task-label">Uji coba beban 50 klien virtual (Low-medium test).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_100" class="task-checkbox research-task-chk">
-                <label for="chk_p6_100" class="task-label">Uji coba beban 100 klien virtual (Target benchmark).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_250" class="task-checkbox research-task-chk">
-                <label for="chk_p6_250" class="task-label">Uji coba beban 250 klien virtual (Stress test).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_500" class="task-checkbox research-task-chk">
-                <label for="chk_p6_500" class="task-label">Uji coba beban 500 klien virtual jika resource VPS mencukupi (Extreme limit).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_measure" class="task-checkbox research-task-chk">
-                <label for="chk_p6_measure" class="task-label">Pengukuran metrik CPU, RAM, WebSocket file descriptor limits (ulimit -n 65535).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_bottleneck" class="task-checkbox research-task-chk">
-                <label for="chk_p6_bottleneck" class="task-label">Identifikasi bottleneck performa (Event loop lag, garbage collection, socket buffer).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p6_report" class="task-checkbox research-task-chk">
-                <label for="chk_p6_report" class="task-label">Generate laporan hasil performa riset (Automated performance report).</label>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Phase 7: Deployment -->
-          <div class="phase-card">
-            <div class="phase-header">
-              <h4 class="phase-title">
-                <span>Phase 7</span>
-                <span>Deployment & Otomatisasi Produksi</span>
-              </h4>
-              <span class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">P3 • DEPLOYMENT</span>
-            </div>
-            <ul class="task-list">
-              <li class="task-item">
-                <input type="checkbox" id="chk_p7_dockerize" class="task-checkbox research-task-chk">
-                <label for="chk_p7_dockerize" class="task-label">Dockerize seluruh modul layanan (Backend, Frontend, Test Server, Database).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p7_compose" class="task-checkbox research-task-chk">
-                <label for="chk_p7_compose" class="task-label">Konfigurasi file docker-compose.yml dengan healthchecks dan network isolation.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p7_caddy" class="task-checkbox research-task-chk">
-                <label for="chk_p7_caddy" class="task-label">Konfigurasi reverse proxy Caddy (Caddyfile) dengan auto-HTTPS/WSS.</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p7_auth" class="task-checkbox research-task-chk">
-                <label for="chk_p7_auth" class="task-label">Kunci dashboard dengan autentikasi aman (JWT / HTTP Basic Auth / Admin Token).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p7_restart" class="task-checkbox research-task-chk">
-                <label for="chk_p7_restart" class="task-label">Konfigurasi restart otomatis (restart: unless-stopped & systemd service).</label>
-              </li>
-              <li class="task-item">
-                <input type="checkbox" id="chk_p7_grafana" class="task-checkbox research-task-chk">
-                <label for="chk_p7_grafana" class="task-label">Setup visualisasi monitoring Grafana terintegrasi dengan Prometheus.</label>
-              </li>
-            </ul>
           </div>
         </div>
 
-        <!-- 5. SUGGESTED PROJECT STRUCTURE -->
-        <div class="admin-panel-box">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0;">5. Struktur Direktori Proyek (Project Structure)</h3>
-            <button type="button" id="btnCopyProjectTree" class="btn-icon" style="font-size:0.75rem;">
-              <span>📋 Salin Struktur Folder</span>
-            </button>
+        <!-- SECURITY & RESEARCH COMPLIANCE NOTICE -->
+        <div class="security-callout" style="margin-top:4px;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <span style="font-size:1.3rem; line-height:1;">🛡️</span>
+            <div>
+              <h3 style="font-size:0.88rem; font-weight:800; color:#b45309; margin:0 0 4px 0;">Batasan Etika & Keamanan Riset (Research Safe-Guard)</h3>
+              <p style="font-size:0.78rem; color:var(--body); margin:0; line-height:1.5;">
+                Engine ini beroperasi 100% pada endpoint mock lokal (loopback private server). Dilarang keras mengarahkan atau memodifikasi request ke endpoint Twitch publik secara langsung, menggunakan residential proxy publik untuk manipulasi views, atau melanggar ketentuan layanan platform.
+              </p>
+            </div>
           </div>
-          <pre id="projectStructureCode" class="code-tree-block">twitch-research-simulator/
-├── backend/
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── api/
-│   │   ├── core/
-│   │   ├── simulator/
-│   │   ├── monitoring/
-│   │   ├── analytics/
-│   │   └── database/
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   └── package.json
-│
-├── test-server/
-│   ├── websocket_server.py
-│   └── http_server.py
-│
-├── tests/
-│
-├── monitoring/
-│   ├── prometheus.yml
-│   └── grafana/
-│
-├── docker-compose.yml
-├── .env.example
-└── README.md</pre>
-        </div>
-
-        <!-- 8. RECOMMENDED DEVELOPMENT ORDER & FINAL DELIVERABLES -->
-        <div class="admin-panel-box">
-          <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 10px 0;">8. Urutan Prioritas Pengembangan (Development Order)</h3>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Prioritas</th>
-                <th>Tugas / Milestone</th>
-                <th>Target Deliverable</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">P0 (Critical)</span></td>
-                <td>VPS Setup & Lingkungan Docker</td>
-                <td>Server Ubuntu 24.04 aman dengan Docker & firewall siap pakai</td>
-              </tr>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">P0 (Critical)</span></td>
-                <td>Private WebSocket & HTTP Test Server</td>
-                <td>Server tes privat yang menerima dan melacak koneksi virtual client</td>
-              </tr>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">P1 (High)</span></td>
-                <td>Virtual Client Simulator</td>
-                <td>Engine Python untuk menjalankan 10 - 250 virtual viewer simultan</td>
-              </tr>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">P1 (High)</span></td>
-                <td>Pengumpulan Metrik Koneksi & Latensi</td>
-                <td>Pencatatan statistik round-trip latency, success/failure rate</td>
-              </tr>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">P2 (Medium)</span></td>
-                <td>FastAPI & React Dashboard</td>
-                <td>Web UI interaktif kontrol simulasi, active viewer list, & server health</td>
-              </tr>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">P2 (Medium)</span></td>
-                <td>Traffic Analytics Engine</td>
-                <td>Pengukuran bandwidth, packet throughput, dan RPS</td>
-              </tr>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">P3 (Normal)</span></td>
-                <td>Rule-based Anomaly Detection</td>
-                <td>Deteksi otomatis pola lonjakan abnormal dan durasi sesi aneh</td>
-              </tr>
-              <tr>
-                <td><span class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">P3 (Normal)</span></td>
-                <td>Grafana & Prometheus Integration</td>
-                <td>Visualisasi komprehensif time-series metrik untuk observabilitas sistem</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </section>
 
@@ -1882,7 +1638,7 @@
           if (target === 'tabOverlays') fetchAdminOverlays();
           if (target === 'tabUsers') fetchAdminUsers();
           if (target === 'tabSystem') fetchAdminSystemStats();
-          if (target === 'tabViewerResearch') initResearchChecklist();
+          if (target === 'tabViewerResearch') { initViewerSimulatorApp(); fetchSimulatorStatus(); }
         });
       });
 
@@ -2423,116 +2179,377 @@
           console.error(e);
         }
       }
+      // // ==========================================
+      // TWITCH VIEWER BOT RESEARCH SIMULATOR APP (ADMIN ONLY)
       // ==========================================
-      // TWITCH VIEWER BOT RESEARCH CHECKLIST (ADMIN ONLY)
-      // ==========================================
-      function initResearchChecklist() {
-        const storageKey = 'streampulse_admin_vps_research_checklist';
-        let savedState = {};
-        try {
-          savedState = JSON.parse(localStorage.getItem(storageKey) || '{}');
-        } catch(e) {
-          savedState = {};
-        }
+      let simState = null;
+      let simSocket = null;
+      let simPollInterval = null;
+      let simClientFilter = '';
 
-        const checkboxes = document.querySelectorAll('.research-task-chk');
-        const totalCount = checkboxes.length;
+      function initViewerSimulatorApp() {
+        const simStatusPill = document.getElementById('simStatusPill');
+        const simStatusText = document.getElementById('simStatusText');
+        const navSimBadge = document.getElementById('navSimBadge');
 
-        function updateProgress() {
-          let completedCount = 0;
-          checkboxes.forEach(chk => {
-            const label = document.querySelector(`label[for="${chk.id}"]`);
-            if (chk.checked) {
-              completedCount++;
-              if (label) label.classList.add('checked');
+        const btnSimStart = document.getElementById('btnSimStart');
+        const btnSimPause = document.getElementById('btnSimPause');
+        const btnSimStop = document.getElementById('btnSimStop');
+        const btnSimRefresh = document.getElementById('btnSimRefresh');
+        const btnSimClearLogs = document.getElementById('btnSimClearLogs');
+
+        const simInputCount = document.getElementById('simInputCount');
+        const simValCountDisplay = document.getElementById('simValCountDisplay');
+        const simSelectRamp = document.getElementById('simSelectRamp');
+        const simSelectHeartbeat = document.getElementById('simSelectHeartbeat');
+        const simInputDrop = document.getElementById('simInputDrop');
+        const simValDropDisplay = document.getElementById('simValDropDisplay');
+        const simSearchClient = document.getElementById('simSearchClient');
+
+        // Presets buttons
+        document.querySelectorAll('.sim-preset-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.sim-preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const val = btn.getAttribute('data-preset');
+            simInputCount.value = val;
+            simValCountDisplay.textContent = val;
+          });
+        });
+
+        simInputCount.addEventListener('input', () => {
+          simValCountDisplay.textContent = simInputCount.value;
+          document.querySelectorAll('.sim-preset-btn').forEach(b => {
+            if (b.getAttribute('data-preset') === simInputCount.value) {
+              b.classList.add('active');
             } else {
-              if (label) label.classList.remove('checked');
+              b.classList.remove('active');
             }
           });
+        });
 
-          const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-          const bar = document.getElementById('researchProgressBar');
-          const text = document.getElementById('researchProgressText');
-          const badge = document.getElementById('researchProgressBadge');
+        simInputDrop.addEventListener('input', () => {
+          simValDropDisplay.textContent = simInputDrop.value + '%';
+        });
 
-          if (bar) bar.style.width = `${percent}%`;
-          if (text) text.textContent = `${completedCount} dari ${totalCount} tugas selesai (${percent}%)`;
-          if (badge) {
-            badge.textContent = `${percent}% SELESAI`;
-            if (percent === 100) {
-              badge.style.background = 'rgba(16,185,129,0.2)';
-              badge.style.color = '#10b981';
-            } else if (percent > 0) {
-              badge.style.background = 'rgba(99,102,241,0.15)';
-              badge.style.color = '#6366f1';
-            } else {
-              badge.style.background = 'rgba(148,163,184,0.15)';
-              badge.style.color = '#94a3b8';
-            }
-          }
+        if (simSearchClient) {
+          simSearchClient.addEventListener('input', (e) => {
+            simClientFilter = (e.target.value || '').toLowerCase().trim();
+            if (simState) renderSimulatorClients(simState.clientSamples || []);
+          });
         }
 
-        checkboxes.forEach(chk => {
-          if (savedState[chk.id]) {
-            chk.checked = true;
-          }
-          if (!chk.dataset.bound) {
-            chk.dataset.bound = 'true';
-            chk.addEventListener('change', () => {
-              savedState[chk.id] = chk.checked;
-              localStorage.setItem(storageKey, JSON.stringify(savedState));
-              updateProgress();
+        // Action controls
+        btnSimStart.addEventListener('click', async () => {
+          try {
+            btnSimStart.disabled = true;
+            const res = await fetch('/api/admin/simulator/start', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': adminToken
+              },
+              body: JSON.stringify({
+                count: Number(simInputCount.value) || 50,
+                rampUpRate: Number(simSelectRamp.value) || 10,
+                heartbeatIntervalSec: Number(simSelectHeartbeat.value) || 5,
+                dropRatePct: Number(simInputDrop.value) || 2
+              })
             });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              showToast('🚀 Simulasi Viewer Bot aktif! Men-spawn virtual clients...');
+              renderSimulatorUI(data.state);
+              startSimPolling();
+            } else {
+              showToast(data.error || 'Gagal memulai simulasi');
+            }
+          } catch (e) {
+            showToast('Error koneksi ke simulator engine');
+          } finally {
+            btnSimStart.disabled = false;
           }
         });
 
-        const btnReset = document.getElementById('btnResetResearchChecklist');
-        if (btnReset && !btnReset.dataset.bound) {
-          btnReset.dataset.bound = 'true';
-          btnReset.addEventListener('click', () => {
-            if (confirm('Reset semua centang pada rencana riset viewer simulator?')) {
-              checkboxes.forEach(c => c.checked = false);
-              savedState = {};
-              localStorage.removeItem(storageKey);
-              updateProgress();
-              showToast('🔄 Checklist riset telah direset.');
-            }
-          });
-        }
-
-        const btnSelectAll = document.getElementById('btnSelectAllResearchChecklist');
-        if (btnSelectAll && !btnSelectAll.dataset.bound) {
-          btnSelectAll.dataset.bound = 'true';
-          btnSelectAll.addEventListener('click', () => {
-            checkboxes.forEach(c => {
-              c.checked = true;
-              savedState[c.id] = true;
+        btnSimPause.addEventListener('click', async () => {
+          try {
+            const isPaused = simState?.status === 'PAUSED';
+            const endpoint = isPaused ? '/api/admin/simulator/resume' : '/api/admin/simulator/pause';
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'x-admin-key': adminToken }
             });
-            localStorage.setItem(storageKey, JSON.stringify(savedState));
-            updateProgress();
-            showToast('✅ Semua tugas ditandai selesai.');
-          });
-        }
-
-        const btnCopyTree = document.getElementById('btnCopyProjectTree');
-        if (btnCopyTree && !btnCopyTree.dataset.bound) {
-          btnCopyTree.dataset.bound = 'true';
-          btnCopyTree.addEventListener('click', () => {
-            const code = document.getElementById('projectStructureCode');
-            if (code) {
-              navigator.clipboard.writeText(code.innerText.trim()).then(() => {
-                showToast('📋 Struktur folder berhasil disalin ke clipboard!');
-              }).catch(() => {
-                showToast('Gagal menyalin ke clipboard.');
-              });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              showToast(isPaused ? '▶️ Simulasi dilanjutkan' : '⏸️ Simulasi dijeda');
+              renderSimulatorUI(data.state);
             }
-          });
-        }
+          } catch (e) {
+            showToast('Error menjeda simulasi');
+          }
+        });
 
-        updateProgress();
+        btnSimStop.addEventListener('click', async () => {
+          if (!confirm('Hentikan simulasi dan putus seluruh koneksi virtual viewer sekarang?')) return;
+          try {
+            btnSimStop.disabled = true;
+            const res = await fetch('/api/admin/simulator/stop', {
+              method: 'POST',
+              headers: { 'x-admin-key': adminToken }
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              showToast('⏹️ Seluruh virtual clients telah diputus bersih.');
+              renderSimulatorUI(data.state);
+              stopSimPolling();
+            }
+          } catch (e) {
+            showToast('Error menghentikan simulasi');
+          } finally {
+            btnSimStop.disabled = false;
+          }
+        });
+
+        btnSimRefresh.addEventListener('click', fetchSimulatorStatus);
+
+        btnSimClearLogs.addEventListener('click', async () => {
+          try {
+            await fetch('/api/admin/simulator/clear-logs', {
+              method: 'POST',
+              headers: { 'x-admin-key': adminToken }
+            });
+            const term = document.getElementById('simTerminal');
+            if (term) {
+              term.innerHTML = '<div class="sim-terminal-line" style="color:#64748b;"><span>[SYSTEM] Log dibersihkan.</span></div>';
+            }
+            showToast('Log dibersihkan');
+          } catch (_) {}
+        });
+
+        // Initialize Socket.io connection for telemetry push
+        try {
+          if (typeof io !== 'undefined' && !simSocket) {
+            simSocket = io();
+            simSocket.on('admin:simulator:telemetry', (payload) => {
+              renderSimulatorUI(payload);
+            });
+          }
+        } catch (_) {}
+
+        // Initial fetch
+        fetchSimulatorStatus();
       }
 
-      initResearchChecklist();
+      async function fetchSimulatorStatus() {
+        if (!adminToken) return;
+        try {
+          const res = await fetch('/api/admin/simulator/status', {
+            headers: { 'x-admin-key': adminToken }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            renderSimulatorUI(data);
+          }
+        } catch (_) {}
+      }
+
+      function startSimPolling() {
+        if (simPollInterval) clearInterval(simPollInterval);
+        simPollInterval = setInterval(fetchSimulatorStatus, 1500);
+      }
+
+      function stopSimPolling() {
+        if (simPollInterval) {
+          clearInterval(simPollInterval);
+          simPollInterval = null;
+        }
+      }
+
+      function renderSimulatorUI(data) {
+        if (!data) return;
+        simState = data;
+
+        const status = data.status || 'IDLE';
+        const metrics = data.metrics || {};
+        const config = data.config || {};
+        const system = data.system || {};
+
+        // 1. Status Pill & Nav Badge
+        const pill = document.getElementById('simStatusPill');
+        const text = document.getElementById('simStatusText');
+        const navBadge = document.getElementById('navSimBadge');
+
+        if (pill && text) {
+          pill.className = 'sim-status-pill';
+          if (status === 'RUNNING') {
+            pill.classList.add('running');
+            text.textContent = 'SIMULATING (' + (metrics.activeClients || 0) + ' VIEWERS)';
+          } else if (status === 'PAUSED') {
+            pill.classList.add('paused');
+            text.textContent = 'PAUSED';
+          } else {
+            text.textContent = 'STANDBY (IDLE)';
+          }
+        }
+
+        if (navBadge) {
+          navBadge.textContent = status === 'RUNNING' ? (metrics.activeClients + ' ON') : status;
+          navBadge.style.color = status === 'RUNNING' ? '#10b981' : (status === 'PAUSED' ? '#f59e0b' : 'var(--text-secondary)');
+        }
+
+        // 2. Buttons State
+        const btnStart = document.getElementById('btnSimStart');
+        const btnPause = document.getElementById('btnSimPause');
+        const btnStop = document.getElementById('btnSimStop');
+
+        if (btnStart && btnPause && btnStop) {
+          if (status === 'RUNNING') {
+            btnStart.disabled = true;
+            btnPause.disabled = false;
+            btnPause.innerHTML = '<span>⏸️ Jeda</span>';
+            btnStop.disabled = false;
+          } else if (status === 'PAUSED') {
+            btnStart.disabled = true;
+            btnPause.disabled = false;
+            btnPause.innerHTML = '<span>▶️ Lanjutkan</span>';
+            btnStop.disabled = false;
+          } else {
+            btnStart.disabled = false;
+            btnPause.disabled = true;
+            btnPause.innerHTML = '<span>⏸️ Jeda</span>';
+            btnStop.disabled = true;
+          }
+        }
+
+        // 3. Stats KPIs
+        const elActive = document.getElementById('simStatActive');
+        const elTarget = document.getElementById('simStatTarget');
+        const elPeak = document.getElementById('simStatPeak');
+        const elLatency = document.getElementById('simStatLatency');
+        const elMinPing = document.getElementById('simStatMinPing');
+        const elMaxPing = document.getElementById('simStatMaxPing');
+        const elSuccess = document.getElementById('simStatSuccess');
+        const elDrops = document.getElementById('simStatDrops');
+        const elReconnects = document.getElementById('simStatReconnects');
+        const elRps = document.getElementById('simStatRps');
+        const elAcks = document.getElementById('simStatAcks');
+        const elHeap = document.getElementById('simStatHeap');
+        const elOsLoad = document.getElementById('simStatOsLoad');
+        const elOsFree = document.getElementById('simStatOsFree');
+        const poolBadge = document.getElementById('simPoolCountBadge');
+
+        if (elActive) elActive.textContent = metrics.activeClients || 0;
+        if (elTarget) elTarget.textContent = config.targetCount || 50;
+        if (elPeak) elPeak.textContent = metrics.peakClients || 0;
+        if (elLatency) elLatency.textContent = metrics.avgLatencyMs || 0;
+        if (elMinPing) elMinPing.textContent = metrics.minLatencyMs || 0;
+        if (elMaxPing) elMaxPing.textContent = metrics.maxLatencyMs || 0;
+        if (elSuccess) elSuccess.textContent = metrics.successfulConnections || 0;
+        if (elDrops) elDrops.textContent = metrics.failedConnections || 0;
+        if (elReconnects) elReconnects.textContent = metrics.reconnectCount || 0;
+        if (elRps) elRps.textContent = metrics.reqPerSec || 0;
+        if (elAcks) elAcks.textContent = metrics.ackPerSec || 0;
+        if (elHeap) elHeap.textContent = system.nodeHeapUsedMb || 0;
+        if (elOsLoad) elOsLoad.textContent = system.osLoadAvg || '0.00';
+        if (elOsFree) elOsFree.textContent = system.osFreeMemMb || 0;
+        if (poolBadge) poolBadge.textContent = (metrics.activeClients || 0) + ' Online';
+
+        // 4. Render Client Pool Table
+        renderSimulatorClients(data.clientSamples || []);
+
+        // 5. Render Logs
+        renderSimulatorLogs(data.recentLogs || []);
+      }
+
+      function renderSimulatorClients(clients) {
+        const tbody = document.getElementById('simClientTableBody');
+        if (!tbody) return;
+
+        let filtered = clients;
+        if (simClientFilter) {
+          filtered = clients.filter(c => 
+            c.id.toLowerCase().includes(simClientFilter) || 
+            c.regionName.toLowerCase().includes(simClientFilter) || 
+            c.ip.includes(simClientFilter)
+          );
+        }
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:24px 10px; color:var(--text-tertiary);">' +
+            (clients.length === 0 ? 'Tidak ada virtual client yang aktif saat ini.' : 'Tidak ada hasil untuk pencarian tersebut.') +
+            '</td></tr>';
+          return;
+        }
+
+        let html = '';
+        filtered.forEach(c => {
+          const isConn = c.state === 'CONNECTED';
+          const pingColor = c.pingMs < 50 ? '#10b981' : (c.pingMs < 100 ? '#f59e0b' : '#ef4444');
+          const uptimeFmt = c.uptimeSec > 60 ? (Math.floor(c.uptimeSec / 60) + 'm ' + (c.uptimeSec % 60) + 's') : (c.uptimeSec + 's');
+
+          html += '<tr>' +
+            '<td style="color:var(--text-tertiary); font-weight:700;">' + c.index + '</td>' +
+            '<td><code style="font-size:0.75rem;">' + c.id + '</code></td>' +
+            '<td><span>' + c.flag + ' ' + c.regionName + '</span></td>' +
+            '<td><code style="font-size:0.73rem; color:var(--text-secondary);">' + c.ip + '</code></td>' +
+            '<td><span class="badge-admin" style="font-size:0.65rem; background:' + (isConn ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)') + '; color:' + (isConn ? '#10b981' : '#ef4444') + ';">' + c.state + '</span></td>' +
+            '<td style="font-weight:700; color:' + pingColor + ';">' + c.pingMs + ' ms</td>' +
+            '<td style="color:var(--text-secondary);">' + uptimeFmt + '</td>' +
+            '<td style="text-align:right;">' +
+              (isConn ? '<button type="button" class="btn-icon btn-drop-client" data-id="' + c.id + '" style="font-size:0.68rem; padding:2px 8px; color:#ef4444;" title="Putus paksa klien ini">Putus</button>' : '<span style="color:var(--text-tertiary); font-size:0.7rem;">Dropped</span>') +
+            '</td>' +
+          '</tr>';
+        });
+
+        tbody.innerHTML = html;
+
+        // Bind drop buttons
+        tbody.querySelectorAll('.btn-drop-client').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const clientId = btn.getAttribute('data-id');
+            try {
+              const res = await fetch('/api/admin/simulator/drop-client', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-admin-key': adminToken
+                },
+                body: JSON.stringify({ clientId })
+              });
+              const d = await res.json();
+              if (d.success) {
+                showToast('Client ' + clientId + ' diputus manual');
+                fetchSimulatorStatus();
+              }
+            } catch (_) {}
+          });
+        });
+      }
+
+      function renderSimulatorLogs(logs) {
+        const term = document.getElementById('simTerminal');
+        if (!term || !Array.isArray(logs)) return;
+
+        if (logs.length === 0) {
+          term.innerHTML = '<div class="sim-terminal-line" style="color:#64748b;"><span>[SYSTEM] Belum ada log aktivitas simulasi.</span></div>';
+          return;
+        }
+
+        let html = '';
+        logs.forEach(log => {
+          html += '<div class="sim-terminal-line">' +
+            '<span class="sim-log-time">[' + log.timestamp + ']</span>' +
+            '<span class="sim-log-badge ' + (log.type || 'SYSTEM') + '">' + (log.type || 'INFO') + '</span>' +
+            '<span style="color:' + (log.level === 'warn' ? '#fbbf24' : (log.level === 'error' ? '#f87171' : (log.level === 'success' ? '#34d399' : '#e2e8f0'))) + ';">' +
+              log.message +
+            '</span>' +
+          '</div>';
+        });
+
+        term.innerHTML = html;
+      }
+
+      initViewerSimulatorApp();
       btnRefreshStats.addEventListener('click', fetchAdminSystemStats);
     });
   </script>
