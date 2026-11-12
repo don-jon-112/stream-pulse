@@ -1346,6 +1346,18 @@
           </div>
 
           <div class="sim-config-grid">
+            <!-- Target Mock Channel Name -->
+            <div class="sim-control-group">
+              <div class="sim-control-label">
+                <span>Nama Channel Target (Mock Stream)</span>
+                <span style="color:var(--text-secondary); font-weight:400;">(Private Server)</span>
+              </div>
+              <div style="position:relative;">
+                <input type="text" id="simInputChannel" value="research_mock_channel" placeholder="contoh: test_streamer" class="search-input" style="height:36px; padding:0 10px 0 30px; font-size:0.82rem; width:100%; box-sizing:border-box;">
+                <span style="position:absolute; left:9px; top:8px; font-size:0.82rem; opacity:0.6;">📺</span>
+              </div>
+            </div>
+
             <!-- Target Viewer Count -->
             <div class="sim-control-group">
               <div class="sim-control-label">
@@ -2198,6 +2210,7 @@
         const btnSimRefresh = document.getElementById('btnSimRefresh');
         const btnSimClearLogs = document.getElementById('btnSimClearLogs');
 
+        const simInputChannel = document.getElementById('simInputChannel');
         const simInputCount = document.getElementById('simInputCount');
         const simValCountDisplay = document.getElementById('simValCountDisplay');
         const simSelectRamp = document.getElementById('simSelectRamp');
@@ -2250,6 +2263,7 @@
                 'x-admin-key': adminToken
               },
               body: JSON.stringify({
+                targetChannel: (simInputChannel?.value || 'research_mock_channel').trim(),
                 count: Number(simInputCount.value) || 50,
                 rampUpRate: Number(simSelectRamp.value) || 10,
                 heartbeatIntervalSec: Number(simSelectHeartbeat.value) || 5,
@@ -2437,6 +2451,14 @@
         const elOsLoad = document.getElementById('simStatOsLoad');
         const elOsFree = document.getElementById('simStatOsFree');
         const poolBadge = document.getElementById('simPoolCountBadge');
+        const elChannelDisplay = document.getElementById('simTargetChannelDisplay');
+
+        if (elChannelDisplay && config.targetChannel) {
+          elChannelDisplay.textContent = config.targetChannel;
+        }
+        if (simInputChannel && config.targetChannel && document.activeElement !== simInputChannel) {
+          simInputChannel.value = config.targetChannel;
+        }
 
         if (elActive) elActive.textContent = metrics.activeClients || 0;
         if (elTarget) elTarget.textContent = config.targetCount || 50;
