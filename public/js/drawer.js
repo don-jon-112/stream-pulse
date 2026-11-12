@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  const DRAWER_VERSION = 'v2.1.4';
+  const DRAWER_VERSION = 'v2.1.5';
 
   function getDrawerHtmlTemplate() {
     return `

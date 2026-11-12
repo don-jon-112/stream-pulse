@@ -613,6 +613,207 @@
       border-left-color: #818cf8 !important;
     }
 
+    /* Twitch Viewer Bot Research Simulator (Admin Only) */
+    .research-hero-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+      border: 1px solid var(--hairline);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .research-meta-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .research-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .research-progress-wrap {
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .research-progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: var(--surface-soft);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 10px 0 6px 0;
+      border: 1px solid var(--hairline);
+    }
+
+    .research-progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #6366f1, #a855f7, #10b981);
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .research-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .research-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .phase-card {
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .phase-card:hover {
+      border-color: var(--hairline-strong);
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .phase-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .phase-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+      line-height: 1.45;
+    }
+
+    .task-checkbox {
+      margin-top: 2px;
+      width: 17px;
+      height: 17px;
+      cursor: pointer;
+      accent-color: #6366f1;
+      flex-shrink: 0;
+    }
+
+    .task-label.checked {
+      text-decoration: line-through;
+      color: var(--text-tertiary);
+      opacity: 0.75;
+    }
+
+    .arch-diagram {
+      background: var(--surface-soft);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .arch-step-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .arch-box {
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .arch-arrow {
+      color: var(--text-tertiary);
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .code-tree-block {
+      background: #090a0f !important;
+      color: #38bdf8 !important;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      padding: 16px 20px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .security-callout {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      border-radius: 12px;
+      padding: 18px 22px;
+      color: var(--ink);
+    }
   </style>
 
   <script>
@@ -714,6 +915,11 @@
       </button>
       <button class="nav-item" data-tab="tabSystem">
         <span>⚡</span> <span data-i18n="admin_tab_server_status">Status Server VPS</span>
+      </button>
+
+      <div class="nav-label" style="margin-top:10px;">Lab Riset & R&D (Private)</div>
+      <button class="nav-item" data-tab="tabViewerResearch">
+        <span>🧪</span> <span>Viewer Simulator Plan</span>
       </button>
 
       <div style="margin-top:auto; padding-top:14px; border-top:1px solid var(--hairline);">
@@ -927,6 +1133,646 @@
         </div>
       </section>
 
+      <!-- TAB 6: TWITCH VIEWER BOT RESEARCH SIMULATOR (VPS DEV PLAN - ADMIN ONLY) -->
+      <section id="tabViewerResearch" class="tab-content">
+        <!-- TOP HERO -->
+        <div class="research-hero-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <span style="font-size:1.4rem;">🧪</span>
+                <h2 style="font-size:1.35rem; font-weight:800; color:var(--ink); margin:0;">Twitch Viewer Bot Research Simulator</h2>
+                <span class="badge-admin" style="background:rgba(99,102,241,0.15); color:var(--primary); font-weight:800;">ADMIN R&D ONLY</span>
+              </div>
+              <p style="font-size:0.85rem; color:var(--text-secondary); margin:0; line-height:1.5;">
+                Pelan Pengembangan VPS & Riset Simulasi Lalu Lintas Jaringan (Concurrent WebSocket/HTTP Client Testing).
+              </p>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button type="button" id="btnSelectAllResearchChecklist" class="btn-icon" style="font-size:0.75rem;">
+                <span>✅ Centang Semua</span>
+              </button>
+              <button type="button" id="btnResetResearchChecklist" class="btn-icon" style="font-size:0.75rem;">
+                <span>🔄 Reset Checklist</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="research-meta-chips">
+            <span class="research-chip">🏷️ <strong>Tipe Proyek:</strong> Networking & Traffic Simulation</span>
+            <span class="research-chip">🐍 <strong>Bahasa:</strong> Python 3.12+</span>
+            <span class="research-chip">🐧 <strong>Deployment:</strong> Linux VPS + Docker</span>
+            <span class="research-chip">⚡ <strong>Dashboard:</strong> FastAPI + React</span>
+            <span class="research-chip">🐘 <strong>Database:</strong> PostgreSQL + Redis</span>
+            <span class="research-chip">📊 <strong>Monitoring:</strong> Prometheus + Grafana</span>
+          </div>
+
+          <!-- Real-Time Progress Bar -->
+          <div class="research-progress-wrap">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.85rem; font-weight:700; color:var(--ink);">Progres Pelaksanaan Proyek</span>
+              <span id="researchProgressBadge" class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">0% SELESAI</span>
+            </div>
+            <div class="research-progress-bar-bg">
+              <div id="researchProgressBar" class="research-progress-bar-fill"></div>
+            </div>
+            <div id="researchProgressText" style="font-size:0.75rem; color:var(--text-secondary);">
+              0 dari 44 tugas selesai (0%)
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITY & ETHICAL CALLOUT (MANDATORY) -->
+        <div class="security-callout">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <span style="font-size:1.5rem; line-height:1;">🛡️</span>
+            <div>
+              <h3 style="font-size:0.95rem; font-weight:800; color:#b45309; margin:0 0 6px 0;">Persyaratan Keamanan & Batasan Riset (Security Guidelines)</h3>
+              <p style="font-size:0.82rem; color:var(--ink); margin:0 0 8px 0; line-height:1.5;">
+                Platform riset ini dirancang <strong>hanya untuk pengujian internal pada server tes privat</strong> milik sendiri. Patuhi rambu-rambu berikut:
+              </p>
+              <ul style="margin:0; padding-left:18px; font-size:0.8rem; color:var(--body); line-height:1.6;">
+                <li>Hanya simulasikan traffic ke server tes privat terkontrol (loopback/internal test environment).</li>
+                <li><strong>Dilarang keras</strong> mengotomatisasi sesi viewer langsung ke platform live Twitch resmi.</li>
+                <li><strong>Dilarang keras</strong> mencoba membobol atau mengelabuhi sistem deteksi bot pihak ketiga.</li>
+                <li><strong>Dilarang keras</strong> menggunakan jaringan residential proxy untuk memanipulasi jumlah viewership publik.</li>
+                <li>Wajib mengamankan API key dan kredensial server simulasi.</li>
+                <li>Wajib menerapkan autentikasi ketat untuk dashboard kontrol simulasi.</li>
+                <li>Terapkan batasan koneksi dan kuota resource VPS secara ketat agar server tidak crash.</li>
+                <li>Cegah endpoint stress-testing agar tidak dapat diakses secara publik tanpa token rahasia.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. PROJECT OVERVIEW & 2. SYSTEM ARCHITECTURE -->
+        <div class="research-grid-2">
+          <!-- Overview -->
+          <div class="admin-panel-box">
+            <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 8px 0;">1. Ringkasan Proyek (Overview)</h3>
+            <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6; margin:0 0 12px 0;">
+              Membangun platform riset mandiri (self-hosted) yang mensimulasikan koneksi virtual viewer ke server tes streaming terkontrol milik pribadi.
+            </p>
+            <div style="font-size:0.8rem; font-weight:700; color:var(--ink); margin-bottom:6px;">Tujuan Riset:</div>
+            <ul style="margin:0; padding-left:18px; font-size:0.8rem; color:var(--body); line-height:1.6;">
+              <li>Memahami cara kerja virtual client berskala besar.</li>
+              <li>Menganalisis komunikasi konkurensi tinggi via HTTP dan WebSocket.</li>
+              <li>Manajemen siklus hidup sesi (session lifecycle management).</li>
+              <li>Pola lalu lintas jaringan dan konsumsi sumber daya VPS (RAM, CPU, I/O).</li>
+              <li>Klasifikasi pola trafik dan deteksi anomali lonjakan (anomaly detection).</li>
+            </ul>
+          </div>
+
+          <!-- Architecture Flow -->
+          <div class="admin-panel-box">
+            <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 8px 0;">2. Arsitektur Sistem</h3>
+            <div class="arch-diagram">
+              <div class="arch-box">🖥️ Linux VPS (Docker Host)</div>
+              <span class="arch-arrow">↓</span>
+              <div class="arch-box">🎛️ Control Dashboard (React Web UI)</div>
+              <span class="arch-arrow">↓</span>
+              <div class="arch-box">⚡ FastAPI Backend (Async REST/WS API)</div>
+              <span class="arch-arrow">↓</span>
+              <div class="arch-box">⚙️ Simulation Manager (Client Pool Orchestrator)</div>
+              <span class="arch-arrow">↓</span>
+              <div class="arch-step-row">
+                <div class="arch-box">👥 Virtual Client Pool</div>
+                <span class="arch-arrow">⟷</span>
+                <div class="arch-box">🌐 Private Test Server</div>
+              </div>
+              <span class="arch-arrow">↓</span>
+              <div class="arch-step-row">
+                <div class="arch-box">🐘 PostgreSQL + Redis</div>
+                <span class="arch-arrow">⟷</span>
+                <div class="arch-box">📊 Prometheus + Grafana</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. TECHNOLOGY STACK -->
+        <div class="admin-panel-box">
+          <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 12px 0;">3. Technology Stack</h3>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Komponen</th>
+                  <th>Teknologi</th>
+                  <th>Peran & Kegunaan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Operating System</strong></td>
+                  <td>Ubuntu 24.04 LTS</td>
+                  <td>Sistem operasi VPS berstabilitas tinggi dan modern kernel</td>
+                </tr>
+                <tr>
+                  <td><strong>Programming</strong></td>
+                  <td>Python 3.12+</td>
+                  <td>Runtime utama klien virtual (asyncio, httpx, websockets)</td>
+                </tr>
+                <tr>
+                  <td><strong>Backend</strong></td>
+                  <td>FastAPI</td>
+                  <td>API RESTful performa tinggi untuk kontrol simulasi & metrik</td>
+                </tr>
+                <tr>
+                  <td><strong>Frontend</strong></td>
+                  <td>React (Tailwind / Shadcn)</td>
+                  <td>Dashboard interaktif kontrol status dan jumlah viewer</td>
+                </tr>
+                <tr>
+                  <td><strong>Database</strong></td>
+                  <td>PostgreSQL 16</td>
+                  <td>Penyimpanan riwayat sesi, log tes, dan metrik latensi</td>
+                </tr>
+                <tr>
+                  <td><strong>Cache & Queue</strong></td>
+                  <td>Redis</td>
+                  <td>Broker pesan real-time dan state cache concurrent client</td>
+                </tr>
+                <tr>
+                  <td><strong>Containerization</strong></td>
+                  <td>Docker & Docker Compose</td>
+                  <td>Isolasi lingkungan dan kemudahan deploy multikontainer</td>
+                </tr>
+                <tr>
+                  <td><strong>Reverse Proxy</strong></td>
+                  <td>Caddy</td>
+                  <td>Otomatisasi SSL (HTTPS/WSS) dan proteksi reverse proxy ringan</td>
+                </tr>
+                <tr>
+                  <td><strong>Monitoring</strong></td>
+                  <td>Prometheus</td>
+                  <td>Pengumpulan time-series metrics performa server & latensi</td>
+                </tr>
+                <tr>
+                  <td><strong>Visualization</strong></td>
+                  <td>Grafana</td>
+                  <td>Dashboard visual grafik utilisasi CPU, RAM, koneksi & RPS</td>
+                </tr>
+                <tr>
+                  <td><strong>Testing Suite</strong></td>
+                  <td>Pytest + Locust</td>
+                  <td>Pengujian unit kode dan pengujian beban (load stress test)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. DEVELOPMENT PHASES (INTERACTIVE CHECKLIST) -->
+        <div>
+          <h3 style="font-size:1.15rem; font-weight:800; color:var(--ink); margin:0 0 14px 0;">4. Tahapan Pengembangan (Development Phases Checklist)</h3>
+
+          <!-- Phase 1: VPS Infrastructure -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <h4 class="phase-title">
+                <span>Phase 1</span>
+                <span>Infrastruktur VPS</span>
+              </h4>
+              <span class="phase-badge" style="background:rgba(99,102,241,0.15); color:var(--primary);">P0 • FOUNDATION</span>
+            </div>
+            <ul class="task-list">
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_update" class="task-checkbox research-task-chk">
+                <label for="chk_p1_update" class="task-label">Perbarui paket sistem Ubuntu (apt update & apt upgrade).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_ssh" class="task-checkbox research-task-chk">
+                <label for="chk_p1_ssh" class="task-label">Konfigurasi autentikasi SSH berbasis Public Key & nonaktifkan password root login.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_ufw" class="task-checkbox research-task-chk">
+                <label for="chk_p1_ufw" class="task-label">Konfigurasi Firewall (UFW) hanya membuka port SSH, HTTP (80), dan HTTPS (443).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_docker" class="task-checkbox research-task-chk">
+                <label for="chk_p1_docker" class="task-label">Pasang Docker Engine dan Docker Compose plugin resmi.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_git" class="task-checkbox research-task-chk">
+                <label for="chk_p1_git" class="task-label">Pasang Git dan konfigurasikan akses repository.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_dirs" class="task-checkbox research-task-chk">
+                <label for="chk_p1_dirs" class="task-label">Konfigurasi struktur direktori proyek dan izin akses pengguna (non-root user).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_env" class="task-checkbox research-task-chk">
+                <label for="chk_p1_env" class="task-label">Konfigurasi file environment variables (.env.example & .env aman).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p1_backup" class="task-checkbox research-task-chk">
+                <label for="chk_p1_backup" class="task-label">Siapkan cron job pencadangan otomatis (automated backup script).</label>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Phase 2: Private Test Server -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <h4 class="phase-title">
+                <span>Phase 2</span>
+                <span>Server Tes Privat (Streaming-like Environment)</span>
+              </h4>
+              <span class="phase-badge" style="background:rgba(99,102,241,0.15); color:var(--primary);">P0 • CORE</span>
+            </div>
+            <ul class="task-list">
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_http" class="task-checkbox research-task-chk">
+                <label for="chk_p2_http" class="task-label">Buat endpoint HTTP simulasi status siaran (/api/v1/stream/status & viewer list).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_ws" class="task-checkbox research-task-chk">
+                <label for="chk_p2_ws" class="task-label">Buat endpoint WebSocket (/ws/stream/viewers) dengan dukungan ribuan koneksi konkuren.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_client_handle" class="task-checkbox research-task-chk">
+                <label for="chk_p2_client_handle" class="task-label">Implementasi penanganan koneksi masuk klien (handshake & token validation).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_lifecycle" class="task-checkbox research-task-chk">
+                <label for="chk_p2_lifecycle" class="task-label">Manajemen siklus hidup koneksi (connect, heartbeat/ping, disconnect).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_session_id" class="task-checkbox research-task-chk">
+                <label for="chk_p2_session_id" class="task-label">Identifikasi sesi unik untuk setiap virtual viewer (UUID / Session Token).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_active_counter" class="task-checkbox research-task-chk">
+                <label for="chk_p2_active_counter" class="task-label">Penghitung koneksi aktif atomik di memori (Redis / in-memory atomic counter).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_disconnect" class="task-checkbox research-task-chk">
+                <label for="chk_p2_disconnect" class="task-label">Penanganan disconnect yang bersih dan pembaruan counter seketika.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p2_logging" class="task-checkbox research-task-chk">
+                <label for="chk_p2_logging" class="task-label">Sistem pencatatan event server (Structured JSON logging untuk Prometheus/Loki).</label>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Phase 3: Virtual Client Simulator -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <h4 class="phase-title">
+                <span>Phase 3</span>
+                <span>Virtual Client Simulator (Python-based Engine)</span>
+              </h4>
+              <span class="phase-badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">P1 • SIMULATOR</span>
+            </div>
+            <ul class="task-list">
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_create" class="task-checkbox research-task-chk">
+                <label for="chk_p3_create" class="task-label">Buat kelas VirtualClient berbasis asyncio & aiohttp/websockets.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_count" class="task-checkbox research-task-chk">
+                <label for="chk_p3_count" class="task-label">Konfigurasi jumlah target klien yang dapat diatur dinamis lewat parameter/API.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_conn_disconn" class="task-checkbox research-task-chk">
+                <label for="chk_p3_conn_disconn" class="task-label">Mekanisme penyambungan dan pemutusan klien terjadwal secara bertahap (ramp-up & ramp-down).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_duration" class="task-checkbox research-task-chk">
+                <label for="chk_p3_duration" class="task-label">Simulasi durasi tonton acak mengikuti distribusi Gaussian (meniru penonton manusia).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_heartbeat" class="task-checkbox research-task-chk">
+                <label for="chk_p3_heartbeat" class="task-label">Simulasi pesan heartbeat/ping periodik berkala (misal tiap 20-30 detik).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_random_dc" class="task-checkbox research-task-chk">
+                <label for="chk_p3_random_dc" class="task-label">Simulasi diskoneksi acak dan reconnect otomatis dengan jitter waktu.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_fail_track" class="task-checkbox research-task-chk">
+                <label for="chk_p3_fail_track" class="task-label">Pelacakan kegagalan koneksi (timeout, connection refused, drops).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p3_latency" class="task-checkbox research-task-chk">
+                <label for="chk_p3_latency" class="task-label">Pengumpulan statistik round-trip latency (min, max, p50, p95, p99).</label>
+              </li>
+            </ul>
+
+            <!-- Presets Table -->
+            <div style="margin-top:16px;">
+              <div style="font-size:0.8rem; font-weight:700; color:var(--ink); margin-bottom:6px;">Tabel Skala Preset Simulasi (Hanya untuk Server Privat):</div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Preset Level</th>
+                    <th>Virtual Clients</th>
+                    <th>Kebutuhan Sumber Daya VPS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Small</span></td>
+                    <td><strong>10 Clients</strong></td>
+                    <td>Minimal (1 vCPU, 512MB RAM)</td>
+                  </tr>
+                  <tr>
+                    <td><span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">Medium</span></td>
+                    <td><strong>50 Clients</strong></td>
+                    <td>Rendah (1 vCPU, 1GB RAM)</td>
+                  </tr>
+                  <tr>
+                    <td><span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Large</span></td>
+                    <td><strong>100 Clients</strong></td>
+                    <td>Sedang (2 vCPU, 2GB RAM)</td>
+                  </tr>
+                  <tr>
+                    <td><span class="phase-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">Stress</span></td>
+                    <td><strong>250 Clients</strong></td>
+                    <td>Tinggi (2-4 vCPU, 4GB RAM)</td>
+                  </tr>
+                  <tr>
+                    <td><span class="phase-badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Extreme</span></td>
+                    <td><strong>500 Clients</strong></td>
+                    <td>Sangat Tinggi (4+ vCPU, 8GB RAM, tuning ulimit)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Phase 4: Monitoring Dashboard -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <h4 class="phase-title">
+                <span>Phase 4</span>
+                <span>Web Dashboard & Metrik Real-Time</span>
+              </h4>
+              <span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">P2 • DASHBOARD</span>
+            </div>
+            <ul class="task-list">
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_metrics" class="task-checkbox research-task-chk">
+                <label for="chk_p4_metrics" class="task-label">Panel metrik live: Active Clients, Total Connections, Success vs Failed rate.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_latency" class="task-checkbox research-task-chk">
+                <label for="chk_p4_latency" class="task-label">Grafik latensi rata-rata real-time (Average Latency & Response time).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_rps" class="task-checkbox research-task-chk">
+                <label for="chk_p4_rps" class="task-label">Indikator Incoming Requests/detik & Outgoing WebSocket Messages/detik.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_host_stats" class="task-checkbox research-task-chk">
+                <label for="chk_p4_host_stats" class="task-label">Monitor utilisasi CPU VPS, pemakaian RAM, dan Network Bandwidth I/O.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_page1" class="task-checkbox research-task-chk">
+                <label for="chk_p4_page1" class="task-label">Halaman 1: <strong>Overview</strong> (Ringkasan KPI dan status server aktif).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_page2" class="task-checkbox research-task-chk">
+                <label for="chk_p4_page2" class="task-label">Halaman 2: <strong>Active Sessions</strong> (Tabel detail sesi virtual viewer yang sedang terhubung).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_page3" class="task-checkbox research-task-chk">
+                <label for="chk_p4_page3" class="task-label">Halaman 3: <strong>Traffic Analytics</strong> (Grafik distribusi paket & throughput jaringan).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_page4" class="task-checkbox research-task-chk">
+                <label for="chk_p4_page4" class="task-label">Halaman 4: <strong>Simulation Controls</strong> (Slider jumlah viewer, tombol Start/Pause/Stop, pilihan Preset).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_page5" class="task-checkbox research-task-chk">
+                <label for="chk_p4_page5" class="task-label">Halaman 5: <strong>Server Health</strong> (Diagnostik service Docker, container status & memory leak check).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p4_page6" class="task-checkbox research-task-chk">
+                <label for="chk_p4_page6" class="task-label">Halaman 6: <strong>Event Logs</strong> (Log audit live stream dan error stack trace).</label>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Phase 5: Traffic Pattern Analysis & Anomaly Detection -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <h4 class="phase-title">
+                <span>Phase 5</span>
+                <span>Analisis Pola Trafik & Deteksi Anomali</span>
+              </h4>
+              <span class="phase-badge" style="background:rgba(236,72,153,0.15); color:#ec4899;">P3 • RESEARCH</span>
+            </div>
+            <ul class="task-list">
+              <li class="task-item">
+                <input type="checkbox" id="chk_p5_freq" class="task-checkbox research-task-chk">
+                <label for="chk_p5_freq" class="task-label">Analisis frekuensi koneksi (Connection frequency & arrival rates).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p5_dur" class="task-checkbox research-task-chk">
+                <label for="chk_p5_dur" class="task-label">Analisis lama durasi sesi (Session duration distribution).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p5_reconn" class="task-checkbox research-task-chk">
+                <label for="chk_p5_reconn" class="task-label">Analisis frekuensi rekoneksi berulang (Repeated reconnection intervals).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p5_vol" class="task-checkbox research-task-chk">
+                <label for="chk_p5_vol" class="task-label">Analisis volume payload pesan dan interval pesan (Request volume & message jitter).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p5_spikes" class="task-checkbox research-task-chk">
+                <label for="chk_p5_spikes" class="task-label">Deteksi lonjakan koneksi abnormal (Abnormal connection spikes detection).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p5_rules" class="task-checkbox research-task-chk">
+                <label for="chk_p5_rules" class="task-label">Implementasi rule-based classifier sederhana (Normal Traffic, Unusual Frequency, Rapid Reconnects, Suspicious Short Sessions).</label>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Phase 6: Performance Testing -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <h4 class="phase-title">
+                <span>Phase 6</span>
+                <span>Pengujian Performa & Skalabilitas</span>
+              </h4>
+              <span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">P2 • BENCHMARK</span>
+            </div>
+            <ul class="task-list">
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_10" class="task-checkbox research-task-chk">
+                <label for="chk_p6_10" class="task-label">Uji coba beban 10 klien virtual (Baseline test).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_50" class="task-checkbox research-task-chk">
+                <label for="chk_p6_50" class="task-label">Uji coba beban 50 klien virtual (Low-medium test).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_100" class="task-checkbox research-task-chk">
+                <label for="chk_p6_100" class="task-label">Uji coba beban 100 klien virtual (Target benchmark).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_250" class="task-checkbox research-task-chk">
+                <label for="chk_p6_250" class="task-label">Uji coba beban 250 klien virtual (Stress test).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_500" class="task-checkbox research-task-chk">
+                <label for="chk_p6_500" class="task-label">Uji coba beban 500 klien virtual jika resource VPS mencukupi (Extreme limit).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_measure" class="task-checkbox research-task-chk">
+                <label for="chk_p6_measure" class="task-label">Pengukuran metrik CPU, RAM, WebSocket file descriptor limits (ulimit -n 65535).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_bottleneck" class="task-checkbox research-task-chk">
+                <label for="chk_p6_bottleneck" class="task-label">Identifikasi bottleneck performa (Event loop lag, garbage collection, socket buffer).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p6_report" class="task-checkbox research-task-chk">
+                <label for="chk_p6_report" class="task-label">Generate laporan hasil performa riset (Automated performance report).</label>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Phase 7: Deployment -->
+          <div class="phase-card">
+            <div class="phase-header">
+              <h4 class="phase-title">
+                <span>Phase 7</span>
+                <span>Deployment & Otomatisasi Produksi</span>
+              </h4>
+              <span class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">P3 • DEPLOYMENT</span>
+            </div>
+            <ul class="task-list">
+              <li class="task-item">
+                <input type="checkbox" id="chk_p7_dockerize" class="task-checkbox research-task-chk">
+                <label for="chk_p7_dockerize" class="task-label">Dockerize seluruh modul layanan (Backend, Frontend, Test Server, Database).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p7_compose" class="task-checkbox research-task-chk">
+                <label for="chk_p7_compose" class="task-label">Konfigurasi file docker-compose.yml dengan healthchecks dan network isolation.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p7_caddy" class="task-checkbox research-task-chk">
+                <label for="chk_p7_caddy" class="task-label">Konfigurasi reverse proxy Caddy (Caddyfile) dengan auto-HTTPS/WSS.</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p7_auth" class="task-checkbox research-task-chk">
+                <label for="chk_p7_auth" class="task-label">Kunci dashboard dengan autentikasi aman (JWT / HTTP Basic Auth / Admin Token).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p7_restart" class="task-checkbox research-task-chk">
+                <label for="chk_p7_restart" class="task-label">Konfigurasi restart otomatis (restart: unless-stopped & systemd service).</label>
+              </li>
+              <li class="task-item">
+                <input type="checkbox" id="chk_p7_grafana" class="task-checkbox research-task-chk">
+                <label for="chk_p7_grafana" class="task-label">Setup visualisasi monitoring Grafana terintegrasi dengan Prometheus.</label>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 5. SUGGESTED PROJECT STRUCTURE -->
+        <div class="admin-panel-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0;">5. Struktur Direktori Proyek (Project Structure)</h3>
+            <button type="button" id="btnCopyProjectTree" class="btn-icon" style="font-size:0.75rem;">
+              <span>📋 Salin Struktur Folder</span>
+            </button>
+          </div>
+          <pre id="projectStructureCode" class="code-tree-block">twitch-research-simulator/
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── simulator/
+│   │   ├── monitoring/
+│   │   ├── analytics/
+│   │   └── database/
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   └── package.json
+│
+├── test-server/
+│   ├── websocket_server.py
+│   └── http_server.py
+│
+├── tests/
+│
+├── monitoring/
+│   ├── prometheus.yml
+│   └── grafana/
+│
+├── docker-compose.yml
+├── .env.example
+└── README.md</pre>
+        </div>
+
+        <!-- 8. RECOMMENDED DEVELOPMENT ORDER & FINAL DELIVERABLES -->
+        <div class="admin-panel-box">
+          <h3 style="font-size:1rem; font-weight:800; color:var(--ink); margin:0 0 10px 0;">8. Urutan Prioritas Pengembangan (Development Order)</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Prioritas</th>
+                <th>Tugas / Milestone</th>
+                <th>Target Deliverable</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">P0 (Critical)</span></td>
+                <td>VPS Setup & Lingkungan Docker</td>
+                <td>Server Ubuntu 24.04 aman dengan Docker & firewall siap pakai</td>
+              </tr>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(239,68,68,0.15); color:#ef4444;">P0 (Critical)</span></td>
+                <td>Private WebSocket & HTTP Test Server</td>
+                <td>Server tes privat yang menerima dan melacak koneksi virtual client</td>
+              </tr>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">P1 (High)</span></td>
+                <td>Virtual Client Simulator</td>
+                <td>Engine Python untuk menjalankan 10 - 250 virtual viewer simultan</td>
+              </tr>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">P1 (High)</span></td>
+                <td>Pengumpulan Metrik Koneksi & Latensi</td>
+                <td>Pencatatan statistik round-trip latency, success/failure rate</td>
+              </tr>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">P2 (Medium)</span></td>
+                <td>FastAPI & React Dashboard</td>
+                <td>Web UI interaktif kontrol simulasi, active viewer list, & server health</td>
+              </tr>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6;">P2 (Medium)</span></td>
+                <td>Traffic Analytics Engine</td>
+                <td>Pengukuran bandwidth, packet throughput, dan RPS</td>
+              </tr>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">P3 (Normal)</span></td>
+                <td>Rule-based Anomaly Detection</td>
+                <td>Deteksi otomatis pola lonjakan abnormal dan durasi sesi aneh</td>
+              </tr>
+              <tr>
+                <td><span class="phase-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">P3 (Normal)</span></td>
+                <td>Grafana & Prometheus Integration</td>
+                <td>Visualisasi komprehensif time-series metrik untuk observabilitas sistem</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -1036,6 +1882,7 @@
           if (target === 'tabOverlays') fetchAdminOverlays();
           if (target === 'tabUsers') fetchAdminUsers();
           if (target === 'tabSystem') fetchAdminSystemStats();
+          if (target === 'tabViewerResearch') initResearchChecklist();
         });
       });
 
@@ -1576,6 +2423,116 @@
           console.error(e);
         }
       }
+      // ==========================================
+      // TWITCH VIEWER BOT RESEARCH CHECKLIST (ADMIN ONLY)
+      // ==========================================
+      function initResearchChecklist() {
+        const storageKey = 'streampulse_admin_vps_research_checklist';
+        let savedState = {};
+        try {
+          savedState = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        } catch(e) {
+          savedState = {};
+        }
+
+        const checkboxes = document.querySelectorAll('.research-task-chk');
+        const totalCount = checkboxes.length;
+
+        function updateProgress() {
+          let completedCount = 0;
+          checkboxes.forEach(chk => {
+            const label = document.querySelector(`label[for="${chk.id}"]`);
+            if (chk.checked) {
+              completedCount++;
+              if (label) label.classList.add('checked');
+            } else {
+              if (label) label.classList.remove('checked');
+            }
+          });
+
+          const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+          const bar = document.getElementById('researchProgressBar');
+          const text = document.getElementById('researchProgressText');
+          const badge = document.getElementById('researchProgressBadge');
+
+          if (bar) bar.style.width = `${percent}%`;
+          if (text) text.textContent = `${completedCount} dari ${totalCount} tugas selesai (${percent}%)`;
+          if (badge) {
+            badge.textContent = `${percent}% SELESAI`;
+            if (percent === 100) {
+              badge.style.background = 'rgba(16,185,129,0.2)';
+              badge.style.color = '#10b981';
+            } else if (percent > 0) {
+              badge.style.background = 'rgba(99,102,241,0.15)';
+              badge.style.color = '#6366f1';
+            } else {
+              badge.style.background = 'rgba(148,163,184,0.15)';
+              badge.style.color = '#94a3b8';
+            }
+          }
+        }
+
+        checkboxes.forEach(chk => {
+          if (savedState[chk.id]) {
+            chk.checked = true;
+          }
+          if (!chk.dataset.bound) {
+            chk.dataset.bound = 'true';
+            chk.addEventListener('change', () => {
+              savedState[chk.id] = chk.checked;
+              localStorage.setItem(storageKey, JSON.stringify(savedState));
+              updateProgress();
+            });
+          }
+        });
+
+        const btnReset = document.getElementById('btnResetResearchChecklist');
+        if (btnReset && !btnReset.dataset.bound) {
+          btnReset.dataset.bound = 'true';
+          btnReset.addEventListener('click', () => {
+            if (confirm('Reset semua centang pada rencana riset viewer simulator?')) {
+              checkboxes.forEach(c => c.checked = false);
+              savedState = {};
+              localStorage.removeItem(storageKey);
+              updateProgress();
+              showToast('🔄 Checklist riset telah direset.');
+            }
+          });
+        }
+
+        const btnSelectAll = document.getElementById('btnSelectAllResearchChecklist');
+        if (btnSelectAll && !btnSelectAll.dataset.bound) {
+          btnSelectAll.dataset.bound = 'true';
+          btnSelectAll.addEventListener('click', () => {
+            checkboxes.forEach(c => {
+              c.checked = true;
+              savedState[c.id] = true;
+            });
+            localStorage.setItem(storageKey, JSON.stringify(savedState));
+            updateProgress();
+            showToast('✅ Semua tugas ditandai selesai.');
+          });
+        }
+
+        const btnCopyTree = document.getElementById('btnCopyProjectTree');
+        if (btnCopyTree && !btnCopyTree.dataset.bound) {
+          btnCopyTree.dataset.bound = 'true';
+          btnCopyTree.addEventListener('click', () => {
+            const code = document.getElementById('projectStructureCode');
+            if (code) {
+              navigator.clipboard.writeText(code.innerText.trim()).then(() => {
+                showToast('📋 Struktur folder berhasil disalin ke clipboard!');
+              }).catch(() => {
+                showToast('Gagal menyalin ke clipboard.');
+              });
+            }
+          });
+        }
+
+        updateProgress();
+      }
+
+      initResearchChecklist();
       btnRefreshStats.addEventListener('click', fetchAdminSystemStats);
     });
   </script>
