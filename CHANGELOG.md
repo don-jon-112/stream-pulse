@@ -9,14 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.5] - 2026-11-12
 
-### Added
-- **Private Viewer Bot Research Simulator Plan (`/admin` ONLY)**: Embedded the full technical VPS development plan for the Twitch Viewer Bot Research Simulator exclusively into the protected Admin Panel (`public/admin.html`).
-  - **Interactive Checklists**: 44 granular milestones across 7 phases (VPS Infrastructure, Private Test Server, Virtual Client Simulator, Monitoring Dashboard, Traffic Pattern Analysis, Performance Testing, Production Deployment).
-  - **Persistent Progress Tracker**: Real-time progress bar saved to `localStorage` with completion percentage indicator.
-  - **Architecture & Tech Stack**: Interactive system architecture flow diagram, tech stack table, and 10 to 500 concurrent client preset load requirements.
-  - **Project Directory Tree**: Copyable structure blueprint for FastAPI + React + Docker deployment.
-  - **Strict Security Guardrails**: Enforced non-production and private-server boundaries prohibiting live platform bot automation.
-
 ### Changed
 - **Unified Header Design System**: Standardized `/social-rotator` header to use the core `app-header` container, badges, and responsive layout.
 
