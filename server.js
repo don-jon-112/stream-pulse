@@ -208,12 +208,19 @@ io.on('connection', (socket) => {
             if (!cleanTwitch && u.channels?.twitch) cleanTwitch = u.channels.twitch.toLowerCase().replace(/^[#@]/, '');
             if (!cleanYouTube && u.channels?.youtube) cleanYouTube = u.channels.youtube;
             if (!cleanTikTok && u.channels?.tiktok) cleanTikTok = u.channels.tiktok.replace(/^@/, '');
+            // Overlay/dock OBS: ambil Session ID TikTok milik pemilik overlay (sebelumnya tidak terkirim)
+            if (!tiktokSessionId && u.channels?.tiktokSessionId) tiktokSessionId = String(u.channels.tiktokSessionId).trim();
             if (!token && u.channels?.twitchTokenEncrypted) {
               token = decryptToken(u.channels.twitchTokenEncrypted);
             }
           }
         }
       }
+    }
+
+    // Fallback terakhir: TIKTOK_SESSION_ID dari .env agar tetap ada setelah restart
+    if (!tiktokSessionId && process.env.TIKTOK_SESSION_ID) {
+      tiktokSessionId = String(process.env.TIKTOK_SESSION_ID).trim();
     }
 
     if (!token && cleanTwitch) {
