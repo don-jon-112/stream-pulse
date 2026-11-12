@@ -2099,10 +2099,11 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('streampulse_tiktok_session', tiktokSessionId);
       }
 
+      // manual: true = aksi sengaja dari pengguna (boleh memutus koneksi lama); sinkron otomatis tidak boleh
       if (currentUser && userToken) {
-        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, userToken, force: true });
+        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, userToken, force: true, manual: true });
       } else {
-        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, force: true });
+        socket.emit('update_channels', { twitch, twitchToken, youtube, tiktok, tiktokSessionId, force: true, manual: true });
       }
 
       setTimeout(() => {
