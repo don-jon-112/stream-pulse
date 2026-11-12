@@ -1979,8 +1979,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const CONNECT_COOLDOWN_SEC = 10;
   let connectCooldownUntil = 0;
   let connectCooldownTimer = null;
-  let lastConnectSig = null;
-  const getConnectSig = () => `${inputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '')}:${inputYouTube.value.trim()}:${inputTikTok.value.trim()}`;
   const connectCooldownLeft = () => Math.max(0, Math.ceil((connectCooldownUntil - Date.now()) / 1000));
   const cooldownToast = () => {
     const left = connectCooldownLeft();
@@ -1990,7 +1988,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Dipanggil setiap kali koneksi benar-benar dikirim ke server
   const startConnectCooldown = () => {
     connectCooldownUntil = Date.now() + CONNECT_COOLDOWN_SEC * 1000;
-    lastConnectSig = getConnectSig();
     const refreshBtn = document.getElementById('btnRefreshChannels');
     if (!refreshBtn) return;
     if (refreshBtn._origHtml === undefined) refreshBtn._origHtml = refreshBtn.innerHTML;
@@ -2024,11 +2021,8 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (userMatch) inputTikTok.value = userMatch[1].toLowerCase();
       else if (val.startsWith('@')) inputTikTok.value = val.slice(1).trim();
     }
-    // Cooldown: klik berulang tanpa mengubah saluran ditahan. Mengganti saluran tetap boleh (mis. koreksi typo).
-    if (connectCooldownLeft() > 0 && getConnectSig() === lastConnectSig) {
-      cooldownToast();
-      return;
-    }
+    // Simpan & Hubungkan sengaja TIDAK diberi cooldown (modal langsung tertutup; penjaga server tetap aktif).
+    // Setelah menyimpan, tombol "Segarkan Koneksi" masuk cooldown agar tidak langsung di-spam.
     startConnectCooldown();
     const twitch = inputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '');
     let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
