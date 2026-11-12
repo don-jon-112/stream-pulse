@@ -1975,6 +1975,44 @@ document.addEventListener('DOMContentLoaded', () => {
     inputTikTok.addEventListener('paste', () => setTimeout(cleanTikTokInput, 50));
   }
 
+  // ===== Cooldown anti-spam: "Simpan & Hubungkan" dan "Segarkan Koneksi" =====
+  const CONNECT_COOLDOWN_SEC = 10;
+  let connectCooldownUntil = 0;
+  let connectCooldownTimer = null;
+  let lastConnectSig = null;
+  const getConnectSig = () => `${inputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '')}:${inputYouTube.value.trim()}:${inputTikTok.value.trim()}`;
+  const connectCooldownLeft = () => Math.max(0, Math.ceil((connectCooldownUntil - Date.now()) / 1000));
+  const cooldownToast = () => {
+    const left = connectCooldownLeft();
+    const isEn = window.getCurrentLang && window.getCurrentLang() === 'en';
+    spToast(isEn ? `Please wait ${left}s before reconnecting again.` : `Tunggu ${left} detik lagi sebelum menyambungkan ulang.`, 'info');
+  };
+  // Dipanggil setiap kali koneksi benar-benar dikirim ke server
+  const startConnectCooldown = () => {
+    connectCooldownUntil = Date.now() + CONNECT_COOLDOWN_SEC * 1000;
+    lastConnectSig = getConnectSig();
+    const refreshBtn = document.getElementById('btnRefreshChannels');
+    if (!refreshBtn) return;
+    if (refreshBtn._origHtml === undefined) refreshBtn._origHtml = refreshBtn.innerHTML;
+    refreshBtn.disabled = true;
+    clearInterval(connectCooldownTimer);
+    const tick = () => {
+      const left = connectCooldownLeft();
+      if (left <= 0) {
+        clearInterval(connectCooldownTimer);
+        refreshBtn.disabled = false;
+        if (refreshBtn._origHtml !== undefined) {
+          refreshBtn.innerHTML = refreshBtn._origHtml;
+          delete refreshBtn._origHtml;
+        }
+        return;
+      }
+      refreshBtn.innerHTML = `<span>⏳ Tunggu ${left} detik</span>`;
+    };
+    tick();
+    connectCooldownTimer = setInterval(tick, 500);
+  };
+
   btnSaveChannels.addEventListener('click', async () => {
     if (inputTikTok) {
       const val = inputTikTok.value.trim();
@@ -1986,6 +2024,12 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (userMatch) inputTikTok.value = userMatch[1].toLowerCase();
       else if (val.startsWith('@')) inputTikTok.value = val.slice(1).trim();
     }
+    // Cooldown: klik berulang tanpa mengubah saluran ditahan. Mengganti saluran tetap boleh (mis. koreksi typo).
+    if (connectCooldownLeft() > 0 && getConnectSig() === lastConnectSig) {
+      cooldownToast();
+      return;
+    }
+    startConnectCooldown();
     const twitch = inputTwitch.value.trim().toLowerCase().replace(/^[#@]/, '');
     let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
     const youtube = inputYouTube.value.trim();
@@ -2044,15 +2088,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnRefreshChannels = document.getElementById('btnRefreshChannels');
   if (btnRefreshChannels) {
     btnRefreshChannels.addEventListener('click', async () => {
+      if (connectCooldownLeft() > 0) {
+        cooldownToast();
+        return;
+      }
+      startConnectCooldown();
       const twitch = inputTwitch.value.trim();
       let twitchToken = inputTwitchToken ? inputTwitchToken.value.trim() : '';
       const youtube = inputYouTube.value.trim();
       const tiktok = inputTikTok.value.trim();
       const tiktokSessionId = inputTikTokSession ? inputTikTokSession.value.trim() : '';
-
-      const origHtml = btnRefreshChannels.innerHTML;
-      btnRefreshChannels.disabled = true;
-      btnRefreshChannels.innerHTML = `<span>⏳ Menyambungkan Ulang...</span>`;
 
       // Simpan lokal terlebih dahulu
       saveStoredUserChannels({ twitch, youtube, tiktok, tiktokSessionId });
@@ -2067,8 +2112,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       setTimeout(() => {
-        btnRefreshChannels.disabled = false;
-        btnRefreshChannels.innerHTML = origHtml;
         spToast(window.getCurrentLang && window.getCurrentLang() === 'en' ? 'Channels refreshed!' : 'Koneksi saluran disegarkan & dicoba ulang!', 'info');
       }, 1000);
     });
