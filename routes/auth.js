@@ -5,6 +5,8 @@ import { checkAdminAuth } from '../lib/adminAuth.js';
 import {
   hashPassword,
   verifyPassword,
+  getUserTikTokSessionId,
+  setUserTikTokSessionId,
   isLegacyPasswordFormat,
   encryptToken,
   decryptToken,
@@ -21,6 +23,25 @@ const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'sea3yunko17ptmjkwf98im
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET || '';
 const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID || '';
 const YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET || '';
+
+// --- Helper aman untuk halaman callback OAuth ---
+function escHtml(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+// Script yang mengirim hasil OAuth ke jendela pembuka. Payload di-serialisasi dengan JSON
+// (bukan string interpolasi) dan hanya dikirim ke origin yang sama / origin aplikasi native.
+function buildAuthPostScript(payload) {
+  const json = JSON.stringify(payload).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  return `
+            const authPayload = ${json};
+            if (window.opener) {
+              const targets = [window.location.origin, 'capacitor://localhost', 'https://localhost', 'http://localhost'];
+              targets.forEach(function (o) { try { window.opener.postMessage(authPayload, o); } catch (e) {} });
+              setTimeout(() => { window.close(); }, 700);
+            } else {
+              setTimeout(() => { window.location.href = '/'; }, 1200);
+            }`;
+}
 
 const twitchOauthStates = new Map();
 const youtubeOauthStates = new Map();
@@ -103,7 +124,7 @@ export function createAuthRouter(streamManager) {
       return res.status(400).json({ error: 'Email ini sudah terdaftar! Silakan login.' });
     }
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = crypto.randomInt(100000, 1000000).toString();
     verificationStore.set(cleanEmail, {
       code,
       expiresAt: Date.now() + (15 * 60 * 1000)
@@ -140,7 +161,14 @@ export function createAuthRouter(streamManager) {
     if (!vEntry || vEntry.expiresAt < Date.now()) {
       return res.status(400).json({ error: 'Kode verifikasi kedaluwarsa atau belum diminta. Silakan minta kode baru.' });
     }
-    if (vEntry.code !== String(code).trim()) {
+    // Batasi tebakan kode 6 digit (anti brute-force)
+    const verifyKey = `verify_code_${cleanEmail}`;
+    const verifyLimit = isRateLimited(verifyKey, 5);
+    if (!verifyLimit.allowed) {
+      return res.status(429).json({ error: `Terlalu banyak percobaan kode. Coba lagi dalam ${verifyLimit.waitTime}.` });
+    }
+    if (!crypto.timingSafeEqual(crypto.createHash('sha256').update(String(vEntry.code)).digest(), crypto.createHash('sha256').update(String(code).trim()).digest())) {
+      recordFailedAttempt(verifyKey, 5, 15 * 60 * 1000);
       return res.status(400).json({ error: 'Kode verifikasi salah! Periksa kembali email Anda.' });
     }
 
@@ -157,7 +185,7 @@ export function createAuthRouter(streamManager) {
     const hashedPassword = await hashPassword(password);
     const token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
 
-    const initialSlotId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+    const initialSlotId = `ovl_${crypto.randomBytes(5).toString('hex')}`;
     const overlays = readJsonFile(OVERLAYS_FILE, {});
     overlays[initialSlotId] = {
       id: initialSlotId,
@@ -285,7 +313,7 @@ export function createAuthRouter(streamManager) {
           youtubeAvatar: user.channels?.youtubeAvatar || '',
           youtubeChannelId: user.channels?.youtubeChannelId || '',
           tiktok: user.channels?.tiktok || '',
-          tiktokSessionId: user.channels?.tiktokSessionId || '',
+          tiktokSessionId: getUserTikTokSessionId(user),
           hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
           hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
         }
@@ -303,7 +331,7 @@ export function createAuthRouter(streamManager) {
     const overlays = readJsonFile(OVERLAYS_FILE, {});
 
     if (!user.overlayIds || user.overlayIds.length === 0) {
-      const initialSlotId = `ovl_${Math.random().toString(36).substr(2, 7)}`;
+      const initialSlotId = `ovl_${crypto.randomBytes(5).toString('hex')}`;
       overlays[initialSlotId] = {
         id: initialSlotId,
         name: 'Slot 1 (Utama)',
@@ -349,7 +377,7 @@ export function createAuthRouter(streamManager) {
         youtubeAvatar: user.channels?.youtubeAvatar || '',
         youtubeChannelId: user.channels?.youtubeChannelId || '',
         tiktok: user.channels?.tiktok || '',
-        tiktokSessionId: user.channels?.tiktokSessionId || '',
+        tiktokSessionId: getUserTikTokSessionId(user),
         hasTwitchToken: Boolean(user.channels?.twitchTokenEncrypted),
         hasYouTubeToken: Boolean(user.channels?.youtubeTokenEncrypted)
       },
@@ -399,7 +427,7 @@ export function createAuthRouter(streamManager) {
           twitchDisplayName: matchedUser.channels?.twitchDisplayName || '',
           youtube: matchedUser.channels?.youtube || '',
           tiktok: matchedUser.channels?.tiktok || '',
-          tiktokSessionId: matchedUser.channels?.tiktokSessionId || '',
+          tiktokSessionId: getUserTikTokSessionId(matchedUser),
           hasTwitchToken: Boolean(matchedUser.channels?.twitchTokenEncrypted)
         }
       });
@@ -422,10 +450,7 @@ export function createAuthRouter(streamManager) {
     if (youtube !== undefined) currentUser.channels.youtube = String(youtube).trim();
     if (tiktok !== undefined) currentUser.channels.tiktok = streamManager?.parseTikTokInput ? streamManager.parseTikTokInput(tiktok) : String(tiktok).trim();
     if (tiktokSessionId !== undefined) {
-      currentUser.channels.tiktokSessionId = String(tiktokSessionId).trim();
-      if (currentUser.channels.tiktokSessionId) {
-        globalThis._activeTikTokSessionId = currentUser.channels.tiktokSessionId;
-      }
+      setUserTikTokSessionId(currentUser, tiktokSessionId);
     }
 
     const isMaskedToken = String(twitchToken).includes('***') || String(twitchToken).includes('••••') || String(twitchToken).includes('Tersimpan');
@@ -460,7 +485,7 @@ export function createAuthRouter(streamManager) {
         twitch: currentUser.channels.twitch || '',
         youtube: currentUser.channels.youtube || '',
         tiktok: currentUser.channels.tiktok || '',
-        tiktokSessionId: currentUser.channels.tiktokSessionId || '',
+        tiktokSessionId: getUserTikTokSessionId(currentUser),
         hasTwitchToken: Boolean(currentUser.channels.twitchTokenEncrypted)
       }
     });
@@ -511,11 +536,11 @@ export function createAuthRouter(streamManager) {
         <head><title>Twitch Auth Gagal</title></head>
         <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
           <h3>Gagal Menghubungkan Twitch</h3>
-          <p>${error_description || error}</p>
+          <p>${escHtml(error_description || error)}</p>
           <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
           <script>
             if (window.opener) {
-              window.opener.postMessage({ type: 'TWITCH_AUTH_ERROR', error: '${error}' }, '*');
+              window.opener.postMessage({ type: 'TWITCH_AUTH_ERROR', error: ${JSON.stringify(String(error)).replace(/</g, '\\u003c')} }, window.location.origin);
             }
           </script>
         </body>
@@ -611,26 +636,12 @@ export function createAuthRouter(streamManager) {
         </head>
         <body>
           <div class="card">
-            <img class="avatar" src="${twitchAvatar}" alt="${twitchDisplayName}">
-            <h2>${twitchDisplayName}</h2>
+            <img class="avatar" src="${escHtml(twitchAvatar)}" alt="${escHtml(twitchDisplayName)}">
+            <h2>${escHtml(twitchDisplayName)}</h2>
             <span class="badge">✓ Twitch Terhubung</span>
             <p>Channel Points EventSub siap aktif.<br>Jendela ini akan menutup otomatis...</p>
           </div>
-          <script>
-            const authPayload = {
-              type: 'TWITCH_AUTH_SUCCESS',
-              twitch: '${twitchLogin}',
-              displayName: '${twitchDisplayName}',
-              userId: '${twitchUserId}',
-              avatar: '${twitchAvatar}',
-              token: '${accessToken}'
-            };
-            if (window.opener) {
-              window.opener.postMessage(authPayload, '*');
-              setTimeout(() => { window.close(); }, 700);
-            } else {
-              setTimeout(() => { window.location.href = '/'; }, 1200);
-            }
+          <script>${buildAuthPostScript({ type: 'TWITCH_AUTH_SUCCESS', twitch: twitchLogin, displayName: twitchDisplayName, userId: twitchUserId, avatar: twitchAvatar, token: accessToken })}
           </script>
         </body>
         </html>
@@ -643,7 +654,7 @@ export function createAuthRouter(streamManager) {
         <head><title>Twitch Auth Error</title></head>
         <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
           <h3>Terjadi Kesalahan Saat Otentikasi Twitch</h3>
-          <p>${err.message}</p>
+          <p>${escHtml(err.message)}</p>
           <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
         </body>
         </html>
@@ -712,11 +723,11 @@ export function createAuthRouter(streamManager) {
         <head><title>YouTube Auth Gagal</title></head>
         <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
           <h3>Gagal Menghubungkan Akun YouTube</h3>
-          <p>${error_description || error}</p>
+          <p>${escHtml(error_description || error)}</p>
           <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
           <script>
             if (window.opener) {
-              window.opener.postMessage({ type: 'YOUTUBE_AUTH_ERROR', error: '${error}' }, '*');
+              window.opener.postMessage({ type: 'YOUTUBE_AUTH_ERROR', error: ${JSON.stringify(String(error)).replace(/</g, '\\u003c')} }, window.location.origin);
             }
           </script>
         </body>
@@ -811,27 +822,12 @@ export function createAuthRouter(streamManager) {
         </head>
         <body>
           <div class="card">
-            <img class="avatar" src="${avatar}" alt="${channelTitle}">
-            <h2>${channelTitle}</h2>
+            <img class="avatar" src="${escHtml(avatar)}" alt="${escHtml(channelTitle)}">
+            <h2>${escHtml(channelTitle)}</h2>
             <span class="badge">✓ YouTube Terhubung</span>
             <p>Live stream channel siap dipantau.<br>Jendela ini akan menutup otomatis...</p>
           </div>
-          <script>
-            const authPayload = {
-              type: 'YOUTUBE_AUTH_SUCCESS',
-              channelId: '${channelId}',
-              title: '${channelTitle.replace(/'/g, "\\'")}',
-              customUrl: '${customUrl}',
-              target: '${youtubeTarget}',
-              avatar: '${avatar}',
-              token: '${accessToken}'
-            };
-            if (window.opener) {
-              window.opener.postMessage(authPayload, '*');
-              setTimeout(() => { window.close(); }, 700);
-            } else {
-              setTimeout(() => { window.location.href = '/'; }, 1200);
-            }
+          <script>${buildAuthPostScript({ type: 'YOUTUBE_AUTH_SUCCESS', channelId, title: channelTitle, customUrl, target: youtubeTarget, avatar, token: accessToken })}
           </script>
         </body>
         </html>
@@ -844,7 +840,7 @@ export function createAuthRouter(streamManager) {
         <head><title>YouTube Auth Error</title></head>
         <body style="background:#0b0e17;color:#f87171;font-family:sans-serif;padding:30px;text-align:center;">
           <h3>Terjadi Kesalahan Saat Otentikasi YouTube</h3>
-          <p>${err.message}</p>
+          <p>${escHtml(err.message)}</p>
           <button onclick="window.close()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;">Tutup</button>
         </body>
         </html>

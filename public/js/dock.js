@@ -1469,14 +1469,14 @@
     };
 
     if (socket && socket.connected) {
-      socket.emit('spotlight_chat', payload);
+      socket.emit('spotlight_chat', { ...payload, userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '' });
     }
     updatePinnedBannerUI(payload);
   }
 
   function unpinSpotlight() {
     if (socket && socket.connected) {
-      socket.emit('spotlight_clear');
+      socket.emit('spotlight_clear', { userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '' });
     }
     clearPinnedBannerUI();
   }
@@ -1505,7 +1505,7 @@
     };
 
     if (socket && socket.connected) {
-      socket.emit('spotlight_chat', demoPayload);
+      socket.emit('spotlight_chat', { ...demoPayload, userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '' });
     }
     updatePinnedBannerUI(demoPayload);
   }

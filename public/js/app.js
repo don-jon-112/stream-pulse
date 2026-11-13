@@ -991,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (headerUserWidget) {
       if (currentUser && userToken) {
         headerUserWidget.href = '/studio';
-        headerUserWidget.innerHTML = `<span>👤 ${currentUser.username}</span>`;
+        headerUserWidget.innerHTML = `<span>👤 ${escapeHtml(currentUser.username)}</span>`;
       } else {
         headerUserWidget.href = '/studio?auth=1';
         headerUserWidget.innerHTML = `<span>${window.t ? window.t('nav_login') : '🔐 Login / Akun'}</span>`;

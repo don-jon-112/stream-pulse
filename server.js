@@ -49,7 +49,7 @@ import compression from 'compression';
 
 import { initDefaultDataFiles, readJsonFile, writeJsonFile, USERS_FILE, OVERLAYS_FILE } from './lib/db.js';
 import * as dbModule from './lib/db.js';
-import { decryptToken, getUserFromReq, refreshTwitchToken } from './lib/security.js';
+import { decryptToken, getUserFromReq, refreshTwitchToken, getUserTikTokSessionId, migrateUserSecrets } from './lib/security.js';
 import { StreamManager } from './lib/streamManager.js';
 import { emoteManager } from './lib/emoteManager.js';
 
@@ -64,26 +64,61 @@ const __dirname = path.dirname(__filename);
 
 // Inisialisasi default database files jika belum ada
 initDefaultDataFiles();
+migrateUserSecrets(dbModule);
 
 const app = express();
 const server = http.createServer(app);
+// ==========================================
+// CORS / ORIGIN POLICY
+// ==========================================
+// Diizinkan: same-origin, origin aplikasi native (Capacitor/Electron/localhost), host dari
+// PUBLIC_URL / TWITCH_REDIRECT_URI, dan daftar ALLOWED_ORIGINS di .env (pisah koma).
+// ALLOWED_ORIGINS=* mengembalikan perilaku lama (semua origin diizinkan).
+const ALLOWED_ORIGINS = String(process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const ALLOW_ALL_ORIGINS = ALLOWED_ORIGINS.includes('*');
+const NATIVE_ORIGIN_RE = /^(capacitor|ionic|file):\/\/|^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+const SELF_HOSTS = new Set();
+for (const u of [process.env.PUBLIC_URL, process.env.TWITCH_REDIRECT_URI, process.env.YOUTUBE_REDIRECT_URI]) {
+  try { if (u) SELF_HOSTS.add(new URL(u).host.toLowerCase()); } catch (_) {}
+}
+
+function isOriginAllowed(origin, req) {
+  if (!origin || origin === 'null') return true; // non-browser / same-origin tanpa header
+  if (ALLOW_ALL_ORIGINS) return true;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (NATIVE_ORIGIN_RE.test(origin)) return true;
+  let originHost = '';
+  try { originHost = new URL(origin).host.toLowerCase(); } catch (_) { return false; }
+  if (SELF_HOSTS.has(originHost)) return true;
+  const hosts = [req?.headers?.host, req?.headers?.['x-forwarded-host']]
+    .filter(Boolean).flatMap(h => String(h).split(',')).map(h => h.trim().toLowerCase());
+  return hosts.includes(originHost);
+}
+
 const io = new SocketIOServer(server, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
+  cors: { origin: true, methods: ['GET', 'POST'] },
+  allowRequest: (req, callback) => {
+    callback(null, isOriginAllowed(req.headers.origin, req));
   }
 });
 
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.disable('x-powered-by');
+app.use(cors((req, callback) => {
+  callback(null, { origin: isOriginAllowed(req.headers.origin, req) });
+}));
 app.use(compression());
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // Tiered Caching & Performance Header Configuration:
 app.use((req, res, next) => {
-  if (req.method === 'GET') {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Header keamanan dasar (CSP sengaja belum dipasang karena halaman memakai banyak inline script)
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+    res.setHeader('Strict-Transport-Security', 'max-age=15552000');
   }
   next();
 });
@@ -98,7 +133,8 @@ app.use(express.static(path.join(__dirname, 'public'), {
   etag: true,
   setHeaders: (res, filePath) => {
     const lower = filePath.toLowerCase();
-    if (lower.endsWith('.html')) {
+    if (/\.(html|js|css|mjs)$/i.test(lower)) {
+      // Selalu validasi ulang (ETag -> 304) agar update langsung terlihat, tidak tersangkut cache
       res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     } else if (/\.(png|jpe?g|gif|webp|svg|ico|mp3|wav|ogg|woff2?|ttf|eot)$/i.test(lower)) {
       res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
@@ -158,11 +194,20 @@ io.on('connection', (socket) => {
     socket.emit('spotlight_active', currentSpotlight);
   }
 
+  // Pin/unpin spotlight hanya untuk akun yang login (token dikirim dari dock, tidak disiarkan ke overlay)
+  const isValidSpotlightUser = (token) => {
+    if (!token || typeof token !== 'string') return false;
+    return Object.values(readJsonFile(USERS_FILE, {})).some(u => u.token === token);
+  };
+
   socket.on('spotlight_chat', (data) => {
-    setServerSpotlight(data);
+    if (!data || typeof data !== 'object' || !isValidSpotlightUser(data.userToken)) return;
+    const { userToken, ...safeData } = data;
+    setServerSpotlight(safeData);
   });
 
-  socket.on('spotlight_clear', () => {
+  socket.on('spotlight_clear', (data) => {
+    if (!data || !isValidSpotlightUser(data.userToken)) return;
     clearServerSpotlight();
   });
 
@@ -189,7 +234,7 @@ io.on('connection', (socket) => {
         if (!cleanTwitch && u.channels?.twitch) cleanTwitch = u.channels.twitch.toLowerCase().replace(/^[#@]/, '');
         if (!cleanYouTube && u.channels?.youtube) cleanYouTube = u.channels.youtube;
         if (!cleanTikTok && u.channels?.tiktok) cleanTikTok = u.channels.tiktok.replace(/^@/, '');
-        if (!tiktokSessionId && u.channels?.tiktokSessionId) tiktokSessionId = u.channels.tiktokSessionId;
+        if (!tiktokSessionId) tiktokSessionId = getUserTikTokSessionId(u);
       }
     }
 
@@ -209,7 +254,7 @@ io.on('connection', (socket) => {
             if (!cleanYouTube && u.channels?.youtube) cleanYouTube = u.channels.youtube;
             if (!cleanTikTok && u.channels?.tiktok) cleanTikTok = u.channels.tiktok.replace(/^@/, '');
             // Overlay/dock OBS: ambil Session ID TikTok milik pemilik overlay (sebelumnya tidak terkirim)
-            if (!tiktokSessionId && u.channels?.tiktokSessionId) tiktokSessionId = String(u.channels.tiktokSessionId).trim();
+            if (!tiktokSessionId) tiktokSessionId = getUserTikTokSessionId(u);
             if (!token && u.channels?.twitchTokenEncrypted) {
               token = decryptToken(u.channels.twitchTokenEncrypted);
             }
