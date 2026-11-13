@@ -1260,6 +1260,48 @@
     });
 
     // Inisialisasi awal saat terkoneksi
+    // Saluran akun diubah/dihapus dari halaman lain: berhenti menerima chat platform itu,
+    // buang chat platform tsb dari tampilan + riwayat lokal, lalu sinkronkan ulang ke server.
+    socket.on('channels_updated', (ch) => {
+      if (!ch || typeof ch !== 'object') return;
+      const next = {
+        twitch: String(ch.twitch || '').trim().toLowerCase().replace(/^[#@]/, ''),
+        youtube: String(ch.youtube || '').trim(),
+        tiktok: String(ch.tiktok || '').trim().replace(/^@/, '')
+      };
+      const changedPlatforms = ['twitch', 'youtube', 'tiktok'].filter(p => (currentChannels[p] || '') !== next[p]);
+      if (!changedPlatforms.length) return;
+
+      changedPlatforms.forEach(p => { currentChannels[p] = next[p]; });
+
+      if (chatContainer) {
+        changedPlatforms.forEach(p => {
+          chatContainer.querySelectorAll(`[data-platform="${p}"]`).forEach(el => el.remove());
+        });
+        if (!chatContainer.querySelector('.dock-chat-item') && emptyState && !chatContainer.contains(emptyState)) {
+          chatContainer.appendChild(emptyState);
+        }
+      }
+      const kept = getStoredHistory().filter(it => !changedPlatforms.includes(it && it.platform));
+      storedHistoryCache = kept;
+      flushHistoryToStorage();
+      updateHistoryCountLabel(kept.length);
+
+      localStorage.setItem(STORAGE_KEY_HISTORY_SIG, `${(currentChannels.twitch || '').toLowerCase()}:${currentChannels.youtube || ''}:${currentChannels.tiktok || ''}`);
+      const merged = { twitch: currentChannels.twitch, youtube: currentChannels.youtube, tiktok: currentChannels.tiktok };
+      localStorage.setItem(STORAGE_KEY_USER_CHANNELS, JSON.stringify(merged));
+      localStorage.setItem(STORAGE_KEY_MY_CHANNELS, JSON.stringify(merged));
+      updateChannelUI();
+
+      // Kirim langsung (tanpa fallback ke channel lama di localStorage halaman utama)
+      socket.emit('update_channels', {
+        ...merged,
+        tiktokSessionId: localStorage.getItem('streampulse_tiktok_session') || '',
+        userToken: localStorage.getItem(STORAGE_KEY_USER_TOKEN) || '',
+        force: false
+      });
+    });
+
     socket.on('initial_state', (data) => {
       if (data && data.channels) {
         let changed = false;

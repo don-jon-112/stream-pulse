@@ -3334,6 +3334,8 @@
 
       // Socket.io Connection
       const socket = io({ transports: ['websocket', 'polling'] });
+        // Saluran akun diubah/dihapus dari halaman lain: muat ulang agar langsung memakai saluran terbaru
+        socket.on('channels_updated', () => { setTimeout(() => { try { location.reload(); } catch (e) {} }, 800); });
 
       socket.on('connect', () => {
         // Subscribe to configured channels

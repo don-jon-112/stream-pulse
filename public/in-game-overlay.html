@@ -1018,6 +1018,8 @@
 
       // 4. SOCKET.IO INTEGRATION (MULTI-PLATFORM LIVE CHAT & VIEWERS)
       const socket = io();
+        // Saluran akun diubah/dihapus dari halaman lain: muat ulang agar langsung memakai saluran terbaru
+        socket.on('channels_updated', () => { setTimeout(() => { try { location.reload(); } catch (e) {} }, 800); });
 
       // Initial load custom chat stream url jika ada
       const initialCustomUrl = new URLSearchParams(window.location.search).get('customUrl') || 

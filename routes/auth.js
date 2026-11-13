@@ -102,6 +102,33 @@ function getYouTubeRedirectUri(req) {
 }
 
 export function createAuthRouter(streamManager) {
+  // Beri tahu semua dock/overlay milik akun bahwa saluran berubah (agar langsung berhenti/ganti)
+  const notifyChannelsChanged = (user) => {
+    try {
+      const c = user?.channels || {};
+      streamManager?.io?.to(`user:${user.username}`).emit('channels_updated', {
+        twitch: c.twitch || '',
+        youtube: c.youtube || '',
+        tiktok: c.tiktok || ''
+      });
+    } catch (e) {
+      console.warn('[Auth] Gagal menyiarkan perubahan saluran:', e.message);
+    }
+  };
+  // Samakan profil overlay milik user dengan saluran akun (termasuk yang dikosongkan)
+  const syncOverlayProfiles = (user, fields) => {
+    if (!Array.isArray(user.overlayIds) || !user.overlayIds.length) return;
+    const overlays = readJsonFile(OVERLAYS_FILE, {});
+    let updated = false;
+    for (const id of user.overlayIds) {
+      if (!overlays[id]) continue;
+      for (const f of fields) overlays[id][f] = user.channels?.[f] || '';
+      overlays[id].updatedAt = Date.now();
+      updated = true;
+    }
+    if (updated) writeJsonFile(OVERLAYS_FILE, overlays);
+  };
+
   const router = express.Router();
 
   // 1. Send Email Verification Code
@@ -478,6 +505,8 @@ export function createAuthRouter(streamManager) {
       if (ovlUpdated) writeJsonFile(OVERLAYS_FILE, overlays);
     }
 
+    notifyChannelsChanged(currentUser);
+
     res.json({
       success: true,
       message: 'Konfigurasi saluran berhasil disimpan ke akun Anda!',
@@ -677,6 +706,8 @@ export function createAuthRouter(streamManager) {
       }
       users[currentUser.username] = currentUser;
       writeJsonFile(USERS_FILE, users);
+      syncOverlayProfiles(currentUser, ['twitch']);
+      notifyChannelsChanged(currentUser);
     }
     res.json({ success: true, message: 'Twitch berhasil diputuskan.' });
   });
@@ -863,6 +894,8 @@ export function createAuthRouter(streamManager) {
       }
       users[currentUser.username] = currentUser;
       writeJsonFile(USERS_FILE, users);
+      syncOverlayProfiles(currentUser, ['youtube']);
+      notifyChannelsChanged(currentUser);
     }
     res.json({ success: true, message: 'YouTube berhasil diputuskan.' });
   });

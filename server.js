@@ -224,10 +224,12 @@ io.on('connection', (socket) => {
     let cleanTikTok = streamManager.parseTikTokInput ? streamManager.parseTikTokInput(data?.tiktok) : (data?.tiktok || '').trim().replace(/^@/, '');
     let tiktokSessionId = data?.tiktokSessionId ? String(data.tiktokSessionId).trim() : '';
 
+    let ownerUsername = null;
     if (data?.userToken) {
       const users = readJsonFile(USERS_FILE, {});
       const u = Object.values(users).find(x => x.token === data.userToken);
       if (u) {
+        ownerUsername = u.username;
         if (!token || token.includes('***') || token.includes('Tersimpan') || token.includes('••••')) {
           token = decryptToken(u.channels?.twitchTokenEncrypted);
         }
@@ -250,6 +252,7 @@ io.on('connection', (socket) => {
           const users = readJsonFile(USERS_FILE, {});
           const u = users[ovl.owner];
           if (u) {
+            ownerUsername = ownerUsername || u.username;
             if (!cleanTwitch && u.channels?.twitch) cleanTwitch = u.channels.twitch.toLowerCase().replace(/^[#@]/, '');
             if (!cleanYouTube && u.channels?.youtube) cleanYouTube = u.channels.youtube;
             if (!cleanTikTok && u.channels?.tiktok) cleanTikTok = u.channels.tiktok.replace(/^@/, '');
@@ -261,6 +264,15 @@ io.on('connection', (socket) => {
           }
         }
       }
+    }
+
+    // Gabungkan socket ini ke room milik akun, supaya perubahan saluran dari halaman lain
+    // (hapus/ganti channel) bisa langsung diberitahukan ke dock & overlay yang sedang terbuka.
+    if (ownerUsername) {
+      const room = `user:${ownerUsername}`;
+      if (socket.data.userRoom && socket.data.userRoom !== room) socket.leave(socket.data.userRoom);
+      socket.data.userRoom = room;
+      socket.join(room);
     }
 
     // Fallback terakhir: TIKTOK_SESSION_ID dari .env agar tetap ada setelah restart
