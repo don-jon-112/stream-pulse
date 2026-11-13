@@ -1272,7 +1272,8 @@
       const changedPlatforms = ['twitch', 'youtube', 'tiktok'].filter(p => (currentChannels[p] || '') !== next[p]);
       if (!changedPlatforms.length) return;
 
-      changedPlatforms.forEach(p => { currentChannels[p] = next[p]; });
+      changedPlatforms.forEach(p => { currentChannels[p] = next[p]; viewerCounts[p] = 0; });
+      updateViewerDisplay();
 
       if (chatContainer) {
         changedPlatforms.forEach(p => {
@@ -1359,6 +1360,11 @@
 
     // Platform status message
     socket.on('platform_status', (data) => {
+      // Platform tidak tersambung / offline / dihapus: jangan biarkan angka viewers lama tertahan
+      if (data && ['idle', 'disconnected', 'error'].includes(data.status) && viewerCounts[data.platform]) {
+        viewerCounts[data.platform] = 0;
+        updateViewerDisplay();
+      }
       if (data && data.message) {
         console.log(`[Dock Status ${data.platform}]`, data.message);
         if (data.platform === 'twitch' && (data.status === 'warning' || data.status === 'error')) {
