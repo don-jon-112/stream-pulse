@@ -49,6 +49,7 @@ import compression from 'compression';
 
 import { initDefaultDataFiles, readJsonFile, writeJsonFile, USERS_FILE, OVERLAYS_FILE } from './lib/db.js';
 import * as dbModule from './lib/db.js';
+import { checkAdminAuth } from './lib/adminAuth.js';
 import { decryptToken, getUserFromReq, refreshTwitchToken, getUserTikTokSessionId, migrateUserSecrets } from './lib/security.js';
 import { StreamManager } from './lib/streamManager.js';
 import { emoteManager } from './lib/emoteManager.js';
@@ -486,6 +487,40 @@ app.get(['/privacy', '/privacy-policy'], (req, res) => {
 // ==========================================
 app.get('/api/status', (req, res) => {
   res.json(streamManager.getInitialState());
+});
+
+// Diagnostik (khusus admin): siapa saja yang sedang memegang koneksi tiap channel.
+// Tidak menampilkan token; query string pada URL halaman dibuang.
+app.get('/api/admin/connections', (req, res) => {
+  if (!checkAdminAuth(req)) return res.status(401).json({ error: 'Akses ditolak' });
+  const describeSocket = (id) => {
+    const sock = io.sockets.sockets.get(id);
+    if (!sock) return { id, connected: false };
+    const h = sock.handshake || {};
+    let page = '';
+    try { const u = new URL(h.headers?.referer || ''); page = u.origin + u.pathname; } catch (_) {}
+    return {
+      id,
+      connected: true,
+      account: (sock.data?.userRoom || '').replace(/^user:/, '') || null,
+      page,
+      ip: String(h.headers?.['x-forwarded-for'] || h.address || '').split(',')[0].trim(),
+      userAgent: String(h.headers?.['user-agent'] || '').slice(0, 90),
+      connectedSince: h.time || null
+    };
+  };
+  const dump = (pool) => [...pool.entries()].map(([channel, item]) => ({
+    channel,
+    status: item.status?.status || '',
+    viewerCount: item.viewerCount || 0,
+    listeners: [...(item.listeners || [])].map(describeSocket)
+  }));
+  res.json({
+    tiktok: dump(streamManager.tiktokPool),
+    twitch: dump(streamManager.twitchPool),
+    youtube: dump(streamManager.youtubePool),
+    totalSockets: io.engine.clientsCount
+  });
 });
 
 app.get('/api/events', (req, res) => {
