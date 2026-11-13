@@ -1281,7 +1281,8 @@
           document.getElementById('btnResetGifters').onclick = async () => {
             sendToIframe('reset_data', {}, { target: 'gifter' });
             try {
-              await fetch('/api/tiktok/reset-gifters', { method: 'POST' });
+              const ut = localStorage.getItem('streampulse_user_token') || '';
+              if (ut) await fetch('/api/tiktok/reset-gifters', { method: 'POST', headers: { 'x-user-token': ut } });
             } catch (e) {}
             showToast('🗑️ Data Top Gifter dikosongkan.');
           };

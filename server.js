@@ -261,6 +261,11 @@ io.on('connection', (socket) => {
   };
 
   socket.on('client_stream_relay', (data) => {
+    // Relay dari klien hanya diterima dengan token akun yang valid
+    const relayUser = data && data.userToken
+      ? Object.values(readJsonFile(USERS_FILE, {})).find(x => x.token === data.userToken)
+      : null;
+    if (!relayUser) return;
     streamManager.handleClientRelay(socket, data);
   });
 
@@ -445,7 +450,11 @@ app.get('/api/tiktok/top-gifters', (req, res) => {
 });
 
 app.post('/api/tiktok/reset-gifters', (req, res) => {
-  const channel = req.body?.channel || '';
+  const user = getUserFromReq(req, readJsonFile(USERS_FILE, {}));
+  if (!user) return res.status(401).json({ error: 'Login diperlukan' });
+  // Hanya boleh mereset channel TikTok milik sendiri (bukan semua channel).
+  const channel = user.channels?.tiktok || '';
+  if (!channel) return res.status(400).json({ error: 'Akun belum punya channel TikTok' });
   if (streamManager.clearTikTokTopGifters) {
     streamManager.clearTikTokTopGifters(channel);
   }
@@ -463,6 +472,7 @@ app.post('/api/channels', async (req, res) => {
 
   const users = readJsonFile(USERS_FILE, {});
   const user = getUserFromReq(req, users);
+  if (!user) return res.status(401).json({ error: 'Login diperlukan' });
   if (user && (!resolvedTwitchToken || resolvedTwitchToken.includes('***') || resolvedTwitchToken.includes('Tersimpan'))) {
     if (user.channels?.twitchTokenEncrypted) {
       resolvedTwitchToken = decryptToken(user.channels.twitchTokenEncrypted);

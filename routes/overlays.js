@@ -1,5 +1,6 @@
 import express from 'express';
 import { readJsonFile, writeJsonFile, OVERLAYS_FILE, USERS_FILE, ADMIN_FILE } from '../lib/db.js';
+import { checkAdminAuth } from '../lib/adminAuth.js';
 import { getUserFromReq } from '../lib/security.js';
 
 const router = express.Router();
@@ -9,18 +10,6 @@ export function setOverlaysIo(io) {
   ioInstance = io;
 }
 
-function getAdminPassword() {
-  const adminData = readJsonFile(ADMIN_FILE, null);
-  if (adminData && adminData.password) {
-    return adminData.password;
-  }
-  return process.env.ADMIN_PASSWORD || 'admin123';
-}
-
-function checkAdminAuth(req) {
-  const token = (req.headers['x-admin-key'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
-  return token === getAdminPassword();
-}
 
 // ==========================================
 // OBS OVERLAY PROFILES API

@@ -1,9 +1,11 @@
 import express from 'express';
 import crypto from 'crypto';
 import { readJsonFile, writeJsonFile, USERS_FILE, OVERLAYS_FILE, ADMIN_FILE } from '../lib/db.js';
+import { checkAdminAuth } from '../lib/adminAuth.js';
 import {
   hashPassword,
   verifyPassword,
+  isLegacyPasswordFormat,
   encryptToken,
   decryptToken,
   verificationStore,
@@ -16,25 +18,13 @@ import {
 } from '../lib/security.js';
 
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID || 'sea3yunko17ptmjkwf98imtypufch4';
-const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET || 'q341sygmjw843bik91y6p79cr91pz2';
+const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET || '';
 const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID || '';
 const YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET || '';
 
 const twitchOauthStates = new Map();
 const youtubeOauthStates = new Map();
 
-function getAdminPassword() {
-  const adminData = readJsonFile(ADMIN_FILE, null);
-  if (adminData && adminData.password) {
-    return adminData.password;
-  }
-  return process.env.ADMIN_PASSWORD || 'admin123';
-}
-
-function checkAdminAuth(req) {
-  const token = (req.headers['x-admin-key'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
-  return token === getAdminPassword();
-}
 
 function getTwitchRedirectUri(req) {
   if (process.env.TWITCH_REDIRECT_URI) return process.env.TWITCH_REDIRECT_URI;
@@ -265,6 +255,13 @@ export function createAuthRouter(streamManager) {
 
     rateLimitStore.delete(rateLimitKey);
 
+    // Migrasi otomatis password format lama (plaintext) ke hash
+    if (isLegacyPasswordFormat(user.password)) {
+      user.password = await hashPassword(password);
+      users[user.username] = user;
+      writeJsonFile(USERS_FILE, users);
+    }
+
     if (!user.token) {
       user.token = `usr_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
       users[user.username] = user;
@@ -367,12 +364,29 @@ export function createAuthRouter(streamManager) {
 
     const users = readJsonFile(USERS_FILE, {});
     let matchedUser = null;
+    let authenticated = false;
 
     if (token) {
       matchedUser = Object.values(users).find(u => u.token === token);
+      authenticated = Boolean(matchedUser);
     }
     if (!matchedUser && username) {
       matchedUser = Object.values(users).find(u => (u.username || '').toLowerCase() === username);
+    }
+
+    // Pencarian hanya dengan username (tanpa token) hanya boleh melihat info channel publik.
+    // Token akun dan session ID TikTok TIDAK pernah dikembalikan tanpa token yang valid.
+    if (matchedUser && !authenticated) {
+      return res.json({
+        success: true,
+        username: matchedUser.username,
+        channels: {
+          twitch: matchedUser.channels?.twitch || '',
+          twitchDisplayName: matchedUser.channels?.twitchDisplayName || '',
+          youtube: matchedUser.channels?.youtube || '',
+          tiktok: matchedUser.channels?.tiktok || ''
+        }
+      });
     }
 
     if (matchedUser) {

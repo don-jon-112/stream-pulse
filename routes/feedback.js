@@ -1,20 +1,10 @@
 import express from 'express';
 import { readJsonFile, writeJsonFile, FEEDBACK_FILE, ADMIN_FILE } from '../lib/db.js';
+import { checkAdminAuth, checkAdminPassword } from '../lib/adminAuth.js';
+import { isRateLimited, recordFailedAttempt, rateLimitStore } from '../lib/security.js';
 
 const router = express.Router();
 
-function getAdminPassword() {
-  const adminData = readJsonFile(ADMIN_FILE, null);
-  if (adminData && adminData.password) {
-    return adminData.password;
-  }
-  return process.env.ADMIN_PASSWORD || 'admin123';
-}
-
-function checkAdminAuth(req) {
-  const token = (req.headers['x-admin-key'] || req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
-  return token === getAdminPassword();
-}
 
 function sanitizeFeedbackList(list) {
   if (!Array.isArray(list)) return [];
@@ -92,10 +82,16 @@ router.patch('/feedback/:id/status', (req, res) => {
 // ==========================================
 router.post('/admin/login', (req, res) => {
   const { password } = req.body || {};
-  const currentPassword = getAdminPassword();
-  if (password === currentPassword) {
-    return res.json({ success: true, token: currentPassword });
+  const rlKey = `admin_login_${req.ip || req.socket.remoteAddress || 'ip'}`;
+  const limit = isRateLimited(rlKey, 5);
+  if (!limit.allowed) {
+    return res.status(429).json({ error: `Terlalu banyak percobaan. Coba lagi dalam ${limit.waitTime}.` });
   }
+  if (checkAdminPassword(password)) {
+    rateLimitStore.delete(rlKey);
+    return res.json({ success: true, token: String(password) });
+  }
+  recordFailedAttempt(rlKey, 5, 15 * 60 * 1000);
   return res.status(401).json({ error: 'Password Admin salah! Silakan coba lagi.' });
 });
 
